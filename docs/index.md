@@ -1,11 +1,11 @@
 ---
-page_title: "scaffolding Provider"
+page_title: "hopsworksai Provider"
 subcategory: ""
 description: |-
   
 ---
 
-# scaffolding Provider
+# hopsworksai Provider
 
 
 
@@ -18,3 +18,8 @@ provider "scaffolding" {
 ```
 
 ## Schema
+
+### Optional
+
+- **api_host** (String) Used for development
+- **api_key** (String, Sensitive)

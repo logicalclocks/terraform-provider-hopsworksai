@@ -1,6 +1,9 @@
 package provider
 
 import (
+	"fmt"
+	"net/http"
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -19,6 +22,18 @@ func TestProvider(t *testing.T) {
 	if err := New("dev")().InternalValidate(); err != nil {
 		t.Fatalf("err: %s", err)
 	}
+}
+
+func TestApi(t *testing.T) {
+	client := &apiClient{
+		client: &http.Client{},
+		apiKey: os.Getenv("HOPSWORKSAI_API_KEY"),
+		host:   os.Getenv("HOPSWORKSAI_API_HOST"),
+	}
+
+	i, err := client.GetInstances()
+	fmt.Println(err)
+	fmt.Println(i.Payload.Instances)
 }
 
 func testAccPreCheck(t *testing.T) {

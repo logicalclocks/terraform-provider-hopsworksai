@@ -1,30 +1,35 @@
 ---
-page_title: "scaffolding_data_source Data Source - terraform-provider-scaffolding"
+page_title: "hopsworksai_data_source Data Source - terraform-provider-hopsworksai"
 subcategory: ""
 description: |-
-  Sample data source in the Terraform provider scaffolding.
+  Data source in the Terraform provider.
 ---
 
-# Data Source `scaffolding_data_source`
+# Data Source `hopsworksai_data_source`
 
-Sample data source in the Terraform provider scaffolding.
+Data source in the Terraform provider.
 
-## Example Usage
 
-```terraform
-data "scaffolding_data_source" "example" {
-  sample_attribute = "foo"
-}
-```
 
 ## Schema
 
-### Required
-
-- **sample_attribute** (String, Required) Sample attribute.
-
 ### Optional
 
-- **id** (String, Optional) The ID of this resource.
+- **id** (String) The ID of this resource.
+
+### Read-only
+
+- **instances** (List of Object) (see [below for nested schema](#nestedatt--instances))
+
+<a id="nestedatt--instances"></a>
+### Nested Schema for `instances`
+
+Read-only:
+
+- **activation_stage** (String)
+- **initialization_stage** (String)
+- **instance_id** (String)
+- **instance_name** (String)
+- **state** (String)
 
 
