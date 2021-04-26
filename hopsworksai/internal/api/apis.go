@@ -93,6 +93,10 @@ func UpdateCluster(ctx context.Context, apiClient APIHandler, clusterId string, 
 		Remove: toRemove,
 	}
 
+	if len(toAdd) == 0 && len(toRemove) == 0 {
+		log.Printf("[DEBUG] skip update cluster %s due to no updates", clusterId)
+		return nil
+	}
 	payload, err := json.Marshal(req)
 	if err != nil {
 		return fmt.Errorf("failed to marshal request: %s", err)

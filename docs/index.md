@@ -23,5 +23,4 @@ provider "scaffolding" {
 
 ### Optional
 
-- **api_host** (String) Used for development
 - **api_key** (String, Sensitive)

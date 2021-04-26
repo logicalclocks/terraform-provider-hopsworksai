@@ -30,16 +30,11 @@ func New(version string) func() *schema.Provider {
 		p := &schema.Provider{
 			Schema: map[string]*schema.Schema{
 				"api_key": {
+					Description: "",
 					Type:        schema.TypeString,
 					Optional:    true,
 					Sensitive:   true,
 					DefaultFunc: schema.EnvDefaultFunc("HOPSWORKSAI_API_KEY", ""),
-				},
-				"api_host": {
-					Type:        schema.TypeString,
-					Optional:    true,
-					Description: "Used for development",
-					DefaultFunc: schema.EnvDefaultFunc("HOPSWORKSAI_API_HOST", "https://www.hopsworks.ai/"),
 				},
 			},
 			DataSourcesMap: map[string]*schema.Resource{
@@ -60,7 +55,6 @@ func configure(version string, p *schema.Provider) func(context.Context, *schema
 	return func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 		return &api.HopsworksAIClient{
 			UserAgent:  p.UserAgent("terraform-provider-hopsworksai", version),
-			Host:       d.Get("api_host").(string),
 			ApiKey:     d.Get("api_key").(string),
 			ApiVersion: Default_API_VERSION,
 			Client: &http.Client{

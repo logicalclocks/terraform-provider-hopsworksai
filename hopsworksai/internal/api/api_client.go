@@ -10,6 +10,8 @@ import (
 	"net/http"
 )
 
+const host = "api.hopsworks.ai"
+
 type ResponseWithValidator interface {
 	validate() error
 }
@@ -18,16 +20,21 @@ type APIHandler interface {
 	doRequest(ctx context.Context, method string, endpoint string, body io.Reader, response ResponseWithValidator) error
 }
 
+type HttpClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
 type HopsworksAIClient struct {
-	Client     *http.Client
-	Host       string
+	Client     HttpClient
 	UserAgent  string
 	ApiKey     string
 	ApiVersion string
 }
 
 func (a *HopsworksAIClient) doRequest(ctx context.Context, method string, endpoint string, body io.Reader, response ResponseWithValidator) error {
-	req, err := http.NewRequestWithContext(ctx, method, a.Host+endpoint, body)
+	url := host + endpoint
+	log.Printf("[DEBUG] %s %s", method, url)
+	req, err := http.NewRequestWithContext(ctx, method, url, body)
 	if err != nil {
 		return err
 	}
@@ -50,12 +57,12 @@ func (a *HopsworksAIClient) doRequest(ctx context.Context, method string, endpoi
 			return fmt.Errorf("the API token provided does not have access to hopsworks.ai, verify the token you specified matches the token hopsworks.ai created")
 		}
 		bodyString := string(bodyBytes)
-		return fmt.Errorf("the API token provided does not have access to hopsworks.ai, verify the token you specified matches the token hopsworks.ai created, message from hops: %s", bodyString)
+		return fmt.Errorf("the API token provided does not have access to hopsworks.ai, verify the token you specified matches the token hopsworks.ai created:\n\t%s", bodyString)
 	}
 
 	err = json.NewDecoder(resp.Body).Decode(response)
 	if err != nil {
-		return fmt.Errorf("failed to decode json, resp: %s, path: %s err: %s", resp.Status, a.Host+endpoint, err)
+		return fmt.Errorf("failed to decode json, resp: %s, path: %s err: %s", resp.Status, url, err)
 	}
 
 	log.Printf("[DEBUG] response struct: %#v", response)
