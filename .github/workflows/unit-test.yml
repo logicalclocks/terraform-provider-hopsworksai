@@ -4,6 +4,7 @@
 name: Unit Tests
 on:
   pull_request:
+    types: ['opened', 'synchronize']
     paths-ignore:
       - 'README.md'
   push:
@@ -21,7 +22,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v2.1.3
       with:
-        go-version: '1.15'
+        go-version: '1.16'
       id: go
 
     - name: Check out code into the Go module directory

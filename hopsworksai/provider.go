@@ -25,7 +25,7 @@ func init() {
 	}
 }
 
-func New(version string) func() *schema.Provider {
+func Provider(version string) func() *schema.Provider {
 	return func() *schema.Provider {
 		p := &schema.Provider{
 			Schema: map[string]*schema.Schema{

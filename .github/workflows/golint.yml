@@ -1,0 +1,23 @@
+name: GoLang Linting
+on:
+  pull_request:
+    types: ['opened', 'synchronize']
+    paths:
+      - '**.go'
+      - '.github/workflows/**'
+  push:
+
+jobs:
+  golint:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - uses: actions/setup-go@v2.1.3
+        with:
+          go-version: '1.16'
+      - uses: golangci/golangci-lint-action@v2.5.2
+        with:
+          version: 'v1.39'
+          args: --timeout=30m0s
