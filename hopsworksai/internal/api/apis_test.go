@@ -86,7 +86,7 @@ func TestGetClusterAWS(t *testing.T) {
 				if req.Header.Get("Content-Type") != "application/json" {
 					t.Fatal("content-type should be application/json")
 				}
-				if req.URL.Path != host+"/api/clusters/cluster-id-1" {
+				if req.URL.Path != "/api/clusters/cluster-id-1" {
 					t.Fatalf("invalid path for get cluster, got %s", req.URL.Path)
 				}
 				if req.Method != http.MethodGet {
@@ -230,7 +230,7 @@ func TestGetClusterAZURE(t *testing.T) {
 				if req.Header.Get("Content-Type") != "application/json" {
 					t.Fatal("content-type should be application/json")
 				}
-				if req.URL.Path != host+"/api/clusters/cluster-id-1" {
+				if req.URL.Path != "/api/clusters/cluster-id-1" {
 					t.Fatalf("invalid path for get cluster, got %s", req.URL.Path)
 				}
 				if req.Method != http.MethodGet {
@@ -432,15 +432,10 @@ func testGetClustersWithFilter(provider string, t *testing.T) ([]Cluster, error)
 				if provider != "" {
 					expectedQuery = "cloud=" + provider
 				}
-				expectedPath := host + "/api/clusters"
-				if req.URL.Path != expectedPath {
-					t.Fatalf("incorrect request path, expected %s, got %s", expectedPath, req.URL.Path)
-				}
-
 				if req.URL.RawQuery != expectedQuery {
 					t.Fatalf("should get correct url with filter, expected %s, got %s", expectedQuery, req.URL.RawQuery)
 				}
-				if req.URL.Path != host+"/api/clusters" {
+				if req.URL.Path != "/api/clusters" {
 					t.Fatalf("invalid path for get clusters, got %s", req.URL.Path)
 				}
 				if req.Method != http.MethodGet {
@@ -562,7 +557,7 @@ func TestNewClusterAWS(t *testing.T) {
 				if err != nil {
 					return nil, err
 				}
-				if req.URL.Path != host+"/api/clusters" {
+				if req.URL.Path != "/api/clusters" {
 					t.Fatalf("invalid path for new cluster, got %s", req.URL.Path)
 				}
 				if req.Method != http.MethodPost {
@@ -692,7 +687,7 @@ func TestNewClusterAZURE(t *testing.T) {
 				if err != nil {
 					return nil, err
 				}
-				if req.URL.Path != host+"/api/clusters" {
+				if req.URL.Path != "/api/clusters" {
 					t.Fatalf("invalid path for new cluster, got %s", req.URL.Path)
 				}
 				if req.Method != http.MethodPost {
@@ -835,7 +830,7 @@ func TestDeleteCluster(t *testing.T) {
 	apiClient := &HopsworksAIClient{
 		Client: &mockHttpClient{
 			doFunc: func(req *http.Request) (*http.Response, error) {
-				if req.URL.Path != host+"/api/clusters/cluster-id-1" {
+				if req.URL.Path != "/api/clusters/cluster-id-1" {
 					t.Fatalf("invalid path for delete cluster, got %s", req.URL.Path)
 				}
 				if req.Method != http.MethodDelete {
@@ -862,7 +857,7 @@ func TestStopCluster(t *testing.T) {
 	apiClient := &HopsworksAIClient{
 		Client: &mockHttpClient{
 			doFunc: func(req *http.Request) (*http.Response, error) {
-				if req.URL.Path != host+"/api/clusters/cluster-id-1/stop" {
+				if req.URL.Path != "/api/clusters/cluster-id-1/stop" {
 					t.Fatalf("invalid path for stop cluster, got %s", req.URL.Path)
 				}
 				if req.Method != http.MethodPut {
@@ -889,7 +884,7 @@ func TestStartCluster(t *testing.T) {
 	apiClient := &HopsworksAIClient{
 		Client: &mockHttpClient{
 			doFunc: func(req *http.Request) (*http.Response, error) {
-				if req.URL.Path != host+"/api/clusters/cluster-id-1/start" {
+				if req.URL.Path != "/api/clusters/cluster-id-1/start" {
 					t.Fatalf("invalid path for start cluster, got %s", req.URL.Path)
 				}
 				if req.Method != http.MethodPut {
@@ -916,7 +911,7 @@ func testUpdateCluster(t *testing.T, expectedReqBody string, toAdd []WorkerConfi
 	apiClient := &HopsworksAIClient{
 		Client: &mockHttpClient{
 			doFunc: func(req *http.Request) (*http.Response, error) {
-				if req.URL.Path != host+"/api/clusters/cluster-id-1" {
+				if req.URL.Path != "/api/clusters/cluster-id-1" {
 					t.Fatalf("invalid path for update cluster, got %s", req.URL.Path)
 				}
 				if req.Method != http.MethodPost {

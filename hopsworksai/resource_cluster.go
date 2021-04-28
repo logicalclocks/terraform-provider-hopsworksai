@@ -651,11 +651,6 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		o, n := d.GetChange("workers")
 		old, new := o.(*schema.Set), n.(*schema.Set)
 
-		// Check if old configuration matches the configuration on Hopsworks.ai
-		if diff, diffMessage := structure.DiffWorkers(cluster.ClusterConfiguration.Workers, old); diff {
-			return diag.Errorf("mismatch between worker configurations in your terraform config and Hopsworks.ai, update your config to match the state in Hopsworks.ai. Missing workers are as follows: \n%s", diffMessage)
-		}
-
 		oldWorkersMap := structure.ExpandWorkers(old)
 		newWorkersMap := structure.ExpandWorkers(new)
 
@@ -663,8 +658,9 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		toRemove := make([]api.WorkerConfiguration, 0)
 
 		if len(newWorkersMap) == 0 {
-			// remove all workers
-			toRemove = append(toRemove, cluster.ClusterConfiguration.Workers...)
+			for _, v := range oldWorkersMap {
+				toRemove = append(toRemove, v)
+			}
 		} else {
 			for k, newWorker := range newWorkersMap {
 				if oldWorker, found := oldWorkersMap[k]; found {
@@ -679,10 +675,14 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 							Count:             oldWorker.Count - newWorker.Count,
 						})
 					}
-				} else {
-					if newWorker.Count > 0 {
-						toAdd = append(toAdd, newWorker)
-					}
+					delete(oldWorkersMap, k)
+				} else if newWorker.Count > 0 {
+					toAdd = append(toAdd, newWorker)
+				}
+			}
+			if len(oldWorkersMap) != 0 {
+				for _, v := range oldWorkersMap {
+					toRemove = append(toRemove, v)
 				}
 			}
 		}

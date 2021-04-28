@@ -1,8 +1,6 @@
 package structure
 
 import (
-	"bytes"
-	"fmt"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -51,7 +49,15 @@ func flattenHead(head *api.HeadConfiguration) []map[string]interface{} {
 }
 
 func flattenWorkers(workers []api.WorkerConfiguration) *schema.Set {
-	return flattenWorkersBase(workers, helpers.WorkerSetHash)
+	workersArray := make([]interface{}, len(workers))
+	for i, v := range workers {
+		workersArray[i] = map[string]interface{}{
+			"instance_type": v.InstanceType,
+			"disk_size":     v.DiskSize,
+			"count":         v.Count,
+		}
+	}
+	return schema.NewSet(helpers.WorkerSetHash, workersArray)
 }
 
 func flattenAWSAttributes(cluster *api.Cluster) []interface{} {
@@ -100,49 +106,6 @@ func flattenAzureAttributes(cluster *api.Cluster) []interface{} {
 		"acr_registry_name": cluster.Azure.AcrRegistryName,
 	}
 	return azureAttributes
-}
-
-func DiffWorkers(workers []api.WorkerConfiguration, old *schema.Set) (bool, string) {
-	hwWorkers := flattenWorkersBase(workers, helpers.WorkerSetHashIncludingCount)
-	localWorkers := schema.NewSet(helpers.WorkerSetHashIncludingCount, old.List())
-	diffToHW := hwWorkers.Difference(localWorkers)
-	diffToLocal := localWorkers.Difference(hwWorkers)
-
-	var message string = ""
-	if diffToHW.Len() > 0 || diffToLocal.Len() > 0 {
-		message = "Diff report:\n"
-	}
-	if diffToHW.Len() > 0 {
-		message += fmt.Sprintf("\tHopsworks.ai changes:\n%s", workersString(diffToHW))
-	}
-	if diffToLocal.Len() > 0 {
-		message += fmt.Sprintf("\tLocal changes:\n%s", workersString(diffToLocal))
-	}
-	return diffToHW.Len() > 0 && diffToLocal.Len() > 0, message
-}
-
-func workersString(workers *schema.Set) string {
-	var buf bytes.Buffer
-	for _, v := range workers.List() {
-		worker := v.(map[string]interface{})
-		buf.WriteString(fmt.Sprintf("\t\tinstance_type=%s", worker["instance_type"].(string)))
-		buf.WriteString(fmt.Sprintf(", disk_size=%d", worker["disk_size"].(int)))
-		buf.WriteString(fmt.Sprintf(", count=%d", worker["count"].(int)))
-		buf.WriteString("\n")
-	}
-	return buf.String()
-}
-
-func flattenWorkersBase(workers []api.WorkerConfiguration, setHash schema.SchemaSetFunc) *schema.Set {
-	workersArray := make([]interface{}, len(workers))
-	for i, v := range workers {
-		workersArray[i] = map[string]interface{}{
-			"instance_type": v.InstanceType,
-			"disk_size":     v.DiskSize,
-			"count":         v.Count,
-		}
-	}
-	return schema.NewSet(setHash, workersArray)
 }
 
 func ExpandWorkers(workers *schema.Set) map[api.NodeConfiguration]api.WorkerConfiguration {

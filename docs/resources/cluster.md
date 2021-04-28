@@ -24,8 +24,8 @@ Use this resource to create, read, update, and delete clusters on Hopsworks.ai.
 ### Optional
 
 - **attach_public_ip** (Boolean) Attach or don't attach a public ip to the cluster. This can be used by the user if creating a cluster in private network. Defaults to `true`.
-- **aws_attributes** (Block List, Max: 1) The configrations required to run the cluster on Amazon AWS. (see [below for nested schema](#nestedblock--aws_attributes))
-- **azure_attributes** (Block List, Max: 1) The configrations required to run the cluster on Microsoft Azure. (see [below for nested schema](#nestedblock--azure_attributes))
+- **aws_attributes** (Block List, Max: 1) The configurations required to run the cluster on Amazon AWS. (see [below for nested schema](#nestedblock--aws_attributes))
+- **azure_attributes** (Block List, Max: 1) The configurations required to run the cluster on Microsoft Azure. (see [below for nested schema](#nestedblock--azure_attributes))
 - **backup_retention_period** (Number) The validity of cluster backups in days. If set to 0 cluster backups are disabled. Defaults to `0`.
 - **id** (String) The ID of this resource.
 - **issue_lets_encrypt_certificate** (Boolean) Enable or disable issuing let's encrypt certificates. This can be used by the user to disable issuing certificates if port 80 is not open. Defaults to `true`.
@@ -67,7 +67,7 @@ Optional:
 
 - **ecr_registry_account_id** (String) The account id used for ECR. Defaults to the user's account id, inferred from the instance profille ARN.
 - **eks_cluster_name** (String) The name of the AWS EKS cluster.
-- **network** (Block List, Max: 1) The network configrations. (see [below for nested schema](#nestedblock--aws_attributes--network))
+- **network** (Block List, Max: 1) The network configurations. (see [below for nested schema](#nestedblock--aws_attributes--network))
 
 <a id="nestedblock--aws_attributes--network"></a>
 ### Nested Schema for `aws_attributes.network`

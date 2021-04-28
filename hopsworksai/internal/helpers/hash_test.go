@@ -14,15 +14,8 @@ func TestWorkerSetHash(t *testing.T) {
 		"count":         1,
 	}
 
-	expected := schema.HashString(fmt.Sprintf("%s-%d-", "node-type-1", 512))
+	expected := schema.HashString(fmt.Sprintf("%s-%d-%d-", "node-type-1", 512, 1))
 	output := WorkerSetHash(worker)
-	if expected != output {
-		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
-	}
-
-	expected = schema.HashString(fmt.Sprintf("%s-%d-%d-", "node-type-1", 512, 1))
-
-	output = WorkerSetHashIncludingCount(worker)
 	if expected != output {
 		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
 	}

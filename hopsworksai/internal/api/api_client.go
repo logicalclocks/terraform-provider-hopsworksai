@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-const host = "api.hopsworks.ai"
+const host = "https://api.hopsworks.ai"
 
 type ResponseWithValidator interface {
 	validate() error

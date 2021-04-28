@@ -13,7 +13,7 @@ build: generate
 	@echo "Building source code ..."
 	go build -o ${BINARY}
 
-install: build test
+install: build lint test
 	@echo "Installing provider for terraform 0.13+ into ~/.terraform.d/plugins ... "
 	@mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/$(shell go version | awk '{print $$4}' | sed 's#/#_#')
 	@mv ${BINARY} ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/$(shell go version | awk '{print $$4}' | sed 's#/#_#')
