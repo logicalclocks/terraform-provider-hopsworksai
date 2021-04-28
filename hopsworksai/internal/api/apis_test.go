@@ -446,7 +446,15 @@ func testGetClustersWithFilter(provider string, t *testing.T) ([]Cluster, error)
 				if req.Method != http.MethodGet {
 					t.Fatalf("invalid http method, got %s", req.Method)
 				}
-				return &http.Response{Body: http.NoBody}, nil
+				return &http.Response{StatusCode: http.StatusOK,
+					Body: io.NopCloser(strings.NewReader(`{
+						"apiVersion": "v1",
+						"statue": "ok",
+						"code": 200,
+						"payload":{
+							"clusters": []
+						}
+					 }`))}, nil
 			},
 		},
 	}
