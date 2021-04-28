@@ -54,11 +54,8 @@ func TestValidateResponse(t *testing.T) {
 		resp.Message = fmt.Sprintf("messagee for %d", code)
 		if err := resp.validate(); err == nil {
 			t.Fatal("validate response should throw an error")
-		} else {
-			if err.Error() != resp.Message {
-				t.Fatalf("validate response should throw an error with message: %s, but got %s", resp.Message, err)
-			}
+		} else if err.Error() != resp.Message {
+			t.Fatalf("validate response should throw an error with message: %s, but got %s", resp.Message, err)
 		}
 	}
-
 }

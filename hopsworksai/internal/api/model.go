@@ -33,13 +33,13 @@ const (
 	ShuttingDown       ClusterState = "shutting-down"
 	Updating           ClusterState = "updating"
 	Decommissioning    ClusterState = "decommissioning"
-	//Worker states
+	// Worker states
 	WorkerPending      ClusterState = Worker + "-" + Pending
 	WorkerInitializing ClusterState = Worker + "-" + Initializing
 	WorkerStarting     ClusterState = Worker + "-" + Starting
 	WorkerError        ClusterState = Worker + "-" + Error
 	WorkerShuttingdown ClusterState = Worker + "-" + ShuttingDown
-	//local state not in Hopsworks.ai
+	// local state not in Hopsworks.ai
 	ClusterDeleted ClusterState = "tf-cluster-deleted"
 )
 
@@ -205,6 +205,6 @@ type UpdateWorkers struct {
 type UpdateClusterRequest struct {
 	UpdateRequest struct {
 		Workers UpdateWorkers `json:"workers"`
-		//add services as well to update here
+		// add services as well to update here
 	} `json:"updates"`
 }

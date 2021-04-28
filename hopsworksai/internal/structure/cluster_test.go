@@ -11,7 +11,6 @@ import (
 )
 
 func TestFlattenHeadConfiguration(t *testing.T) {
-
 	input := &api.HeadConfiguration{
 		NodeConfiguration: api.NodeConfiguration{
 			InstanceType: "head-type-1",
@@ -33,7 +32,6 @@ func TestFlattenHeadConfiguration(t *testing.T) {
 }
 
 func TestFlattenWorkersConfiguration(t *testing.T) {
-
 	cases := []struct {
 		input    []api.WorkerConfiguration
 		expected *schema.Set
@@ -351,10 +349,8 @@ func TestFlattenCluster(t *testing.T) {
 				if expectedWorker.Difference(outputWorker).Len() != 0 && outputWorker.Difference(expectedWorker).Len() != 0 {
 					t.Fatalf("error while matching workers:\nexpected %#v \nbut got %#v", expectedWorker, outputWorker)
 				}
-			} else {
-				if !reflect.DeepEqual(v, output[k]) {
-					t.Fatalf("error while matching %s:\nexpected %#v \nbut got %#v for %s", k, v, output[k], cloud.String())
-				}
+			} else if !reflect.DeepEqual(v, output[k]) {
+				t.Fatalf("error while matching %s:\nexpected %#v \nbut got %#v for %s", k, v, output[k], cloud.String())
 			}
 		}
 	}
@@ -493,7 +489,6 @@ func TestDiffWorkers(t *testing.T) {
 			t.Fatalf("error while matching[%d]:\nexpected %#v \nbut got %#v", i, c.expected2, output2)
 		}
 	}
-
 }
 
 func TestExpectNode(t *testing.T) {

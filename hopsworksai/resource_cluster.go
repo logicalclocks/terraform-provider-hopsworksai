@@ -186,7 +186,7 @@ func clusterSchema() map[string]*schema.Schema {
 			ValidateFunc: validation.StringInSlice([]string{"none", "start", "stop"}, false),
 		},
 		"aws_attributes": {
-			Description:  "The configrations required to run the cluster on Amazon AWS.",
+			Description:  "The configurations required to run the cluster on Amazon AWS.",
 			Type:         schema.TypeList,
 			Optional:     true,
 			ForceNew:     true,
@@ -195,7 +195,7 @@ func clusterSchema() map[string]*schema.Schema {
 			ExactlyOneOf: []string{"aws_attributes", "azure_attributes"},
 		},
 		"azure_attributes": {
-			Description:  "The configrations required to run the cluster on Microsoft Azure.",
+			Description:  "The configurations required to run the cluster on Microsoft Azure.",
 			Type:         schema.TypeList,
 			Optional:     true,
 			ForceNew:     true,
@@ -229,7 +229,7 @@ func awsAttributesSchema() *schema.Resource {
 				ValidateFunc: validation.StringMatch(instanceProfileRegex(), "You should use the Instance Profile ARNs"),
 			},
 			"network": {
-				Description: "The network configrations.",
+				Description: "The network configurations.",
 				Type:        schema.TypeList,
 				Optional:    true,
 				ForceNew:    true,
@@ -596,7 +596,9 @@ func resourceClusterRead(ctx context.Context, d *schema.ResourceData, meta inter
 	if cluster == nil {
 		return diag.Errorf("cluster not found for cluster_id %s", id)
 	}
-	populateClusterStateForResource(cluster, d)
+	if err := populateClusterStateForResource(cluster, d); err != nil {
+		return diag.FromErr(err)
+	}
 	return diags
 }
 
@@ -620,10 +622,12 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 				if err := resourceClusterWaitForRunning(ctx, client, d.Timeout(schema.TimeoutUpdate), clusterId); err != nil {
 					return diag.FromErr(err)
 				}
-			} else if cluster.State == api.Running {
-				return diag.Errorf("cluster is already running")
 			} else {
-				return diag.Errorf("cluster is not in startable state, current activation state is %s", cluster.ActivationState)
+				if cluster.State == api.Running {
+					return diag.Errorf("cluster is already running")
+				} else {
+					return diag.Errorf("cluster is not in startable state, current activation state is %s", cluster.ActivationState)
+				}
 			}
 		} else if new == "stop" {
 			if cluster.ActivationState == api.Stoppable {
@@ -633,10 +637,12 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 				if err := resourceClusterWaitForStopping(ctx, client, d.Timeout(schema.TimeoutUpdate), clusterId); err != nil {
 					return diag.FromErr(err)
 				}
-			} else if cluster.State == api.Stopped {
-				return diag.Errorf("cluster is already stopped")
 			} else {
-				return diag.Errorf("cluster is not in stoppable state, current activation state is %s", cluster.ActivationState)
+				if cluster.State == api.Stopped {
+					return diag.Errorf("cluster is already stopped")
+				} else {
+					return diag.Errorf("cluster is not in stoppable state, current activation state is %s", cluster.ActivationState)
+				}
 			}
 		}
 	}
@@ -645,7 +651,7 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		o, n := d.GetChange("workers")
 		old, new := o.(*schema.Set), n.(*schema.Set)
 
-		//Check if old configuration matches the configuration on Hopsworks.ai
+		// Check if old configuration matches the configuration on Hopsworks.ai
 		if diff, diffMessage := structure.DiffWorkers(cluster.ClusterConfiguration.Workers, old); diff {
 			return diag.Errorf("mismatch between worker configurations in your terraform config and Hopsworks.ai, update your config to match the state in Hopsworks.ai. Missing workers are as follows: \n%s", diffMessage)
 		}
@@ -657,7 +663,7 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		toRemove := make([]api.WorkerConfiguration, 0)
 
 		if len(newWorkersMap) == 0 {
-			//remove all workers
+			// remove all workers
 			toRemove = append(toRemove, cluster.ClusterConfiguration.Workers...)
 		} else {
 			for k, newWorker := range newWorkersMap {
@@ -827,12 +833,15 @@ func resourceClusterWaitForDeleting(ctx context.Context, client *api.HopsworksAI
 	return nil
 }
 
-func populateClusterStateForResource(cluster *api.Cluster, d *schema.ResourceData) {
+func populateClusterStateForResource(cluster *api.Cluster, d *schema.ResourceData) error {
 	d.SetId(cluster.Id)
 	for k, v := range structure.FlattenCluster(cluster) {
 		if _, ok := d.GetOk(k); ok && k == "update_state" {
 			continue
 		}
-		d.Set(k, v)
+		if err := d.Set(k, v); err != nil {
+			return err
+		}
 	}
+	return nil
 }

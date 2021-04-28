@@ -454,9 +454,15 @@ func testGetClustersWithFilter(provider string, t *testing.T) ([]Cluster, error)
 	return GetClusters(context.TODO(), apiClient, CloudProvider(provider))
 }
 func TestGetClustersSettingFilter(t *testing.T) {
-	testGetClustersWithFilter(AWS.String(), t)
-	testGetClustersWithFilter(AZURE.String(), t)
-	testGetClustersWithFilter("", t)
+	if _, err := testGetClustersWithFilter(AWS.String(), t); err != nil {
+		t.Fatalf("get clusters with filter should not throw an error, but got %s", err)
+	}
+	if _, err := testGetClustersWithFilter(AZURE.String(), t); err != nil {
+		t.Fatalf("get clusters with filter should not throw an error, but got %s", err)
+	}
+	if _, err := testGetClustersWithFilter("", t); err != nil {
+		t.Fatalf("get clusters with filter should not throw an error, but got %s", err)
+	}
 }
 
 func TestGetClusters(t *testing.T) {
