@@ -48,6 +48,7 @@ Read-Only:
 - **issue_lets_encrypt_certificate** (Boolean)
 - **managed_users** (Boolean)
 - **name** (String)
+- **open_ports** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--open_ports))
 - **ssh_key** (String)
 - **start_date** (String)
 - **state** (String)
@@ -112,6 +113,17 @@ Read-Only:
 
 - **disk_size** (Number)
 - **instance_type** (String)
+
+
+<a id="nestedobjatt--clusters--open_ports"></a>
+### Nested Schema for `clusters.open_ports`
+
+Read-Only:
+
+- **feature_store** (Boolean)
+- **kafka** (Boolean)
+- **online_feature_store** (Boolean)
+- **ssh** (Boolean)
 
 
 <a id="nestedobjatt--clusters--workers"></a>

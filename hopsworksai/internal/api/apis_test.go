@@ -981,22 +981,20 @@ func testRemoveWorkers(t *testing.T, expectedReqBody string, toRemove []WorkerCo
 	}
 }
 
-func TestUpdateCluster(t *testing.T) {
+func TestUpdateClusterWorkers(t *testing.T) {
 	testAddWorkers(t, `{
-		"updates":{
-			"workers":[
-				{
-					"instanceType": "node-type-1",
-					"diskSize": 256,
-					"count": 2
-				},
-				{
-					"instanceType": "node-type-1",
-					"diskSize": 1024,
-					"count": 3
-				}
-			]
-		}
+		"workers":[
+			{
+				"instanceType": "node-type-1",
+				"diskSize": 256,
+				"count": 2
+			},
+			{
+				"instanceType": "node-type-1",
+				"diskSize": 1024,
+				"count": 3
+			}
+		]
 	}`,
 		[]WorkerConfiguration{
 			{
@@ -1016,15 +1014,13 @@ func TestUpdateCluster(t *testing.T) {
 		})
 
 	testRemoveWorkers(t, `{
-			"updates":{
-				"workers":[
-					{
-						"instanceType": "node-type-2",
-						"diskSize": 512,
-						"count": 1
-					}
-				]
-			}
+			"workers":[
+				{
+					"instanceType": "node-type-2",
+					"diskSize": 512,
+					"count": 1
+				}
+			]
 		}`,
 		[]WorkerConfiguration{
 			{
@@ -1037,7 +1033,7 @@ func TestUpdateCluster(t *testing.T) {
 		})
 }
 
-func TestUpdateClusterSkip(t *testing.T) {
+func TestUpdateClusterWorkersSkip(t *testing.T) {
 	apiClient := &HopsworksAIClient{
 		Client: &mockHttpClient{
 			doFunc: func(req *http.Request) (*http.Response, error) {
@@ -1054,4 +1050,99 @@ func TestUpdateClusterSkip(t *testing.T) {
 	if err := RemoveWorkers(context.TODO(), apiClient, "cluster-id-1", []WorkerConfiguration{}); err != nil {
 		t.Fatalf("update cluster should not throw an error, but got %s", err)
 	}
+}
+
+func testUpdatePorts(t *testing.T, expectedReqBody string, ports *ServiceOpenPorts) {
+	apiClient := &HopsworksAIClient{
+		Client: &mockHttpClient{
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				if req.URL.Path != "/api/clusters/cluster-id-1/ports" {
+					t.Fatalf("invalid path for update cluster, got %s", req.URL.Path)
+				}
+				if req.Method != http.MethodPost {
+					t.Fatalf("invalid http method, got %s", req.Method)
+				}
+				reqBody, err := ioutil.ReadAll(req.Body)
+				if err != nil {
+					return nil, err
+				}
+				reqBodyString := string(reqBody)
+				expectedReqBody = cleanJSONString(expectedReqBody)
+				if reqBodyString != expectedReqBody {
+					t.Fatalf("error matching req body, expected:\n%s, but got:\n%s", expectedReqBody, reqBodyString)
+				}
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body: io.NopCloser(strings.NewReader(`{
+						"apiVersion": "v1",
+						"status": "ok",
+						"code": 200
+					}`)),
+				}, nil
+			},
+		},
+	}
+
+	err := UpdateOpenPorts(context.TODO(), apiClient, "cluster-id-1", ports)
+	if err != nil {
+		t.Fatalf("update cluster should not throw an error, but got %s", err)
+	}
+}
+
+func TestUpdatePorts(t *testing.T) {
+	testUpdatePorts(t, `{
+		"ports":{
+			"featureStore": true,
+			"onlineFeatureStore": false,
+			"kafka": true,
+			"ssh": false
+		}
+	}`, &ServiceOpenPorts{
+		FeatureStore:       true,
+		OnlineFeatureStore: false,
+		Kafka:              true,
+		SSH:                false,
+	})
+
+	testUpdatePorts(t, `{
+		"ports":{
+			"featureStore": false,
+			"onlineFeatureStore": true,
+			"kafka": false,
+			"ssh": true
+		}
+	}`, &ServiceOpenPorts{
+		FeatureStore:       false,
+		OnlineFeatureStore: true,
+		Kafka:              false,
+		SSH:                true,
+	})
+
+	testUpdatePorts(t, `{
+		"ports":{
+			"featureStore": false,
+			"onlineFeatureStore": false,
+			"kafka": false,
+			"ssh": false
+		}
+	}`, &ServiceOpenPorts{
+		FeatureStore:       false,
+		OnlineFeatureStore: false,
+		Kafka:              false,
+		SSH:                false,
+	})
+
+	testUpdatePorts(t, `{
+		"ports":{
+			"featureStore": true,
+			"onlineFeatureStore": true,
+			"kafka": true,
+			"ssh": true
+		}
+	}`, &ServiceOpenPorts{
+		FeatureStore:       true,
+		OnlineFeatureStore: true,
+		Kafka:              true,
+		SSH:                true,
+	})
 }

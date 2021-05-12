@@ -30,6 +30,7 @@ Use this resource to create, read, update, and delete clusters on Hopsworks.ai.
 - **id** (String) The ID of this resource.
 - **issue_lets_encrypt_certificate** (Boolean) Enable or disable issuing let's encrypt certificates. This can be used by the user to disable issuing certificates if port 80 is not open. Defaults to `true`.
 - **managed_users** (Boolean) Enable or disable Hopsworks.ai to manage your users. Defaults to `true`.
+- **open_ports** (Block List) Open the required ports to communicate with one of the Hopsworks services. (see [below for nested schema](#nestedblock--open_ports))
 - **tags** (Map of String) The list of custom tags to be attached to the cluster.
 - **timeouts** (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 - **update_state** (String) The action you can use to start or stop the cluster. Defaults to `none`.
@@ -106,6 +107,17 @@ Optional:
 - **subnet_name** (String) The subnet name.
 - **virtual_network_name** (String) The virtual network name.
 
+
+
+<a id="nestedblock--open_ports"></a>
+### Nested Schema for `open_ports`
+
+Optional:
+
+- **feature_store** (Boolean) Open the required ports to access the feature store from outside Hopsworks. Defaults to `false`.
+- **kafka** (Boolean) Open the required ports to access kafka from outside Hopsworks. Defaults to `false`.
+- **online_feature_store** (Boolean) Open the required ports to access the online feature store from outside Hopsworks. Defaults to `false`.
+- **ssh** (Boolean) Open the ssh port (22) to allow ssh access to your cluster. Defaults to `false`.
 
 
 <a id="nestedblock--timeouts"></a>

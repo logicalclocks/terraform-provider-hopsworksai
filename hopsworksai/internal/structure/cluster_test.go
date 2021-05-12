@@ -280,6 +280,12 @@ func TestFlattenCluster(t *testing.T) {
 				},
 			},
 		},
+		Ports: api.ServiceOpenPorts{
+			FeatureStore:       true,
+			OnlineFeatureStore: false,
+			Kafka:              true,
+			SSH:                false,
+		},
 	}
 
 	var emptyAttributes []interface{} = nil
@@ -302,6 +308,7 @@ func TestFlattenCluster(t *testing.T) {
 		"workers":                        flattenWorkers(input.ClusterConfiguration.Workers),
 		"aws_attributes":                 emptyAttributes,
 		"azure_attributes":               emptyAttributes,
+		"open_ports":                     flattenPorts(&input.Ports),
 	}
 
 	for _, cloud := range []api.CloudProvider{api.AWS, api.AZURE} {
@@ -356,7 +363,7 @@ func TestFlattenCluster(t *testing.T) {
 	}
 }
 
-func TestExpectNode(t *testing.T) {
+func TestExpandNode(t *testing.T) {
 	input := map[string]interface{}{
 		"instance_type": "instance-type-1",
 		"disk_size":     512,
@@ -373,7 +380,7 @@ func TestExpectNode(t *testing.T) {
 	}
 }
 
-func TestExpectWorker(t *testing.T) {
+func TestExpandWorker(t *testing.T) {
 	input := map[string]interface{}{
 		"instance_type": "instance-type-1",
 		"disk_size":     512,
@@ -449,5 +456,155 @@ func TestExpandWorkers(t *testing.T) {
 	output := ExpandWorkers(input)
 	if !reflect.DeepEqual(expected, output) {
 		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
+	}
+}
+
+func TestFlattenOpenPorts(t *testing.T) {
+	cases := []struct {
+		input    *api.ServiceOpenPorts
+		expected []map[string]interface{}
+	}{
+		{
+			input: &api.ServiceOpenPorts{
+				FeatureStore:       true,
+				OnlineFeatureStore: false,
+				Kafka:              true,
+				SSH:                false,
+			},
+			expected: []map[string]interface{}{
+				{
+					"feature_store":        true,
+					"online_feature_store": false,
+					"kafka":                true,
+					"ssh":                  false,
+				},
+			},
+		},
+		{
+			input: &api.ServiceOpenPorts{
+				FeatureStore:       false,
+				OnlineFeatureStore: true,
+				Kafka:              false,
+				SSH:                true,
+			},
+			expected: []map[string]interface{}{
+				{
+					"feature_store":        false,
+					"online_feature_store": true,
+					"kafka":                false,
+					"ssh":                  true,
+				},
+			},
+		},
+		{
+			input: &api.ServiceOpenPorts{
+				FeatureStore:       false,
+				OnlineFeatureStore: false,
+				Kafka:              false,
+				SSH:                false,
+			},
+			expected: []map[string]interface{}{
+				{
+					"feature_store":        false,
+					"online_feature_store": false,
+					"kafka":                false,
+					"ssh":                  false,
+				},
+			},
+		},
+		{
+			input: &api.ServiceOpenPorts{
+				FeatureStore:       true,
+				OnlineFeatureStore: true,
+				Kafka:              true,
+				SSH:                true,
+			},
+			expected: []map[string]interface{}{
+				{
+					"feature_store":        true,
+					"online_feature_store": true,
+					"kafka":                true,
+					"ssh":                  true,
+				},
+			},
+		},
+	}
+
+	for i, c := range cases {
+		output := flattenPorts(c.input)
+		if !reflect.DeepEqual(c.expected, output) {
+			t.Fatalf("error while matching[%d]:\nexpected %#v \nbut got %#v", i, c.expected, output)
+		}
+	}
+}
+
+func TestExpandOpenPorts(t *testing.T) {
+	cases := []struct {
+		input    map[string]interface{}
+		expected api.ServiceOpenPorts
+	}{
+		{
+			input: map[string]interface{}{
+				"feature_store":        true,
+				"online_feature_store": false,
+				"kafka":                true,
+				"ssh":                  false,
+			},
+			expected: api.ServiceOpenPorts{
+				FeatureStore:       true,
+				OnlineFeatureStore: false,
+				Kafka:              true,
+				SSH:                false,
+			},
+		},
+		{
+			input: map[string]interface{}{
+				"feature_store":        false,
+				"online_feature_store": true,
+				"kafka":                false,
+				"ssh":                  true,
+			},
+			expected: api.ServiceOpenPorts{
+				FeatureStore:       false,
+				OnlineFeatureStore: true,
+				Kafka:              false,
+				SSH:                true,
+			},
+		},
+		{
+			input: map[string]interface{}{
+				"feature_store":        false,
+				"online_feature_store": false,
+				"kafka":                false,
+				"ssh":                  false,
+			},
+			expected: api.ServiceOpenPorts{
+				FeatureStore:       false,
+				OnlineFeatureStore: false,
+				Kafka:              false,
+				SSH:                false,
+			},
+		},
+		{
+			input: map[string]interface{}{
+				"feature_store":        true,
+				"online_feature_store": true,
+				"kafka":                true,
+				"ssh":                  true,
+			},
+			expected: api.ServiceOpenPorts{
+				FeatureStore:       true,
+				OnlineFeatureStore: true,
+				Kafka:              true,
+				SSH:                true,
+			},
+		},
+	}
+
+	for i, c := range cases {
+		output := ExpandPorts(c.input)
+		if !reflect.DeepEqual(c.expected, output) {
+			t.Fatalf("error while matching[%d]:\nexpected %#v \nbut got %#v", i, c.expected, output)
+		}
 	}
 }

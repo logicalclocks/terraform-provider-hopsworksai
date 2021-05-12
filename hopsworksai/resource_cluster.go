@@ -203,6 +203,39 @@ func clusterSchema() map[string]*schema.Schema {
 			Elem:         azureAttributesSchema(),
 			ExactlyOneOf: []string{"aws_attributes", "azure_attributes"},
 		},
+		"open_ports": {
+			Description: "Open the required ports to communicate with one of the Hopsworks services.",
+			Type:        schema.TypeList,
+			Optional:    true,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"feature_store": {
+						Description: "Open the required ports to access the feature store from outside Hopsworks.",
+						Type:        schema.TypeBool,
+						Optional:    true,
+						Default:     false,
+					},
+					"online_feature_store": {
+						Description: "Open the required ports to access the online feature store from outside Hopsworks.",
+						Type:        schema.TypeBool,
+						Optional:    true,
+						Default:     false,
+					},
+					"kafka": {
+						Description: "Open the required ports to access kafka from outside Hopsworks.",
+						Type:        schema.TypeBool,
+						Optional:    true,
+						Default:     false,
+					},
+					"ssh": {
+						Description: "Open the ssh port (22) to allow ssh access to your cluster.",
+						Type:        schema.TypeBool,
+						Optional:    true,
+						Default:     false,
+					},
+				},
+			},
+		},
 	}
 }
 
@@ -423,6 +456,14 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 	d.SetId(clusterId)
 	if err := resourceClusterWaitForRunning(ctx, client, d.Timeout(schema.TimeoutCreate), clusterId); err != nil {
 		return diag.FromErr(err)
+	}
+
+	if v, ok := d.GetOk("open_ports"); ok {
+		openPortsArr := v.([]interface{})
+		ports := structure.ExpandPorts(openPortsArr[0].(map[string]interface{}))
+		if err := api.UpdateOpenPorts(ctx, client, clusterId, &ports); err != nil {
+			return diag.Errorf("failed to open ports on cluster, error: %s", err)
+		}
 	}
 	return resourceClusterRead(ctx, d, meta)
 }
@@ -664,6 +705,15 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 			if err := resourceClusterWaitForRunning(ctx, client, d.Timeout(schema.TimeoutUpdate), clusterId); err != nil {
 				return diag.FromErr(err)
 			}
+		}
+	}
+
+	if d.HasChange("open_ports") {
+		_, n := d.GetChange("open_ports")
+		new := n.([]interface{})
+		ports := structure.ExpandPorts(new[0].(map[string]interface{}))
+		if err := api.UpdateOpenPorts(ctx, client, clusterId, &ports); err != nil {
+			return diag.Errorf("failed to open ports on cluster, error: %s", err)
 		}
 	}
 

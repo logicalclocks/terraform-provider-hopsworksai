@@ -91,6 +91,7 @@ type Cluster struct {
 	BackupRetentionPeriod int                  `json:"backupRetentionPeriod"`
 	Azure                 AzureCluster         `json:"azure,omitempty"`
 	AWS                   AWSCluster           `json:"aws,omitempty"`
+	Ports                 ServiceOpenPorts     `json:"ports"`
 }
 
 func (c *Cluster) IsAWSCluster() bool {
@@ -197,10 +198,17 @@ type NewClusterResponse struct {
 	} `json:"payload"`
 }
 
-type UpdateWorkers struct {
+type UpdateWorkersRequest struct {
 	Workers []WorkerConfiguration `json:"workers"`
 }
 
-type UpdateWorkersRequest struct {
-	UpdateRequest UpdateWorkers `json:"updates"`
+type ServiceOpenPorts struct {
+	FeatureStore       bool `json:"featureStore"`
+	OnlineFeatureStore bool `json:"onlineFeatureStore"`
+	Kafka              bool `json:"kafka"`
+	SSH                bool `json:"ssh"`
+}
+
+type UpdateOpenPortsRequest struct {
+	Ports ServiceOpenPorts `json:"ports"`
 }

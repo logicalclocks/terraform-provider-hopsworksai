@@ -36,6 +36,7 @@ func FlattenCluster(cluster *api.Cluster) map[string]interface{} {
 		"workers":                        flattenWorkers(cluster.ClusterConfiguration.Workers),
 		"aws_attributes":                 flattenAWSAttributes(cluster),
 		"azure_attributes":               flattenAzureAttributes(cluster),
+		"open_ports":                     flattenPorts(&cluster.Ports),
 	}
 }
 
@@ -108,6 +109,17 @@ func flattenAzureAttributes(cluster *api.Cluster) []interface{} {
 	return azureAttributes
 }
 
+func flattenPorts(ports *api.ServiceOpenPorts) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"feature_store":        ports.FeatureStore,
+			"online_feature_store": ports.OnlineFeatureStore,
+			"kafka":                ports.Kafka,
+			"ssh":                  ports.SSH,
+		},
+	}
+}
+
 func ExpandWorkers(workers *schema.Set) map[api.NodeConfiguration]api.WorkerConfiguration {
 	workersMap := make(map[api.NodeConfiguration]api.WorkerConfiguration, workers.Len())
 	for _, v := range workers.List() {
@@ -128,5 +140,14 @@ func ExpandNode(config map[string]interface{}) api.NodeConfiguration {
 	return api.NodeConfiguration{
 		InstanceType: config["instance_type"].(string),
 		DiskSize:     config["disk_size"].(int),
+	}
+}
+
+func ExpandPorts(ports map[string]interface{}) api.ServiceOpenPorts {
+	return api.ServiceOpenPorts{
+		FeatureStore:       ports["feature_store"].(bool),
+		OnlineFeatureStore: ports["online_feature_store"].(bool),
+		Kafka:              ports["kafka"].(bool),
+		SSH:                ports["ssh"].(bool),
 	}
 }

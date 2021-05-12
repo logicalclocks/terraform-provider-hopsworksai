@@ -92,9 +92,7 @@ func AddWorkers(ctx context.Context, apiClient APIHandler, clusterId string, toA
 		return nil
 	}
 	req := UpdateWorkersRequest{
-		UpdateRequest: UpdateWorkers{
-			Workers: toAdd,
-		},
+		Workers: toAdd,
 	}
 	payload, err := json.Marshal(req)
 	if err != nil {
@@ -115,9 +113,7 @@ func RemoveWorkers(ctx context.Context, apiClient APIHandler, clusterId string, 
 		return nil
 	}
 	req := UpdateWorkersRequest{
-		UpdateRequest: UpdateWorkers{
-			Workers: toRemove,
-		},
+		Workers: toRemove,
 	}
 	payload, err := json.Marshal(req)
 	if err != nil {
@@ -127,6 +123,24 @@ func RemoveWorkers(ctx context.Context, apiClient APIHandler, clusterId string, 
 	var response BaseResponse
 
 	if err := apiClient.doRequest(ctx, http.MethodDelete, "/api/clusters/"+clusterId+"/workers", bytes.NewBuffer(payload), &response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func UpdateOpenPorts(ctx context.Context, apiClient APIHandler, clusterId string, ports *ServiceOpenPorts) error {
+	req := UpdateOpenPortsRequest{
+		Ports: *ports,
+	}
+
+	payload, err := json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("failed to marshal request: %s", err)
+	}
+
+	var response BaseResponse
+
+	if err := apiClient.doRequest(ctx, http.MethodPost, "/api/clusters/"+clusterId+"/ports", bytes.NewBuffer(payload), &response); err != nil {
 		return err
 	}
 	return nil
