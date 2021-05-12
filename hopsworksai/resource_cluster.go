@@ -606,46 +606,6 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	client := meta.(*api.HopsworksAIClient)
 
 	clusterId := d.Id()
-	cluster, err := api.GetCluster(ctx, client, clusterId)
-	if err != nil {
-		return diag.Errorf("failed to obtain cluster state: %s", err)
-	}
-
-	if d.HasChange("update_state") {
-		_, n := d.GetChange("update_state")
-		new := n.(string)
-		if new == "start" {
-			if cluster.ActivationState == api.Startable {
-				if err := api.StartCluster(ctx, client, clusterId); err != nil {
-					return diag.Errorf("failed to start cluster: %s", err)
-				}
-				if err := resourceClusterWaitForRunning(ctx, client, d.Timeout(schema.TimeoutUpdate), clusterId); err != nil {
-					return diag.FromErr(err)
-				}
-			} else {
-				if cluster.State == api.Running {
-					return diag.Errorf("cluster is already running")
-				} else {
-					return diag.Errorf("cluster is not in startable state, current activation state is %s", cluster.ActivationState)
-				}
-			}
-		} else if new == "stop" {
-			if cluster.ActivationState == api.Stoppable {
-				if err := api.StopCluster(ctx, client, clusterId); err != nil {
-					return diag.Errorf("failed to start cluster: %s", err)
-				}
-				if err := resourceClusterWaitForStopping(ctx, client, d.Timeout(schema.TimeoutUpdate), clusterId); err != nil {
-					return diag.FromErr(err)
-				}
-			} else {
-				if cluster.State == api.Stopped {
-					return diag.Errorf("cluster is already stopped")
-				} else {
-					return diag.Errorf("cluster is not in stoppable state, current activation state is %s", cluster.ActivationState)
-				}
-			}
-		}
-	}
 
 	if d.HasChange("workers") {
 		o, n := d.GetChange("workers")
@@ -694,6 +654,47 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 			}
 			if err := resourceClusterWaitForRunning(ctx, client, d.Timeout(schema.TimeoutUpdate), clusterId); err != nil {
 				return diag.FromErr(err)
+			}
+		}
+	}
+
+	if d.HasChange("update_state") {
+		_, n := d.GetChange("update_state")
+		new := n.(string)
+		cluster, err := api.GetCluster(ctx, client, clusterId)
+		if err != nil {
+			return diag.Errorf("failed to obtain cluster state: %s", err)
+		}
+
+		if new == "start" {
+			if cluster.ActivationState == api.Startable {
+				if err := api.StartCluster(ctx, client, clusterId); err != nil {
+					return diag.Errorf("failed to start cluster: %s", err)
+				}
+				if err := resourceClusterWaitForRunning(ctx, client, d.Timeout(schema.TimeoutUpdate), clusterId); err != nil {
+					return diag.FromErr(err)
+				}
+			} else {
+				if cluster.State == api.Running {
+					return diag.Errorf("cluster is already running")
+				} else {
+					return diag.Errorf("cluster is not in startable state, current activation state is %s", cluster.ActivationState)
+				}
+			}
+		} else if new == "stop" {
+			if cluster.ActivationState == api.Stoppable {
+				if err := api.StopCluster(ctx, client, clusterId); err != nil {
+					return diag.Errorf("failed to start cluster: %s", err)
+				}
+				if err := resourceClusterWaitForStopping(ctx, client, d.Timeout(schema.TimeoutUpdate), clusterId); err != nil {
+					return diag.FromErr(err)
+				}
+			} else {
+				if cluster.State == api.Stopped {
+					return diag.Errorf("cluster is already stopped")
+				} else {
+					return diag.Errorf("cluster is not in stoppable state, current activation state is %s", cluster.ActivationState)
+				}
 			}
 		}
 	}
