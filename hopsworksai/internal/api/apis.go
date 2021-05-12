@@ -86,16 +86,15 @@ func StartCluster(ctx context.Context, apiClient APIHandler, clusterId string) e
 	return nil
 }
 
-func UpdateCluster(ctx context.Context, apiClient APIHandler, clusterId string, toAdd []WorkerConfiguration, toRemove []WorkerConfiguration) error {
-	req := UpdateClusterRequest{}
-	req.UpdateRequest.Workers = UpdateWorkers{
-		Add:    toAdd,
-		Remove: toRemove,
-	}
-
-	if len(toAdd) == 0 && len(toRemove) == 0 {
+func AddWorkers(ctx context.Context, apiClient APIHandler, clusterId string, toAdd []WorkerConfiguration) error {
+	if len(toAdd) == 0 {
 		log.Printf("[DEBUG] skip update cluster %s due to no updates", clusterId)
 		return nil
+	}
+	req := UpdateWorkersRequest{
+		UpdateRequest: UpdateWorkers{
+			Workers: toAdd,
+		},
 	}
 	payload, err := json.Marshal(req)
 	if err != nil {
@@ -104,7 +103,30 @@ func UpdateCluster(ctx context.Context, apiClient APIHandler, clusterId string, 
 
 	var response BaseResponse
 
-	if err := apiClient.doRequest(ctx, http.MethodPost, "/api/clusters/"+clusterId, bytes.NewBuffer(payload), &response); err != nil {
+	if err := apiClient.doRequest(ctx, http.MethodPost, "/api/clusters/"+clusterId+"/workers", bytes.NewBuffer(payload), &response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func RemoveWorkers(ctx context.Context, apiClient APIHandler, clusterId string, toRemove []WorkerConfiguration) error {
+	if len(toRemove) == 0 {
+		log.Printf("[DEBUG] skip update cluster %s due to no updates", clusterId)
+		return nil
+	}
+	req := UpdateWorkersRequest{
+		UpdateRequest: UpdateWorkers{
+			Workers: toRemove,
+		},
+	}
+	payload, err := json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("failed to marshal request: %s", err)
+	}
+
+	var response BaseResponse
+
+	if err := apiClient.doRequest(ctx, http.MethodDelete, "/api/clusters/"+clusterId+"/workers", bytes.NewBuffer(payload), &response); err != nil {
 		return err
 	}
 	return nil

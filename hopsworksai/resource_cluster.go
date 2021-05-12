@@ -169,12 +169,12 @@ func clusterSchema() map[string]*schema.Schema {
 			Computed:    true,
 		},
 		"creation_date": {
-			Description: "The creation date of the cluster. The data is represented in RFC3339 format.",
+			Description: "The creation date of the cluster. The date is represented in RFC3339 format.",
 			Type:        schema.TypeString,
 			Computed:    true,
 		},
 		"start_date": {
-			Description: "The starting date of the cluster. The data is represented in RFC3339 format.",
+			Description: "The starting date of the cluster. The date is represented in RFC3339 format.",
 			Type:        schema.TypeString,
 			Computed:    true,
 		},
@@ -648,8 +648,17 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		}
 
 		log.Printf("[DEBUG] update workers \ntoAdd=%#v, \ntoRemove=%#v", toAdd, toRemove)
-		if len(toAdd) > 0 || len(toRemove) > 0 {
-			if err := api.UpdateCluster(ctx, client, clusterId, toAdd, toRemove); err != nil {
+		if len(toRemove) > 0 {
+			if err := api.RemoveWorkers(ctx, client, clusterId, toRemove); err != nil {
+				return diag.FromErr(err)
+			}
+			if err := resourceClusterWaitForRunning(ctx, client, d.Timeout(schema.TimeoutUpdate), clusterId); err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
+		if len(toAdd) > 0 {
+			if err := api.AddWorkers(ctx, client, clusterId, toAdd); err != nil {
 				return diag.FromErr(err)
 			}
 			if err := resourceClusterWaitForRunning(ctx, client, d.Timeout(schema.TimeoutUpdate), clusterId); err != nil {

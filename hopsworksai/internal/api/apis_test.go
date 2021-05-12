@@ -907,11 +907,11 @@ func TestStartCluster(t *testing.T) {
 	}
 }
 
-func testUpdateCluster(t *testing.T, expectedReqBody string, toAdd []WorkerConfiguration, toRemove []WorkerConfiguration) {
+func testAddWorkers(t *testing.T, expectedReqBody string, toAdd []WorkerConfiguration) {
 	apiClient := &HopsworksAIClient{
 		Client: &mockHttpClient{
 			doFunc: func(req *http.Request) (*http.Response, error) {
-				if req.URL.Path != "/api/clusters/cluster-id-1" {
+				if req.URL.Path != "/api/clusters/cluster-id-1/workers" {
 					t.Fatalf("invalid path for update cluster, got %s", req.URL.Path)
 				}
 				if req.Method != http.MethodPost {
@@ -938,36 +938,64 @@ func testUpdateCluster(t *testing.T, expectedReqBody string, toAdd []WorkerConfi
 		},
 	}
 
-	err := UpdateCluster(context.TODO(), apiClient, "cluster-id-1", toAdd, toRemove)
+	err := AddWorkers(context.TODO(), apiClient, "cluster-id-1", toAdd)
+	if err != nil {
+		t.Fatalf("update cluster should not throw an error, but got %s", err)
+	}
+}
+
+func testRemoveWorkers(t *testing.T, expectedReqBody string, toRemove []WorkerConfiguration) {
+	apiClient := &HopsworksAIClient{
+		Client: &mockHttpClient{
+			doFunc: func(req *http.Request) (*http.Response, error) {
+				if req.URL.Path != "/api/clusters/cluster-id-1/workers" {
+					t.Fatalf("invalid path for update cluster, got %s", req.URL.Path)
+				}
+				if req.Method != http.MethodDelete {
+					t.Fatalf("invalid http method, got %s", req.Method)
+				}
+				reqBody, err := ioutil.ReadAll(req.Body)
+				if err != nil {
+					return nil, err
+				}
+				reqBodyString := string(reqBody)
+				expectedReqBody = cleanJSONString(expectedReqBody)
+				if reqBodyString != expectedReqBody {
+					t.Fatalf("error matching req body, expected:\n%s, but got:\n%s", expectedReqBody, reqBodyString)
+				}
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body: io.NopCloser(strings.NewReader(`{
+						"apiVersion": "v1",
+						"status": "ok",
+						"code": 200
+					}`)),
+				}, nil
+			},
+		},
+	}
+
+	err := RemoveWorkers(context.TODO(), apiClient, "cluster-id-1", toRemove)
 	if err != nil {
 		t.Fatalf("update cluster should not throw an error, but got %s", err)
 	}
 }
 
 func TestUpdateCluster(t *testing.T) {
-	testUpdateCluster(t, `{
+	testAddWorkers(t, `{
 		"updates":{
-			"workers":{
-				"add":[
-					{
-						"instanceType": "node-type-1",
-						"diskSize": 256,
-						"count": 2
-					},
-					{
-						"instanceType": "node-type-1",
-						"diskSize": 1024,
-						"count": 3
-					}
-				],
-				"remove":[
-					{
-						"instanceType": "node-type-2",
-						"diskSize": 512,
-						"count": 1
-					}
-				]
-			}
+			"workers":[
+				{
+					"instanceType": "node-type-1",
+					"diskSize": 256,
+					"count": 2
+				},
+				{
+					"instanceType": "node-type-1",
+					"diskSize": 1024,
+					"count": 3
+				}
+			]
 		}
 	}`,
 		[]WorkerConfiguration{
@@ -985,31 +1013,19 @@ func TestUpdateCluster(t *testing.T) {
 				},
 				Count: 3,
 			},
-		}, []WorkerConfiguration{
-			{
-				NodeConfiguration: NodeConfiguration{
-					InstanceType: "node-type-2",
-					DiskSize:     512,
-				},
-				Count: 1,
-			},
 		})
 
-	testUpdateCluster(t, `{
+	testRemoveWorkers(t, `{
 			"updates":{
-				"workers":{
-					"add":[],
-					"remove":[
-						{
-							"instanceType": "node-type-2",
-							"diskSize": 512,
-							"count": 1
-						}
-					]
-				}
+				"workers":[
+					{
+						"instanceType": "node-type-2",
+						"diskSize": 512,
+						"count": 1
+					}
+				]
 			}
 		}`,
-		[]WorkerConfiguration{},
 		[]WorkerConfiguration{
 			{
 				NodeConfiguration: NodeConfiguration{
@@ -1019,43 +1035,6 @@ func TestUpdateCluster(t *testing.T) {
 				Count: 1,
 			},
 		})
-
-	testUpdateCluster(t, `{
-			"updates":{
-				"workers":{
-					"add":[
-						{
-							"instanceType": "node-type-1",
-							"diskSize": 256,
-							"count": 2
-						},
-						{
-							"instanceType": "node-type-1",
-							"diskSize": 1024,
-							"count": 3
-						}
-					],
-					"remove":[]
-				}
-			}
-		}`,
-		[]WorkerConfiguration{
-			{
-				NodeConfiguration: NodeConfiguration{
-					InstanceType: "node-type-1",
-					DiskSize:     256,
-				},
-				Count: 2,
-			},
-			{
-				NodeConfiguration: NodeConfiguration{
-					InstanceType: "node-type-1",
-					DiskSize:     1024,
-				},
-				Count: 3,
-			},
-		},
-		[]WorkerConfiguration{})
 }
 
 func TestUpdateClusterSkip(t *testing.T) {
@@ -1068,8 +1047,11 @@ func TestUpdateClusterSkip(t *testing.T) {
 		},
 	}
 
-	err := UpdateCluster(context.TODO(), apiClient, "cluster-id-1", []WorkerConfiguration{}, []WorkerConfiguration{})
-	if err != nil {
+	if err := AddWorkers(context.TODO(), apiClient, "cluster-id-1", []WorkerConfiguration{}); err != nil {
+		t.Fatalf("update cluster should not throw an error, but got %s", err)
+	}
+
+	if err := RemoveWorkers(context.TODO(), apiClient, "cluster-id-1", []WorkerConfiguration{}); err != nil {
 		t.Fatalf("update cluster should not throw an error, but got %s", err)
 	}
 }

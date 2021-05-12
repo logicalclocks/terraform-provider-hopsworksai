@@ -198,13 +198,9 @@ type NewClusterResponse struct {
 }
 
 type UpdateWorkers struct {
-	Add    []WorkerConfiguration `json:"add"`
-	Remove []WorkerConfiguration `json:"remove"`
+	Workers []WorkerConfiguration `json:"workers"`
 }
 
-type UpdateClusterRequest struct {
-	UpdateRequest struct {
-		Workers UpdateWorkers `json:"workers"`
-		// add services as well to update here
-	} `json:"updates"`
+type UpdateWorkersRequest struct {
+	UpdateRequest UpdateWorkers `json:"updates"`
 }

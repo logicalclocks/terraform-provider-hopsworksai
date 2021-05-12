@@ -40,8 +40,8 @@ Use this resource to create, read, update, and delete clusters on Hopsworks.ai.
 
 - **activation_state** (String) The current activation state of the cluster.
 - **cluster_id** (String) The Id of the cluster.
-- **creation_date** (String) The creation date of the cluster. The data is represented in RFC3339 format.
-- **start_date** (String) The starting date of the cluster. The data is represented in RFC3339 format.
+- **creation_date** (String) The creation date of the cluster. The date is represented in RFC3339 format.
+- **start_date** (String) The starting date of the cluster. The date is represented in RFC3339 format.
 - **state** (String) The current state of the cluster.
 - **url** (String) The url generated to access the cluster.
 
