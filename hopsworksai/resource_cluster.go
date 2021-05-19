@@ -266,6 +266,7 @@ func awsAttributesSchema() *schema.Resource {
 				Description: "The network configurations.",
 				Type:        schema.TypeList,
 				Optional:    true,
+				Computed:    true,
 				ForceNew:    true,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -274,21 +275,18 @@ func awsAttributesSchema() *schema.Resource {
 							Description: "The VPC id.",
 							Type:        schema.TypeString,
 							Optional:    true,
-							Computed:    true,
 							ForceNew:    true,
 						},
 						"subnet_id": {
 							Description: "The subnet id.",
 							Type:        schema.TypeString,
 							Optional:    true,
-							Computed:    true,
 							ForceNew:    true,
 						},
 						"security_group_id": {
 							Description: "The security group id.",
 							Type:        schema.TypeString,
 							Optional:    true,
-							Computed:    true,
 							ForceNew:    true,
 						},
 					},
@@ -351,6 +349,7 @@ func azureAttributesSchema() *schema.Resource {
 				Description: "The network configurations.",
 				Type:        schema.TypeList,
 				Optional:    true,
+				Computed:    true,
 				ForceNew:    true,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -359,21 +358,18 @@ func azureAttributesSchema() *schema.Resource {
 							Description: "The virtual network name.",
 							Type:        schema.TypeString,
 							Optional:    true,
-							Computed:    true,
 							ForceNew:    true,
 						},
 						"subnet_name": {
 							Description: "The subnet name.",
 							Type:        schema.TypeString,
 							Optional:    true,
-							Computed:    true,
 							ForceNew:    true,
 						},
 						"security_group_name": {
 							Description: "The security group name.",
 							Type:        schema.TypeString,
 							Optional:    true,
-							Computed:    true,
 							ForceNew:    true,
 						},
 					},
@@ -485,7 +481,7 @@ func createAWSCluster(awsAttributes map[string]interface{}, baseRequest *api.Cre
 
 	if v, ok := awsAttributes["network"]; ok {
 		networkArr := v.([]interface{})
-		if len(networkArr) > 0 {
+		if len(networkArr) > 0 && networkArr[0] != nil {
 			network := networkArr[0].(map[string]interface{})
 			req.VpcId = network["vpc_id"].(string)
 			req.SubnetId = network["subnet_id"].(string)
@@ -530,7 +526,7 @@ func createAzureCluster(azureAttributes map[string]interface{}, baseRequest *api
 
 	if v, ok := azureAttributes["network"]; ok {
 		networkArr := v.([]interface{})
-		if len(networkArr) > 0 {
+		if len(networkArr) > 0 && networkArr[0] != nil {
 			network := networkArr[0].(map[string]interface{})
 			req.VirtualNetworkName = network["virtual_network_name"].(string)
 			req.SubnetName = network["subnet_name"].(string)
