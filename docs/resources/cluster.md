@@ -30,11 +30,11 @@ Use this resource to create, read, update, and delete clusters on Hopsworks.ai.
 - **id** (String) The ID of this resource.
 - **issue_lets_encrypt_certificate** (Boolean) Enable or disable issuing let's encrypt certificates. This can be used by the user to disable issuing certificates if port 80 is not open. Defaults to `true`.
 - **managed_users** (Boolean) Enable or disable Hopsworks.ai to manage your users. Defaults to `true`.
-- **open_ports** (Block List) Open the required ports to communicate with one of the Hopsworks services. (see [below for nested schema](#nestedblock--open_ports))
+- **open_ports** (Block List, Max: 1) Open the required ports to communicate with one of the Hopsworks services. (see [below for nested schema](#nestedblock--open_ports))
 - **tags** (Map of String) The list of custom tags to be attached to the cluster.
 - **timeouts** (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 - **update_state** (String) The action you can use to start or stop the cluster. Defaults to `none`.
-- **version** (String) The version of the cluster. Defaults to `2.1.0`.
+- **version** (String) The version of the cluster. Defaults to `2.2.0`.
 - **workers** (Block Set) The configurations of worker nodes. You can add as many as you want of this block to create workers with different configurations. (see [below for nested schema](#nestedblock--workers))
 
 ### Read-Only

@@ -42,7 +42,7 @@ func clusterSchema() map[string]*schema.Schema {
 			Type:        schema.TypeString,
 			Optional:    true,
 			ForceNew:    true,
-			Default:     "2.1.0",
+			Default:     "2.2.0",
 		},
 		"head": {
 			Description: "The configurations of the head node of the cluster.",
@@ -207,6 +207,7 @@ func clusterSchema() map[string]*schema.Schema {
 			Description: "Open the required ports to communicate with one of the Hopsworks services.",
 			Type:        schema.TypeList,
 			Optional:    true,
+			MaxItems:    1,
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
 					"feature_store": {
@@ -720,13 +721,11 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	if d.HasChange("update_state") {
 		_, n := d.GetChange("update_state")
 		new := n.(string)
-		cluster, err := api.GetCluster(ctx, client, clusterId)
-		if err != nil {
-			return diag.Errorf("failed to obtain cluster state: %s", err)
-		}
+		state := d.Get("state").(string)
+		activationState := d.Get("activation_state").(string)
 
 		if new == "start" {
-			if cluster.ActivationState == api.Startable {
+			if activationState == api.Startable.String() {
 				if err := api.StartCluster(ctx, client, clusterId); err != nil {
 					return diag.Errorf("failed to start cluster: %s", err)
 				}
@@ -734,14 +733,14 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 					return diag.FromErr(err)
 				}
 			} else {
-				if cluster.State == api.Running {
+				if state == api.Running.String() {
 					return diag.Errorf("cluster is already running")
 				} else {
-					return diag.Errorf("cluster is not in startable state, current activation state is %s", cluster.ActivationState)
+					return diag.Errorf("cluster is not in startable state, current activation state is %s", activationState)
 				}
 			}
 		} else if new == "stop" {
-			if cluster.ActivationState == api.Stoppable {
+			if activationState == api.Stoppable.String() {
 				if err := api.StopCluster(ctx, client, clusterId); err != nil {
 					return diag.Errorf("failed to start cluster: %s", err)
 				}
@@ -749,10 +748,10 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 					return diag.FromErr(err)
 				}
 			} else {
-				if cluster.State == api.Stopped {
+				if state == api.Stopped.String() {
 					return diag.Errorf("cluster is already stopped")
 				} else {
-					return diag.Errorf("cluster is not in stoppable state, current activation state is %s", cluster.ActivationState)
+					return diag.Errorf("cluster is not in stoppable state, current activation state is %s", activationState)
 				}
 			}
 		}

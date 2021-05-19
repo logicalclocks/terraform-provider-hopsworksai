@@ -19,7 +19,7 @@ func (c CloudProvider) String() string {
 // Cluster states
 type ClusterState string
 
-const Worker = "worker"
+const worker = "worker"
 
 const (
 	Starting           ClusterState = "starting"
@@ -34,11 +34,11 @@ const (
 	Updating           ClusterState = "updating"
 	Decommissioning    ClusterState = "decommissioning"
 	// Worker states
-	WorkerPending      ClusterState = Worker + "-" + Pending
-	WorkerInitializing ClusterState = Worker + "-" + Initializing
-	WorkerStarting     ClusterState = Worker + "-" + Starting
-	WorkerError        ClusterState = Worker + "-" + Error
-	WorkerShuttingdown ClusterState = Worker + "-" + ShuttingDown
+	WorkerPending      ClusterState = worker + "-" + Pending
+	WorkerInitializing ClusterState = worker + "-" + Initializing
+	WorkerStarting     ClusterState = worker + "-" + Starting
+	WorkerError        ClusterState = worker + "-" + Error
+	WorkerShuttingdown ClusterState = worker + "-" + ShuttingDown
 	// local state not in Hopsworks.ai
 	ClusterDeleted ClusterState = "tf-cluster-deleted"
 )
@@ -55,6 +55,10 @@ const (
 	Stoppable  ActivationState = "stoppable"
 	Terminable ActivationState = "terminable"
 )
+
+func (s ActivationState) String() string {
+	return string(s)
+}
 
 type BaseResponse struct {
 	ApiVersion string `json:"apiVersion"`
