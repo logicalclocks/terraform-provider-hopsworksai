@@ -207,6 +207,7 @@ func clusterSchema() map[string]*schema.Schema {
 			Description: "Open the required ports to communicate with one of the Hopsworks services.",
 			Type:        schema.TypeList,
 			Optional:    true,
+			Computed:    true,
 			MaxItems:    1,
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
@@ -708,7 +709,10 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	if d.HasChange("open_ports") {
 		_, n := d.GetChange("open_ports")
 		new := n.([]interface{})
-		ports := structure.ExpandPorts(new[0].(map[string]interface{}))
+		var ports api.ServiceOpenPorts = api.ServiceOpenPorts{}
+		if len(new) != 0 {
+			ports = structure.ExpandPorts(new[0].(map[string]interface{}))
+		}
 		if err := api.UpdateOpenPorts(ctx, client, clusterId, &ports); err != nil {
 			return diag.Errorf("failed to open ports on cluster, error: %s", err)
 		}
