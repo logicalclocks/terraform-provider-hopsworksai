@@ -6,7 +6,7 @@ BINARY=terraform-provider-${NAME}
 
 default: build
 
-generate:
+generate: fmt
 	go generate  ./...
 
 build: generate
@@ -21,6 +21,7 @@ install: build lint test
 fmt:
 	@echo "Formatting source code using gofmt"
 	find . -name '*.go' | grep -v vendor | xargs gofmt -s -w
+	terraform fmt -recursive examples
 
 lint:
 	@echo "Linting source code using golangci-ling"

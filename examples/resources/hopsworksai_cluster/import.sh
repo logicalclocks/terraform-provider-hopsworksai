@@ -1,0 +1,1 @@
+terraform import hopsworksai_cluster.myCluster <cluster_id>

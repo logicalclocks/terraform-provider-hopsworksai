@@ -21,6 +21,9 @@ func init() {
 		if s.Default != nil && s.Default != "" {
 			desc += fmt.Sprintf(" Defaults to `%v`.", s.Default)
 		}
+		if s.Deprecated != "" {
+			desc += " " + s.Deprecated
+		}
 		return strings.TrimSpace(desc)
 	}
 }
@@ -30,7 +33,7 @@ func Provider(version string) func() *schema.Provider {
 		p := &schema.Provider{
 			Schema: map[string]*schema.Schema{
 				"api_key": {
-					Description: "",
+					Description: "The API Key to use to connect to your account on Hopsworka.ai. Can be specified using the HOPSWORKSAI_API_KEY environment variable.",
 					Type:        schema.TypeString,
 					Optional:    true,
 					Sensitive:   true,
