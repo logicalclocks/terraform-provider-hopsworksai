@@ -41,7 +41,8 @@ func Provider(version string) func() *schema.Provider {
 				},
 			},
 			DataSourcesMap: map[string]*schema.Resource{
-				"hopsworksai_clusters": dataSourceClusters(),
+				"hopsworksai_clusters":                    dataSourceClusters(),
+				"hopsworksai_aws_instance_profile_policy": dataSourceAWSInstanceProfilePolicy(),
 			},
 			ResourcesMap: map[string]*schema.Resource{
 				"hopsworksai_cluster": clusterResource(),
