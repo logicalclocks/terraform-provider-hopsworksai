@@ -37,6 +37,7 @@ func FlattenCluster(cluster *api.Cluster) map[string]interface{} {
 		"aws_attributes":                 flattenAWSAttributes(cluster),
 		"azure_attributes":               flattenAzureAttributes(cluster),
 		"open_ports":                     flattenPorts(&cluster.Ports),
+		"tags":                           flattenTags(cluster.Tags),
 	}
 }
 
@@ -118,6 +119,14 @@ func flattenPorts(ports *api.ServiceOpenPorts) []map[string]interface{} {
 			"ssh":                  ports.SSH,
 		},
 	}
+}
+
+func flattenTags(tags []api.ClusterTag) map[string]interface{} {
+	tagsMap := make(map[string]interface{}, len(tags))
+	for _, tag := range tags {
+		tagsMap[tag.Name] = tag.Value
+	}
+	return tagsMap
 }
 
 func ExpandWorkers(workers *schema.Set) map[api.NodeConfiguration]api.WorkerConfiguration {

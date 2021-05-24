@@ -309,6 +309,7 @@ func TestFlattenCluster(t *testing.T) {
 		"aws_attributes":                 emptyAttributes,
 		"azure_attributes":               emptyAttributes,
 		"open_ports":                     flattenPorts(&input.Ports),
+		"tags":                           flattenTags(input.Tags),
 	}
 
 	for _, cloud := range []api.CloudProvider{api.AWS, api.AZURE} {
@@ -606,5 +607,28 @@ func TestExpandOpenPorts(t *testing.T) {
 		if !reflect.DeepEqual(c.expected, output) {
 			t.Fatalf("error while matching[%d]:\nexpected %#v \nbut got %#v", i, c.expected, output)
 		}
+	}
+}
+
+func TestFlattenTags(t *testing.T) {
+	input := []api.ClusterTag{
+		{
+			Name:  "tag1",
+			Value: "tag1-value",
+		},
+		{
+			Name:  "tag2",
+			Value: "tag2-value",
+		},
+	}
+
+	expected := map[string]interface{}{
+		"tag1": "tag1-value",
+		"tag2": "tag2-value",
+	}
+
+	output := flattenTags(input)
+	if !reflect.DeepEqual(expected, output) {
+		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
 	}
 }
