@@ -11,5 +11,5 @@ data "hopsworksai_aws_instance_profile_policy" "policy" {
 
 # remove eks and ecr permissions
 data "hopsworksai_aws_instance_profile_policy" "policy" {
-  add_eks_and_ecr = false
+  enable_eks_and_ecr = false
 }

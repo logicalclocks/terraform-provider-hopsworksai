@@ -31,19 +31,31 @@ func dataSourceAWSInstanceProfilePolicy() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			"add_cloud_watch": {
+			"enable_storage": {
+				Description: "Add permissions required to allow Hopsworks clusters to read and write from and to your aws S3 buckets.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+			},
+			"enable_backup": {
+				Description: "Add permissions required to allow creating backups of your clusters.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+			},
+			"enable_cloud_watch": {
 				Description: "Add permissions required to allow collecting your cluster logs using cloud watch.",
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     true,
 			},
-			"add_upgrade": {
+			"enable_upgrade": {
 				Description: "Add permissions required to enable upgrade to newer versions of Hopsworks.",
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     true,
 			},
-			"add_eks_and_ecr": {
+			"enable_eks_and_ecr": {
 				Description: "Add permissions required to enable access to Amazon EKS and ECR from within your Hopsworks cluster.",
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -70,30 +82,42 @@ func dataSourceAWSInstanceProfilePolicyRead(ctx context.Context, d *schema.Resou
 	}
 
 	policy := awsPolicy{
-		Version: "2012-10-17",
-		Statements: []awsPolicyStatement{
-			{
-				Sid:    "S3Permissions",
-				Effect: "Allow",
-				Action: []string{
-					"S3:PutObject",
-					"S3:ListBucket",
-					"S3:GetBucketLocation",
-					"S3:GetObject",
-					"S3:DeleteObject",
-					"S3:AbortMultipartUpload",
-					"S3:ListBucketMultipartUploads",
-					"S3:PutLifecycleConfiguration",
-					"S3:GetLifecycleConfiguration",
-					"S3:PutBucketVersioning",
-					"S3:GetBucketVersioning",
-				},
-				Resources: s3Resources,
-			},
-		},
+		Version:    "2012-10-17",
+		Statements: []awsPolicyStatement{},
 	}
 
-	if d.Get("add_cloud_watch").(bool) {
+	if d.Get("enable_storage").(bool) {
+		policy.Statements = append(policy.Statements, awsPolicyStatement{
+			Sid:    "S3Permissions",
+			Effect: "Allow",
+			Action: []string{
+				"S3:PutObject",
+				"S3:ListBucket",
+				"S3:GetBucketLocation",
+				"S3:GetObject",
+				"S3:DeleteObject",
+				"S3:AbortMultipartUpload",
+				"S3:ListBucketMultipartUploads",
+				"S3:GetBucketVersioning",
+			},
+			Resources: s3Resources,
+		})
+	}
+
+	if d.Get("enable_backup").(bool) {
+		policy.Statements = append(policy.Statements, awsPolicyStatement{
+			Sid:    "BackupsPermissions",
+			Effect: "Allow",
+			Action: []string{
+				"S3:PutLifecycleConfiguration",
+				"S3:GetLifecycleConfiguration",
+				"S3:PutBucketVersioning",
+			},
+			Resources: s3Resources,
+		})
+	}
+
+	if d.Get("enable_cloud_watch").(bool) {
 		policy.Statements = append(policy.Statements, awsPolicyStatement{
 			Sid:    "CloudwatchPermissions",
 			Effect: "Allow",
@@ -118,7 +142,7 @@ func dataSourceAWSInstanceProfilePolicyRead(ctx context.Context, d *schema.Resou
 		})
 	}
 
-	if d.Get("add_upgrade").(bool) {
+	if d.Get("enable_upgrade").(bool) {
 		policy.Statements = append(policy.Statements, awsPolicyStatement{
 			Sid:    "UpgradePermissions",
 			Effect: "Allow",
@@ -132,7 +156,7 @@ func dataSourceAWSInstanceProfilePolicyRead(ctx context.Context, d *schema.Resou
 		})
 	}
 
-	if d.Get("add_eks_and_ecr").(bool) {
+	if d.Get("enable_eks_and_ecr").(bool) {
 		policy.Statements = append(policy.Statements, awsPolicyStatement{
 			Sid:    "AllowPullMainImages",
 			Effect: "Allow",

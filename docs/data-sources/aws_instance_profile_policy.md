@@ -25,7 +25,7 @@ data "hopsworksai_aws_instance_profile_policy" "policy" {
 
 # remove eks and ecr permissions
 data "hopsworksai_aws_instance_profile_policy" "policy" {
-  add_eks_and_ecr = false
+  enable_eks_and_ecr = false
 }
 ```
 
@@ -34,10 +34,12 @@ data "hopsworksai_aws_instance_profile_policy" "policy" {
 
 ### Optional
 
-- **add_cloud_watch** (Boolean) Add permissions required to allow collecting your cluster logs using cloud watch. Defaults to `true`.
-- **add_eks_and_ecr** (Boolean) Add permissions required to enable access to Amazon EKS and ECR from within your Hopsworks cluster. Defaults to `true`.
-- **add_upgrade** (Boolean) Add permissions required to enable upgrade to newer versions of Hopsworks. Defaults to `true`.
 - **bucket_name** (String) Limit permissions to this S3 bucket.
+- **enable_backup** (Boolean) Add permissions required to allow creating backups of your clusters. Defaults to `true`.
+- **enable_cloud_watch** (Boolean) Add permissions required to allow collecting your cluster logs using cloud watch. Defaults to `true`.
+- **enable_eks_and_ecr** (Boolean) Add permissions required to enable access to Amazon EKS and ECR from within your Hopsworks cluster. Defaults to `true`.
+- **enable_storage** (Boolean) Add permissions required to allow Hopsworks clusters to read and write from and to your aws S3 buckets. Defaults to `true`.
+- **enable_upgrade** (Boolean) Add permissions required to enable upgrade to newer versions of Hopsworks. Defaults to `true`.
 - **id** (String) The ID of this resource.
 
 ### Read-Only
