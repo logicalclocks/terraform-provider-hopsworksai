@@ -71,54 +71,40 @@ func dataSourceAWSInstanceProfilePolicy() *schema.Resource {
 	}
 }
 
-func dataSourceAWSInstanceProfilePolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var s3Resources interface{} = "*"
-	if v, ok := d.GetOk("bucket_name"); ok {
-		bucketName := v.(string)
-		s3Resources = []string{
-			fmt.Sprintf("arn:aws:s3:::%s/*", bucketName),
-			fmt.Sprintf("arn:aws:s3:::%s", bucketName),
-		}
+func awsStoragePermissions(s3Resources interface{}) awsPolicyStatement {
+	return awsPolicyStatement{
+		Sid:    "S3Permissions",
+		Effect: "Allow",
+		Action: []string{
+			"S3:PutObject",
+			"S3:ListBucket",
+			"S3:GetBucketLocation",
+			"S3:GetObject",
+			"S3:DeleteObject",
+			"S3:AbortMultipartUpload",
+			"S3:ListBucketMultipartUploads",
+			"S3:GetBucketVersioning",
+		},
+		Resources: s3Resources,
 	}
+}
 
-	policy := awsPolicy{
-		Version:    "2012-10-17",
-		Statements: []awsPolicyStatement{},
+func awsBackupPermissions(s3Resources interface{}) awsPolicyStatement {
+	return awsPolicyStatement{
+		Sid:    "BackupsPermissions",
+		Effect: "Allow",
+		Action: []string{
+			"S3:PutLifecycleConfiguration",
+			"S3:GetLifecycleConfiguration",
+			"S3:PutBucketVersioning",
+		},
+		Resources: s3Resources,
 	}
+}
 
-	if d.Get("enable_storage").(bool) {
-		policy.Statements = append(policy.Statements, awsPolicyStatement{
-			Sid:    "S3Permissions",
-			Effect: "Allow",
-			Action: []string{
-				"S3:PutObject",
-				"S3:ListBucket",
-				"S3:GetBucketLocation",
-				"S3:GetObject",
-				"S3:DeleteObject",
-				"S3:AbortMultipartUpload",
-				"S3:ListBucketMultipartUploads",
-				"S3:GetBucketVersioning",
-			},
-			Resources: s3Resources,
-		})
-	}
-
-	if d.Get("enable_backup").(bool) {
-		policy.Statements = append(policy.Statements, awsPolicyStatement{
-			Sid:    "BackupsPermissions",
-			Effect: "Allow",
-			Action: []string{
-				"S3:PutLifecycleConfiguration",
-				"S3:GetLifecycleConfiguration",
-				"S3:PutBucketVersioning",
-			},
-			Resources: s3Resources,
-		})
-	}
-
-	if d.Get("enable_cloud_watch").(bool) {
-		policy.Statements = append(policy.Statements, awsPolicyStatement{
+func awsCloudWatchPermissions() []awsPolicyStatement {
+	return []awsPolicyStatement{
+		{
 			Sid:    "CloudwatchPermissions",
 			Effect: "Allow",
 			Action: []string{
@@ -132,32 +118,34 @@ func dataSourceAWSInstanceProfilePolicyRead(ctx context.Context, d *schema.Resou
 				"logs:CreateLogGroup",
 			},
 			Resources: "*",
-		}, awsPolicyStatement{
+		}, {
 			Sid:    "HopsworksAICloudWatchParam",
 			Effect: "Allow",
 			Action: []string{
 				"ssm:GetParameter",
 			},
 			Resources: "arn:aws:ssm:*:*:parameter/AmazonCloudWatch-*",
-		})
+		},
 	}
+}
 
-	if d.Get("enable_upgrade").(bool) {
-		policy.Statements = append(policy.Statements, awsPolicyStatement{
-			Sid:    "UpgradePermissions",
-			Effect: "Allow",
-			Action: []string{
-				"ec2:DescribeVolumes",
-				"ec2:DetachVolume",
-				"ec2:AttachVolume",
-				"ec2:ModifyInstanceAttribute",
-			},
-			Resources: "*",
-		})
+func awsUpgradePermissions() awsPolicyStatement {
+	return awsPolicyStatement{
+		Sid:    "UpgradePermissions",
+		Effect: "Allow",
+		Action: []string{
+			"ec2:DescribeVolumes",
+			"ec2:DetachVolume",
+			"ec2:AttachVolume",
+			"ec2:ModifyInstanceAttribute",
+		},
+		Resources: "*",
 	}
+}
 
-	if d.Get("enable_eks_and_ecr").(bool) {
-		policy.Statements = append(policy.Statements, awsPolicyStatement{
+func awsEKSECRPermissions() []awsPolicyStatement {
+	return []awsPolicyStatement{
+		{
 			Sid:    "AllowPullMainImages",
 			Effect: "Allow",
 			Action: []string{
@@ -168,7 +156,7 @@ func dataSourceAWSInstanceProfilePolicyRead(ctx context.Context, d *schema.Resou
 				"arn:aws:ecr:*:*:repository/filebeat",
 				"arn:aws:ecr:*:*:repository/base",
 			},
-		}, awsPolicyStatement{
+		}, {
 			Sid:    "AllowPushandPullImages",
 			Effect: "Allow",
 			Action: []string{
@@ -190,21 +178,57 @@ func dataSourceAWSInstanceProfilePolicyRead(ctx context.Context, d *schema.Resou
 				"arn:aws:ecr:*:*:repository/*/filebeat",
 				"arn:aws:ecr:*:*:repository/*/base",
 			},
-		}, awsPolicyStatement{
+		}, {
 			Sid:    "AllowGetAuthToken",
 			Effect: "Allow",
 			Action: []string{
 				"ecr:GetAuthorizationToken",
 			},
 			Resources: "*",
-		}, awsPolicyStatement{
+		}, {
 			Sid:    "AllowDescribeEKS",
 			Effect: "Allow",
 			Action: []string{
 				"eks:DescribeCluster",
 			},
 			Resources: "arn:aws:eks:*:*:cluster/*",
-		})
+		},
+	}
+}
+
+func dataSourceAWSInstanceProfilePolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var s3Resources interface{} = "*"
+	if v, ok := d.GetOk("bucket_name"); ok {
+		bucketName := v.(string)
+		s3Resources = []string{
+			fmt.Sprintf("arn:aws:s3:::%s/*", bucketName),
+			fmt.Sprintf("arn:aws:s3:::%s", bucketName),
+		}
+	}
+
+	policy := awsPolicy{
+		Version:    "2012-10-17",
+		Statements: []awsPolicyStatement{},
+	}
+
+	if d.Get("enable_storage").(bool) {
+		policy.Statements = append(policy.Statements, awsStoragePermissions(s3Resources))
+	}
+
+	if d.Get("enable_backup").(bool) {
+		policy.Statements = append(policy.Statements, awsBackupPermissions(s3Resources))
+	}
+
+	if d.Get("enable_cloud_watch").(bool) {
+		policy.Statements = append(policy.Statements, awsCloudWatchPermissions()...)
+	}
+
+	if d.Get("enable_upgrade").(bool) {
+		policy.Statements = append(policy.Statements, awsUpgradePermissions())
+	}
+
+	if d.Get("enable_eks_and_ecr").(bool) {
+		policy.Statements = append(policy.Statements, awsEKSECRPermissions()...)
 	}
 
 	policyJson, err := json.MarshalIndent(policy, "", "  ")
