@@ -2,13 +2,9 @@ package helpers
 
 import "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-func GetDataSourceSchemaFromResourceSchema(resourceSchema map[string]*schema.Schema, skipList []string) map[string]*schema.Schema {
+func GetDataSourceSchemaFromResourceSchema(resourceSchema map[string]*schema.Schema) map[string]*schema.Schema {
 	dataSourceSchema := make(map[string]*schema.Schema, len(resourceSchema))
 	for k, v := range resourceSchema {
-		if inList(skipList, k) {
-			continue
-		}
-
 		newSchema := &schema.Schema{
 			Type:        v.Type,
 			Description: v.Description,
@@ -21,7 +17,7 @@ func GetDataSourceSchemaFromResourceSchema(resourceSchema map[string]*schema.Sch
 
 		if elem, ok := v.Elem.(*schema.Resource); ok {
 			newSchema.Elem = &schema.Resource{
-				Schema: GetDataSourceSchemaFromResourceSchema(elem.Schema, skipList),
+				Schema: GetDataSourceSchemaFromResourceSchema(elem.Schema),
 			}
 		} else {
 			newSchema.Elem = v.Elem
@@ -30,13 +26,4 @@ func GetDataSourceSchemaFromResourceSchema(resourceSchema map[string]*schema.Sch
 		dataSourceSchema[k] = newSchema
 	}
 	return dataSourceSchema
-}
-
-func inList(list []string, elem string) bool {
-	for _, v := range list {
-		if v == elem {
-			return true
-		}
-	}
-	return false
 }
