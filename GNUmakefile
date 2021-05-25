@@ -22,6 +22,7 @@ fmt:
 	@echo "Formatting source code using gofmt"
 	find . -name '*.go' | grep -v vendor | xargs gofmt -s -w
 	terraform fmt -recursive examples
+	terraform fmt -recursive test-fixtures
 
 lint:
 	@echo "Linting source code using golangci-ling"
@@ -29,8 +30,8 @@ lint:
 
 test:
 	go test ./... -v --cover $(TESTARGS)
-# Run acceptance tests
+
 testacc:
-	TF_ACC=1 go test ./... -v $(TESTARGS) --cover -timeout 120m
+	./test-fixtures/run-acceptance-tests.sh
 
 .PHONY: build install testacc generate test fmt lint

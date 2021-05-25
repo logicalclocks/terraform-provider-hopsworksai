@@ -1,0 +1,35 @@
+provider "aws" {
+  region = var.aws_region
+}
+
+provider "azurerm" {
+  features {}
+  skip_provider_registration = true
+}
+
+resource "random_string" "suffix" {
+  length  = 8
+  special = false
+  lower   = true
+  upper   = false
+}
+
+module "aws" {
+  count                 = var.skip_aws ? 0 : 1
+  source                = "./aws"
+  region                = var.aws_region
+  bucket_name           = "tf-bucket-${random_string.suffix.result}"
+  instance_profile_name = "tf-instance-profile-${random_string.suffix.result}"
+  ssh_key_name          = "tf-key-${random_string.suffix.result}"
+  ssh_public_key        = file("${path.module}/.keys/tf.pub")
+}
+
+module "azure" {
+  count                       = var.skip_azure || var.azure_resource_group == null ? 0 : 1
+  source                      = "./azure"
+  resource_group              = var.azure_resource_group
+  storage_account_name        = "tfstorage${random_string.suffix.result}"
+  user_assigned_identity_name = "tf-identity-${random_string.suffix.result}"
+  ssh_key_name                = "tf-key-${random_string.suffix.result}"
+  ssh_public_key              = file("${path.module}/.keys/tf.pub")
+}
