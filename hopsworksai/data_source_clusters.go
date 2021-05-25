@@ -22,7 +22,7 @@ func dataSourceClusters() *schema.Resource {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Elem: &schema.Resource{
-					Schema: helpers.GetDataSourceSchemaFromResourceSchema(clusterSchema()),
+					Schema: helpers.GetDataSourceSchemaFromResourceSchema(clusterSchema(), []string{"update_state"}),
 				},
 			},
 			"filter": {
