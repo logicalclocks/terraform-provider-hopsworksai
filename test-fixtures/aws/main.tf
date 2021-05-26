@@ -1,5 +1,4 @@
 data "hopsworksai_aws_instance_profile_policy" "policy" {
-  bucket_name        = var.bucket_name
   enable_eks_and_ecr = false
   enable_upgrade     = false
 }
@@ -44,7 +43,9 @@ resource "aws_iam_instance_profile" "profile" {
 }
 
 resource "aws_s3_bucket" "bucket" {
-  bucket        = var.bucket_name
+  count         = var.num_buckets
+  bucket        = "${var.bucket_name_prefix}-${count.index}"
+  acl           = "private"
   force_destroy = true
   tags = {
     Creator = "Terraform"
@@ -52,8 +53,9 @@ resource "aws_s3_bucket" "bucket" {
   }
 }
 
-resource "aws_s3_bucket_public_access_block" "blockhwBucket" {
-  bucket                  = aws_s3_bucket.bucket.id
+resource "aws_s3_bucket_public_access_block" "block_bucket" {
+  count                   = var.num_buckets
+  bucket                  = "${var.bucket_name_prefix}-${count.index}"
   block_public_acls       = true
   block_public_policy     = true
   restrict_public_buckets = true

@@ -2,8 +2,8 @@ output "aws_instance_profile_arn" {
   value = var.skip_aws ? null : module.aws[0].instance_profile_arn
 }
 
-output "aws_bucket_name" {
-  value = var.skip_aws ? null : module.aws[0].bucket_name
+output "aws_bucket_names" {
+  value = var.skip_aws ? null : module.aws[0].bucket_names
 }
 
 output "aws_ssh_key_name" {

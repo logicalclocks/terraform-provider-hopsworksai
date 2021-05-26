@@ -77,7 +77,7 @@ func testAccClusterDataSourceConfig(cloud api.CloudProvider, rName string, suffi
 		strings.ToLower(cloud.String()),
 		suffix,
 		testAccClusterCloudSSHKeyAttribute(cloud),
-		testAccClusterCloudConfigAttributes(cloud),
+		testAccClusterCloudConfigAttributes(cloud, 1),
 		rName,
 		rName,
 	)

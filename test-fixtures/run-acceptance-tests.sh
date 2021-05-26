@@ -5,7 +5,6 @@ ACCTEST_PARALLELISM=${ACCTEST_PARALLELISM:-10}
 
 TF_VAR_skip_aws=${TF_VAR_skip_aws:-false}
 TF_VAR_skip_azure=${TF_VAR_skip_azure:-false}
-
 if [ -z ${HOPSWORKSAI_API_KEY} ] ; then 
     echo "Environment variable HOPSWORKSAI_API_KEY is not set, you need to export your Hopsworks API key to run the acceptance tests"
     exit 1
@@ -37,7 +36,7 @@ echo "Setting environment variables for testing"
 export TF_HOPSWORKSAI_AWS_SKIP=${TF_VAR_skip_aws}
 if [ ${TF_VAR_skip_aws} = false ]; then 
     export TF_HOPSWORKSAI_AWS_REGION=$(terraform output -raw aws_region)
-    export TF_HOPSWORKSAI_AWS_BUCKET_NAME=$(terraform output -raw aws_bucket_name)
+    export TF_HOPSWORKSAI_AWS_BUCKET_NAMES=$(terraform output -raw aws_bucket_names)
     export TF_HOPSWORKSAI_AWS_INSTANCE_PROFILE_ARN=$(terraform output -raw aws_instance_profile_arn)
     export TF_HOPSWORKSAI_AWS_SSH_KEY=$(terraform output -raw aws_ssh_key_name)
 fi 

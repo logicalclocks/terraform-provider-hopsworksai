@@ -11,7 +11,7 @@ resource "azurerm_storage_account" "storage" {
   resource_group_name      = data.azurerm_resource_group.rg.name
   location                 = data.azurerm_resource_group.rg.location
   account_tier             = "Standard"
-  account_replication_type = "GRS"
+  account_replication_type = "RAGRS"
 
   tags = {
     Creator = "Terraform"
@@ -30,7 +30,7 @@ resource "azurerm_user_assigned_identity" "identity" {
   }
 }
 
-resource "azurerm_role_definition" "storageRole" {
+resource "azurerm_role_definition" "storage_role" {
   name        = "${var.user_assigned_identity_name}-role"
   scope       = azurerm_storage_account.storage.id
   description = "This is a custom role created via Terraform"
@@ -43,9 +43,9 @@ resource "azurerm_role_definition" "storageRole" {
   }
 }
 
-resource "azurerm_role_assignment" "storageRoleAssignment" {
+resource "azurerm_role_assignment" "storage_role_assignment" {
   scope              = azurerm_storage_account.storage.id
-  role_definition_id = azurerm_role_definition.storageRole.role_definition_resource_id
+  role_definition_id = azurerm_role_definition.storage_role.role_definition_resource_id
   principal_id       = azurerm_user_assigned_identity.identity.principal_id
 }
 

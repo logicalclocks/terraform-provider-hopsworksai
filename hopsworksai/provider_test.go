@@ -3,9 +3,11 @@ package hopsworksai
 import (
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/logicalclocks/terraform-provider-hopsworksai/hopsworksai/internal/api"
 )
 
 const (
@@ -15,7 +17,7 @@ const (
 	env_AWS_REGION               = "TF_HOPSWORKSAI_AWS_REGION"
 	env_AWS_SSH_KEY              = "TF_HOPSWORKSAI_AWS_SSH_KEY"
 	env_AWS_INSTANCE_PROFILE_ARN = "TF_HOPSWORKSAI_AWS_INSTANCE_PROFILE_ARN"
-	env_AWS_BUCKET_NAME          = "TF_HOPSWORKSAI_AWS_BUCKET_NAME"
+	env_AWS_BUCKET_NAMES         = "TF_HOPSWORKSAI_AWS_BUCKET_NAMES"
 
 	env_AZURE_SKIP                        = "TF_HOPSWORKSAI_AZURE_SKIP"
 	env_AZURE_LOCATION                    = "TF_HOPSWORKSAI_AZURE_LOCATION"
@@ -23,6 +25,8 @@ const (
 	env_AZURE_STORAGE_ACCOUNT             = "TF_HOPSWORKSAI_AZURE_STORAGE_ACCOUNT_NAME"
 	env_AZURE_USER_ASSIGNED_IDENTITY_NAME = "TF_HOPSWORKSAI_AZURE_USER_ASSIGNED_IDENTITY_NAME"
 	env_AZURE_SSH_KEY                     = "TF_HOPSWORKSAI_AZURE_SSH_KEY"
+
+	num_AWS_BUCKETS_NEEDED = 3
 )
 
 const clusterPrefixName = "tfacctest"
@@ -45,8 +49,13 @@ func testAccPreCheck(t *testing.T) func() {
 			testCheckEnv(t, fmt.Sprintf("You can skip AWS tests by setting %s=true", env_AWS_SKIP),
 				env_AWS_REGION,
 				env_AWS_SSH_KEY,
-				env_AWS_BUCKET_NAME,
+				env_AWS_BUCKET_NAMES,
 				env_AWS_INSTANCE_PROFILE_ARN)
+
+			buckets := strings.Split(os.Getenv(env_AWS_BUCKET_NAMES), ",")
+			if len(buckets) < num_AWS_BUCKETS_NEEDED {
+				t.Fatalf("Incorrect number of buckets expected %d but got %d. Each AWS test case that create a cluster requires and empty bucket.", num_AWS_BUCKETS_NEEDED, len(buckets))
+			}
 		}
 
 		if v := os.Getenv(env_AZURE_SKIP); v != "true" {
@@ -78,4 +87,36 @@ func testSkipAZURE(t *testing.T) {
 	if v := os.Getenv(env_AZURE_SKIP); v == "true" {
 		t.Skip(fmt.Sprintf("Skipping %s test as %s is set", t.Name(), env_AZURE_SKIP))
 	}
+}
+
+func testAccClusterCloudSSHKeyAttribute(cloud api.CloudProvider) string {
+	if cloud == api.AWS {
+		return os.Getenv(env_AWS_SSH_KEY)
+	} else if cloud == api.AZURE {
+		return os.Getenv(env_AZURE_SSH_KEY)
+	}
+	return ""
+}
+
+func testAccClusterCloudConfigAttributes(cloud api.CloudProvider, bucketIndex int) string {
+	if cloud == api.AWS {
+		bucketName := strings.Split(os.Getenv(env_AWS_BUCKET_NAMES), ",")[bucketIndex]
+		return fmt.Sprintf(`
+		aws_attributes {
+			region               = "%s"
+			instance_profile_arn = "%s"
+			bucket_name          = "%s"
+		  }
+		`, os.Getenv(env_AWS_REGION), os.Getenv(env_AWS_INSTANCE_PROFILE_ARN), bucketName)
+	} else if cloud == api.AZURE {
+		return fmt.Sprintf(`
+		azure_attributes {
+			location                       = "%s"
+			resource_group                 = "%s"
+			storage_account                = "%s"
+			user_assigned_managed_identity = "%s"
+		  }
+		`, os.Getenv(env_AZURE_LOCATION), os.Getenv(env_AZURE_RESOURCE_GROUP), os.Getenv(env_AZURE_STORAGE_ACCOUNT), os.Getenv(env_AZURE_USER_ASSIGNED_IDENTITY_NAME))
+	}
+	return ""
 }

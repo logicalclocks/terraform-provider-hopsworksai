@@ -4,9 +4,14 @@ variable "region" {
   default     = "us-east-2"
 }
 
-variable "bucket_name" {
-  description = "S3 bucket name"
+variable "bucket_name_prefix" {
+  description = "Prefix for S3 bucket name"
   type        = string
+}
+
+variable "num_buckets" {
+  description = "S3 bucket name"
+  type        = number
 }
 
 variable "instance_profile_name" {
