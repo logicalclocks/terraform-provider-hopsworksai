@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/logicalclocks/terraform-provider-hopsworksai/hopsworksai/internal/api"
@@ -21,14 +22,16 @@ func TestAccClusterDataSourceAZURE_basic(t *testing.T) {
 }
 
 func testAccClusterDataSource_basic(t *testing.T, cloud api.CloudProvider) {
-	resourceName := "hopsworksai_cluster.test"
-	dataSourceName := "data.hopsworksai_cluster.test"
+	suffix := acctest.RandString(5)
+	rName := fmt.Sprintf("test_%s", suffix)
+	resourceName := fmt.Sprintf("hopsworksai_cluster.%s", rName)
+	dataSourceName := fmt.Sprintf("data.hopsworksai_cluster.%s", rName)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  testAccPreCheck(t),
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccClusterDataSourceConfig(cloud),
+				Config: testAccClusterDataSourceConfig(cloud, rName, suffix),
 				Check:  testAccClusterDataSourceCheckAllAttributes(resourceName, dataSourceName),
 			},
 		},
@@ -49,10 +52,10 @@ func testAccClusterDataSourceCheckAllAttributes(resourceName string, dataSourceN
 	}
 }
 
-func testAccClusterDataSourceConfig(cloud api.CloudProvider) string {
+func testAccClusterDataSourceConfig(cloud api.CloudProvider, rName string, suffix string) string {
 	return fmt.Sprintf(`
-	resource "hopsworksai_cluster" "test" {
-		name    = "%sds%s"
+	resource "hopsworksai_cluster" "%s" {
+		name    = "%s%s%s"
 		ssh_key = "%s"	  
 		head {
 		}
@@ -65,8 +68,17 @@ func testAccClusterDataSourceConfig(cloud api.CloudProvider) string {
 		}
 	  }
 
-	  data "hopsworksai_cluster" "test" {
-		  cluster_id = hopsworksai_cluster.test.id
+	  data "hopsworksai_cluster" "%s" {
+		  cluster_id = hopsworksai_cluster.%s.id
 	  }
-	`, clusterPrefixName, strings.ToLower(cloud.String()), testAccClusterCloudSSHKeyAttribute(cloud), testAccClusterCloudConfigAttributes(cloud))
+	`,
+		rName,
+		clusterPrefixName,
+		strings.ToLower(cloud.String()),
+		suffix,
+		testAccClusterCloudSSHKeyAttribute(cloud),
+		testAccClusterCloudConfigAttributes(cloud),
+		rName,
+		rName,
+	)
 }

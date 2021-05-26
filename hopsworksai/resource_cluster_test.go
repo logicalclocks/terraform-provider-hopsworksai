@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/logicalclocks/terraform-provider-hopsworksai/hopsworksai/internal/api"
@@ -24,14 +25,16 @@ func TestAccClusterAZURE_basic(t *testing.T) {
 }
 
 func testAccCluster_basic(t *testing.T, cloud api.CloudProvider) {
-	resourceName := "hopsworksai_cluster.test"
+	suffix := acctest.RandString(5)
+	rName := fmt.Sprintf("test_%s", suffix)
+	resourceName := fmt.Sprintf("hopsworksai_cluster.%s", rName)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     testAccPreCheck(t),
 		Providers:    testAccProviders,
 		CheckDestroy: testAccClusterCheckDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccClusterConfigBasic(cloud),
+				Config: testAccClusterConfigBasic(cloud, rName, suffix),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "url"),
 					resource.TestCheckResourceAttr(resourceName, "state", api.Running.String()),
@@ -53,12 +56,12 @@ func testAccCluster_basic(t *testing.T, cloud api.CloudProvider) {
 				ImportStateVerify: true,
 			},
 			{
-				Config:             testAccClusterConfig(cloud, `update_state = "start"`),
+				Config:             testAccClusterConfig(cloud, rName, suffix, `update_state = "start"`),
 				ExpectError:        regexp.MustCompile("cluster is already running"),
 				ExpectNonEmptyPlan: true,
 			},
 			{
-				Config: testAccClusterConfig(cloud, fmt.Sprintf(`
+				Config: testAccClusterConfig(cloud, rName, suffix, fmt.Sprintf(`
 				workers{
 					instance_type = "%s"
 					disk_size = 256
@@ -77,7 +80,7 @@ func testAccCluster_basic(t *testing.T, cloud api.CloudProvider) {
 				),
 			},
 			{
-				Config: testAccClusterConfig(cloud, fmt.Sprintf(`
+				Config: testAccClusterConfig(cloud, rName, suffix, fmt.Sprintf(`
 				workers{
 					instance_type = "%s"
 					disk_size = 256
@@ -107,7 +110,7 @@ func testAccCluster_basic(t *testing.T, cloud api.CloudProvider) {
 				),
 			},
 			{
-				Config: testAccClusterConfig(cloud, fmt.Sprintf(`
+				Config: testAccClusterConfig(cloud, rName, suffix, fmt.Sprintf(`
 				workers{
 					instance_type = "%s"
 					disk_size = 256
@@ -147,7 +150,7 @@ func testAccCluster_basic(t *testing.T, cloud api.CloudProvider) {
 				),
 			},
 			{
-				Config: testAccClusterConfig(cloud, fmt.Sprintf(`
+				Config: testAccClusterConfig(cloud, rName, suffix, fmt.Sprintf(`
 				workers{
 					instance_type = "%s"
 					disk_size = 512
@@ -167,7 +170,7 @@ func testAccCluster_basic(t *testing.T, cloud api.CloudProvider) {
 				),
 			},
 			{
-				Config: testAccClusterConfig(cloud, fmt.Sprintf(`
+				Config: testAccClusterConfig(cloud, rName, suffix, fmt.Sprintf(`
 				workers{
 					instance_type = "%s"
 					disk_size = 512
@@ -197,7 +200,7 @@ func testAccCluster_basic(t *testing.T, cloud api.CloudProvider) {
 				),
 			},
 			{
-				Config: testAccClusterConfig(cloud, fmt.Sprintf(`
+				Config: testAccClusterConfig(cloud, rName, suffix, fmt.Sprintf(`
 				workers{
 					instance_type = "%s"
 					disk_size = 512
@@ -217,7 +220,7 @@ func testAccCluster_basic(t *testing.T, cloud api.CloudProvider) {
 				),
 			},
 			{
-				Config: testAccClusterConfig(cloud, `
+				Config: testAccClusterConfig(cloud, rName, suffix, `
 				open_ports{
 					ssh = true
 					kafka = true
@@ -231,7 +234,7 @@ func testAccCluster_basic(t *testing.T, cloud api.CloudProvider) {
 				),
 			},
 			{
-				Config: testAccClusterConfig(cloud, `
+				Config: testAccClusterConfig(cloud, rName, suffix, `
 				open_ports{
 					feature_store = true
 					online_feature_store = true
@@ -245,17 +248,12 @@ func testAccCluster_basic(t *testing.T, cloud api.CloudProvider) {
 				),
 			},
 			{
-				Config: testAccClusterConfig(cloud, `update_state = "stop"`),
+				Config: testAccClusterConfig(cloud, rName, suffix, `update_state = "stop"`),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "state", api.Stopped.String()),
 					resource.TestCheckResourceAttr(resourceName, "activation_state", api.Startable.String()),
 					resource.TestCheckResourceAttr(resourceName, "update_state", "stop"),
 				),
-			},
-			{
-				Config:             testAccClusterConfig(cloud, `update_state = "stop"`),
-				ExpectError:        regexp.MustCompile("cluster is already stopped"),
-				ExpectNonEmptyPlan: true,
 			},
 		},
 	})
@@ -306,14 +304,14 @@ func testAccClusterCheckDestroy() func(s *terraform.State) error {
 	}
 }
 
-func testAccClusterConfigBasic(cloud api.CloudProvider) string {
-	return testAccClusterConfig(cloud, "")
+func testAccClusterConfigBasic(cloud api.CloudProvider, rName string, suffix string) string {
+	return testAccClusterConfig(cloud, rName, suffix, "")
 }
 
-func testAccClusterConfig(cloud api.CloudProvider, extraConfig string) string {
+func testAccClusterConfig(cloud api.CloudProvider, rName string, suffix string, extraConfig string) string {
 	return fmt.Sprintf(`
-	resource "hopsworksai_cluster" "test" {
-		name    = "%sr%s"
+	resource "hopsworksai_cluster" "%s" {
+		name    = "%s%s%s"
 		ssh_key = "%s"	  
 		head {
 		}
@@ -326,7 +324,14 @@ func testAccClusterConfig(cloud api.CloudProvider, extraConfig string) string {
 		  "Purpose" = "acceptance-test"
 		}
 	  }
-	`, clusterPrefixName, strings.ToLower(cloud.String()), testAccClusterCloudSSHKeyAttribute(cloud), testAccClusterCloudConfigAttributes(cloud), extraConfig)
+	`,
+		rName,
+		clusterPrefixName,
+		strings.ToLower(cloud.String()),
+		suffix,
+		testAccClusterCloudSSHKeyAttribute(cloud),
+		testAccClusterCloudConfigAttributes(cloud),
+		extraConfig)
 }
 
 func testAccClusterCloudSSHKeyAttribute(cloud api.CloudProvider) string {
