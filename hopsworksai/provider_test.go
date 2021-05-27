@@ -27,7 +27,7 @@ const (
 	env_AZURE_USER_ASSIGNED_IDENTITY_NAME = "TF_HOPSWORKSAI_AZURE_USER_ASSIGNED_IDENTITY_NAME"
 	env_AZURE_SSH_KEY                     = "TF_HOPSWORKSAI_AZURE_SSH_KEY"
 
-	num_AWS_BUCKETS_NEEDED = 3
+	num_AWS_BUCKETS_NEEDED = 4
 )
 
 const clusterPrefixName = "tfacctest"

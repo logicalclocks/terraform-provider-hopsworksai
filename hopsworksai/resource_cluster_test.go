@@ -21,6 +21,14 @@ func TestAccClusterAZURE_basic(t *testing.T) {
 	testAccCluster_basic(t, api.AZURE)
 }
 
+func TestAccClusterAWS_workers(t *testing.T) {
+	testAccCluster_workers(t, api.AWS)
+}
+
+func TestAccClusterAZURE_workers(t *testing.T) {
+	testAccCluster_workers(t, api.AZURE)
+}
+
 func testAccCluster_basic(t *testing.T, cloud api.CloudProvider) {
 	suffix := acctest.RandString(5)
 	rName := fmt.Sprintf("test_%s", suffix)
@@ -58,7 +66,69 @@ func testAccCluster_basic(t *testing.T, cloud api.CloudProvider) {
 				ExpectNonEmptyPlan: true,
 			},
 			{
-				Config: testAccClusterConfig_basic(cloud, rName, suffix, fmt.Sprintf(`
+				Config: testAccClusterConfig_basic(cloud, rName, suffix, `
+				open_ports{
+					ssh = true
+					kafka = true
+				}`),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "open_ports.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "open_ports.0.ssh", "true"),
+					resource.TestCheckResourceAttr(resourceName, "open_ports.0.kafka", "true"),
+					resource.TestCheckResourceAttr(resourceName, "open_ports.0.feature_store", "false"),
+					resource.TestCheckResourceAttr(resourceName, "open_ports.0.online_feature_store", "false"),
+				),
+			},
+			{
+				Config: testAccClusterConfig_basic(cloud, rName, suffix, `update_state = "stop"`),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "state", api.Stopped.String()),
+					resource.TestCheckResourceAttr(resourceName, "activation_state", api.Startable.String()),
+					resource.TestCheckResourceAttr(resourceName, "update_state", "stop"),
+				),
+			},
+			{
+				Config: testAccClusterConfig_basic(cloud, rName, suffix, `
+				open_ports{
+					feature_store = true
+					online_feature_store = true
+				}`),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "open_ports.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "open_ports.0.ssh", "false"),
+					resource.TestCheckResourceAttr(resourceName, "open_ports.0.kafka", "false"),
+					resource.TestCheckResourceAttr(resourceName, "open_ports.0.feature_store", "true"),
+					resource.TestCheckResourceAttr(resourceName, "open_ports.0.online_feature_store", "true"),
+				),
+			},
+			{
+				Config:             testAccClusterConfig_basic(cloud, rName, suffix, `update_state = "stop"`),
+				ExpectError:        regexp.MustCompile("cluster is already stopped"),
+				ExpectNonEmptyPlan: true,
+			},
+			{
+				Config: testAccClusterConfig_basic(cloud, rName, suffix, `update_state = "start"`),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "state", api.Running.String()),
+					resource.TestCheckResourceAttr(resourceName, "activation_state", api.Stoppable.String()),
+					resource.TestCheckResourceAttr(resourceName, "update_state", "start"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCluster_workers(t *testing.T, cloud api.CloudProvider) {
+	suffix := acctest.RandString(5)
+	rName := fmt.Sprintf("test_%s", suffix)
+	resourceName := fmt.Sprintf("hopsworksai_cluster.%s", rName)
+	parallelTest(t, cloud, resource.TestCase{
+		PreCheck:     testAccPreCheck(t),
+		Providers:    testAccProviders,
+		CheckDestroy: testAccClusterCheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccClusterConfig_workers(cloud, rName, suffix, fmt.Sprintf(`
 				workers{
 					instance_type = "%s"
 					disk_size = 256
@@ -77,7 +147,12 @@ func testAccCluster_basic(t *testing.T, cloud api.CloudProvider) {
 				),
 			},
 			{
-				Config: testAccClusterConfig_basic(cloud, rName, suffix, fmt.Sprintf(`
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccClusterConfig_workers(cloud, rName, suffix, fmt.Sprintf(`
 				workers{
 					instance_type = "%s"
 					disk_size = 256
@@ -107,7 +182,7 @@ func testAccCluster_basic(t *testing.T, cloud api.CloudProvider) {
 				),
 			},
 			{
-				Config: testAccClusterConfig_basic(cloud, rName, suffix, fmt.Sprintf(`
+				Config: testAccClusterConfig_workers(cloud, rName, suffix, fmt.Sprintf(`
 				workers{
 					instance_type = "%s"
 					disk_size = 256
@@ -147,7 +222,7 @@ func testAccCluster_basic(t *testing.T, cloud api.CloudProvider) {
 				),
 			},
 			{
-				Config: testAccClusterConfig_basic(cloud, rName, suffix, fmt.Sprintf(`
+				Config: testAccClusterConfig_workers(cloud, rName, suffix, fmt.Sprintf(`
 				workers{
 					instance_type = "%s"
 					disk_size = 512
@@ -167,7 +242,7 @@ func testAccCluster_basic(t *testing.T, cloud api.CloudProvider) {
 				),
 			},
 			{
-				Config: testAccClusterConfig_basic(cloud, rName, suffix, fmt.Sprintf(`
+				Config: testAccClusterConfig_workers(cloud, rName, suffix, fmt.Sprintf(`
 				workers{
 					instance_type = "%s"
 					disk_size = 512
@@ -197,7 +272,7 @@ func testAccCluster_basic(t *testing.T, cloud api.CloudProvider) {
 				),
 			},
 			{
-				Config: testAccClusterConfig_basic(cloud, rName, suffix, fmt.Sprintf(`
+				Config: testAccClusterConfig_workers(cloud, rName, suffix, fmt.Sprintf(`
 				workers{
 					instance_type = "%s"
 					disk_size = 512
@@ -214,42 +289,6 @@ func testAccCluster_basic(t *testing.T, cloud api.CloudProvider) {
 						"disk_size":     "512",
 						"count":         "1",
 					}),
-				),
-			},
-			{
-				Config: testAccClusterConfig_basic(cloud, rName, suffix, `
-				open_ports{
-					ssh = true
-					kafka = true
-				}`),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "open_ports.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "open_ports.0.ssh", "true"),
-					resource.TestCheckResourceAttr(resourceName, "open_ports.0.kafka", "true"),
-					resource.TestCheckResourceAttr(resourceName, "open_ports.0.feature_store", "false"),
-					resource.TestCheckResourceAttr(resourceName, "open_ports.0.online_feature_store", "false"),
-				),
-			},
-			{
-				Config: testAccClusterConfig_basic(cloud, rName, suffix, `
-				open_ports{
-					feature_store = true
-					online_feature_store = true
-				}`),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "open_ports.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "open_ports.0.ssh", "false"),
-					resource.TestCheckResourceAttr(resourceName, "open_ports.0.kafka", "false"),
-					resource.TestCheckResourceAttr(resourceName, "open_ports.0.feature_store", "true"),
-					resource.TestCheckResourceAttr(resourceName, "open_ports.0.online_feature_store", "true"),
-				),
-			},
-			{
-				Config: testAccClusterConfig_basic(cloud, rName, suffix, `update_state = "stop"`),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "state", api.Stopped.String()),
-					resource.TestCheckResourceAttr(resourceName, "activation_state", api.Startable.String()),
-					resource.TestCheckResourceAttr(resourceName, "update_state", "stop"),
 				),
 			},
 		},
@@ -303,6 +342,10 @@ func testAccClusterCheckDestroy() func(s *terraform.State) error {
 
 func testAccClusterConfig_basic(cloud api.CloudProvider, rName string, suffix string, extraConfig string) string {
 	return testAccClusterConfig(cloud, rName, suffix, extraConfig, 0)
+}
+
+func testAccClusterConfig_workers(cloud api.CloudProvider, rName string, suffix string, extraConfig string) string {
+	return testAccClusterConfig(cloud, rName, suffix, extraConfig, 1)
 }
 
 func testAccClusterConfig(cloud api.CloudProvider, rName string, suffix string, extraConfig string, bucketIndex int) string {

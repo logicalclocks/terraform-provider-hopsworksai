@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e 
 ACCTEST_TIMEOUT=${ACCTEST_TIMEOUT:-120m}
-ACCTEST_PARALLELISM=${ACCTEST_PARALLELISM:-10}
+ACCTEST_PARALLELISM=${ACCTEST_PARALLELISM:-4}
 
 TF_VAR_skip_aws=${TF_VAR_skip_aws:-false}
 TF_VAR_skip_azure=${TF_VAR_skip_azure:-false}
@@ -30,7 +30,8 @@ fi
 
 echo "Initialize test fixtures"
 terraform init 
-terraform apply -auto-approve
+terraform destroy -target=module.aws -auto-approve || terraform destroy -target=module.aws -auto-approve
+terraform apply -auto-approve || terraform apply -auto-approve
 
 echo "Setting environment variables for testing"
 export TF_HOPSWORKSAI_AWS_SKIP=${TF_VAR_skip_aws}
@@ -57,6 +58,6 @@ TF_ACC=1 go test ./... -v ${TESTARGS} --cover -timeout ${ACCTEST_TIMEOUT} --para
 
 pushd ${BASE_DIR}
 echo "Destroying test fixtures"
-terraform destroy -auto-approve
+terraform destroy -auto-approve || terraform destroy -auto-approve
 echo "Done"
 popd
