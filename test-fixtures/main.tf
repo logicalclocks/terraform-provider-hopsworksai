@@ -15,10 +15,10 @@ resource "random_string" "suffix" {
 }
 
 module "aws" {
-  count                 = var.skip_aws ? 0 : 1
-  source                = "./aws"
-  region                = var.aws_region
-  bucket_name_prefix    = "tf-bucket-${random_string.suffix.result}"
+  count              = var.skip_aws ? 0 : 1
+  source             = "./aws"
+  region             = var.aws_region
+  bucket_name_prefix = "tf-bucket-${random_string.suffix.result}"
   # This is the number of buckets to be created for testing
   # Important that this number have be incremented for each new AWS test case that require creating a cluster
   num_buckets           = 3

@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/logicalclocks/terraform-provider-hopsworksai/hopsworksai/internal/api"
 )
@@ -41,11 +42,24 @@ func init() {
 	}
 }
 
+func parallelTest(t *testing.T, cloud api.CloudProvider, test resource.TestCase) {
+	if cloud == api.AWS {
+		if isAWSAccSkipped() {
+			t.Skip(fmt.Sprintf("Skipping %s test as %s is set", t.Name(), env_AWS_SKIP))
+		}
+	} else if cloud == api.AZURE {
+		if isAzureAccSkipped() {
+			t.Skip(fmt.Sprintf("Skipping %s test as %s is set", t.Name(), env_AZURE_SKIP))
+		}
+	}
+	resource.ParallelTest(t, test)
+}
+
 func testAccPreCheck(t *testing.T) func() {
 	return func() {
 		testCheckEnv(t, "", env_API_KEY)
 
-		if v := os.Getenv(env_AWS_SKIP); v != "true" {
+		if !isAWSAccSkipped() {
 			testCheckEnv(t, fmt.Sprintf("You can skip AWS tests by setting %s=true", env_AWS_SKIP),
 				env_AWS_REGION,
 				env_AWS_SSH_KEY,
@@ -58,7 +72,7 @@ func testAccPreCheck(t *testing.T) func() {
 			}
 		}
 
-		if v := os.Getenv(env_AZURE_SKIP); v != "true" {
+		if !isAzureAccSkipped() {
 			testCheckEnv(t, fmt.Sprintf("You can skip AZURE tests by setting %s=true", env_AZURE_SKIP),
 				env_AZURE_LOCATION,
 				env_AZURE_RESOURCE_GROUP,
@@ -77,18 +91,6 @@ func testCheckEnv(t *testing.T, msg string, envVars ...string) {
 	}
 }
 
-func testSkipAWS(t *testing.T) {
-	if v := os.Getenv(env_AWS_SKIP); v == "true" {
-		t.Skip(fmt.Sprintf("Skipping %s test as %s is set", t.Name(), env_AWS_SKIP))
-	}
-}
-
-func testSkipAZURE(t *testing.T) {
-	if v := os.Getenv(env_AZURE_SKIP); v == "true" {
-		t.Skip(fmt.Sprintf("Skipping %s test as %s is set", t.Name(), env_AZURE_SKIP))
-	}
-}
-
 func testAccClusterCloudSSHKeyAttribute(cloud api.CloudProvider) string {
 	if cloud == api.AWS {
 		return os.Getenv(env_AWS_SSH_KEY)
@@ -98,9 +100,25 @@ func testAccClusterCloudSSHKeyAttribute(cloud api.CloudProvider) string {
 	return ""
 }
 
+func isAWSAccSkipped() bool {
+	return os.Getenv(env_AWS_SKIP) == "true"
+}
+
+func isAzureAccSkipped() bool {
+	return os.Getenv(env_AZURE_SKIP) == "true"
+}
+
 func testAccClusterCloudConfigAttributes(cloud api.CloudProvider, bucketIndex int) string {
 	if cloud == api.AWS {
-		bucketName := strings.Split(os.Getenv(env_AWS_BUCKET_NAMES), ",")[bucketIndex]
+		bucketNames := strings.Split(os.Getenv(env_AWS_BUCKET_NAMES), ",")
+		if bucketIndex >= len(bucketNames) {
+			if os.Getenv(resource.TestEnvVar) == "" || isAWSAccSkipped() {
+				return ""
+			} else {
+				panic(fmt.Errorf("bucket index is out of range index: %d list: %#v", bucketIndex, bucketNames))
+			}
+		}
+		bucketName := bucketNames[bucketIndex]
 		return fmt.Sprintf(`
 		aws_attributes {
 			region               = "%s"

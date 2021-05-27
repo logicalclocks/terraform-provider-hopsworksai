@@ -13,12 +13,10 @@ import (
 )
 
 func TestAccClustersDataSourceAWS_basic(t *testing.T) {
-	testSkipAWS(t)
 	testAccClustersDataSource_basic(t, api.AWS)
 }
 
 func TestAccClustersDataSourceAZURE_basic(t *testing.T) {
-	testSkipAZURE(t)
 	testAccClustersDataSource_basic(t, api.AZURE)
 }
 
@@ -27,7 +25,7 @@ func testAccClustersDataSource_basic(t *testing.T, cloud api.CloudProvider) {
 	rName := fmt.Sprintf("test_%s", suffix)
 	resourceName := fmt.Sprintf("hopsworksai_cluster.%s", rName)
 	dataSourceName := fmt.Sprintf("data.hopsworksai_clusters.%s", rName)
-	resource.ParallelTest(t, resource.TestCase{
+	parallelTest(t, cloud, resource.TestCase{
 		PreCheck:  testAccPreCheck(t),
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

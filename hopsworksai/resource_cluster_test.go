@@ -14,12 +14,10 @@ import (
 )
 
 func TestAccClusterAWS_basic(t *testing.T) {
-	testSkipAWS(t)
 	testAccCluster_basic(t, api.AWS)
 }
 
 func TestAccClusterAZURE_basic(t *testing.T) {
-	testSkipAZURE(t)
 	testAccCluster_basic(t, api.AZURE)
 }
 
@@ -27,7 +25,7 @@ func testAccCluster_basic(t *testing.T, cloud api.CloudProvider) {
 	suffix := acctest.RandString(5)
 	rName := fmt.Sprintf("test_%s", suffix)
 	resourceName := fmt.Sprintf("hopsworksai_cluster.%s", rName)
-	resource.ParallelTest(t, resource.TestCase{
+	parallelTest(t, cloud, resource.TestCase{
 		PreCheck:     testAccPreCheck(t),
 		Providers:    testAccProviders,
 		CheckDestroy: testAccClusterCheckDestroy(),
