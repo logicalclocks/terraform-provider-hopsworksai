@@ -1,7 +1,6 @@
-resource "hopsworksai_cluster" "myCluster" {
+resource "hopsworksai_cluster" "cluster" {
   name    = "my-cluster-name"
-  ssh_key = "my-ssh-key" # your AWS SSH key
-  version = "2.2.0"
+  ssh_key = "my-ssh-key"
 
   head {
   }

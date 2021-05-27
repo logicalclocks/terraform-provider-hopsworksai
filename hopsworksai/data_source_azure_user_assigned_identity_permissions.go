@@ -32,30 +32,34 @@ func dataSourceAzureUserAssignedIdentityPermissions() *schema.Resource {
 				Default:     true,
 			},
 			"actions": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Description: "The actions permissions.",
+				Type:        schema.TypeList,
+				Computed:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"not_actions": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Description: "The not actions permissions.",
+				Type:        schema.TypeList,
+				Computed:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"data_actions": {
-				Type:     schema.TypeSet,
-				Computed: true,
+				Description: "The data actions permissions.",
+				Type:        schema.TypeSet,
+				Computed:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 				Set: schema.HashString,
 			},
 			"not_data_actions": {
-				Type:     schema.TypeSet,
-				Computed: true,
+				Description: "The not data actions permissions.",
+				Type:        schema.TypeSet,
+				Computed:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},

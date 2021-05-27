@@ -8,13 +8,234 @@ description: |-
 
 # Hopsworks.ai Provider
 
-The Hopsworksai terraform provider is used to interact with [Hopsworks.ai](https://managed.hopsworks.ai) to create and manage your Hopsworks clusters that can run in AWS and Azure. 
+The Hopsworksai terraform provider is used to interact with [Hopsworks.ai](https://managed.hopsworks.ai) to manage Hopsworks clusters and Hopsworks Feature Store in the cloud.
+If you are new to Hopsworks, then first you need to create an account on [Hopsworks.ai](https://managed.hopsworks.ai), and then you can follow one of the getting started guides to connect either your AWS account or Azure account to create your own Hopsworks clusters. 
+  * [Getting Started with AWS](https://docs.hopsworks.ai/latest/hopsworksai/aws/getting_started/)
+  * [Getting Started with Azure](https://docs.hopsworks.ai/latest/hopsworksai/azure/getting_started/)
 
-## Example Usage
+
+-> Notice that a Hopsworks API Key is required to allow the provider to manage clusters on Hopsworks.ai on your behalf. To create an API token, follow this guide.
+
+## AWS Example Usage 
+
+Hopsworks.ai deploys Hopsworks clusters to your AWS account using the permissions provided during [account setup](https://docs.hopsworks.ai/latest/hopsworksai/aws/getting_started/#step-1-connecting-your-aws-account). 
+To create a Hopsworks cluster, you will need first to create an empty S3 bucket, an ssh key, and an instance profile with the required [Hopsworks permissions](https://docs.hopsworks.ai/latest/hopsworksai/aws/getting_started/#step-2-creating-instance-profile). 
+If you have already created these 3 resources, you can skip the first 3 steps in the following terraform example and instead fill the attributes in Step 4 (*bucket_name*, *ssh_key*, *instance_profile_arn*) with your configuration.
+Otherwise, you need to setup the credentials for your AWS account locally as described [here](https://registry.terraform.io/providers/hashicorp/aws/latest/docs), then you can run the following terraform example which creates the required AWS resources and a Hopsworks cluster. 
 
 ```terraform
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "3.42.0"
+    }
+    hopsworksai = {
+      source  = "logicalclocks/hopsworksai"
+      version = "0.1.0"
+    }
+  }
+}
+
+locals {
+  region      = "us-east-2"
+  bucket_name = "tf-hopsworks-bucket"
+}
+
+provider "aws" {
+  region = local.region
+}
+
 provider "hopsworksai" {
-  api_key = api_key # Highly recommeneded to use the HOPSWORKSAI_API_KEY environment variable instead
+  # Highly recommeneded to use the HOPSWORKSAI_API_KEY environment variable instead
+  api_key = "YOUR HOPSWORKS API KEY"
+}
+
+# Step 1: create an instance profile to allow hopsworks cluster 
+data "hopsworksai_aws_instance_profile_policy" "policy" {
+  bucket_name = local.bucket_name
+}
+
+resource "aws_iam_role" "role" {
+  name = "tf-hopsworksai-instance-profile-role"
+  assume_role_policy = jsonencode(
+    {
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Action = "sts:AssumeRole"
+          Effect = "Allow"
+          Principal = {
+            Service = "ec2.amazonaws.com"
+          }
+        },
+      ]
+    }
+  )
+
+  inline_policy {
+    name   = "hopsworksai"
+    policy = data.hopsworksai_aws_instance_profile_policy.policy.json
+  }
+}
+
+resource "aws_iam_instance_profile" "profile" {
+  name = "hopsworksai-instance-profile"
+  role = aws_iam_role.role.name
+}
+
+# Step 2: create s3 bucket to be used by your hopsworks cluster to store your data
+resource "aws_s3_bucket" "bucket" {
+  bucket        = local.bucket_name
+  acl           = "private"
+  force_destroy = true
+}
+
+# Step 3: create an ssh key pair 
+resource "aws_key_pair" "key" {
+  key_name   = "tf-hopsworksai-key"
+  public_key = file("~/.ssh/id_rsa.pub")
+}
+
+# Step 4: create the cluster
+resource "hopsworksai_cluster" "cluster" {
+  name    = "tf-hopsworks-cluster"
+  ssh_key = aws_key_pair.key.key_name
+
+  head {
+  }
+
+  workers {
+    count = 1
+  }
+
+  aws_attributes {
+    region               = local.region
+    bucket_name          = local.bucket_name
+    instance_profile_arn = aws_iam_instance_profile.profile.arn
+  }
+
+  open_ports {
+    ssh = true
+  }
+
+  tags = {
+    Purpose = "testing"
+  }
+}
+```
+
+## Azure Example Usage 
+Similar to AWS, Hopsworks.ai deploys Hopsworks clusters to your Azure account using the permissions provided during [account setup](https://docs.hopsworks.ai/latest/hopsworksai/azure/getting_started/#step-1-connecting-your-azure-account). 
+To create a Hopsworks cluster, you will need first to create a storage account, an ssh key, and a user assigned managed identity with the required [Hopsworks permissions](https://docs.hopsworks.ai/latest/hopsworksai/azure/getting_started/#step-21-creating-a-restrictive-role-for-accessing-storage)
+If you have already created these 3 resources, you can skip the first 3 steps in the following terraform example and instead fill the attributes in Step 4 (*storage_account*, *ssh_key*, *user_assigned_managed_identity*) with your configuration.
+Otherwise, you need to setup the credentials for your Azure account locally as described [here](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs), then you can run the following terraform example which creates the required Azure resources and a Hopsworks cluster. 
+Notice that you need to replace "*YOUR AZURE RESOURCE GROUP*" with the resource group that you want to use for this cluster.
+
+
+```terraform
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "2.60.0"
+    }
+    hopsworksai = {
+      source  = "logicalclocks/hopsworksai"
+      version = "0.1.0"
+    }
+  }
+}
+
+locals {
+  resource_group = "YOUR AZURE RESOURCE GROUP"
+}
+
+provider "azurerm" {
+  features {}
+  skip_provider_registration = true
+}
+
+provider "hopsworksai" {
+  # Highly recommeneded to use the HOPSWORKSAI_API_KEY environment variable instead
+  api_key = "YOUR HOPSWORKS API KEY"
+}
+
+data "azurerm_resource_group" "rg" {
+  name = local.resource_group
+}
+
+# Step 1: create storage account
+resource "azurerm_storage_account" "storage" {
+  name                     = "tfhopsworksstorage"
+  resource_group_name      = data.azurerm_resource_group.rg.name
+  location                 = data.azurerm_resource_group.rg.location
+  account_tier             = "Standard"
+  account_replication_type = "RAGRS"
+}
+
+# Step 2: create user assigned identity with hopsworks ai permissions
+data "hopsworksai_azure_user_assigned_identity_permissions" "policy" {
+
+}
+
+resource "azurerm_user_assigned_identity" "identity" {
+  resource_group_name = data.azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
+  name                = "tf-hopsworksai-identity"
+}
+
+resource "azurerm_role_definition" "storage_role" {
+  name  = "tf-hopsworksai-identity-role"
+  scope = azurerm_storage_account.storage.id
+  permissions {
+    actions          = data.hopsworksai_azure_user_assigned_identity_permissions.policy.actions
+    not_actions      = data.hopsworksai_azure_user_assigned_identity_permissions.policy.not_actions
+    data_actions     = data.hopsworksai_azure_user_assigned_identity_permissions.policy.data_actions
+    not_data_actions = data.hopsworksai_azure_user_assigned_identity_permissions.policy.not_data_actions
+  }
+}
+
+resource "azurerm_role_assignment" "storage_role_assignment" {
+  scope              = azurerm_storage_account.storage.id
+  role_definition_id = azurerm_role_definition.storage_role.role_definition_resource_id
+  principal_id       = azurerm_user_assigned_identity.identity.principal_id
+}
+
+# Step 3: create an ssh key
+resource "azurerm_ssh_public_key" "key" {
+  name                = "tf-hopsworksai-key"
+  resource_group_name = data.azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
+  public_key          = file("~/.ssh/id_rsa.pub")
+}
+
+# Step 4: create the cluster
+resource "hopsworksai_cluster" "cluster" {
+  name    = "tfhopsworkscluster"
+  ssh_key = azurerm_ssh_public_key.key.name
+
+  head {
+  }
+
+  workers {
+    count = 1
+  }
+
+  azure_attributes {
+    location                       = data.azurerm_resource_group.rg.location
+    resource_group                 = data.azurerm_resource_group.rg.name
+    storage_account                = azurerm_storage_account.storage.name
+    user_assigned_managed_identity = azurerm_user_assigned_identity.identity.name
+  }
+
+  open_ports {
+    ssh = true
+  }
+
+  tags = {
+    Purpose = "testing"
+  }
 }
 ```
 

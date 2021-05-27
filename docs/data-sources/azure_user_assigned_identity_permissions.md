@@ -36,9 +36,9 @@ data "hopsworksai_azure_user_assigned_identity_permissions" "permissions" {
 
 ### Read-Only
 
-- **actions** (List of String)
-- **data_actions** (Set of String)
-- **not_actions** (List of String)
-- **not_data_actions** (Set of String)
+- **actions** (List of String) The actions permissions.
+- **data_actions** (Set of String) The data actions permissions.
+- **not_actions** (List of String) The not actions permissions.
+- **not_data_actions** (Set of String) The not data actions permissions.
 
 
