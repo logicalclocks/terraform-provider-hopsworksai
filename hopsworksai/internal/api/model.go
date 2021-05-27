@@ -34,11 +34,12 @@ const (
 	Updating           ClusterState = "updating"
 	Decommissioning    ClusterState = "decommissioning"
 	// Worker states
-	WorkerPending      ClusterState = worker + "-" + Pending
-	WorkerInitializing ClusterState = worker + "-" + Initializing
-	WorkerStarting     ClusterState = worker + "-" + Starting
-	WorkerError        ClusterState = worker + "-" + Error
-	WorkerShuttingdown ClusterState = worker + "-" + ShuttingDown
+	WorkerPending         ClusterState = worker + "-" + Pending
+	WorkerInitializing    ClusterState = worker + "-" + Initializing
+	WorkerStarting        ClusterState = worker + "-" + Starting
+	WorkerError           ClusterState = worker + "-" + Error
+	WorkerShuttingdown    ClusterState = worker + "-" + ShuttingDown
+	WorkerDecommissioning ClusterState = worker + "-" + Decommissioning
 	// local state not in Hopsworks.ai
 	ClusterDeleted ClusterState = "tf-cluster-deleted"
 )
