@@ -32,7 +32,7 @@ data "hopsworksai_clusters" "cluster" {
 ### Read-Only
 
 - **activation_state** (String) The current activation state of the cluster.
-- **attach_public_ip** (Boolean) Attach or don't attach a public ip to the cluster. This can be used by the user if creating a cluster in private network.
+- **attach_public_ip** (Boolean) Attach or do not attach a public ip to the cluster. This can be used if you intend creating a cluster in a private network.
 - **aws_attributes** (List of Object) The configurations required to run the cluster on Amazon AWS. (see [below for nested schema](#nestedatt--aws_attributes))
 - **azure_attributes** (List of Object) The configurations required to run the cluster on Microsoft Azure. (see [below for nested schema](#nestedatt--azure_attributes))
 - **backup_retention_period** (Number) The validity of cluster backups in days. If set to 0 cluster backups are disabled.

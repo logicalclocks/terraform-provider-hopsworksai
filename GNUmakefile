@@ -30,9 +30,13 @@ lint:
 	golangci-lint run ./...
 
 test:
-	go test ./... -v --cover $(TESTARGS)
+	go test ./... -v --cover $(TESTARGS) -parallel=4
 
 testacc:
 	./test-fixtures/run-acceptance-tests.sh
 
-.PHONY: build install testacc generate test fmt lint
+sweep:
+	@echo "WARNING: This will destroy infrastructure. Use only in development accounts."
+	go test ./hopsworksai -v -sweep="all" $(SWEEPARGS) -timeout 60m
+
+.PHONY: build install testacc generate test fmt lint sweep

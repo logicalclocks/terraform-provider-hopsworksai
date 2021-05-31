@@ -29,7 +29,7 @@ else
 fi 
 
 echo "Initialize test fixtures"
-terraform init 
+terraform init || ( rm -rf .terraform* && terraform init )
 terraform destroy -target=module.aws -auto-approve || terraform destroy -target=module.aws -auto-approve
 terraform apply -auto-approve || terraform apply -auto-approve
 

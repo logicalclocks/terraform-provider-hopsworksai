@@ -30,7 +30,11 @@ const (
 	num_AWS_BUCKETS_NEEDED = 4
 )
 
-const clusterPrefixName = "tfacctest"
+const (
+	default_CLUSTER_NAME_PREFIX = "tfacctest"
+	default_CLUSTER_TAG_KEY     = "Purpose"
+	default_CLUSTER_TAG_VALUE   = "acceptance-test"
+)
 
 var testAccProviders map[string]*schema.Provider
 var testAccProvider *schema.Provider

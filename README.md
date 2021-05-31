@@ -163,7 +163,13 @@ In order to run the full suite of Acceptance tests, you need do the following:
 $ make testacc 
 ```
 
-You can also Run only a single test or a some tests following some name pattern as follows
+You can also run only a single test or a some tests following some name pattern as follows
 ```sh
 $ make testacc TESTARGS='-run=TestAcc*'
+```
+
+Acceptance tests provision real resources, and ideally these resources should be destroyed at the end of each test, however, it can happen that resources are leaked due to different reasons. For that, you can run the sweeper to clean up all resources created during acceptance testing.
+
+```sh
+$ make sweep 
 ```

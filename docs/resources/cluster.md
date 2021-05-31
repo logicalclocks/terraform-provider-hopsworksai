@@ -82,7 +82,7 @@ resource "hopsworksai_cluster" "cluster" {
 
 ### Optional
 
-- **attach_public_ip** (Boolean) Attach or don't attach a public ip to the cluster. This can be used by the user if creating a cluster in private network. Defaults to `true`.
+- **attach_public_ip** (Boolean) Attach or do not attach a public ip to the cluster. This can be used if you intend creating a cluster in a private network. Defaults to `true`.
 - **aws_attributes** (Block List, Max: 1) The configurations required to run the cluster on Amazon AWS. (see [below for nested schema](#nestedblock--aws_attributes))
 - **azure_attributes** (Block List, Max: 1) The configurations required to run the cluster on Microsoft Azure. (see [below for nested schema](#nestedblock--azure_attributes))
 - **backup_retention_period** (Number) The validity of cluster backups in days. If set to 0 cluster backups are disabled. Defaults to `0`.

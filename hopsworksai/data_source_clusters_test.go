@@ -87,7 +87,7 @@ func testAccClustersDataSourceConfig(cloud api.CloudProvider, rName string, suff
 
 		tags = {
 		  "ListClusters" = "%s"
-		  "Purpose" = "acceptance-test"
+		  "%s" = "%s"
 		}
 	  }
 
@@ -98,12 +98,14 @@ func testAccClustersDataSourceConfig(cloud api.CloudProvider, rName string, suff
 	  }
 	`,
 		rName,
-		clusterPrefixName,
+		default_CLUSTER_NAME_PREFIX,
 		strings.ToLower(cloud.String()),
 		suffix,
 		testAccClusterCloudSSHKeyAttribute(cloud),
 		testAccClusterCloudConfigAttributes(cloud, 3),
 		cloud.String(),
+		default_CLUSTER_TAG_KEY,
+		default_CLUSTER_TAG_VALUE,
 		rName,
 		rName,
 	)

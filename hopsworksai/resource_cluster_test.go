@@ -3,6 +3,7 @@ package hopsworksai
 import (
 	"context"
 	"fmt"
+	"log"
 	"regexp"
 	"strings"
 	"testing"
@@ -12,6 +13,36 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/logicalclocks/terraform-provider-hopsworksai/hopsworksai/internal/api"
 )
+
+func init() {
+	resource.AddTestSweepers("hopsworksai_cluster", &resource.Sweeper{
+		Name: "hopsworksai_cluster",
+		F: func(region string) error {
+			client, err := sharedClient()
+			if err != nil {
+				return fmt.Errorf("Error getting the client %s", err)
+			}
+
+			ctx := context.Background()
+			clusters, err := api.GetClusters(ctx, client, "")
+			if err != nil {
+				return fmt.Errorf("Error getting clusters %s", err)
+			}
+
+			for _, cluster := range clusters {
+				for _, tag := range cluster.Tags {
+					if strings.HasPrefix(cluster.Name, default_CLUSTER_NAME_PREFIX) || (tag.Name == default_CLUSTER_TAG_KEY && tag.Value == default_CLUSTER_TAG_VALUE) {
+						if err := api.DeleteCluster(ctx, client, cluster.Id); err != nil {
+							log.Printf("Error destroying %s during sweep: %s", cluster.Id, err)
+						}
+						break
+					}
+				}
+			}
+			return nil
+		},
+	})
+}
 
 func TestAccClusterAWS_basic(t *testing.T) {
 	testAccCluster_basic(t, api.AWS)
@@ -359,15 +390,18 @@ func testAccClusterConfig(cloud api.CloudProvider, rName string, suffix string, 
 		%s 
 
 		tags = {
-		  "Purpose" = "acceptance-test"
+		  "%s" = "%s"
 		}
 	  }
 	`,
 		rName,
-		clusterPrefixName,
+		default_CLUSTER_NAME_PREFIX,
 		strings.ToLower(cloud.String()),
 		suffix,
 		testAccClusterCloudSSHKeyAttribute(cloud),
 		testAccClusterCloudConfigAttributes(cloud, bucketIndex),
-		extraConfig)
+		extraConfig,
+		default_CLUSTER_TAG_KEY,
+		default_CLUSTER_TAG_VALUE,
+	)
 }
