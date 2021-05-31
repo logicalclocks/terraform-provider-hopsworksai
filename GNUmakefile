@@ -11,12 +11,13 @@ generate: fmt
 
 build: generate
 	@echo "Building source code ..."
-	go build -o ${BINARY}
+	mkdir -p ./bin
+	go build -o ./bin/${BINARY}
 
 install: build lint test
 	@echo "Installing provider for terraform 0.13+ into ~/.terraform.d/plugins ... "
 	@mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/$(shell go version | awk '{print $$4}' | sed 's#/#_#')
-	@mv ${BINARY} ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/$(shell go version | awk '{print $$4}' | sed 's#/#_#')
+	@mv ./bin/${BINARY} ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/$(shell go version | awk '{print $$4}' | sed 's#/#_#')
 
 fmt:
 	@echo "Formatting source code using gofmt"
