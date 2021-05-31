@@ -196,8 +196,8 @@ Optional:
 Optional:
 
 - **count** (Number) The number of worker nodes. Defaults to `1`.
-- **disk_size** (Number) THe disk size of worker nodes in units of GB Defaults to `512`.
-- **instance_type** (String) The instance type of worker nodes
+- **disk_size** (Number) The disk size of worker nodes in units of GB Defaults to `512`.
+- **instance_type** (String) The instance type of the worker nodes. Defaults to m5.2xlarge for AWS and Standard_D8_v3 for Azure.
 
 ## Import
 
