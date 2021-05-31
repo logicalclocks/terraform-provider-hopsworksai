@@ -39,9 +39,14 @@ func testAccClustersDataSource_basic(t *testing.T, cloud api.CloudProvider) {
 
 func testAccClustersDataSourceCheckAllAttributes(cloud api.CloudProvider, resourceName string, dataSourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
+		ds, ok := s.RootModule().Resources[dataSourceName]
+		if !ok {
+			return fmt.Errorf("data source %s not found", dataSourceName)
+		}
+
 		var index string = ""
 		listClustersTagPattern := regexp.MustCompile(`^clusters\.([0-9]*)\.tags.ListClusters$`)
-		for k, v := range s.RootModule().Resources[dataSourceName].Primary.Attributes {
+		for k, v := range ds.Primary.Attributes {
 			submatches := listClustersTagPattern.FindStringSubmatch(k)
 			if len(submatches) == 2 && v == cloud.String() {
 				index = submatches[1]
@@ -52,7 +57,11 @@ func testAccClustersDataSourceCheckAllAttributes(cloud api.CloudProvider, resour
 			return fmt.Errorf("no clusters returned")
 		}
 
-		for k := range s.RootModule().Resources[resourceName].Primary.Attributes {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("resource %s not found", resourceName)
+		}
+		for k := range rs.Primary.Attributes {
 			if k == "id" || k == "%" || k == "*" {
 				continue
 			}

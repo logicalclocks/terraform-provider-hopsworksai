@@ -61,9 +61,8 @@ func testAccCluster_basic(t *testing.T, cloud api.CloudProvider) {
 				ImportStateVerify: true,
 			},
 			{
-				Config:             testAccClusterConfig_basic(cloud, rName, suffix, `update_state = "start"`),
-				ExpectError:        regexp.MustCompile("cluster is already running"),
-				ExpectNonEmptyPlan: true,
+				Config:      testAccClusterConfig_basic(cloud, rName, suffix, `update_state = "start"`),
+				ExpectError: regexp.MustCompile("cluster is already running"),
 			},
 			{
 				Config: testAccClusterConfig_basic(cloud, rName, suffix, `
@@ -102,9 +101,8 @@ func testAccCluster_basic(t *testing.T, cloud api.CloudProvider) {
 				),
 			},
 			{
-				Config:             testAccClusterConfig_basic(cloud, rName, suffix, `update_state = "stop"`),
-				ExpectError:        regexp.MustCompile("cluster is already stopped"),
-				ExpectNonEmptyPlan: true,
+				Config:      testAccClusterConfig_basic(cloud, rName, suffix, `update_state = "stop"`),
+				ExpectError: regexp.MustCompile("cluster is already stopped"),
 			},
 			{
 				Config: testAccClusterConfig_basic(cloud, rName, suffix, `update_state = "start"`),

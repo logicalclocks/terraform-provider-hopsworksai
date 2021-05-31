@@ -38,7 +38,11 @@ func testAccClusterDataSource_basic(t *testing.T, cloud api.CloudProvider) {
 
 func testAccClusterDataSourceCheckAllAttributes(resourceName string, dataSourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		for k := range s.RootModule().Resources[resourceName].Primary.Attributes {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("resource %s not found", resourceName)
+		}
+		for k := range rs.Primary.Attributes {
 			if k == "id" || k == "%" || k == "*" {
 				continue
 			}
