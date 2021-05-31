@@ -14,7 +14,7 @@ func TestMain(m *testing.M) {
 	resource.TestMain(m)
 }
 
-func sharedClient() (*api.HopsworksAIClient, error) {
+func sharedClient() *api.HopsworksAIClient {
 	return &api.HopsworksAIClient{
 		UserAgent:  "Terraform Acceptance Tests",
 		ApiKey:     os.Getenv("HOPSWORKSAI_API_KEY"),
@@ -22,5 +22,5 @@ func sharedClient() (*api.HopsworksAIClient, error) {
 		Client: &http.Client{
 			Timeout: time.Second * 30,
 		},
-	}, nil
+	}
 }

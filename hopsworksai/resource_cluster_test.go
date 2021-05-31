@@ -18,10 +18,7 @@ func init() {
 	resource.AddTestSweepers("hopsworksai_cluster", &resource.Sweeper{
 		Name: "hopsworksai_cluster",
 		F: func(region string) error {
-			client, err := sharedClient()
-			if err != nil {
-				return fmt.Errorf("Error getting the client %s", err)
-			}
+			client := sharedClient()
 
 			ctx := context.Background()
 			clusters, err := api.GetClusters(ctx, client, "")
