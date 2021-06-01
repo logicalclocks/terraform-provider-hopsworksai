@@ -40,7 +40,7 @@ var testAccProviders map[string]*schema.Provider
 var testAccProvider *schema.Provider
 
 func init() {
-	testAccProvider = Provider("0.1.0")()
+	testAccProvider = Provider("dev")()
 	testAccProviders = map[string]*schema.Provider{
 		"hopsworksai": testAccProvider,
 	}

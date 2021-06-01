@@ -31,8 +31,7 @@ terraform {
       version = "3.42.0"
     }
     hopsworksai = {
-      source  = "logicalclocks/hopsworksai"
-      version = "0.1.0"
+      source = "logicalclocks/hopsworksai"
     }
   }
 }
@@ -141,8 +140,7 @@ terraform {
       version = "2.60.0"
     }
     hopsworksai = {
-      source  = "logicalclocks/hopsworksai"
-      version = "0.1.0"
+      source = "logicalclocks/hopsworksai"
     }
   }
 }
