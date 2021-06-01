@@ -32,13 +32,13 @@ data "hopsworksai_clusters" "cluster" {
 ### Read-Only
 
 - **activation_state** (String) The current activation state of the cluster.
-- **attach_public_ip** (Boolean) Attach or do not attach a public ip to the cluster. This can be used if you intend creating a cluster in a private network.
+- **attach_public_ip** (Boolean) Attach or do not attach a public ip to the cluster. This can be useful if you intend to create a cluster in a private network.
 - **aws_attributes** (List of Object) The configurations required to run the cluster on Amazon AWS. (see [below for nested schema](#nestedatt--aws_attributes))
 - **azure_attributes** (List of Object) The configurations required to run the cluster on Microsoft Azure. (see [below for nested schema](#nestedatt--azure_attributes))
 - **backup_retention_period** (Number) The validity of cluster backups in days. If set to 0 cluster backups are disabled.
 - **creation_date** (String) The creation date of the cluster. The date is represented in RFC3339 format.
 - **head** (List of Object) The configurations of the head node of the cluster. (see [below for nested schema](#nestedatt--head))
-- **issue_lets_encrypt_certificate** (Boolean) Enable or disable issuing let's encrypt certificates. This can be used by the user to disable issuing certificates if port 80 is not open.
+- **issue_lets_encrypt_certificate** (Boolean) Enable or disable issuing let's encrypt certificates. This can be used to disable issuing certificates if port 80 can not be open.
 - **managed_users** (Boolean) Enable or disable Hopsworks.ai to manage your users.
 - **name** (String) The name of the cluster, must be unique.
 - **open_ports** (List of Object) Open the required ports to communicate with one of the Hopsworks services. (see [below for nested schema](#nestedatt--open_ports))

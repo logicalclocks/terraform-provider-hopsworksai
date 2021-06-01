@@ -1,1 +1,1 @@
-terraform import hopsworksai_cluster.myCluster <cluster_id>
+terraform import hopsworksai_cluster.my_cluster <cluster_id>

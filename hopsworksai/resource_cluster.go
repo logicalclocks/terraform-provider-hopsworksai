@@ -138,14 +138,14 @@ func clusterSchema() map[string]*schema.Schema {
 			},
 		},
 		"issue_lets_encrypt_certificate": {
-			Description: "Enable or disable issuing let's encrypt certificates. This can be used by the user to disable issuing certificates if port 80 is not open.",
+			Description: "Enable or disable issuing let's encrypt certificates. This can be used to disable issuing certificates if port 80 can not be open.",
 			Type:        schema.TypeBool,
 			Optional:    true,
 			ForceNew:    true,
 			Default:     true,
 		},
 		"attach_public_ip": {
-			Description: "Attach or do not attach a public ip to the cluster. This can be used if you intend creating a cluster in a private network.",
+			Description: "Attach or do not attach a public ip to the cluster. This can be useful if you intend to create a cluster in a private network.",
 			Type:        schema.TypeBool,
 			Optional:    true,
 			ForceNew:    true,

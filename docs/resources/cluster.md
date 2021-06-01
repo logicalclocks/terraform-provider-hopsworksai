@@ -82,12 +82,12 @@ resource "hopsworksai_cluster" "cluster" {
 
 ### Optional
 
-- **attach_public_ip** (Boolean) Attach or do not attach a public ip to the cluster. This can be used if you intend creating a cluster in a private network. Defaults to `true`.
+- **attach_public_ip** (Boolean) Attach or do not attach a public ip to the cluster. This can be useful if you intend to create a cluster in a private network. Defaults to `true`.
 - **aws_attributes** (Block List, Max: 1) The configurations required to run the cluster on Amazon AWS. (see [below for nested schema](#nestedblock--aws_attributes))
 - **azure_attributes** (Block List, Max: 1) The configurations required to run the cluster on Microsoft Azure. (see [below for nested schema](#nestedblock--azure_attributes))
 - **backup_retention_period** (Number) The validity of cluster backups in days. If set to 0 cluster backups are disabled. Defaults to `0`.
 - **id** (String) The ID of this resource.
-- **issue_lets_encrypt_certificate** (Boolean) Enable or disable issuing let's encrypt certificates. This can be used by the user to disable issuing certificates if port 80 is not open. Defaults to `true`.
+- **issue_lets_encrypt_certificate** (Boolean) Enable or disable issuing let's encrypt certificates. This can be used to disable issuing certificates if port 80 can not be open. Defaults to `true`.
 - **managed_users** (Boolean) Enable or disable Hopsworks.ai to manage your users. Defaults to `true`.
 - **open_ports** (Block List, Max: 1) Open the required ports to communicate with one of the Hopsworks services. (see [below for nested schema](#nestedblock--open_ports))
 - **tags** (Map of String) The list of custom tags to be attached to the cluster.
@@ -203,5 +203,5 @@ Optional:
 
 Import is supported using the following syntax:
 ```shell
-terraform import hopsworksai_cluster.myCluster <cluster_id>
+terraform import hopsworksai_cluster.my_cluster <cluster_id>
 ```

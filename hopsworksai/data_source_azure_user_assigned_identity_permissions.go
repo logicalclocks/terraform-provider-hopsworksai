@@ -29,7 +29,7 @@ func dataSourceAzureUserAssignedIdentityPermissions() *schema.Resource {
 				Description: "Add permissions required to enable upgrade to newer versions of Hopsworks.",
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Default:     true,
+				Default:     false,
 			},
 			"actions": {
 				Description: "The actions permissions.",
