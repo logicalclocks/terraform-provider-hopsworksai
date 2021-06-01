@@ -9,23 +9,12 @@ import (
 	"github.com/logicalclocks/terraform-provider-hopsworksai/hopsworksai"
 )
 
-// Run "go generate" to format example terraform files and generate the docs for the registry/website
-
-// If you do not have terraform installed, you can remove the formatting command, but its suggested to
-// ensure the documentation is formatted properly.
-//go:generate terraform fmt -recursive ./examples/
-
-// Run the docs generation tool, check its repository for more information on how it works and how docs
-// can be customized.
+// Generate docs
 //go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
 
 var (
-	// these will be set by the goreleaser configuration
-	// to appropriate values for the compiled binary
+	// Will be set by the goreleaser configuration
 	version string = "dev"
-
-	// goreleaser can also pass the specific commit if you want
-	// commit  string = ""
 )
 
 func main() {
@@ -37,7 +26,6 @@ func main() {
 	opts := &plugin.ServeOpts{ProviderFunc: hopsworksai.Provider(version)}
 
 	if debugMode {
-		// TODO: update this string with the full name of your provider as used in your configs
 		err := plugin.Debug(context.Background(), "registry.terraform.io/logicalclocks/hopsworksai", opts)
 		if err != nil {
 			log.Fatal(err.Error())
