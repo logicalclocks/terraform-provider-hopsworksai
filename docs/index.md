@@ -14,7 +14,7 @@ If you are new to Hopsworks, then first you need to create an account on [Hopswo
   * [Getting Started with Azure](https://docs.hopsworks.ai/latest/hopsworksai/azure/getting_started/)
 
 
--> Notice that a Hopsworks API Key is required to allow the provider to manage clusters on Hopsworks.ai on your behalf. To create an API token, follow this guide.
+-> Notice that a Hopsworks API Key is required to allow the provider to manage clusters on Hopsworks.ai on your behalf. To create an API token, follow [this guide](https://docs.hopsworks.ai/latest/hopsworksai/api_key).
 
 ## AWS Example Usage 
 
