@@ -21,7 +21,7 @@ provider "aws" {
 }
 
 provider "hopsworksai" {
-  # Highly recommeneded to use the HOPSWORKSAI_API_KEY environment variable instead
+  # Highly recommended to use the HOPSWORKSAI_API_KEY environment variable instead
   api_key = "YOUR HOPSWORKS API KEY"
 }
 

@@ -2,6 +2,9 @@
 
 ![Unit Tests](https://github.com/logicalclocks/terraform-provider-hopsworksai/actions/workflows/unit-test.yml/badge.svg) 
 
+- Website: [managed.hopsworks.ai](https://managed.hopsworks.ai/)
+- Community: [community.hopsworks.ai](https://community.hopsworks.ai/)
+
 The Terraform Hopsworks.ai provider is a plugin for Terraform that allows for creating and managing Hopsworks clusters on [Hopsworks.ai](http://managed.hopsworks.ai/)
 
 ## Example Usage 
@@ -30,7 +33,7 @@ provider "aws" {
 }
 
 provider "hopsworksai" {
-  # Highly recommeneded to use the HOPSWORKSAI_API_KEY environment variable instead
+  # Highly recommended to use the HOPSWORKSAI_API_KEY environment variable instead
   api_key = "YOUR HOPSWORKS API KEY"
 }
 
@@ -108,68 +111,15 @@ resource "hopsworksai_cluster" "cluster" {
 }
 
 ```
+
 ## Requirements
 
 -	[Terraform](https://www.terraform.io/downloads.html) >= 0.13.x
 -	[Go](https://golang.org/doc/install) >= 1.15
 
-## Building The Provider
 
-1. Clone the repository
-1. Enter the repository directory
-1. Build the provider using the `make install` command: 
-```sh
-$ make install
-```
+## Quick Starts
 
-## Adding Dependencies
+- [Using the provider](https://registry.terraform.io/providers/logicalclocks/hopsworksai/latest/docs)
+- [Provider development](DEVELOPMENT.md)
 
-This provider uses [Go modules](https://github.com/golang/go/wiki/Modules).
-Please see the Go documentation for the most up to date information about using Go modules.
-
-To add a new dependency `github.com/author/dependency` to your Terraform provider:
-
-```
-go get github.com/author/dependency
-go mod tidy
-```
-
-Then commit the changes to `go.mod` and `go.sum`.
-
-## Developing the Provider
-
-If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (see [Requirements](#requirements) above).
-
-To compile the provider, run `make install`. This will build the provider and put the provider binary in the terraform plugin directory.
-
-To generate or update documentation, run `make generate`.
-
-### Acceptance tests
-**Note:** Acceptance tests create real resources, and cost money to run.
-
-In order to run the full suite of Acceptance tests, you need do the following:
-* Configure your AWS and Azure credentials locally 
-* Export the following environment variables
-
-```sh
-   export HOPSWORKSAI_API_KEY=<YOUR HOPSWORKS API KEY>
-   export TF_VAR_skip_aws=false # Setting it to true will not run any acceptance tests on AWS
-   export TF_VAR_skip_azure=false # Setting it to true will not run any acceptance tests on Azure
-   export TF_VAR_azure_resource_group=<YOUR AZURE RESOURCE GROUP> # no need to set if you skip tests on Azure
-```
-* Run all the acceptance tests using the following command 
-
-```sh
-$ make testacc 
-```
-
-You can also run only a single test or a some tests following some name pattern as follows
-```sh
-$ make testacc TESTARGS='-run=TestAcc*'
-```
-
-Acceptance tests provision real resources, and ideally these resources should be destroyed at the end of each test, however, it can happen that resources are leaked due to different reasons. For that, you can run the sweeper to clean up all resources created during acceptance testing.
-
-```sh
-$ make sweep 
-```
