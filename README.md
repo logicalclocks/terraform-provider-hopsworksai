@@ -1,6 +1,6 @@
 # Terraform Provider for Hopsworks.ai
 
-![Unit Tests](https://github.com/logicalclocks/terraform-provider-hopsworksai/actions/workflows/unit-test.yml/badge.svg) 
+![Build and Unit Tests](https://github.com/logicalclocks/terraform-provider-hopsworksai/actions/workflows/unit-test.yml/badge.svg) [![Code Coverage](https://codecov.io/gh/logicalclocks/terraform-provider-hopsworksai/branch/main/graph/badge.svg)](https://codecov.io/gh/logicalclocks/terraform-provider-hopsworksai)
 
 - Website: [managed.hopsworks.ai](https://managed.hopsworks.ai/)
 - Community: [community.hopsworks.ai](https://community.hopsworks.ai/)
