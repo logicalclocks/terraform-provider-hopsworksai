@@ -1,3 +1,13 @@
+## 0.2.0 (Unreleased)
+
+NOTES:
+
+BUG FIXES:
+
+ENHANCEMENTS:
+
+FEATURES:
+
 ## 0.1.0 (June 2, 2021)
 
 FEATURES:
