@@ -65,3 +65,6 @@ jobs:
     - name: run unit tests
       timeout-minutes: 10
       run: make test
+    
+    - name: Publish test coverage
+      uses: codecov/codecov-action@v1

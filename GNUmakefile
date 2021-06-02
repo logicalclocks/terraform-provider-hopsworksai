@@ -30,7 +30,7 @@ lint:
 	golangci-lint run ./...
 
 test:
-	go test ./... -v --cover $(TESTARGS) -parallel=4
+	go test ./... -v -race -coverprofile=coverage.txt -covermode=atomic $(TESTARGS) -parallel=4
 
 testacc:
 	./test-fixtures/run-acceptance-tests.sh
