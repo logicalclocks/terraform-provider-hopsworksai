@@ -31,7 +31,12 @@ To compile the provider, run `make install`. This will build the provider and pu
 
 To generate or update documentation, run `make generate`.
 
-## Acceptance tests
+## Testing the Provider
+
+### Unit tests 
+To run the unit tests, run `make test`
+
+### Acceptance tests
 
 **Note:** Acceptance tests create real resources, and cost money to run.
 
@@ -60,6 +65,21 @@ Acceptance tests provision real resources, and ideally these resources should be
 
 ```sh
 $ make sweep 
+```
+
+## Using the Provider
+
+With Terraform v0.14 and later, [development overrides for provider developers](https://www.terraform.io/docs/cli/config/config-file.html#development-overrides-for-provider-developers) can be leveraged in order to use the provider built from source.
+
+To do this, populate a Terraform CLI configuration file (`~/.terraformrc` for all platforms other than Windows; `terraform.rc` in the `%APPDATA%` directory when using Windows) with at least the following options:
+
+```hcl
+provider_installation {
+  dev_overrides {
+    "logicalclocks/hopsworksai" = "[REPLACE WITH THE REPOSITORY LOCAL DIRECTORY]/bin"
+  }
+  direct {}
+}
 ```
 
 ## Releasing the Provider
