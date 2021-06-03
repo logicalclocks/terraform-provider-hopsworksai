@@ -492,7 +492,7 @@ func createAWSCluster(awsAttributes map[string]interface{}, baseRequest *api.Cre
 
 	if v, ok := awsAttributes["eks_cluster_name"]; ok {
 		req.EksClusterName = v.(string)
-		if registry, okR := awsAttributes["ecr_registry_account_id"]; okR {
+		if registry, okR := awsAttributes["ecr_registry_account_id"]; okR && registry != "" {
 			req.EcrRegistryAccountId = registry.(string)
 		} else {
 			submatches := instanceProfileRegex().FindStringSubmatch(req.InstanceProfileArn)

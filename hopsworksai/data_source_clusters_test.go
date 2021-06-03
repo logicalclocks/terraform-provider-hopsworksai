@@ -313,3 +313,64 @@ func TestClustersDataSourceRead(t *testing.T) {
 	}
 	r.Apply(t, context.TODO())
 }
+
+func TestClustersDataSourceRead_filter(t *testing.T) {
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"clusters":[
+						]
+					}
+				}`,
+			},
+		},
+		Resource:             dataSourceClusters(),
+		OperationContextFunc: dataSourceClusters().ReadContext,
+		State: map[string]interface{}{
+			"filter": []interface{}{
+				map[string]interface{}{
+					"cloud": "AWS",
+				},
+			},
+		},
+		ExpectState: map[string]interface{}{
+			"clusters": []interface{}{},
+		},
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClustersDataSourceRead_error(t *testing.T) {
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 400,
+					"message": "bad request failed to get filtered clusters"
+				}`,
+			},
+		},
+		Resource:             dataSourceClusters(),
+		OperationContextFunc: dataSourceClusters().ReadContext,
+		State: map[string]interface{}{
+			"filter": []interface{}{
+				map[string]interface{}{
+					"cloud": "AWS",
+				},
+			},
+		},
+		ExpectError: "bad request failed to get filtered clusters",
+	}
+	r.Apply(t, context.TODO())
+}

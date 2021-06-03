@@ -30,6 +30,7 @@ type Operation struct {
 	Path              string
 	Response          string
 	ExpectRequestBody string
+	CheckRequestBody  func(reqBody io.Reader) error
 }
 
 func newHttpClient(t *testing.T, ops []Operation) *httpClient {
@@ -37,15 +38,20 @@ func newHttpClient(t *testing.T, ops []Operation) *httpClient {
 		DoFunc: func(req *http.Request) (*http.Response, error) {
 			for _, op := range ops {
 				if req.URL.Path == op.Path && req.Method == op.Method {
-					if op.ExpectRequestBody != "" {
+					if op.ExpectRequestBody != "" || op.CheckRequestBody != nil {
 						reqBody, err := ioutil.ReadAll(req.Body)
 						if err != nil {
 							return nil, err
 						}
 						reqBodyString := string(reqBody)
 						expected := test.CompactJSONString(op.ExpectRequestBody)
-						if reqBodyString != expected {
+						if op.ExpectRequestBody != "" && reqBodyString != expected {
 							t.Fatalf("invalid req body, expected:\n%s, but got:\n%s", expected, reqBodyString)
+						}
+						if op.CheckRequestBody != nil {
+							if err := op.CheckRequestBody(io.NopCloser(strings.NewReader(reqBodyString))); err != nil {
+								t.Fatal(err)
+							}
 						}
 					}
 					return &http.Response{

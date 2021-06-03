@@ -196,6 +196,16 @@ type NewClusterRequest struct {
 	CreateRequest interface{}   `json:"cluster"`
 }
 
+type NewAWSClusterRequest struct {
+	CloudProvider CloudProvider    `json:"cloudProvider"`
+	CreateRequest CreateAWSCluster `json:"cluster"`
+}
+
+type NewAzureClusterRequest struct {
+	CloudProvider CloudProvider      `json:"cloudProvider"`
+	CreateRequest CreateAzureCluster `json:"cluster"`
+}
+
 type NewClusterResponse struct {
 	BaseResponse
 	Payload struct {

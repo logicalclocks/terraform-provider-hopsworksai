@@ -329,3 +329,27 @@ func TestClusterDataSourceRead_AZURE(t *testing.T) {
 	}
 	r.Apply(t, context.TODO())
 }
+
+func TestClusterDataSourceRead_error(t *testing.T) {
+	r := &test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"statue": "ok",
+					"code": 400,
+					"message": "bad request get cluster failed"
+				}`,
+			},
+		},
+		Resource:             dataSourceCluster(),
+		OperationContextFunc: dataSourceCluster().ReadContext,
+		State: map[string]interface{}{
+			"cluster_id": "cluster-id-1",
+		},
+		ExpectError: "bad request get cluster failed",
+	}
+	r.Apply(t, context.TODO())
+}

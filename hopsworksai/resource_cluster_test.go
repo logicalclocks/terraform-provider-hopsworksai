@@ -2,7 +2,9 @@ package hopsworksai
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"regexp"
@@ -494,6 +496,171 @@ func TestClusterCreate_AWS(t *testing.T) {
 	r.Apply(t, context.TODO())
 }
 
+func TestClusterCreate_AWSSetNetwork(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"id" : "new-cluster-id-1"
+					}
+				}`,
+			},
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/new-cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"cluster": {
+							"id" : "new-cluster-id-1",
+							"state": "running"
+						}
+					}
+				}`,
+			},
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters/new-cluster-id-1/ports",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200
+				}`,
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name":    "cluster-1",
+			"version": "2.0",
+			"head": []interface{}{
+				map[string]interface{}{
+					"instance_type": "node-type-1",
+					"disk_size":     512,
+				},
+			},
+			"workers": []interface{}{
+				map[string]interface{}{
+					"instance_type": "node-type-2",
+					"disk_size":     256,
+					"count":         2,
+				},
+			},
+			"ssh_key": "ssh-key-1",
+			"tags": map[string]interface{}{
+				"tag1": "tag1-value1",
+			},
+			"aws_attributes": []interface{}{
+				map[string]interface{}{
+					"region":               "region-1",
+					"bucket_name":          "bucket-1",
+					"instance_profile_arn": "profile-1",
+					"network": []interface{}{
+						map[string]interface{}{
+							"vpc_id":            "vpc-id-1",
+							"subnet_id":         "subnet-id-1",
+							"security_group_id": "security-group-id-1",
+						},
+					},
+				},
+			},
+			"open_ports": []interface{}{
+				map[string]interface{}{
+					"ssh":                  true,
+					"kafka":                true,
+					"feature_store":        true,
+					"online_feature_store": true,
+				},
+			},
+		},
+		ExpectId: "new-cluster-id-1",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_AWS_errorOpenPorts(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"id" : "new-cluster-id-1"
+					}
+				}`,
+			},
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/new-cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"cluster": {
+							"id" : "new-cluster-id-1",
+							"state": "running"
+						}
+					}
+				}`,
+			},
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters/new-cluster-id-1/ports",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 400,
+					"message": "could not open ports"
+				}`,
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name":    "cluster-1",
+			"version": "2.0",
+			"head": []interface{}{
+				map[string]interface{}{
+					"instance_type": "node-type-1",
+					"disk_size":     512,
+				},
+			},
+			"aws_attributes": []interface{}{
+				map[string]interface{}{
+					"region":               "region-1",
+					"bucket_name":          "bucket-1",
+					"instance_profile_arn": "profile-1",
+				},
+			},
+			"open_ports": []interface{}{
+				map[string]interface{}{
+					"ssh":                  true,
+					"kafka":                true,
+					"feature_store":        true,
+					"online_feature_store": true,
+				},
+			},
+		},
+		ExpectError: "failed to open ports on cluster, error: could not open ports",
+	}
+	r.Apply(t, context.TODO())
+}
+
 func TestClusterCreate_AWSInvalidName(t *testing.T) {
 	t.Parallel()
 	r := test.ResourceFixture{
@@ -557,6 +724,57 @@ func TestClusterCreate_AWSInvalidName(t *testing.T) {
 			},
 		},
 		ExpectError: "invalid value for name, cluster name can only include a-z, A-Z, 0-9, _, - and a maximum of 20 characters",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_AWS_errorWaiting(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"id" : "new-cluster-id-1"
+					}
+				}`,
+			},
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/new-cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 400,
+					"message": "failed while waiting"
+				}`,
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name":    "cluster-1",
+			"version": "2.0",
+			"head": []interface{}{
+				map[string]interface{}{
+					"instance_type": "node-type-1",
+					"disk_size":     512,
+				},
+			},
+			"aws_attributes": []interface{}{
+				map[string]interface{}{
+					"region":               "region-1",
+					"bucket_name":          "bucket-1",
+					"instance_profile_arn": "profile-1",
+				},
+			},
+		},
+		ExpectError: "failed while waiting",
 	}
 	r.Apply(t, context.TODO())
 }
@@ -630,6 +848,98 @@ func TestClusterCreate_AZURE(t *testing.T) {
 					"resource_group":                 "resource-group-1",
 					"storage_account":                "storage-account-1",
 					"user_assigned_managed_identity": "user-identity-1",
+				},
+			},
+			"open_ports": []interface{}{
+				map[string]interface{}{
+					"ssh":                  true,
+					"kafka":                true,
+					"feature_store":        true,
+					"online_feature_store": true,
+				},
+			},
+		},
+		ExpectId: "new-cluster-id-1",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_AZURESetNetwork(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"id" : "new-cluster-id-1"
+					}
+				}`,
+			},
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/new-cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"cluster": {
+							"id" : "new-cluster-id-1",
+							"state": "running"
+						}
+					}
+				}`,
+			},
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters/new-cluster-id-1/ports",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200
+				}`,
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name":    "cluster",
+			"version": "2.0",
+			"head": []interface{}{
+				map[string]interface{}{
+					"instance_type": "node-type-1",
+					"disk_size":     512,
+				},
+			},
+			"workers": []interface{}{
+				map[string]interface{}{
+					"instance_type": "node-type-2",
+					"disk_size":     256,
+					"count":         2,
+				},
+			},
+			"ssh_key": "ssh-key-1",
+			"tags": map[string]interface{}{
+				"tag1": "tag1-value1",
+			},
+			"azure_attributes": []interface{}{
+				map[string]interface{}{
+					"location":                       "location-1",
+					"resource_group":                 "resource-group-1",
+					"storage_account":                "storage-account-1",
+					"user_assigned_managed_identity": "user-identity-1",
+					"network": []interface{}{
+						map[string]interface{}{
+							"virtual_network_name": "virtual-network-name-1",
+							"subnet_name":          "subnet-name-1",
+							"security_group_name":  "security-group-name-1",
+						},
+					},
 				},
 			},
 			"open_ports": []interface{}{
@@ -782,6 +1092,255 @@ func TestClusterCreate_noCloudConfiguration(t *testing.T) {
 	r.Apply(t, context.TODO())
 }
 
+func TestClusterCreate_error(t *testing.T) {
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 400,
+					"message": "cannot create cluster"
+				}`,
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name":    "cluster",
+			"version": "2.0",
+			"head": []interface{}{
+				map[string]interface{}{
+					"disk_size": 512,
+				},
+			},
+			"azure_attributes": []interface{}{
+				map[string]interface{}{
+					"location":                       "location-1",
+					"resource_group":                 "resource-group-1",
+					"storage_account":                "storage-account-1",
+					"user_assigned_managed_identity": "user-identity-1",
+				},
+			},
+		},
+		ExpectError: "failed to create cluster, error: cannot create cluster",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_AWSDefaultInstanceType(t *testing.T) {
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 400,
+					"message": "skip"
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					var req api.NewAWSClusterRequest
+					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+						return err
+					}
+					headInstanceType := req.CreateRequest.ClusterConfiguration.Head.InstanceType
+					workerInstanceType := req.CreateRequest.ClusterConfiguration.Workers[0].InstanceType
+					if headInstanceType != awsDefaultInstanceType {
+						return fmt.Errorf("expected default head instance type %s but got %s", awsDefaultInstanceType, headInstanceType)
+					}
+					if workerInstanceType != awsDefaultInstanceType {
+						return fmt.Errorf("expected default worker instance type %s but got %s", awsDefaultInstanceType, workerInstanceType)
+					}
+					return nil
+				},
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name": "cluster",
+			"head": []interface{}{
+				map[string]interface{}{
+					"disk_size": 512,
+				},
+			},
+			"workers": []interface{}{
+				map[string]interface{}{
+					"disk_size": 256,
+					"count":     2,
+				},
+			},
+			"aws_attributes": []interface{}{
+				map[string]interface{}{
+					"region":               "region-1",
+					"bucket_name":          "bucket-1",
+					"instance_profile_arn": "profile-1",
+				},
+			},
+		},
+		ExpectError: "failed to create cluster, error: skip",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_AzureDefaultInstanceType(t *testing.T) {
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 400,
+					"message": "skip"
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					var req api.NewAzureClusterRequest
+					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+						return err
+					}
+					headInstanceType := req.CreateRequest.ClusterConfiguration.Head.InstanceType
+					workerInstanceType := req.CreateRequest.ClusterConfiguration.Workers[0].InstanceType
+					if headInstanceType != azureDefaultInstanceType {
+						return fmt.Errorf("expected default head instance type %s but got %s", azureDefaultInstanceType, headInstanceType)
+					}
+					if workerInstanceType != azureDefaultInstanceType {
+						return fmt.Errorf("expected default worker instance type %s but got %s", azureDefaultInstanceType, workerInstanceType)
+					}
+					return nil
+				},
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name": "cluster",
+			"head": []interface{}{
+				map[string]interface{}{
+					"disk_size": 512,
+				},
+			},
+			"workers": []interface{}{
+				map[string]interface{}{
+					"disk_size": 256,
+					"count":     2,
+				},
+			},
+			"azure_attributes": []interface{}{
+				map[string]interface{}{
+					"location":                       "location-1",
+					"resource_group":                 "resource-group-1",
+					"storage_account":                "storage-account-1",
+					"user_assigned_managed_identity": "user-identity-1",
+				},
+			},
+		},
+		ExpectError: "failed to create cluster, error: skip",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_AWS_defaultECRAccountId(t *testing.T) {
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 400,
+					"message": "skip"
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					var req api.NewAWSClusterRequest
+					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+						return err
+					}
+					ecr := req.CreateRequest.EcrRegistryAccountId
+					if ecr != "000011111333" {
+						return fmt.Errorf("expected ecr account id 000011111333 but got %s", ecr)
+					}
+					return nil
+				},
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name": "cluster",
+			"head": []interface{}{
+				map[string]interface{}{
+					"disk_size": 512,
+				},
+			},
+			"aws_attributes": []interface{}{
+				map[string]interface{}{
+					"region":               "region-1",
+					"bucket_name":          "bucket-1",
+					"instance_profile_arn": "arn:aws:iam::000011111333:instance-profile/my-instance-profile",
+					"eks_cluster_name":     "my-cluster",
+				},
+			},
+		},
+		ExpectError: "failed to create cluster, error: skip",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_AWS_setECRAccountId(t *testing.T) {
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 400,
+					"message": "skip"
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					var req api.NewAWSClusterRequest
+					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+						return err
+					}
+					ecr := req.CreateRequest.EcrRegistryAccountId
+					if ecr != "000011111444" {
+						return fmt.Errorf("expected ecr account id 000011111444 but got %s", ecr)
+					}
+					return nil
+				},
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name": "cluster",
+			"head": []interface{}{
+				map[string]interface{}{
+					"disk_size": 512,
+				},
+			},
+			"aws_attributes": []interface{}{
+				map[string]interface{}{
+					"region":                  "region-1",
+					"bucket_name":             "bucket-1",
+					"instance_profile_arn":    "arn:aws:iam::000011111333:instance-profile/my-instance-profile",
+					"eks_cluster_name":        "my-cluster",
+					"ecr_registry_account_id": "000011111444",
+				},
+			},
+		},
+		ExpectError: "failed to create cluster, error: skip",
+	}
+	r.Apply(t, context.TODO())
+}
 func TestClusterRead_AWS(t *testing.T) {
 	r := test.ResourceFixture{
 		HttpOps: []test.Operation{
@@ -1008,6 +1567,28 @@ func TestClusterRead_AZURE(t *testing.T) {
 			},
 			"aws_attributes": []interface{}{},
 		},
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterRead_error(t *testing.T) {
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"statue": "ok",
+					"code": 400,
+					"message": "cannot read cluster"
+				}`,
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().ReadContext,
+		Id:                   "cluster-id-1",
+		ExpectError:          "failed to obtain cluster state: cannot read cluster",
 	}
 	r.Apply(t, context.TODO())
 }
