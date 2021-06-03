@@ -22,12 +22,16 @@ func convertClusterStates(states []api.ClusterState) []string {
 }
 
 func ClusterStateChange(pending []api.ClusterState, target []api.ClusterState, timeout time.Duration, refreshFunc resource.StateRefreshFunc) *resource.StateChangeConf {
+	return clusterStateChange(pending, target, timeout, refreshFunc, 30*time.Second)
+}
+
+func clusterStateChange(pending []api.ClusterState, target []api.ClusterState, timeout time.Duration, refreshFunc resource.StateRefreshFunc, minTimeout time.Duration) *resource.StateChangeConf {
 	return &resource.StateChangeConf{
 		Pending:    convertClusterStates(pending),
 		Target:     convertClusterStates(target),
 		Refresh:    refreshFunc,
 		Timeout:    timeout,
-		MinTimeout: 30 * time.Second,
-		Delay:      30 * time.Second,
+		MinTimeout: minTimeout,
+		Delay:      minTimeout,
 	}
 }

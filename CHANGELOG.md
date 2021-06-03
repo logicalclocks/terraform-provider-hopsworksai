@@ -5,6 +5,7 @@ NOTES:
 BUG FIXES:
 
 ENHANCEMENTS:
+* more unit tests
 
 FEATURES:
 

@@ -32,6 +32,9 @@ lint:
 test:
 	go test ./... -v -race -coverprofile=coverage.txt -covermode=atomic $(TESTARGS) -parallel=4
 
+coverage: test
+	go tool cover -html coverage.txt 
+
 testacc:
 	./test-fixtures/run-acceptance-tests.sh
 
@@ -39,4 +42,4 @@ sweep:
 	@echo "WARNING: This will destroy infrastructure. Use only in development accounts."
 	go test ./hopsworksai -v -sweep="all" $(SWEEPARGS) -timeout 60m
 
-.PHONY: build install testacc generate test fmt lint sweep
+.PHONY: build install testacc generate test fmt lint sweep coverage
