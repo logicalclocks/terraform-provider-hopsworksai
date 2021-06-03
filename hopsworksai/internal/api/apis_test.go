@@ -7,11 +7,13 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/logicalclocks/terraform-provider-hopsworksai/hopsworksai/internal/api/test"
 )
 
 func TestInvalidAPIKey(t *testing.T) {
 	apiClient := &HopsworksAIClient{
-		Client: &HttpClientFixture{
+		Client: &test.HttpClientFixture{
 			ResponseCode: http.StatusForbidden,
 			ResponseBody: "Unauthorized",
 			T:            t,
@@ -32,7 +34,7 @@ func TestInvalidAPIKey(t *testing.T) {
 
 func TestJsonErrors(t *testing.T) {
 	apiClient := &HopsworksAIClient{
-		Client: &HttpClientFixture{
+		Client: &test.HttpClientFixture{
 			ResponseCode: http.StatusOK,
 			ResponseBody: `{
 				"apiVersion": "latest",
@@ -57,7 +59,7 @@ func TestGetClusterAWS(t *testing.T) {
 	apiClient := &HopsworksAIClient{
 		ApiKey:     "my-api-key",
 		ApiVersion: "testV1",
-		Client: &HttpClientFixture{
+		Client: &test.HttpClientFixture{
 			ExpectMethod: http.MethodGet,
 			ExpectPath:   "/api/clusters/cluster-id-1",
 			ExpectHeaders: map[string]string{
@@ -188,7 +190,7 @@ func TestGetClusterAZURE(t *testing.T) {
 	apiClient := &HopsworksAIClient{
 		ApiKey:     "my-api-key",
 		ApiVersion: "testV1",
-		Client: &HttpClientFixture{
+		Client: &test.HttpClientFixture{
 			ExpectMethod: http.MethodGet,
 			ExpectPath:   "/api/clusters/cluster-id-1",
 			ExpectHeaders: map[string]string{
@@ -321,7 +323,7 @@ func TestGetClusterAZURE(t *testing.T) {
 
 func TestGetClusterNotFound(t *testing.T) {
 	apiClient := &HopsworksAIClient{
-		Client: &HttpClientFixture{
+		Client: &test.HttpClientFixture{
 			ResponseCode: http.StatusNotFound,
 			ResponseBody: `{
 				"apiVersion": "latest",
@@ -345,7 +347,7 @@ func TestGetClusterNotFound(t *testing.T) {
 
 func TestGetClusterError(t *testing.T) {
 	apiClient := &HopsworksAIClient{
-		Client: &HttpClientFixture{
+		Client: &test.HttpClientFixture{
 			ResponseCode: http.StatusBadRequest,
 			ResponseBody: `{
 				"apiVersion": "latest",
@@ -379,7 +381,7 @@ func testGetClustersWithFilter(provider string, t *testing.T) ([]Cluster, error)
 	}
 
 	apiClient := &HopsworksAIClient{
-		Client: &HttpClientFixture{
+		Client: &test.HttpClientFixture{
 			ExpectPath:         "/api/clusters",
 			ExpectMethod:       http.MethodGet,
 			ExpectRequestQuery: expectedQuery,
@@ -412,7 +414,7 @@ func TestGetClustersSettingFilter(t *testing.T) {
 
 func TestGetClusters(t *testing.T) {
 	apiClient := &HopsworksAIClient{
-		Client: &HttpClientFixture{
+		Client: &test.HttpClientFixture{
 			ResponseCode: http.StatusOK,
 			ResponseBody: `{
 				"apiVersion": "v1",
@@ -483,7 +485,7 @@ func TestGetClusters(t *testing.T) {
 
 func TestNewClusterAWS(t *testing.T) {
 	apiClient := &HopsworksAIClient{
-		Client: &HttpClientFixture{
+		Client: &test.HttpClientFixture{
 			ExpectMethod: http.MethodPost,
 			ExpectPath:   "/api/clusters",
 			ExpectRequestBody: `{
@@ -595,7 +597,7 @@ func TestNewClusterAWS(t *testing.T) {
 
 func TestNewClusterAZURE(t *testing.T) {
 	apiClient := &HopsworksAIClient{
-		Client: &HttpClientFixture{
+		Client: &test.HttpClientFixture{
 			ExpectMethod: http.MethodPost,
 			ExpectPath:   "/api/clusters",
 			ExpectRequestBody: `{
@@ -724,7 +726,7 @@ func TestNewClusterInvalidCloud(t *testing.T) {
 
 func TestDeleteCluster(t *testing.T) {
 	apiClient := &HopsworksAIClient{
-		Client: &HttpClientFixture{
+		Client: &test.HttpClientFixture{
 			ExpectMethod: http.MethodDelete,
 			ExpectPath:   "/api/clusters/cluster-id-1",
 			ResponseCode: http.StatusOK,
@@ -744,7 +746,7 @@ func TestDeleteCluster(t *testing.T) {
 
 func TestStopCluster(t *testing.T) {
 	apiClient := &HopsworksAIClient{
-		Client: &HttpClientFixture{
+		Client: &test.HttpClientFixture{
 			ExpectMethod: http.MethodPut,
 			ExpectPath:   "/api/clusters/cluster-id-1/stop",
 			ResponseCode: http.StatusOK,
@@ -764,7 +766,7 @@ func TestStopCluster(t *testing.T) {
 
 func TestStartCluster(t *testing.T) {
 	apiClient := &HopsworksAIClient{
-		Client: &HttpClientFixture{
+		Client: &test.HttpClientFixture{
 			ExpectMethod: http.MethodPut,
 			ExpectPath:   "/api/clusters/cluster-id-1/start",
 			ResponseCode: http.StatusOK,
@@ -784,7 +786,7 @@ func TestStartCluster(t *testing.T) {
 
 func testAddWorkers(t *testing.T, expectedReqBody string, toAdd []WorkerConfiguration) {
 	apiClient := &HopsworksAIClient{
-		Client: &HttpClientFixture{
+		Client: &test.HttpClientFixture{
 			ExpectMethod:      http.MethodPost,
 			ExpectPath:        "/api/clusters/cluster-id-1/workers",
 			ExpectRequestBody: expectedReqBody,
@@ -806,7 +808,7 @@ func testAddWorkers(t *testing.T, expectedReqBody string, toAdd []WorkerConfigur
 
 func testRemoveWorkers(t *testing.T, expectedReqBody string, toRemove []WorkerConfiguration) {
 	apiClient := &HopsworksAIClient{
-		Client: &HttpClientFixture{
+		Client: &test.HttpClientFixture{
 			ExpectMethod:      http.MethodDelete,
 			ExpectPath:        "/api/clusters/cluster-id-1/workers",
 			ExpectRequestBody: expectedReqBody,
@@ -880,7 +882,7 @@ func TestUpdateClusterWorkers(t *testing.T) {
 
 func TestUpdateClusterWorkersSkip(t *testing.T) {
 	apiClient := &HopsworksAIClient{
-		Client: &HttpClientFixture{
+		Client: &test.HttpClientFixture{
 			FailWithError: "update cluster should not do http request if no updates",
 			T:             t,
 		},
@@ -897,7 +899,7 @@ func TestUpdateClusterWorkersSkip(t *testing.T) {
 
 func testUpdatePorts(t *testing.T, expectedReqBody string, ports *ServiceOpenPorts) {
 	apiClient := &HopsworksAIClient{
-		Client: &HttpClientFixture{
+		Client: &test.HttpClientFixture{
 			ExpectMethod:      http.MethodPost,
 			ExpectPath:        "/api/clusters/cluster-id-1/ports",
 			ExpectRequestBody: expectedReqBody,

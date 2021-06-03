@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/logicalclocks/terraform-provider-hopsworksai/hopsworksai/internal/api"
+	"github.com/logicalclocks/terraform-provider-hopsworksai/hopsworksai/internal/api/test"
 )
 
 type httpClient struct {
@@ -42,7 +43,7 @@ func newHttpClient(t *testing.T, ops []Operation) *httpClient {
 							return nil, err
 						}
 						reqBodyString := string(reqBody)
-						expected := api.CompactJSONString(op.ExpectRequestBody)
+						expected := test.CompactJSONString(op.ExpectRequestBody)
 						if reqBodyString != expected {
 							t.Fatalf("invalid req body, expected:\n%s, but got:\n%s", expected, reqBodyString)
 						}
