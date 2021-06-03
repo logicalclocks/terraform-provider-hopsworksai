@@ -196,5 +196,4 @@ func TestGetDataSourceSchemaFromResourceSchema(t *testing.T) {
 			}
 		}
 	}
-
 }
