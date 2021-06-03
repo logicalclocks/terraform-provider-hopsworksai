@@ -1,15 +1,21 @@
 package hopsworksai
 
 import (
+	"context"
 	"fmt"
+	"net/http"
 	"regexp"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/logicalclocks/terraform-provider-hopsworksai/hopsworksai/internal/api"
+	"github.com/logicalclocks/terraform-provider-hopsworksai/hopsworksai/internal/helpers"
+	"github.com/logicalclocks/terraform-provider-hopsworksai/hopsworksai/internal/test"
 )
 
 func TestAccClustersDataSourceAWS_basic(t *testing.T) {
@@ -109,4 +115,201 @@ func testAccClustersDataSourceConfig(cloud api.CloudProvider, rName string, suff
 		rName,
 		rName,
 	)
+}
+
+// Unit tests
+
+func TestClustersDataSourceRead(t *testing.T) {
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"clusters":[
+							{
+								"id": "cluster-1",
+								"name": "cluster-name-1",
+								"createdOn": 1,
+								"provider": "AWS"
+							},
+							{
+								"id": "cluster-2",
+								"name": "cluster-name-2",
+								"createdOn": 2,
+								"provider": "AWS"
+							},
+							{
+								"id": "cluster-3",
+								"name": "cluster-name-3",
+								"createdOn": 3,
+								"provider": "AZURE"
+							}
+						]
+					}
+				}`,
+			},
+		},
+		Resource:                  dataSourceClusters(),
+		OperationContextFunc:      dataSourceClusters().ReadContext,
+		ExpandStateCheckOnlyArray: "clusters",
+		ExpectState: map[string]interface{}{
+			"clusters": []interface{}{
+				map[string]interface{}{
+					"cluster_id":       "cluster-1",
+					"name":             "cluster-name-1",
+					"state":            "",
+					"activation_state": "",
+					"creation_date":    time.Unix(1, 0).Format(time.RFC3339),
+					"start_date":       time.Unix(0, 0).Format(time.RFC3339),
+					"version":          "",
+					"url":              "",
+					"tags":             map[string]interface{}{},
+					"ssh_key":          "",
+					"head": []interface{}{
+						map[string]interface{}{
+							"instance_type": "",
+							"disk_size":     0,
+						},
+					},
+					"workers":                        schema.NewSet(helpers.WorkerSetHash, []interface{}{}),
+					"attach_public_ip":               false,
+					"issue_lets_encrypt_certificate": false,
+					"managed_users":                  false,
+					"backup_retention_period":        0,
+					"azure_attributes":               []interface{}{},
+					"aws_attributes": []interface{}{
+						map[string]interface{}{
+							"region":               "",
+							"bucket_name":          "",
+							"instance_profile_arn": "",
+							"network": []interface{}{
+								map[string]interface{}{
+									"vpc_id":            "",
+									"subnet_id":         "",
+									"security_group_id": "",
+								},
+							},
+							"eks_cluster_name":        "",
+							"ecr_registry_account_id": "",
+						},
+					},
+					"open_ports": []interface{}{
+						map[string]interface{}{
+							"ssh":                  false,
+							"kafka":                false,
+							"feature_store":        false,
+							"online_feature_store": false,
+						},
+					},
+					"update_state": "none",
+				},
+				map[string]interface{}{
+					"cluster_id":       "cluster-2",
+					"name":             "cluster-name-2",
+					"state":            "",
+					"activation_state": "",
+					"creation_date":    time.Unix(2, 0).Format(time.RFC3339),
+					"start_date":       time.Unix(0, 0).Format(time.RFC3339),
+					"version":          "",
+					"url":              "",
+					"tags":             map[string]interface{}{},
+					"ssh_key":          "",
+					"head": []interface{}{
+						map[string]interface{}{
+							"instance_type": "",
+							"disk_size":     0,
+						},
+					},
+					"workers":                        schema.NewSet(helpers.WorkerSetHash, []interface{}{}),
+					"attach_public_ip":               false,
+					"issue_lets_encrypt_certificate": false,
+					"managed_users":                  false,
+					"backup_retention_period":        0,
+					"azure_attributes":               []interface{}{},
+					"aws_attributes": []interface{}{
+						map[string]interface{}{
+							"region":               "",
+							"bucket_name":          "",
+							"instance_profile_arn": "",
+							"network": []interface{}{
+								map[string]interface{}{
+									"vpc_id":            "",
+									"subnet_id":         "",
+									"security_group_id": "",
+								},
+							},
+							"eks_cluster_name":        "",
+							"ecr_registry_account_id": "",
+						},
+					},
+					"open_ports": []interface{}{
+						map[string]interface{}{
+							"ssh":                  false,
+							"kafka":                false,
+							"feature_store":        false,
+							"online_feature_store": false,
+						},
+					},
+					"update_state": "none",
+				},
+				map[string]interface{}{
+					"cluster_id":       "cluster-3",
+					"name":             "cluster-name-3",
+					"state":            "",
+					"activation_state": "",
+					"creation_date":    time.Unix(3, 0).Format(time.RFC3339),
+					"start_date":       time.Unix(0, 0).Format(time.RFC3339),
+					"version":          "",
+					"url":              "",
+					"tags":             map[string]interface{}{},
+					"ssh_key":          "",
+					"head": []interface{}{
+						map[string]interface{}{
+							"instance_type": "",
+							"disk_size":     0,
+						},
+					},
+					"workers":                        schema.NewSet(helpers.WorkerSetHash, []interface{}{}),
+					"attach_public_ip":               false,
+					"issue_lets_encrypt_certificate": false,
+					"managed_users":                  false,
+					"backup_retention_period":        0,
+					"azure_attributes": []interface{}{
+						map[string]interface{}{
+							"location":                       "",
+							"resource_group":                 "",
+							"storage_account":                "",
+							"user_assigned_managed_identity": "",
+							"storage_container_name":         "",
+							"network": []interface{}{
+								map[string]interface{}{
+									"virtual_network_name": "",
+									"subnet_name":          "",
+									"security_group_name":  "",
+								},
+							},
+							"aks_cluster_name":  "",
+							"acr_registry_name": "",
+						},
+					},
+					"aws_attributes": []interface{}{},
+					"open_ports": []interface{}{
+						map[string]interface{}{
+							"ssh":                  false,
+							"kafka":                false,
+							"feature_store":        false,
+							"online_feature_store": false,
+						},
+					},
+					"update_state": "none",
+				},
+			},
+		},
+	}
+	r.Apply(t, context.TODO())
 }

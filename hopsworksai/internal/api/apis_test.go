@@ -3,32 +3,18 @@ package api
 import (
 	"context"
 	"fmt"
-	"io"
-	"io/ioutil"
 	"net/http"
 	"reflect"
 	"strings"
 	"testing"
 )
 
-type mockHttpClient struct {
-	doFunc func(req *http.Request) (*http.Response, error)
-}
-
-func (c *mockHttpClient) Do(req *http.Request) (*http.Response, error) {
-	return c.doFunc(req)
-}
-
 func TestInvalidAPIKey(t *testing.T) {
 	apiClient := &HopsworksAIClient{
-		Client: &mockHttpClient{
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				resp := &http.Response{
-					StatusCode: http.StatusForbidden,
-					Body:       io.NopCloser(strings.NewReader("Unauthorized")),
-				}
-				return resp, nil
-			},
+		Client: &HttpClientFixture{
+			ResponseCode: http.StatusForbidden,
+			ResponseBody: "Unauthorized",
+			T:            t,
 		},
 	}
 	output, err := GetCluster(context.TODO(), apiClient, "cluster-id")
@@ -46,16 +32,12 @@ func TestInvalidAPIKey(t *testing.T) {
 
 func TestJsonErrors(t *testing.T) {
 	apiClient := &HopsworksAIClient{
-		Client: &mockHttpClient{
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				resp := &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(strings.NewReader(`{
-						"apiVersion": "latest",
-						}`)),
-				}
-				return resp, nil
-			},
+		Client: &HttpClientFixture{
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "latest",
+				}`,
+			T: t,
 		},
 	}
 	output, err := GetCluster(context.TODO(), apiClient, "cluster-id")
@@ -75,82 +57,69 @@ func TestGetClusterAWS(t *testing.T) {
 	apiClient := &HopsworksAIClient{
 		ApiKey:     "my-api-key",
 		ApiVersion: "testV1",
-		Client: &mockHttpClient{
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				if req.Header.Get("x-api-key") != "my-api-key" {
-					t.Fatal("api key should be passed as a header")
-				}
-				if req.Header.Get("hopsai-api-version") != "testV1" {
-					t.Fatal("api version should be passed as header")
-				}
-				if req.Header.Get("Content-Type") != "application/json" {
-					t.Fatal("content-type should be application/json")
-				}
-				if req.URL.Path != "/api/clusters/cluster-id-1" {
-					t.Fatalf("invalid path for get cluster, got %s", req.URL.Path)
-				}
-				if req.Method != http.MethodGet {
-					t.Fatalf("invalid http method, got %s", req.Method)
-				}
-				respString := `{
-					"apiVersion": "v1",
-					"statue": "ok",
-					"code": 200,
-					"payload":{
-						"cluster": {
-							"id": "cluster-id-1",
-							"name": "cluster-name-1",
-							"state" : "running", 
-							"activationState": "stoppable", 
-							"initializationStage": "running", 
-							"createdOn": 123, 
-							"startedOn" : 123,
-							"version": "version-1",
-							"url": "https://cluster-url",
-							"provider": "AWS",
-							"tags": [
-								{
-									"name": "tag1",
-									"value": "tag1-value1"
-								}
-							],
-							"sshKeyName": "ssh-key-1",
-							"clusterConfiguration": {
-								"head": {
-									"instanceType": "node-type-1",
-									"diskSize": 512
-								},
-								"workers": [
-									{
-										"instanceType": "node-type-2",
-										"diskSize": 256,
-										"count": 2
-									}
-								]
-							},
-							"publicIPAttached": true,
-							"letsEncryptIssued": true,
-							"managedUsers": true,
-							"backupRetentionPeriod": 10,
-							"aws": {
-								"region": "region-1",
-								"instanceProfileArn": "profile-1",
-								"bucketName": "bucket-1",
-								"vpcId": "vpc-1",
-								"subnetId": "subnet-1",
-								"securityGroupId": "security-group-1",
-								"eksClusterName": "eks-cluster-1",
-								"ecrRegistryAccountId": "ecr-account-1"
+		Client: &HttpClientFixture{
+			ExpectMethod: http.MethodGet,
+			ExpectPath:   "/api/clusters/cluster-id-1",
+			ExpectHeaders: map[string]string{
+				"x-api-key":          "my-api-key",
+				"hopsai-api-version": "testV1",
+				"Content-Type":       "application/json",
+			},
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"statue": "ok",
+				"code": 200,
+				"payload":{
+					"cluster": {
+						"id": "cluster-id-1",
+						"name": "cluster-name-1",
+						"state" : "running", 
+						"activationState": "stoppable", 
+						"initializationStage": "running", 
+						"createdOn": 123, 
+						"startedOn" : 123,
+						"version": "version-1",
+						"url": "https://cluster-url",
+						"provider": "AWS",
+						"tags": [
+							{
+								"name": "tag1",
+								"value": "tag1-value1"
 							}
+						],
+						"sshKeyName": "ssh-key-1",
+						"clusterConfiguration": {
+							"head": {
+								"instanceType": "node-type-1",
+								"diskSize": 512
+							},
+							"workers": [
+								{
+									"instanceType": "node-type-2",
+									"diskSize": 256,
+									"count": 2
+								}
+							]
+						},
+						"publicIPAttached": true,
+						"letsEncryptIssued": true,
+						"managedUsers": true,
+						"backupRetentionPeriod": 10,
+						"aws": {
+							"region": "region-1",
+							"instanceProfileArn": "profile-1",
+							"bucketName": "bucket-1",
+							"vpcId": "vpc-1",
+							"subnetId": "subnet-1",
+							"securityGroupId": "security-group-1",
+							"eksClusterName": "eks-cluster-1",
+							"ecrRegistryAccountId": "ecr-account-1"
 						}
 					}
-				}`
-				resp := &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(strings.NewReader(respString)),
 				}
-				return resp, nil
-			},
+			}`,
+			T: t,
 		},
 	}
 
@@ -219,84 +188,71 @@ func TestGetClusterAZURE(t *testing.T) {
 	apiClient := &HopsworksAIClient{
 		ApiKey:     "my-api-key",
 		ApiVersion: "testV1",
-		Client: &mockHttpClient{
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				if req.Header.Get("x-api-key") != "my-api-key" {
-					t.Fatal("api key should be passed as a header")
-				}
-				if req.Header.Get("hopsai-api-version") != "testV1" {
-					t.Fatal("api version should be passed as header")
-				}
-				if req.Header.Get("Content-Type") != "application/json" {
-					t.Fatal("content-type should be application/json")
-				}
-				if req.URL.Path != "/api/clusters/cluster-id-1" {
-					t.Fatalf("invalid path for get cluster, got %s", req.URL.Path)
-				}
-				if req.Method != http.MethodGet {
-					t.Fatalf("invalid http method, got %s", req.Method)
-				}
-				respString := `{
-					"apiVersion": "v1",
-					"statue": "ok",
-					"code": 200,
-					"payload":{
-						"cluster": {
-							"id": "cluster-id-1",
-							"name": "cluster-name-1",
-							"state" : "running", 
-							"activationState": "stoppable", 
-							"initializationStage": "running", 
-							"createdOn": 123, 
-							"startedOn" : 123,
-							"version": "version-1",
-							"url": "https://cluster-url",
-							"provider": "AZURE",
-							"tags": [
-								{
-									"name": "tag1",
-									"value": "tag1-value1"
-								}
-							],
-							"sshKeyName": "ssh-key-1",
-							"clusterConfiguration": {
-								"head": {
-									"instanceType": "node-type-1",
-									"diskSize": 512
-								},
-								"workers": [
-									{
-										"instanceType": "node-type-2",
-										"diskSize": 256,
-										"count": 2
-									}
-								]
-							},
-							"publicIPAttached": true,
-							"letsEncryptIssued": true,
-							"managedUsers": true,
-							"backupRetentionPeriod": 10,
-							"azure": {
-								"location": "location-1",
-								"resourceGroup": "resource-group-1",
-								"managedIdentity": "profile-1",
-								"blobContainerName": "container-1",
-								"storageAccount": "account-1",
-								"virtualNetworkName": "network-name-1",
-								"subnetName": "subnet-name-1",
-								"securityGroupName": "security-group-name-1",
-								"aksClusterName": "aks-cluster-name-1",
-								"acrRegistryName": "acr-registry-name-1"
+		Client: &HttpClientFixture{
+			ExpectMethod: http.MethodGet,
+			ExpectPath:   "/api/clusters/cluster-id-1",
+			ExpectHeaders: map[string]string{
+				"x-api-key":          "my-api-key",
+				"hopsai-api-version": "testV1",
+				"Content-Type":       "application/json",
+			},
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"statue": "ok",
+				"code": 200,
+				"payload":{
+					"cluster": {
+						"id": "cluster-id-1",
+						"name": "cluster-name-1",
+						"state" : "running", 
+						"activationState": "stoppable", 
+						"initializationStage": "running", 
+						"createdOn": 123, 
+						"startedOn" : 123,
+						"version": "version-1",
+						"url": "https://cluster-url",
+						"provider": "AZURE",
+						"tags": [
+							{
+								"name": "tag1",
+								"value": "tag1-value1"
 							}
+						],
+						"sshKeyName": "ssh-key-1",
+						"clusterConfiguration": {
+							"head": {
+								"instanceType": "node-type-1",
+								"diskSize": 512
+							},
+							"workers": [
+								{
+									"instanceType": "node-type-2",
+									"diskSize": 256,
+									"count": 2
+								}
+							]
+						},
+						"publicIPAttached": true,
+						"letsEncryptIssued": true,
+						"managedUsers": true,
+						"backupRetentionPeriod": 10,
+						"azure": {
+							"location": "location-1",
+							"resourceGroup": "resource-group-1",
+							"managedIdentity": "profile-1",
+							"blobContainerName": "container-1",
+							"storageAccount": "account-1",
+							"virtualNetworkName": "network-name-1",
+							"subnetName": "subnet-name-1",
+							"securityGroupName": "security-group-name-1",
+							"aksClusterName": "aks-cluster-name-1",
+							"acrRegistryName": "acr-registry-name-1"
 						}
 					}
-				}`
-				resp := &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(strings.NewReader(respString)),
 				}
-				return resp, nil
-			},
+			}`,
+			T: t,
 		},
 	}
 
@@ -365,18 +321,14 @@ func TestGetClusterAZURE(t *testing.T) {
 
 func TestGetClusterNotFound(t *testing.T) {
 	apiClient := &HopsworksAIClient{
-		Client: &mockHttpClient{
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				resp := &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body: io.NopCloser(strings.NewReader(`{
-						"apiVersion": "latest",
-						"status": "error",
-						"code": 404
-					}`)),
-				}
-				return resp, nil
-			},
+		Client: &HttpClientFixture{
+			ResponseCode: http.StatusNotFound,
+			ResponseBody: `{
+				"apiVersion": "latest",
+				"status": "error",
+				"code": 404
+			}`,
+			T: t,
 		},
 	}
 
@@ -393,19 +345,15 @@ func TestGetClusterNotFound(t *testing.T) {
 
 func TestGetClusterError(t *testing.T) {
 	apiClient := &HopsworksAIClient{
-		Client: &mockHttpClient{
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				resp := &http.Response{
-					StatusCode: http.StatusNotFound,
-					Body: io.NopCloser(strings.NewReader(`{
-						"apiVersion": "latest",
-						"status": "error",
-						"code": 400,
-						"message": "bad request you cannot retrieve cluster info"
-					}`)),
-				}
-				return resp, nil
-			},
+		Client: &HttpClientFixture{
+			ResponseCode: http.StatusBadRequest,
+			ResponseBody: `{
+				"apiVersion": "latest",
+				"status": "error",
+				"code": 400,
+				"message": "bad request you cannot retrieve cluster info"
+			}`,
+			T: t,
 		},
 	}
 
@@ -425,32 +373,26 @@ func TestGetClusterError(t *testing.T) {
 }
 
 func testGetClustersWithFilter(provider string, t *testing.T) ([]Cluster, error) {
+	var expectedQuery string = ""
+	if provider != "" {
+		expectedQuery = "cloud=" + provider
+	}
+
 	apiClient := &HopsworksAIClient{
-		Client: &mockHttpClient{
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				var expectedQuery string = ""
-				if provider != "" {
-					expectedQuery = "cloud=" + provider
+		Client: &HttpClientFixture{
+			ExpectPath:         "/api/clusters",
+			ExpectMethod:       http.MethodGet,
+			ExpectRequestQuery: expectedQuery,
+			ResponseCode:       http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"statue": "ok",
+				"code": 200,
+				"payload":{
+					"clusters": []
 				}
-				if req.URL.RawQuery != expectedQuery {
-					t.Fatalf("should get correct url with filter, expected %s, got %s", expectedQuery, req.URL.RawQuery)
-				}
-				if req.URL.Path != "/api/clusters" {
-					t.Fatalf("invalid path for get clusters, got %s", req.URL.Path)
-				}
-				if req.Method != http.MethodGet {
-					t.Fatalf("invalid http method, got %s", req.Method)
-				}
-				return &http.Response{StatusCode: http.StatusOK,
-					Body: io.NopCloser(strings.NewReader(`{
-						"apiVersion": "v1",
-						"statue": "ok",
-						"code": 200,
-						"payload":{
-							"clusters": []
-						}
-					 }`))}, nil
-			},
+			 }`,
+			T: t,
 		},
 	}
 
@@ -470,39 +412,36 @@ func TestGetClustersSettingFilter(t *testing.T) {
 
 func TestGetClusters(t *testing.T) {
 	apiClient := &HopsworksAIClient{
-		Client: &mockHttpClient{
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(strings.NewReader(`{
-						"apiVersion": "v1",
-						"status": "ok",
-						"code": 200,
-						"payload":{
-							"clusters":[
-								{
-									"id": "cluster-1",
-									"name": "cluster-name-1",
-									"createdOn": 1,
-									"provider": "AWS"
-								},
-								{
-									"id": "cluster-2",
-									"name": "cluster-name-2",
-									"createdOn": 2,
-									"provider": "AWS"
-								},
-								{
-									"id": "cluster-3",
-									"name": "cluster-name-3",
-									"createdOn": 3,
-									"provider": "AZURE"
-								}
-							]
+		Client: &HttpClientFixture{
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200,
+				"payload":{
+					"clusters":[
+						{
+							"id": "cluster-1",
+							"name": "cluster-name-1",
+							"createdOn": 1,
+							"provider": "AWS"
+						},
+						{
+							"id": "cluster-2",
+							"name": "cluster-name-2",
+							"createdOn": 2,
+							"provider": "AWS"
+						},
+						{
+							"id": "cluster-3",
+							"name": "cluster-name-3",
+							"createdOn": 3,
+							"provider": "AZURE"
 						}
-					}`)),
-				}, nil
-			},
+					]
+				}
+			}`,
+			T: t,
 		},
 	}
 
@@ -542,85 +481,60 @@ func TestGetClusters(t *testing.T) {
 	}
 }
 
-func cleanJSONString(jsonString string) string {
-	for _, v := range []string{"\n", "\t", " "} {
-		jsonString = strings.ReplaceAll(jsonString, v, "")
-	}
-	return jsonString
-}
-
 func TestNewClusterAWS(t *testing.T) {
 	apiClient := &HopsworksAIClient{
-		Client: &mockHttpClient{
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				reqBody, err := ioutil.ReadAll(req.Body)
-				if err != nil {
-					return nil, err
-				}
-				if req.URL.Path != "/api/clusters" {
-					t.Fatalf("invalid path for new cluster, got %s", req.URL.Path)
-				}
-				if req.Method != http.MethodPost {
-					t.Fatalf("invalid http method, got %s", req.Method)
-				}
-				reqBodyString := string(reqBody)
-				expectedReqBody := `{
-					"cloudProvider": "AWS",
-					"cluster": {
-						"name": "cluster-1",
-						"version": "2.0",
-						"sshKeyName": "ssh-key-1",
-						"clusterConfiguration": {
-							"head": {
-								"instanceType": "node-type-1",
-								"diskSize": 512
-							},
-							"workers": [
-								{
-									"instanceType": "node-type-2",
-									"diskSize": 256,
-									"count": 2
-								}
-							]
+		Client: &HttpClientFixture{
+			ExpectMethod: http.MethodPost,
+			ExpectPath:   "/api/clusters",
+			ExpectRequestBody: `{
+				"cloudProvider": "AWS",
+				"cluster": {
+					"name": "cluster-1",
+					"version": "2.0",
+					"sshKeyName": "ssh-key-1",
+					"clusterConfiguration": {
+						"head": {
+							"instanceType": "node-type-1",
+							"diskSize": 512
 						},
-						"issueLetsEncrypt": true,
-						"attachPublicIP": true,
-						"backupRetentionPeriod": 10,
-						"managedUsers": true,
-						"tags": [
+						"workers": [
 							{
-								"name": "tag1",
-								"value": "tag1-value1"
+								"instanceType": "node-type-2",
+								"diskSize": 256,
+								"count": 2
 							}
-						],
-						"region": "region-1",
-						"bucketName": "bucket-1",
-						"instanceProfileArn": "profile-1",
-						"vpcId": "vpc-1",
-						"subnetId": "subnet-1",
-						"securityGroupId": "security-group-1",
-						"eksClusterName": "eks-cluster-1",
-						"ecrRegistryAccountId": "ecr-account-1"
-					}
-				}`
-
-				expectedReqBody = cleanJSONString(expectedReqBody)
-
-				if reqBodyString != expectedReqBody {
-					t.Fatalf("error matching req body, expected:\n%s, but got:\n%s", expectedReqBody, reqBodyString)
-				}
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(strings.NewReader(`{
-						"apiVersion": "v1",
-						"status": "ok",
-						"code": 200,
-						"payload":{
-							"id" : "new-cluster-id-1"
+						]
+					},
+					"issueLetsEncrypt": true,
+					"attachPublicIP": true,
+					"backupRetentionPeriod": 10,
+					"managedUsers": true,
+					"tags": [
+						{
+							"name": "tag1",
+							"value": "tag1-value1"
 						}
-					}`)),
-				}, nil
-			},
+					],
+					"region": "region-1",
+					"bucketName": "bucket-1",
+					"instanceProfileArn": "profile-1",
+					"vpcId": "vpc-1",
+					"subnetId": "subnet-1",
+					"securityGroupId": "security-group-1",
+					"eksClusterName": "eks-cluster-1",
+					"ecrRegistryAccountId": "ecr-account-1"
+				}
+			}`,
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200,
+				"payload":{
+					"id" : "new-cluster-id-1"
+				}
+			}`,
+			T: t,
 		},
 	}
 
@@ -681,78 +595,60 @@ func TestNewClusterAWS(t *testing.T) {
 
 func TestNewClusterAZURE(t *testing.T) {
 	apiClient := &HopsworksAIClient{
-		Client: &mockHttpClient{
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				reqBody, err := ioutil.ReadAll(req.Body)
-				if err != nil {
-					return nil, err
-				}
-				if req.URL.Path != "/api/clusters" {
-					t.Fatalf("invalid path for new cluster, got %s", req.URL.Path)
-				}
-				if req.Method != http.MethodPost {
-					t.Fatalf("invalid http method, got %s", req.Method)
-				}
-				reqBodyString := string(reqBody)
-				expectedReqBody := `{
-					"cloudProvider": "AZURE",
-					"cluster": {
-						"name": "cluster-1",
-						"version": "2.0",
-						"sshKeyName": "ssh-key-1",
-						"clusterConfiguration": {
-							"head": {
-								"instanceType": "node-type-1",
-								"diskSize": 512
-							},
-							"workers": [
-								{
-									"instanceType": "node-type-2",
-									"diskSize": 256,
-									"count": 2
-								}
-							]
+		Client: &HttpClientFixture{
+			ExpectMethod: http.MethodPost,
+			ExpectPath:   "/api/clusters",
+			ExpectRequestBody: `{
+				"cloudProvider": "AZURE",
+				"cluster": {
+					"name": "cluster-1",
+					"version": "2.0",
+					"sshKeyName": "ssh-key-1",
+					"clusterConfiguration": {
+						"head": {
+							"instanceType": "node-type-1",
+							"diskSize": 512
 						},
-						"issueLetsEncrypt": true,
-						"attachPublicIP": true,
-						"backupRetentionPeriod": 10,
-						"managedUsers": true,
-						"tags": [
+						"workers": [
 							{
-								"name": "tag1",
-								"value": "tag1-value1"
+								"instanceType": "node-type-2",
+								"diskSize": 256,
+								"count": 2
 							}
-						],
-						"location": "location-1",
-						"managedIdentity": "profile-1",
-						"resourceGroup": "resource-group-1",
-						"blobContainerName": "container-1",
-						"storageAccount": "account-1",
-						"virtualNetworkName": "network-1",
-						"subnetName": "subnet-1",
-						"securityGroupName": "security-group-1",
-						"aksClusterName": "aks-cluster-1",
-						"acrRegistryName": "acr-registry-1"
-					}
-				}`
-
-				expectedReqBody = cleanJSONString(expectedReqBody)
-
-				if reqBodyString != expectedReqBody {
-					t.Fatalf("error matching req body, expected:\n%s, but got:\n%s", expectedReqBody, reqBodyString)
-				}
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(strings.NewReader(`{
-						"apiVersion": "v1",
-						"status": "ok",
-						"code": 200,
-						"payload":{
-							"id" : "new-cluster-id-1"
+						]
+					},
+					"issueLetsEncrypt": true,
+					"attachPublicIP": true,
+					"backupRetentionPeriod": 10,
+					"managedUsers": true,
+					"tags": [
+						{
+							"name": "tag1",
+							"value": "tag1-value1"
 						}
-					}`)),
-				}, nil
-			},
+					],
+					"location": "location-1",
+					"managedIdentity": "profile-1",
+					"resourceGroup": "resource-group-1",
+					"blobContainerName": "container-1",
+					"storageAccount": "account-1",
+					"virtualNetworkName": "network-1",
+					"subnetName": "subnet-1",
+					"securityGroupName": "security-group-1",
+					"aksClusterName": "aks-cluster-1",
+					"acrRegistryName": "acr-registry-1"
+				}
+			}`,
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200,
+				"payload":{
+					"id" : "new-cluster-id-1"
+				}
+			}`,
+			T: t,
 		},
 	}
 
@@ -828,23 +724,16 @@ func TestNewClusterInvalidCloud(t *testing.T) {
 
 func TestDeleteCluster(t *testing.T) {
 	apiClient := &HopsworksAIClient{
-		Client: &mockHttpClient{
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				if req.URL.Path != "/api/clusters/cluster-id-1" {
-					t.Fatalf("invalid path for delete cluster, got %s", req.URL.Path)
-				}
-				if req.Method != http.MethodDelete {
-					t.Fatalf("invalid http method, got %s", req.Method)
-				}
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(strings.NewReader(`{
-						"apiVersion": "v1",
-						"status": "ok",
-						"code": 200
-					}`)),
-				}, nil
-			},
+		Client: &HttpClientFixture{
+			ExpectMethod: http.MethodDelete,
+			ExpectPath:   "/api/clusters/cluster-id-1",
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200
+			}`,
+			T: t,
 		},
 	}
 	err := DeleteCluster(context.TODO(), apiClient, "cluster-id-1")
@@ -855,23 +744,16 @@ func TestDeleteCluster(t *testing.T) {
 
 func TestStopCluster(t *testing.T) {
 	apiClient := &HopsworksAIClient{
-		Client: &mockHttpClient{
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				if req.URL.Path != "/api/clusters/cluster-id-1/stop" {
-					t.Fatalf("invalid path for stop cluster, got %s", req.URL.Path)
-				}
-				if req.Method != http.MethodPut {
-					t.Fatalf("invalid http method, got %s", req.Method)
-				}
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(strings.NewReader(`{
-						"apiVersion": "v1",
-						"status": "ok",
-						"code": 200
-					}`)),
-				}, nil
-			},
+		Client: &HttpClientFixture{
+			ExpectMethod: http.MethodPut,
+			ExpectPath:   "/api/clusters/cluster-id-1/stop",
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200
+			}`,
+			T: t,
 		},
 	}
 	err := StopCluster(context.TODO(), apiClient, "cluster-id-1")
@@ -882,23 +764,16 @@ func TestStopCluster(t *testing.T) {
 
 func TestStartCluster(t *testing.T) {
 	apiClient := &HopsworksAIClient{
-		Client: &mockHttpClient{
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				if req.URL.Path != "/api/clusters/cluster-id-1/start" {
-					t.Fatalf("invalid path for start cluster, got %s", req.URL.Path)
-				}
-				if req.Method != http.MethodPut {
-					t.Fatalf("invalid http method, got %s", req.Method)
-				}
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(strings.NewReader(`{
-						"apiVersion": "v1",
-						"status": "ok",
-						"code": 200
-					}`)),
-				}, nil
-			},
+		Client: &HttpClientFixture{
+			ExpectMethod: http.MethodPut,
+			ExpectPath:   "/api/clusters/cluster-id-1/start",
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200
+			}`,
+			T: t,
 		},
 	}
 	err := StartCluster(context.TODO(), apiClient, "cluster-id-1")
@@ -909,32 +784,17 @@ func TestStartCluster(t *testing.T) {
 
 func testAddWorkers(t *testing.T, expectedReqBody string, toAdd []WorkerConfiguration) {
 	apiClient := &HopsworksAIClient{
-		Client: &mockHttpClient{
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				if req.URL.Path != "/api/clusters/cluster-id-1/workers" {
-					t.Fatalf("invalid path for update cluster, got %s", req.URL.Path)
-				}
-				if req.Method != http.MethodPost {
-					t.Fatalf("invalid http method, got %s", req.Method)
-				}
-				reqBody, err := ioutil.ReadAll(req.Body)
-				if err != nil {
-					return nil, err
-				}
-				reqBodyString := string(reqBody)
-				expectedReqBody = cleanJSONString(expectedReqBody)
-				if reqBodyString != expectedReqBody {
-					t.Fatalf("error matching req body, expected:\n%s, but got:\n%s", expectedReqBody, reqBodyString)
-				}
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(strings.NewReader(`{
-						"apiVersion": "v1",
-						"status": "ok",
-						"code": 200
-					}`)),
-				}, nil
-			},
+		Client: &HttpClientFixture{
+			ExpectMethod:      http.MethodPost,
+			ExpectPath:        "/api/clusters/cluster-id-1/workers",
+			ExpectRequestBody: expectedReqBody,
+			ResponseCode:      http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200
+			}`,
+			T: t,
 		},
 	}
 
@@ -946,32 +806,17 @@ func testAddWorkers(t *testing.T, expectedReqBody string, toAdd []WorkerConfigur
 
 func testRemoveWorkers(t *testing.T, expectedReqBody string, toRemove []WorkerConfiguration) {
 	apiClient := &HopsworksAIClient{
-		Client: &mockHttpClient{
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				if req.URL.Path != "/api/clusters/cluster-id-1/workers" {
-					t.Fatalf("invalid path for update cluster, got %s", req.URL.Path)
-				}
-				if req.Method != http.MethodDelete {
-					t.Fatalf("invalid http method, got %s", req.Method)
-				}
-				reqBody, err := ioutil.ReadAll(req.Body)
-				if err != nil {
-					return nil, err
-				}
-				reqBodyString := string(reqBody)
-				expectedReqBody = cleanJSONString(expectedReqBody)
-				if reqBodyString != expectedReqBody {
-					t.Fatalf("error matching req body, expected:\n%s, but got:\n%s", expectedReqBody, reqBodyString)
-				}
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(strings.NewReader(`{
-						"apiVersion": "v1",
-						"status": "ok",
-						"code": 200
-					}`)),
-				}, nil
-			},
+		Client: &HttpClientFixture{
+			ExpectMethod:      http.MethodDelete,
+			ExpectPath:        "/api/clusters/cluster-id-1/workers",
+			ExpectRequestBody: expectedReqBody,
+			ResponseCode:      http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200
+			}`,
+			T: t,
 		},
 	}
 
@@ -1035,11 +880,9 @@ func TestUpdateClusterWorkers(t *testing.T) {
 
 func TestUpdateClusterWorkersSkip(t *testing.T) {
 	apiClient := &HopsworksAIClient{
-		Client: &mockHttpClient{
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				t.Fatal("update cluster should not do http request if no updates")
-				return nil, nil
-			},
+		Client: &HttpClientFixture{
+			FailWithError: "update cluster should not do http request if no updates",
+			T:             t,
 		},
 	}
 
@@ -1054,32 +897,17 @@ func TestUpdateClusterWorkersSkip(t *testing.T) {
 
 func testUpdatePorts(t *testing.T, expectedReqBody string, ports *ServiceOpenPorts) {
 	apiClient := &HopsworksAIClient{
-		Client: &mockHttpClient{
-			doFunc: func(req *http.Request) (*http.Response, error) {
-				if req.URL.Path != "/api/clusters/cluster-id-1/ports" {
-					t.Fatalf("invalid path for update cluster, got %s", req.URL.Path)
-				}
-				if req.Method != http.MethodPost {
-					t.Fatalf("invalid http method, got %s", req.Method)
-				}
-				reqBody, err := ioutil.ReadAll(req.Body)
-				if err != nil {
-					return nil, err
-				}
-				reqBodyString := string(reqBody)
-				expectedReqBody = cleanJSONString(expectedReqBody)
-				if reqBodyString != expectedReqBody {
-					t.Fatalf("error matching req body, expected:\n%s, but got:\n%s", expectedReqBody, reqBodyString)
-				}
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body: io.NopCloser(strings.NewReader(`{
-						"apiVersion": "v1",
-						"status": "ok",
-						"code": 200
-					}`)),
-				}, nil
-			},
+		Client: &HttpClientFixture{
+			ExpectMethod:      http.MethodPost,
+			ExpectPath:        "/api/clusters/cluster-id-1/ports",
+			ExpectRequestBody: expectedReqBody,
+			ResponseCode:      http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200
+			}`,
+			T: t,
 		},
 	}
 
