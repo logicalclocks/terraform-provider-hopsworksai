@@ -7,7 +7,9 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -62,6 +64,14 @@ func TestAccClusterAWS_workers(t *testing.T) {
 
 func TestAccClusterAZURE_workers(t *testing.T) {
 	testAccCluster_workers(t, api.AZURE)
+}
+
+func TestAccClusterAWS_RonDB(t *testing.T) {
+	testAccCluster_RonDB(t, api.AWS)
+}
+
+func TestAccClusterAZURE_RonDB(t *testing.T) {
+	testAccCluster_RonDB(t, api.AZURE)
 }
 
 func testAccCluster_basic(t *testing.T, cloud api.CloudProvider) {
@@ -328,6 +338,53 @@ func testAccCluster_workers(t *testing.T, cloud api.CloudProvider) {
 	})
 }
 
+func testAccCluster_RonDB(t *testing.T, cloud api.CloudProvider) {
+	suffix := acctest.RandString(5)
+	rName := fmt.Sprintf("test_%s", suffix)
+	defaultRonDBConfig := defaultRonDBConfiguration(cloud)
+	resourceName := fmt.Sprintf("hopsworksai_cluster.%s", rName)
+	parallelTest(t, cloud, resource.TestCase{
+		PreCheck:     testAccPreCheck(t),
+		Providers:    testAccProviders,
+		CheckDestroy: testAccClusterCheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccClusterConfig_RonDB(cloud, rName, suffix, `
+				rondb {
+
+				}
+				`),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "state", api.Running.String()),
+					resource.TestCheckResourceAttr(resourceName, "activation_state", api.Stoppable.String()),
+					resource.TestCheckResourceAttr(resourceName, "update_state", "none"),
+					resource.TestCheckResourceAttr(resourceName, "workers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "rondb.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "rondb.0.configuration.0.ndbd_default.0.replication_factor", strconv.Itoa(defaultRonDBConfig.Configuration.NdbdDefault.ReplicationFactor)),
+					resource.TestCheckResourceAttr(resourceName, "rondb.0.configuration.0.general.0.benchmark.0.grant_user_privileges", strconv.FormatBool(defaultRonDBConfig.Configuration.General.Benchmark.GrantUserPrivileges)),
+					resource.TestCheckResourceAttr(resourceName, "rondb.0.management_nodes.0.instance_type", defaultRonDBConfig.ManagementNodes.InstanceType),
+					resource.TestCheckResourceAttr(resourceName, "rondb.0.management_nodes.0.disk_size", strconv.Itoa(defaultRonDBConfig.ManagementNodes.DiskSize)),
+					resource.TestCheckResourceAttr(resourceName, "rondb.0.management_nodes.0.count", strconv.Itoa(defaultRonDBConfig.ManagementNodes.Count)),
+					resource.TestCheckResourceAttr(resourceName, "rondb.0.data_nodes.0.instance_type", defaultRonDBConfig.DataNodes.InstanceType),
+					resource.TestCheckResourceAttr(resourceName, "rondb.0.data_nodes.0.disk_size", strconv.Itoa(defaultRonDBConfig.DataNodes.DiskSize)),
+					resource.TestCheckResourceAttr(resourceName, "rondb.0.data_nodes.0.count", strconv.Itoa(defaultRonDBConfig.DataNodes.Count)),
+					resource.TestCheckResourceAttr(resourceName, "rondb.0.mysql_nodes.0.instance_type", defaultRonDBConfig.MYSQLNodes.InstanceType),
+					resource.TestCheckResourceAttr(resourceName, "rondb.0.mysql_nodes.0.disk_size", strconv.Itoa(defaultRonDBConfig.MYSQLNodes.DiskSize)),
+					resource.TestCheckResourceAttr(resourceName, "rondb.0.mysql_nodes.0.count", strconv.Itoa(defaultRonDBConfig.MYSQLNodes.Count)),
+					resource.TestCheckResourceAttr(resourceName, "rondb.0.api_nodes.0.instance_type", defaultRonDBConfig.APINodes.InstanceType),
+					resource.TestCheckResourceAttr(resourceName, "rondb.0.api_nodes.0.disk_size", strconv.Itoa(defaultRonDBConfig.APINodes.DiskSize)),
+					resource.TestCheckResourceAttr(resourceName, "rondb.0.api_nodes.0.count", strconv.Itoa(defaultRonDBConfig.APINodes.Count)),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testWorkerInstanceType1(cloud api.CloudProvider) string {
 	return testWorkerInstanceType(cloud, true)
 }
@@ -379,6 +436,10 @@ func testAccClusterConfig_basic(cloud api.CloudProvider, rName string, suffix st
 
 func testAccClusterConfig_workers(cloud api.CloudProvider, rName string, suffix string, extraConfig string) string {
 	return testAccClusterConfig(cloud, rName, suffix, extraConfig, 1)
+}
+
+func testAccClusterConfig_RonDB(cloud api.CloudProvider, rName string, suffix string, extraConfig string) string {
+	return testAccClusterConfig(cloud, rName, suffix, extraConfig, 2)
 }
 
 func testAccClusterConfig(cloud api.CloudProvider, rName string, suffix string, extraConfig string, bucketIndex int) string {
@@ -1729,6 +1790,440 @@ func TestClusterUpdate(t *testing.T) {
 				},
 			},
 		},
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_AWS_RonDB(t *testing.T) {
+	testClusterCreate_RonDB(t, api.AWS)
+}
+
+func TestClusterCreate_AZURE_RonDB(t *testing.T) {
+	testClusterCreate_RonDB(t, api.AZURE)
+}
+
+func TestClusterCreate_AWS_RonDB_default(t *testing.T) {
+	testClusterCreate_RonDB_default(t, api.AWS)
+}
+
+func TestClusterCreate_AZURE_RonDB_default(t *testing.T) {
+	testClusterCreate_RonDB_default(t, api.AZURE)
+}
+
+func TestClusterCreate_AWS_RonDB_default2(t *testing.T) {
+	testClusterCreate_RonDB_defaultEmptyBlocks(t, api.AWS)
+}
+
+func TestClusterCreate_AZURE_RonDB_default2(t *testing.T) {
+	testClusterCreate_RonDB_defaultEmptyBlocks(t, api.AZURE)
+}
+
+func TestClusterCreate_RonDB_invalidReplicationFactor(t *testing.T) {
+	testClusterCreate_RonDB_invalidReplicationFactor(t, api.AWS)
+	testClusterCreate_RonDB_invalidReplicationFactor(t, api.AZURE)
+}
+
+func testClusterCreate_RonDB(t *testing.T, cloud api.CloudProvider) {
+	state := map[string]interface{}{
+		"name": "cluster",
+		"head": []interface{}{
+			map[string]interface{}{
+				"disk_size": 512,
+			},
+		},
+		"workers": []interface{}{
+			map[string]interface{}{
+				"disk_size": 256,
+				"count":     2,
+			},
+		},
+		"rondb": []interface{}{
+			map[string]interface{}{
+				"configuration": []interface{}{
+					map[string]interface{}{
+						"ndbd_default": []interface{}{
+							map[string]interface{}{
+								"replication_factor": 2,
+							},
+						},
+						"general": []interface{}{
+							map[string]interface{}{
+								"benchmark": []interface{}{
+									map[string]interface{}{
+										"grant_user_privileges": false,
+									},
+								},
+							},
+						},
+					},
+				},
+				"management_nodes": []interface{}{
+					map[string]interface{}{
+						"instance_type": "mgm-node-1",
+						"disk_size":     30,
+						"count":         1,
+					},
+				},
+				"data_nodes": []interface{}{
+					map[string]interface{}{
+						"instance_type": "data-node-1",
+						"disk_size":     512,
+						"count":         2,
+					},
+				},
+				"mysql_nodes": []interface{}{
+					map[string]interface{}{
+						"instance_type": "mysqld-node-1",
+						"disk_size":     100,
+						"count":         1,
+					},
+				},
+				"api_nodes": []interface{}{
+					map[string]interface{}{
+						"instance_type": "api-node-1",
+						"disk_size":     50,
+						"count":         1,
+					},
+				},
+			},
+		},
+	}
+
+	if cloud == api.AWS {
+		state["aws_attributes"] = []interface{}{
+			map[string]interface{}{
+				"region":               "region-1",
+				"bucket_name":          "bucket-1",
+				"instance_profile_arn": "profile-1",
+			},
+		}
+	} else if cloud == api.AZURE {
+		state["azure_attributes"] = []interface{}{
+			map[string]interface{}{
+				"location":                       "location-1",
+				"resource_group":                 "resource-group-1",
+				"storage_account":                "storage-account-1",
+				"user_assigned_managed_identity": "user-identity-1",
+			},
+		}
+	}
+
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 400,
+					"message": "skip"
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					output, err := testGetRonDBConfig(reqBody, cloud)
+					if err != nil {
+						return err
+					}
+
+					expected := api.RonDBConfiguration{
+						Configuration: api.RonDBBaseConfiguration{
+							NdbdDefault: api.RonDBNdbdDefaultConfiguration{
+								ReplicationFactor: 2,
+							},
+							General: api.RonDBGeneralConfiguration{
+								Benchmark: api.RonDBBenchmarkConfiguration{
+									GrantUserPrivileges: false,
+								},
+							},
+						},
+						ManagementNodes: api.WorkerConfiguration{
+							NodeConfiguration: api.NodeConfiguration{
+								InstanceType: "mgm-node-1",
+								DiskSize:     30,
+							},
+							Count: 1,
+						},
+						DataNodes: api.WorkerConfiguration{
+							NodeConfiguration: api.NodeConfiguration{
+								InstanceType: "data-node-1",
+								DiskSize:     512,
+							},
+							Count: 2,
+						},
+						MYSQLNodes: api.WorkerConfiguration{
+							NodeConfiguration: api.NodeConfiguration{
+								InstanceType: "mysqld-node-1",
+								DiskSize:     100,
+							},
+							Count: 1,
+						},
+						APINodes: api.WorkerConfiguration{
+							NodeConfiguration: api.NodeConfiguration{
+								InstanceType: "api-node-1",
+								DiskSize:     50,
+							},
+							Count: 1,
+						},
+					}
+
+					if !reflect.DeepEqual(&expected, output) {
+						return fmt.Errorf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
+					}
+					return nil
+				},
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State:                state,
+		ExpectError:          "failed to create cluster, error: skip",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func testGetRonDBConfig(reqBody io.Reader, cloud api.CloudProvider) (*api.RonDBConfiguration, error) {
+	var output *api.RonDBConfiguration
+	if cloud == api.AZURE {
+		var req api.NewAzureClusterRequest
+		if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+			return nil, err
+		}
+		output = req.CreateRequest.RonDB
+	} else if cloud == api.AWS {
+		var req api.NewAWSClusterRequest
+		if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+			return nil, err
+		}
+		output = req.CreateRequest.RonDB
+	}
+	return output, nil
+}
+
+func testClusterCreate_RonDB_default(t *testing.T, cloud api.CloudProvider) {
+	state := map[string]interface{}{
+		"name": "cluster",
+		"head": []interface{}{
+			map[string]interface{}{
+				"disk_size": 512,
+			},
+		},
+		"workers": []interface{}{
+			map[string]interface{}{
+				"disk_size": 256,
+				"count":     2,
+			},
+		},
+		"rondb": []interface{}{
+			map[string]interface{}{},
+		},
+	}
+
+	if cloud == api.AWS {
+		state["aws_attributes"] = []interface{}{
+			map[string]interface{}{
+				"region":               "region-1",
+				"bucket_name":          "bucket-1",
+				"instance_profile_arn": "profile-1",
+			},
+		}
+	} else if cloud == api.AZURE {
+		state["azure_attributes"] = []interface{}{
+			map[string]interface{}{
+				"location":                       "location-1",
+				"resource_group":                 "resource-group-1",
+				"storage_account":                "storage-account-1",
+				"user_assigned_managed_identity": "user-identity-1",
+			},
+		}
+	}
+
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 400,
+					"message": "skip"
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					output, err := testGetRonDBConfig(reqBody, cloud)
+					if err != nil {
+						return err
+					}
+					expected := defaultRonDBConfiguration(cloud)
+					if !reflect.DeepEqual(&expected, output) {
+						return fmt.Errorf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
+					}
+					return nil
+				},
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State:                state,
+		ExpectError:          "failed to create cluster, error: skip",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func testClusterCreate_RonDB_defaultEmptyBlocks(t *testing.T, cloud api.CloudProvider) {
+	state := map[string]interface{}{
+		"name": "cluster",
+		"head": []interface{}{
+			map[string]interface{}{
+				"disk_size": 512,
+			},
+		},
+		"workers": []interface{}{
+			map[string]interface{}{
+				"disk_size": 256,
+				"count":     2,
+			},
+		},
+		"rondb": []interface{}{
+			map[string]interface{}{
+				"configuration": []interface{}{
+					map[string]interface{}{
+						"ndbd_default": []interface{}{
+							map[string]interface{}{},
+						},
+						"general": []interface{}{
+							map[string]interface{}{
+								"benchmark": []interface{}{
+									map[string]interface{}{},
+								},
+							},
+						},
+					},
+				},
+				"management_nodes": []interface{}{
+					map[string]interface{}{},
+				},
+				"data_nodes": []interface{}{
+					map[string]interface{}{},
+				},
+				"mysql_nodes": []interface{}{
+					map[string]interface{}{},
+				},
+				"api_nodes": []interface{}{
+					map[string]interface{}{},
+				},
+			},
+		},
+	}
+
+	if cloud == api.AWS {
+		state["aws_attributes"] = []interface{}{
+			map[string]interface{}{
+				"region":               "region-1",
+				"bucket_name":          "bucket-1",
+				"instance_profile_arn": "profile-1",
+			},
+		}
+	} else if cloud == api.AZURE {
+		state["azure_attributes"] = []interface{}{
+			map[string]interface{}{
+				"location":                       "location-1",
+				"resource_group":                 "resource-group-1",
+				"storage_account":                "storage-account-1",
+				"user_assigned_managed_identity": "user-identity-1",
+			},
+		}
+	}
+
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 400,
+					"message": "skip"
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					output, err := testGetRonDBConfig(reqBody, cloud)
+					if err != nil {
+						return err
+					}
+					expected := defaultRonDBConfiguration(cloud)
+					if !reflect.DeepEqual(&expected, output) {
+						return fmt.Errorf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
+					}
+					return nil
+				},
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State:                state,
+		ExpectError:          "failed to create cluster, error: skip",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func testClusterCreate_RonDB_invalidReplicationFactor(t *testing.T, cloud api.CloudProvider) {
+	state := map[string]interface{}{
+		"name": "cluster",
+		"head": []interface{}{
+			map[string]interface{}{
+				"disk_size": 512,
+			},
+		},
+		"workers": []interface{}{
+			map[string]interface{}{
+				"disk_size": 256,
+				"count":     2,
+			},
+		},
+		"rondb": []interface{}{
+			map[string]interface{}{
+				"configuration": []interface{}{
+					map[string]interface{}{
+						"ndbd_default": []interface{}{
+							map[string]interface{}{
+								"replication_factor": 2,
+							},
+						},
+					},
+				},
+				"data_nodes": []interface{}{
+					map[string]interface{}{
+						"count": 3,
+					},
+				},
+			},
+		},
+	}
+
+	if cloud == api.AWS {
+		state["aws_attributes"] = []interface{}{
+			map[string]interface{}{
+				"region":               "region-1",
+				"bucket_name":          "bucket-1",
+				"instance_profile_arn": "profile-1",
+			},
+		}
+	} else if cloud == api.AZURE {
+		state["azure_attributes"] = []interface{}{
+			map[string]interface{}{
+				"location":                       "location-1",
+				"resource_group":                 "resource-group-1",
+				"storage_account":                "storage-account-1",
+				"user_assigned_managed_identity": "user-identity-1",
+			},
+		}
+	}
+
+	r := test.ResourceFixture{
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State:                state,
+		ExpectError:          "number of RonDB data nodes must be multiples of RonDB replication factor",
 	}
 	r.Apply(t, context.TODO())
 }

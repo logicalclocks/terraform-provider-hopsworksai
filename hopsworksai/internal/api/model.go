@@ -33,6 +33,8 @@ const (
 	ShuttingDown       ClusterState = "shutting-down"
 	Updating           ClusterState = "updating"
 	Decommissioning    ClusterState = "decommissioning"
+	RonDBInitializing  ClusterState = "rondb-initializing"
+	StartingHopsworks  ClusterState = "starting-hopsworks"
 	// Worker states
 	WorkerPending         ClusterState = worker + "-" + Pending
 	WorkerInitializing    ClusterState = worker + "-" + Initializing
@@ -75,6 +77,31 @@ func (resp BaseResponse) validate() error {
 	return nil
 }
 
+type RonDBNdbdDefaultConfiguration struct {
+	ReplicationFactor int `json:"replicationFactor"`
+}
+
+type RonDBBenchmarkConfiguration struct {
+	GrantUserPrivileges bool `json:"grantUserPrivileges"`
+}
+
+type RonDBGeneralConfiguration struct {
+	Benchmark RonDBBenchmarkConfiguration `json:"benchmark"`
+}
+
+type RonDBBaseConfiguration struct {
+	NdbdDefault RonDBNdbdDefaultConfiguration `json:"ndbdDefault"`
+	General     RonDBGeneralConfiguration     `json:"general"`
+}
+
+type RonDBConfiguration struct {
+	Configuration   RonDBBaseConfiguration `json:"configuration"`
+	ManagementNodes WorkerConfiguration    `json:"mgmd"`
+	DataNodes       WorkerConfiguration    `json:"ndbd"`
+	MYSQLNodes      WorkerConfiguration    `json:"mysqld"`
+	APINodes        WorkerConfiguration    `json:"api"`
+}
+
 type Cluster struct {
 	Id                    string               `json:"id"`
 	Name                  string               `json:"name"`
@@ -97,6 +124,7 @@ type Cluster struct {
 	Azure                 AzureCluster         `json:"azure,omitempty"`
 	AWS                   AWSCluster           `json:"aws,omitempty"`
 	Ports                 ServiceOpenPorts     `json:"ports"`
+	RonDB                 *RonDBConfiguration  `json:"ronDB,omitempty"`
 }
 
 func (c *Cluster) IsAWSCluster() bool {
@@ -165,6 +193,7 @@ type CreateCluster struct {
 	BackupRetentionPeriod int                  `json:"backupRetentionPeriod"`
 	ManagedUsers          bool                 `json:"managedUsers"`
 	Tags                  []ClusterTag         `json:"tags"`
+	RonDB                 *RonDBConfiguration  `json:"ronDB,omitempty"`
 }
 
 type CreateAzureCluster struct {

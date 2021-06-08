@@ -517,6 +517,38 @@ func TestNewClusterAWS(t *testing.T) {
 							"value": "tag1-value1"
 						}
 					],
+					"ronDB": {
+						"configuration": {
+							"ndbdDefault": {
+								"replicationFactor": 2
+							},
+							"general": {
+								"benchmark": {
+									"grantUserPrivileges": false
+								}
+							}
+						},
+						"mgmd": {
+							"instanceType": "mgm-node-1",
+							"diskSize": 30,
+							"count": 1
+						},
+						"ndbd": {
+							"instanceType": "data-node-1",
+							"diskSize": 512,
+							"count": 2
+						},
+						"mysqld": {
+							"instanceType": "mysqld-node-1",
+							"diskSize": 100,
+							"count": 1
+						},
+						"api": {
+							"instanceType": "api-node-1",
+							"diskSize": 50,
+							"count": 1
+						}
+					},
 					"region": "region-1",
 					"bucketName": "bucket-1",
 					"instanceProfileArn": "profile-1",
@@ -570,6 +602,46 @@ func TestNewClusterAWS(t *testing.T) {
 				{
 					Name:  "tag1",
 					Value: "tag1-value1",
+				},
+			},
+			RonDB: &RonDBConfiguration{
+				Configuration: RonDBBaseConfiguration{
+					NdbdDefault: RonDBNdbdDefaultConfiguration{
+						ReplicationFactor: 2,
+					},
+					General: RonDBGeneralConfiguration{
+						Benchmark: RonDBBenchmarkConfiguration{
+							GrantUserPrivileges: false,
+						},
+					},
+				},
+				ManagementNodes: WorkerConfiguration{
+					NodeConfiguration: NodeConfiguration{
+						InstanceType: "mgm-node-1",
+						DiskSize:     30,
+					},
+					Count: 1,
+				},
+				DataNodes: WorkerConfiguration{
+					NodeConfiguration: NodeConfiguration{
+						InstanceType: "data-node-1",
+						DiskSize:     512,
+					},
+					Count: 2,
+				},
+				MYSQLNodes: WorkerConfiguration{
+					NodeConfiguration: NodeConfiguration{
+						InstanceType: "mysqld-node-1",
+						DiskSize:     100,
+					},
+					Count: 1,
+				},
+				APINodes: WorkerConfiguration{
+					NodeConfiguration: NodeConfiguration{
+						InstanceType: "api-node-1",
+						DiskSize:     50,
+					},
+					Count: 1,
 				},
 			},
 		},
@@ -629,6 +701,38 @@ func TestNewClusterAZURE(t *testing.T) {
 							"value": "tag1-value1"
 						}
 					],
+					"ronDB": {
+						"configuration": {
+							"ndbdDefault": {
+								"replicationFactor": 2
+							},
+							"general": {
+								"benchmark": {
+									"grantUserPrivileges": false
+								}
+							}
+						},
+						"mgmd": {
+							"instanceType": "mgm-node-1",
+							"diskSize": 30,
+							"count": 1
+						},
+						"ndbd": {
+							"instanceType": "data-node-1",
+							"diskSize": 512,
+							"count": 2
+						},
+						"mysqld": {
+							"instanceType": "mysqld-node-1",
+							"diskSize": 100,
+							"count": 1
+						},
+						"api": {
+							"instanceType": "api-node-1",
+							"diskSize": 50,
+							"count": 1
+						}
+					},
 					"location": "location-1",
 					"managedIdentity": "profile-1",
 					"resourceGroup": "resource-group-1",
@@ -684,6 +788,46 @@ func TestNewClusterAZURE(t *testing.T) {
 				{
 					Name:  "tag1",
 					Value: "tag1-value1",
+				},
+			},
+			RonDB: &RonDBConfiguration{
+				Configuration: RonDBBaseConfiguration{
+					NdbdDefault: RonDBNdbdDefaultConfiguration{
+						ReplicationFactor: 2,
+					},
+					General: RonDBGeneralConfiguration{
+						Benchmark: RonDBBenchmarkConfiguration{
+							GrantUserPrivileges: false,
+						},
+					},
+				},
+				ManagementNodes: WorkerConfiguration{
+					NodeConfiguration: NodeConfiguration{
+						InstanceType: "mgm-node-1",
+						DiskSize:     30,
+					},
+					Count: 1,
+				},
+				DataNodes: WorkerConfiguration{
+					NodeConfiguration: NodeConfiguration{
+						InstanceType: "data-node-1",
+						DiskSize:     512,
+					},
+					Count: 2,
+				},
+				MYSQLNodes: WorkerConfiguration{
+					NodeConfiguration: NodeConfiguration{
+						InstanceType: "mysqld-node-1",
+						DiskSize:     100,
+					},
+					Count: 1,
+				},
+				APINodes: WorkerConfiguration{
+					NodeConfiguration: NodeConfiguration{
+						InstanceType: "api-node-1",
+						DiskSize:     50,
+					},
+					Count: 1,
 				},
 			},
 		},

@@ -38,6 +38,7 @@ func FlattenCluster(cluster *api.Cluster) map[string]interface{} {
 		"azure_attributes":               flattenAzureAttributes(cluster),
 		"open_ports":                     flattenPorts(&cluster.Ports),
 		"tags":                           flattenTags(cluster.Tags),
+		"rondb":                          flattenRonDB(cluster.RonDB),
 	}
 }
 
@@ -53,13 +54,17 @@ func flattenHead(head *api.HeadConfiguration) []map[string]interface{} {
 func flattenWorkers(workers []api.WorkerConfiguration) *schema.Set {
 	workersArray := make([]interface{}, len(workers))
 	for i, v := range workers {
-		workersArray[i] = map[string]interface{}{
-			"instance_type": v.InstanceType,
-			"disk_size":     v.DiskSize,
-			"count":         v.Count,
-		}
+		workersArray[i] = flattenWorker(v)
 	}
 	return schema.NewSet(helpers.WorkerSetHash, workersArray)
+}
+
+func flattenWorker(worker api.WorkerConfiguration) map[string]interface{} {
+	return map[string]interface{}{
+		"instance_type": worker.InstanceType,
+		"disk_size":     worker.DiskSize,
+		"count":         worker.Count,
+	}
 }
 
 func flattenAWSAttributes(cluster *api.Cluster) []interface{} {
@@ -127,6 +132,46 @@ func flattenTags(tags []api.ClusterTag) map[string]interface{} {
 		tagsMap[tag.Name] = tag.Value
 	}
 	return tagsMap
+}
+
+func flattenRonDB(ronDB *api.RonDBConfiguration) []map[string]interface{} {
+	if ronDB == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"configuration": []interface{}{
+				map[string]interface{}{
+					"ndbd_default": []interface{}{
+						map[string]interface{}{
+							"replication_factor": ronDB.Configuration.NdbdDefault.ReplicationFactor,
+						},
+					},
+					"general": []interface{}{
+						map[string]interface{}{
+							"benchmark": []interface{}{
+								map[string]interface{}{
+									"grant_user_privileges": ronDB.Configuration.General.Benchmark.GrantUserPrivileges,
+								},
+							},
+						},
+					},
+				},
+			},
+			"management_nodes": []interface{}{
+				flattenWorker(ronDB.ManagementNodes),
+			},
+			"data_nodes": []interface{}{
+				flattenWorker(ronDB.DataNodes),
+			},
+			"mysql_nodes": []interface{}{
+				flattenWorker(ronDB.MYSQLNodes),
+			},
+			"api_nodes": []interface{}{
+				flattenWorker(ronDB.APINodes),
+			},
+		},
+	}
 }
 
 func ExpandWorkers(workers *schema.Set) map[api.NodeConfiguration]api.WorkerConfiguration {

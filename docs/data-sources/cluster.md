@@ -42,6 +42,7 @@ data "hopsworksai_clusters" "cluster" {
 - **managed_users** (Boolean) Enable or disable Hopsworks.ai to manage your users.
 - **name** (String) The name of the cluster, must be unique.
 - **open_ports** (List of Object) Open the required ports to communicate with one of the Hopsworks services. (see [below for nested schema](#nestedatt--open_ports))
+- **rondb** (List of Object) Setup a cluster with managed RonDB (see [below for nested schema](#nestedatt--rondb))
 - **ssh_key** (String) The ssh key name that will be attached to this cluster.
 - **start_date** (String) The starting date of the cluster. The date is represented in RFC3339 format.
 - **state** (String) The current state of the cluster.
@@ -117,6 +118,91 @@ Read-Only:
 - **kafka** (Boolean)
 - **online_feature_store** (Boolean)
 - **ssh** (Boolean)
+
+
+<a id="nestedatt--rondb"></a>
+### Nested Schema for `rondb`
+
+Read-Only:
+
+- **api_nodes** (List of Object) (see [below for nested schema](#nestedobjatt--rondb--api_nodes))
+- **configuration** (List of Object) (see [below for nested schema](#nestedobjatt--rondb--configuration))
+- **data_nodes** (List of Object) (see [below for nested schema](#nestedobjatt--rondb--data_nodes))
+- **management_nodes** (List of Object) (see [below for nested schema](#nestedobjatt--rondb--management_nodes))
+- **mysql_nodes** (List of Object) (see [below for nested schema](#nestedobjatt--rondb--mysql_nodes))
+
+<a id="nestedobjatt--rondb--api_nodes"></a>
+### Nested Schema for `rondb.api_nodes`
+
+Read-Only:
+
+- **count** (Number)
+- **disk_size** (Number)
+- **instance_type** (String)
+
+
+<a id="nestedobjatt--rondb--configuration"></a>
+### Nested Schema for `rondb.configuration`
+
+Read-Only:
+
+- **general** (List of Object) (see [below for nested schema](#nestedobjatt--rondb--configuration--general))
+- **ndbd_default** (List of Object) (see [below for nested schema](#nestedobjatt--rondb--configuration--ndbd_default))
+
+<a id="nestedobjatt--rondb--configuration--general"></a>
+### Nested Schema for `rondb.configuration.general`
+
+Read-Only:
+
+- **benchmark** (List of Object) (see [below for nested schema](#nestedobjatt--rondb--configuration--general--benchmark))
+
+<a id="nestedobjatt--rondb--configuration--general--benchmark"></a>
+### Nested Schema for `rondb.configuration.general.benchmark`
+
+Read-Only:
+
+- **grant_user_privileges** (Boolean)
+
+
+
+<a id="nestedobjatt--rondb--configuration--ndbd_default"></a>
+### Nested Schema for `rondb.configuration.ndbd_default`
+
+Read-Only:
+
+- **replication_factor** (Number)
+
+
+
+<a id="nestedobjatt--rondb--data_nodes"></a>
+### Nested Schema for `rondb.data_nodes`
+
+Read-Only:
+
+- **count** (Number)
+- **disk_size** (Number)
+- **instance_type** (String)
+
+
+<a id="nestedobjatt--rondb--management_nodes"></a>
+### Nested Schema for `rondb.management_nodes`
+
+Read-Only:
+
+- **count** (Number)
+- **disk_size** (Number)
+- **instance_type** (String)
+
+
+<a id="nestedobjatt--rondb--mysql_nodes"></a>
+### Nested Schema for `rondb.mysql_nodes`
+
+Read-Only:
+
+- **count** (Number)
+- **disk_size** (Number)
+- **instance_type** (String)
+
 
 
 <a id="nestedatt--workers"></a>

@@ -24,6 +24,58 @@ func instanceProfileRegex() *regexp.Regexp {
 	return regexp.MustCompile(`^arn:aws:iam::([0-9]*):instance-profile/(.*)$`)
 }
 
+func defaultRonDBConfiguration(cloud api.CloudProvider) api.RonDBConfiguration {
+	ronDB := api.RonDBConfiguration{
+		Configuration: api.RonDBBaseConfiguration{
+			NdbdDefault: api.RonDBNdbdDefaultConfiguration{
+				ReplicationFactor: 2,
+			},
+			General: api.RonDBGeneralConfiguration{
+				Benchmark: api.RonDBBenchmarkConfiguration{
+					GrantUserPrivileges: false,
+				},
+			},
+		},
+		ManagementNodes: api.WorkerConfiguration{
+			NodeConfiguration: api.NodeConfiguration{
+				DiskSize: 30,
+			},
+			Count: 1,
+		},
+		DataNodes: api.WorkerConfiguration{
+			NodeConfiguration: api.NodeConfiguration{
+				DiskSize: 512,
+			},
+			Count: 2,
+		},
+		MYSQLNodes: api.WorkerConfiguration{
+			NodeConfiguration: api.NodeConfiguration{
+				DiskSize: 128,
+			},
+			Count: 1,
+		},
+		APINodes: api.WorkerConfiguration{
+			NodeConfiguration: api.NodeConfiguration{
+				DiskSize: 30,
+			},
+			Count: 0,
+		},
+	}
+	switch cloud {
+	case api.AWS:
+		ronDB.ManagementNodes.InstanceType = "t3a.medium"
+		ronDB.DataNodes.InstanceType = "t3a.xlarge"
+		ronDB.MYSQLNodes.InstanceType = "t3a.medium"
+		ronDB.APINodes.InstanceType = "t3a.medium"
+	case api.AZURE:
+		ronDB.ManagementNodes.InstanceType = "Standard_D2s_v4"
+		ronDB.DataNodes.InstanceType = "Standard_D4s_v4"
+		ronDB.MYSQLNodes.InstanceType = "Standard_D2s_v4"
+		ronDB.APINodes.InstanceType = "Standard_D2s_v4"
+	}
+	return ronDB
+}
+
 func clusterSchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
 		"cluster_id": {
@@ -238,6 +290,216 @@ func clusterSchema() map[string]*schema.Schema {
 				},
 			},
 		},
+		"rondb": {
+			Description: "Setup a cluster with managed RonDB",
+			Type:        schema.TypeList,
+			Optional:    true,
+			ForceNew:    true,
+			MaxItems:    1,
+			Elem:        ronDBSchema(),
+		},
+	}
+}
+
+func ronDBSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"configuration": {
+				Description: "The configuration of RonDB.",
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"ndbd_default": {
+							Description: "The configuration of RonDB data nodes.",
+							Type:        schema.TypeList,
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"replication_factor": {
+										Description: "The number of replicas created by RonDB for high availability.",
+										Type:        schema.TypeInt,
+										Optional:    true,
+										ForceNew:    true,
+										Default:     defaultRonDBConfiguration("").Configuration.NdbdDefault.ReplicationFactor,
+									},
+								},
+							},
+						},
+						"general": {
+							Description: "The general configurations of RonDB.",
+							Type:        schema.TypeList,
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"benchmark": {
+										Description: "The configurations required to benchmark RonDB.",
+										Type:        schema.TypeList,
+										Optional:    true,
+										Computed:    true,
+										ForceNew:    true,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"grant_user_privileges": {
+													Description: "This allow API nodes to have user privileges access to RonDB. This is needed mainly for benchmarking and for that you need API nodes.",
+													Type:        schema.TypeBool,
+													Optional:    true,
+													ForceNew:    true,
+													Default:     defaultRonDBConfiguration("").Configuration.General.Benchmark.GrantUserPrivileges,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			"management_nodes": {
+				Description: "The configuration of RonDB management nodes.",
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"instance_type": {
+							Description: fmt.Sprintf("The instance type of the RonDB management node. Defaults to %s for AWS and %s for Azure.", defaultRonDBConfiguration(api.AWS).ManagementNodes.InstanceType, defaultRonDBConfiguration(api.AZURE).ManagementNodes.InstanceType),
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Computed:    true,
+						},
+						"disk_size": {
+							Description: "The disk size of management nodes in units of GB",
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Default:     defaultRonDBConfiguration("").ManagementNodes.DiskSize,
+						},
+						"count": {
+							Description:  "The number of management nodes.",
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ForceNew:     true,
+							Default:      defaultRonDBConfiguration("").ManagementNodes.Count,
+							ValidateFunc: validation.IntInSlice([]int{1}),
+						},
+					},
+				},
+			},
+			"data_nodes": {
+				Description: "The configuration of RonDB data nodes.",
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"instance_type": {
+							Description: fmt.Sprintf("The instance type of the RonDB data node. Defaults to %s for AWS and %s for Azure.", defaultRonDBConfiguration(api.AWS).DataNodes.InstanceType, defaultRonDBConfiguration(api.AZURE).DataNodes.InstanceType),
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Computed:    true,
+						},
+						"disk_size": {
+							Description: "The disk size of data nodes in units of GB",
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Default:     defaultRonDBConfiguration("").DataNodes.DiskSize,
+						},
+						"count": {
+							Description: "The number of data nodes. Notice that the number of RonDB data nodes have to be multiples of the replication_factor.",
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Default:     defaultRonDBConfiguration("").DataNodes.Count,
+						},
+					},
+				},
+			},
+			"mysql_nodes": {
+				Description: "The configuration of MySQL nodes.",
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"instance_type": {
+							Description: fmt.Sprintf("The instance type of the RonDB data node. Defaults to %s for AWS and %s for Azure.", defaultRonDBConfiguration(api.AWS).MYSQLNodes.InstanceType, defaultRonDBConfiguration(api.AZURE).MYSQLNodes.InstanceType),
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Computed:    true,
+						},
+						"disk_size": {
+							Description: "The disk size of MySQL nodes in units of GB",
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Default:     defaultRonDBConfiguration("").MYSQLNodes.DiskSize,
+						},
+						"count": {
+							Description: "The number of MySQL nodes.",
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Default:     defaultRonDBConfiguration("").MYSQLNodes.Count,
+						},
+					},
+				},
+			},
+			"api_nodes": {
+				Description: "The configuration of API nodes.",
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"instance_type": {
+							Description: fmt.Sprintf("The instance type of the RonDB data node. Defaults to %s for AWS and %s for Azure.", defaultRonDBConfiguration(api.AWS).APINodes.InstanceType, defaultRonDBConfiguration(api.AZURE).APINodes.InstanceType),
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Computed:    true,
+						},
+						"disk_size": {
+							Description: "The disk size of API nodes in units of GB",
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Default:     defaultRonDBConfiguration("").APINodes.DiskSize,
+						},
+						"count": {
+							Description: "The number of API nodes.",
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Default:     defaultRonDBConfiguration("").APINodes.Count,
+						},
+					},
+				},
+			},
+		},
 	}
 }
 
@@ -419,7 +681,10 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("you cannot update cluster state during creation")
 	}
 
-	baseRequest := createClusterBaseRequest(d)
+	baseRequest, err := createClusterBaseRequest(d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	var createRequest interface{} = nil
 	if aws, ok := d.GetOk("aws_attributes"); ok {
 		awsAttributes := aws.([]interface{})
@@ -544,7 +809,7 @@ func createAzureCluster(azureAttributes map[string]interface{}, baseRequest *api
 	return &req, nil
 }
 
-func createClusterBaseRequest(d *schema.ResourceData) *api.CreateCluster {
+func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error) {
 	headConfig := d.Get("head").([]interface{})[0].(map[string]interface{})
 	tagsMap := d.Get("tags").(map[string]interface{})
 	tagsArr := make([]api.ClusterTag, len(tagsMap))
@@ -583,7 +848,83 @@ func createClusterBaseRequest(d *schema.ResourceData) *api.CreateCluster {
 		}
 		createCluster.ClusterConfiguration.Workers = workersConfig
 	}
-	return createCluster
+
+	if _, ok := d.GetOk("rondb"); ok {
+		var cloud api.CloudProvider = ""
+		if _, ok := d.GetOk("aws_attributes"); ok {
+			cloud = api.AWS
+		}
+
+		if _, ok := d.GetOk("azure_attributes"); ok {
+			cloud = api.AZURE
+		}
+
+		defaultRonDB := defaultRonDBConfiguration(cloud)
+
+		var replicationFactor = defaultRonDB.Configuration.NdbdDefault.ReplicationFactor
+		if v, ok := d.GetOk("rondb.0.configuration.0.ndbd_default.0.replication_factor"); ok {
+			replicationFactor = v.(int)
+		}
+
+		var grantUserPrivileges = defaultRonDB.Configuration.General.Benchmark.GrantUserPrivileges
+		if v, ok := d.GetOk("rondb.0.configuration.0.general.0.benchmark.0.grant_user_privileges"); ok {
+			grantUserPrivileges = v.(bool)
+		}
+
+		createCluster.RonDB = &api.RonDBConfiguration{
+			Configuration: api.RonDBBaseConfiguration{
+				NdbdDefault: api.RonDBNdbdDefaultConfiguration{
+					ReplicationFactor: replicationFactor,
+				},
+				General: api.RonDBGeneralConfiguration{
+					Benchmark: api.RonDBBenchmarkConfiguration{
+						GrantUserPrivileges: grantUserPrivileges,
+					},
+				},
+			},
+		}
+
+		if n, ok := d.GetOk("rondb.0.management_nodes"); ok && len(n.([]interface{})) > 0 {
+			createCluster.RonDB.ManagementNodes = structure.ExpandWorker(n.([]interface{})[0].(map[string]interface{}))
+			if createCluster.RonDB.ManagementNodes.InstanceType == "" {
+				createCluster.RonDB.ManagementNodes.InstanceType = defaultRonDB.ManagementNodes.InstanceType
+			}
+		} else {
+			createCluster.RonDB.ManagementNodes = defaultRonDB.ManagementNodes
+		}
+
+		if n, ok := d.GetOk("rondb.0.data_nodes"); ok && len(n.([]interface{})) > 0 {
+			createCluster.RonDB.DataNodes = structure.ExpandWorker(n.([]interface{})[0].(map[string]interface{}))
+			if createCluster.RonDB.DataNodes.InstanceType == "" {
+				createCluster.RonDB.DataNodes.InstanceType = defaultRonDB.DataNodes.InstanceType
+			}
+		} else {
+			createCluster.RonDB.DataNodes = defaultRonDB.DataNodes
+		}
+
+		if n, ok := d.GetOk("rondb.0.mysql_nodes"); ok && len(n.([]interface{})) > 0 {
+			createCluster.RonDB.MYSQLNodes = structure.ExpandWorker(n.([]interface{})[0].(map[string]interface{}))
+			if createCluster.RonDB.MYSQLNodes.InstanceType == "" {
+				createCluster.RonDB.MYSQLNodes.InstanceType = defaultRonDB.MYSQLNodes.InstanceType
+			}
+		} else {
+			createCluster.RonDB.MYSQLNodes = defaultRonDB.MYSQLNodes
+		}
+
+		if n, ok := d.GetOk("rondb.0.api_nodes"); ok && len(n.([]interface{})) > 0 {
+			createCluster.RonDB.APINodes = structure.ExpandWorker(n.([]interface{})[0].(map[string]interface{}))
+			if createCluster.RonDB.APINodes.InstanceType == "" {
+				createCluster.RonDB.APINodes.InstanceType = defaultRonDB.APINodes.InstanceType
+			}
+		} else {
+			createCluster.RonDB.APINodes = defaultRonDB.APINodes
+		}
+
+		if createCluster.RonDB.DataNodes.Count%createCluster.RonDB.Configuration.NdbdDefault.ReplicationFactor != 0 {
+			return nil, fmt.Errorf("number of RonDB data nodes must be multiples of RonDB replication factor")
+		}
+	}
+	return createCluster, nil
 }
 
 func validateAWSCluster(createRequest *api.CreateCluster) error {
@@ -789,6 +1130,8 @@ func resourceClusterWaitForRunning(ctx context.Context, client *api.HopsworksAIC
 			api.WorkerInitializing,
 			api.WorkerShuttingdown,
 			api.WorkerDecommissioning,
+			api.RonDBInitializing,
+			api.StartingHopsworks,
 		},
 		[]api.ClusterState{
 			api.Running,

@@ -286,6 +286,46 @@ func TestFlattenCluster(t *testing.T) {
 			Kafka:              true,
 			SSH:                false,
 		},
+		RonDB: &api.RonDBConfiguration{
+			Configuration: api.RonDBBaseConfiguration{
+				NdbdDefault: api.RonDBNdbdDefaultConfiguration{
+					ReplicationFactor: 2,
+				},
+				General: api.RonDBGeneralConfiguration{
+					Benchmark: api.RonDBBenchmarkConfiguration{
+						GrantUserPrivileges: false,
+					},
+				},
+			},
+			ManagementNodes: api.WorkerConfiguration{
+				NodeConfiguration: api.NodeConfiguration{
+					InstanceType: "mgm-node-1",
+					DiskSize:     30,
+				},
+				Count: 1,
+			},
+			DataNodes: api.WorkerConfiguration{
+				NodeConfiguration: api.NodeConfiguration{
+					InstanceType: "data-node-1",
+					DiskSize:     512,
+				},
+				Count: 2,
+			},
+			MYSQLNodes: api.WorkerConfiguration{
+				NodeConfiguration: api.NodeConfiguration{
+					InstanceType: "mysqld-node-1",
+					DiskSize:     100,
+				},
+				Count: 1,
+			},
+			APINodes: api.WorkerConfiguration{
+				NodeConfiguration: api.NodeConfiguration{
+					InstanceType: "api-node-1",
+					DiskSize:     50,
+				},
+				Count: 1,
+			},
+		},
 	}
 
 	var emptyAttributes []interface{} = nil
@@ -310,6 +350,7 @@ func TestFlattenCluster(t *testing.T) {
 		"azure_attributes":               emptyAttributes,
 		"open_ports":                     flattenPorts(&input.Ports),
 		"tags":                           flattenTags(input.Tags),
+		"rondb":                          flattenRonDB(input.RonDB),
 	}
 
 	for _, cloud := range []api.CloudProvider{api.AWS, api.AZURE} {
@@ -630,5 +671,111 @@ func TestFlattenTags(t *testing.T) {
 	output := flattenTags(input)
 	if !reflect.DeepEqual(expected, output) {
 		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
+	}
+}
+
+func TestFlattenRonDB(t *testing.T) {
+	input := &api.RonDBConfiguration{
+		Configuration: api.RonDBBaseConfiguration{
+			NdbdDefault: api.RonDBNdbdDefaultConfiguration{
+				ReplicationFactor: 2,
+			},
+			General: api.RonDBGeneralConfiguration{
+				Benchmark: api.RonDBBenchmarkConfiguration{
+					GrantUserPrivileges: false,
+				},
+			},
+		},
+		ManagementNodes: api.WorkerConfiguration{
+			NodeConfiguration: api.NodeConfiguration{
+				InstanceType: "mgm-node-1",
+				DiskSize:     30,
+			},
+			Count: 1,
+		},
+		DataNodes: api.WorkerConfiguration{
+			NodeConfiguration: api.NodeConfiguration{
+				InstanceType: "data-node-1",
+				DiskSize:     512,
+			},
+			Count: 2,
+		},
+		MYSQLNodes: api.WorkerConfiguration{
+			NodeConfiguration: api.NodeConfiguration{
+				InstanceType: "mysqld-node-1",
+				DiskSize:     100,
+			},
+			Count: 1,
+		},
+		APINodes: api.WorkerConfiguration{
+			NodeConfiguration: api.NodeConfiguration{
+				InstanceType: "api-node-1",
+				DiskSize:     50,
+			},
+			Count: 1,
+		},
+	}
+
+	expected := []map[string]interface{}{
+		{
+			"configuration": []interface{}{
+				map[string]interface{}{
+					"ndbd_default": []interface{}{
+						map[string]interface{}{
+							"replication_factor": 2,
+						},
+					},
+					"general": []interface{}{
+						map[string]interface{}{
+							"benchmark": []interface{}{
+								map[string]interface{}{
+									"grant_user_privileges": false,
+								},
+							},
+						},
+					},
+				},
+			},
+			"management_nodes": []interface{}{
+				map[string]interface{}{
+					"instance_type": "mgm-node-1",
+					"disk_size":     30,
+					"count":         1,
+				},
+			},
+			"data_nodes": []interface{}{
+				map[string]interface{}{
+					"instance_type": "data-node-1",
+					"disk_size":     512,
+					"count":         2,
+				},
+			},
+			"mysql_nodes": []interface{}{
+				map[string]interface{}{
+					"instance_type": "mysqld-node-1",
+					"disk_size":     100,
+					"count":         1,
+				},
+			},
+			"api_nodes": []interface{}{
+				map[string]interface{}{
+					"instance_type": "api-node-1",
+					"disk_size":     50,
+					"count":         1,
+				},
+			},
+		},
+	}
+
+	output := flattenRonDB(input)
+	if !reflect.DeepEqual(expected, output) {
+		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
+	}
+}
+
+func TestFlattenRonDB_nil(t *testing.T) {
+	output := flattenRonDB(nil)
+	if output != nil {
+		t.Fatalf("error while matching:\nexpected nil \nbut got %#v", output)
 	}
 }
