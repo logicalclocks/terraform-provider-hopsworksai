@@ -106,12 +106,11 @@ func clusterSchema() map[string]*schema.Schema {
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
 					"instance_type": {
-						Description:      fmt.Sprintf("The instance type of the head node. Defaults to %s for AWS and %s for Azure.", awsDefaultInstanceType, azureDefaultInstanceType),
-						Type:             schema.TypeString,
-						Optional:         true,
-						ForceNew:         true,
-						Default:          "",
-						DiffSuppressFunc: helpers.SuppressDiffForNonSetKeys,
+						Description: fmt.Sprintf("The instance type of the head node. Defaults to %s for AWS and %s for Azure.", awsDefaultInstanceType, azureDefaultInstanceType),
+						Type:        schema.TypeString,
+						Optional:    true,
+						Computed:    true,
+						ForceNew:    true,
 					},
 					"disk_size": {
 						Description:  "The disk size of the head node in units of GB.",
@@ -132,11 +131,10 @@ func clusterSchema() map[string]*schema.Schema {
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
 					"instance_type": {
-						Description:      fmt.Sprintf("The instance type of the worker nodes. Defaults to %s for AWS and %s for Azure.", awsDefaultInstanceType, azureDefaultInstanceType),
-						Type:             schema.TypeString,
-						Optional:         true,
-						Default:          "",
-						DiffSuppressFunc: helpers.SuppressDiffForNonSetKeys,
+						Description: fmt.Sprintf("The instance type of the worker nodes. Defaults to %s for AWS and %s for Azure.", awsDefaultInstanceType, azureDefaultInstanceType),
+						Type:        schema.TypeString,
+						Optional:    true,
+						Computed:    true,
 					},
 					"disk_size": {
 						Description:  "The disk size of worker nodes in units of GB",
@@ -595,12 +593,11 @@ func azureAttributesSchema() *schema.Resource {
 				ForceNew:    true,
 			},
 			"storage_container_name": {
-				Description:      "The name of the azure storage container that the cluster will use to store data in. If not specified, it will be automatically generated.",
-				Type:             schema.TypeString,
-				Optional:         true,
-				Default:          "",
-				ForceNew:         true,
-				DiffSuppressFunc: helpers.SuppressDiffForNonSetKeys,
+				Description: "The name of the azure storage container that the cluster will use to store data in. If not specified, it will be automatically generated.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
 			},
 			"user_assigned_managed_identity": {
 				Description: "The azure user assigned managed identity that the cluster will be started with.",
