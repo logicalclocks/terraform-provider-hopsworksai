@@ -12,6 +12,9 @@ ENHANCEMENTS:
 * more unit tests
 
 FEATURES:
+* **New Data Source**: `hopsworksai_instance_type`
+* **New Data Source**: `hopsworksai_instance_types`
+
 
 ## 0.1.0 (June 2, 2021)
 

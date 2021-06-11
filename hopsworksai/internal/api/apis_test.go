@@ -1120,3 +1120,191 @@ func TestUpdatePorts(t *testing.T) {
 		SSH:                true,
 	})
 }
+
+func testGetSupportedInstanceTypes(t *testing.T, cloud CloudProvider) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod:       http.MethodGet,
+			ExpectPath:         "/api/clusters/nodes/supported-types",
+			ExpectRequestQuery: "cloud=" + cloud.String(),
+			ResponseCode:       http.StatusOK,
+			ResponseBody: fmt.Sprintf(`{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200,
+				"payload": {
+					"%s": {
+						"head": [
+							{
+								"id": "head-type-1",
+								"memory": 20,
+								"cpus": 10,
+								"gpus": 0
+							},
+							{
+								"id": "head-type-2",
+								"memory": 50,
+								"cpus": 20,
+								"gpus": 1
+							}
+						],
+						"worker": [
+							{
+								"id": "worker-type-1",
+								"memory": 20,
+								"cpus": 10,
+								"gpus": 0
+							},
+							{
+								"id": "worker-type-2",
+								"memory": 50,
+								"cpus": 20,
+								"gpus": 1
+							}
+						],
+						"ronDB": {
+							"mgmd": [
+								{
+									"id": "mgm-type-1",
+									"memory": 30,
+									"cpus": 2,
+									"gpus": 0
+								}
+							],
+							"ndbd": [
+								{
+									"id": "ndbd-type-1",
+									"memory": 100,
+									"cpus": 16,
+									"gpus": 0
+								}
+							],
+							"mysqld": [
+								{
+									"id": "mysql-type-1",
+									"memory": 100,
+									"cpus": 16,
+									"gpus": 0
+								}
+							],
+							"api": [
+								{
+									"id": "api-type-1",
+									"memory": 100,
+									"cpus": 16,
+									"gpus": 0
+								}
+							]
+						}
+					}
+				}
+			}`, strings.ToLower(cloud.String())),
+			T: t,
+		},
+	}
+
+	output, err := GetSupportedInstanceTypes(context.TODO(), apiClient, cloud)
+	if err != nil {
+		t.Fatalf("should not throw an error, but got %s", err)
+	}
+
+	expected := &SupportedInstanceTypes{
+		Head: SupportedInstanceTypeList{
+			{
+				Id:     "head-type-1",
+				Memory: 20,
+				CPUs:   10,
+				GPUs:   0,
+			},
+			{
+				Id:     "head-type-2",
+				Memory: 50,
+				CPUs:   20,
+				GPUs:   1,
+			},
+		},
+		Worker: SupportedInstanceTypeList{
+			{
+				Id:     "worker-type-1",
+				Memory: 20,
+				CPUs:   10,
+				GPUs:   0,
+			},
+			{
+				Id:     "worker-type-2",
+				Memory: 50,
+				CPUs:   20,
+				GPUs:   1,
+			},
+		},
+		RonDB: SupportedRonDBInstanceTypes{
+			ManagementNode: SupportedInstanceTypeList{
+				{
+					Id:     "mgm-type-1",
+					Memory: 30,
+					CPUs:   2,
+					GPUs:   0,
+				},
+			},
+			DataNode: SupportedInstanceTypeList{
+				{
+					Id:     "ndbd-type-1",
+					Memory: 100,
+					CPUs:   16,
+					GPUs:   0,
+				},
+			},
+			MySQLNode: SupportedInstanceTypeList{
+				{
+					Id:     "mysql-type-1",
+					Memory: 100,
+					CPUs:   16,
+					GPUs:   0,
+				},
+			},
+			APINode: SupportedInstanceTypeList{
+				{
+					Id:     "api-type-1",
+					Memory: 100,
+					CPUs:   16,
+					GPUs:   0,
+				},
+			},
+		},
+	}
+
+	if !reflect.DeepEqual(expected, output) {
+		t.Fatalf("error while matching [%s] :\nexpected %#v \nbut got %#v", cloud.String(), expected, output)
+	}
+}
+
+func TestGetSupportedInstanceTypes(t *testing.T) {
+	testGetSupportedInstanceTypes(t, AWS)
+	testGetSupportedInstanceTypes(t, AZURE)
+}
+
+func TestGetSupportedInstanceTypes_unknownProvider(t *testing.T) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod: http.MethodGet,
+			ExpectPath:   "/api/clusters/nodes/supported-types",
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200,
+				"payload": {
+				}
+			}`,
+			T: t,
+		},
+	}
+
+	output, err := GetSupportedInstanceTypes(context.TODO(), apiClient, "test")
+	if err == nil || err.Error() != "unknown cloud provider test" {
+		t.Fatalf("should throw an error, but got %s", err)
+	}
+	if output != nil {
+		t.Fatalf("expected a nil output, but got %#v", output)
+	}
+}

@@ -145,3 +145,16 @@ func UpdateOpenPorts(ctx context.Context, apiClient APIHandler, clusterId string
 	}
 	return nil
 }
+
+func GetSupportedInstanceTypes(ctx context.Context, apiClient APIHandler, cloud CloudProvider) (*SupportedInstanceTypes, error) {
+	var response GetSupportedInstanceTypesResponse
+	if err := apiClient.doRequest(ctx, http.MethodGet, "/api/clusters/nodes/supported-types?cloud="+cloud.String(), nil, &response); err != nil {
+		return nil, err
+	}
+	if cloud == AWS {
+		return &response.Payload.AWS, nil
+	} else if cloud == AZURE {
+		return &response.Payload.AZURE, nil
+	}
+	return nil, fmt.Errorf("unknown cloud provider %s", cloud.String())
+}

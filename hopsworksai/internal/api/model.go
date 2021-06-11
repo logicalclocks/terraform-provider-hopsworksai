@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"sort"
 )
 
 type CloudProvider string
@@ -206,6 +207,86 @@ type CreateAWSCluster struct {
 	AWSCluster
 }
 
+type NodeType string
+
+const (
+	HeadNode            NodeType = "head"
+	WorkerNode          NodeType = "worker"
+	RonDBManagementNode NodeType = "rondb_management"
+	RonDBDataNode       NodeType = "rondb_data"
+	RonDBMySQLNode      NodeType = "rondb_mysql"
+	RonDBAPINode        NodeType = "rondb_api"
+)
+
+func (n NodeType) String() string {
+	return string(n)
+}
+
+func GetAllNodeTypes() []string {
+	return []string{
+		HeadNode.String(),
+		WorkerNode.String(),
+		RonDBManagementNode.String(),
+		RonDBDataNode.String(),
+		RonDBMySQLNode.String(),
+		RonDBAPINode.String(),
+	}
+}
+
+type SupportedInstanceType struct {
+	Id     string  `json:"id"`
+	CPUs   int     `json:"cpus"`
+	Memory float64 `json:"memory"`
+	GPUs   int     `json:"gpus"`
+}
+
+type SupportedInstanceTypeList []SupportedInstanceType
+
+func (l SupportedInstanceTypeList) Sort() {
+	sort.SliceStable(l, func(i, j int) bool {
+		if l[i].GPUs != l[j].GPUs {
+			return l[i].GPUs < l[j].GPUs
+		}
+
+		if l[i].CPUs != l[j].CPUs {
+			return l[i].CPUs < l[j].CPUs
+		}
+
+		return l[i].Memory < l[j].Memory
+	})
+}
+
+type SupportedRonDBInstanceTypes struct {
+	ManagementNode SupportedInstanceTypeList `json:"mgmd"`
+	DataNode       SupportedInstanceTypeList `json:"ndbd"`
+	MySQLNode      SupportedInstanceTypeList `json:"mysqld"`
+	APINode        SupportedInstanceTypeList `json:"api"`
+}
+
+type SupportedInstanceTypes struct {
+	Head   SupportedInstanceTypeList   `json:"head"`
+	Worker SupportedInstanceTypeList   `json:"worker"`
+	RonDB  SupportedRonDBInstanceTypes `json:"ronDB"`
+}
+
+func (s *SupportedInstanceTypes) GetByNodeType(nodeType NodeType) SupportedInstanceTypeList {
+	switch nodeType {
+	case HeadNode:
+		return s.Head
+	case WorkerNode:
+		return s.Worker
+	case RonDBManagementNode:
+		return s.RonDB.ManagementNode
+	case RonDBDataNode:
+		return s.RonDB.DataNode
+	case RonDBMySQLNode:
+		return s.RonDB.MySQLNode
+	case RonDBAPINode:
+		return s.RonDB.APINode
+	}
+	return nil
+}
+
 type GetClustersResponse struct {
 	BaseResponse
 	Payload struct {
@@ -255,4 +336,12 @@ type ServiceOpenPorts struct {
 
 type UpdateOpenPortsRequest struct {
 	Ports ServiceOpenPorts `json:"ports"`
+}
+
+type GetSupportedInstanceTypesResponse struct {
+	BaseResponse
+	Payload struct {
+		AWS   SupportedInstanceTypes `json:"aws"`
+		AZURE SupportedInstanceTypes `json:"azure"`
+	} `json:"payload"`
 }
