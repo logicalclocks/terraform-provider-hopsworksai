@@ -686,22 +686,14 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 	if aws, ok := d.GetOk("aws_attributes"); ok {
 		awsAttributes := aws.([]interface{})
 		if len(awsAttributes) > 0 {
-			if req, err := createAWSCluster(awsAttributes[0].(map[string]interface{}), baseRequest); err != nil {
-				return diag.FromErr(err)
-			} else {
-				createRequest = req
-			}
+			createRequest = createAWSCluster(awsAttributes[0].(map[string]interface{}), baseRequest)
 		}
 	}
 
 	if azure, ok := d.GetOk("azure_attributes"); ok {
 		azureAttributes := azure.([]interface{})
 		if len(azureAttributes) > 0 {
-			if req, err := createAzureCluster(azureAttributes[0].(map[string]interface{}), baseRequest); err != nil {
-				return diag.FromErr(err)
-			} else {
-				createRequest = req
-			}
+			createRequest = createAzureCluster(azureAttributes[0].(map[string]interface{}), baseRequest)
 		}
 	}
 
@@ -728,11 +720,8 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourceClusterRead(ctx, d, meta)
 }
 
-func createAWSCluster(awsAttributes map[string]interface{}, baseRequest *api.CreateCluster) (*api.CreateAWSCluster, error) {
-	if err := validateAWSCluster(baseRequest); err != nil {
-		return nil, err
-	}
-
+func createAWSCluster(awsAttributes map[string]interface{}, baseRequest *api.CreateCluster) *api.CreateAWSCluster {
+	setAWSDefaults(baseRequest)
 	req := api.CreateAWSCluster{
 		CreateCluster: *baseRequest,
 		AWSCluster: api.AWSCluster{
@@ -763,13 +752,11 @@ func createAWSCluster(awsAttributes map[string]interface{}, baseRequest *api.Cre
 			}
 		}
 	}
-	return &req, nil
+	return &req
 }
 
-func createAzureCluster(azureAttributes map[string]interface{}, baseRequest *api.CreateCluster) (*api.CreateAzureCluster, error) {
-	if err := validateAzureCluster(baseRequest); err != nil {
-		return nil, err
-	}
+func createAzureCluster(azureAttributes map[string]interface{}, baseRequest *api.CreateCluster) *api.CreateAzureCluster {
+	setAzureDefaults(baseRequest)
 	containerName := azureAttributes["storage_container_name"].(string)
 	if containerName == "" {
 		suffix := time.Now().UnixNano() / 1e6
@@ -803,7 +790,7 @@ func createAzureCluster(azureAttributes map[string]interface{}, baseRequest *api
 			req.AcrRegistryName = registry.(string)
 		}
 	}
-	return &req, nil
+	return &req
 }
 
 func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error) {
@@ -924,12 +911,7 @@ func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error
 	return createCluster, nil
 }
 
-func validateAWSCluster(createRequest *api.CreateCluster) error {
-	r := regexp.MustCompile(`^[a-zA-Z0-9_-]{1,20}$`)
-	if ok := r.MatchString(createRequest.Name); !ok {
-		return fmt.Errorf("invalid value for name, cluster name can only include a-z, A-Z, 0-9, _, - and a maximum of 20 characters")
-	}
-
+func setAWSDefaults(createRequest *api.CreateCluster) {
 	if createRequest.ClusterConfiguration.Head.InstanceType == "" {
 		createRequest.ClusterConfiguration.Head.InstanceType = awsDefaultInstanceType
 	}
@@ -939,15 +921,9 @@ func validateAWSCluster(createRequest *api.CreateCluster) error {
 			createRequest.ClusterConfiguration.Workers[i].InstanceType = awsDefaultInstanceType
 		}
 	}
-	return nil
 }
 
-func validateAzureCluster(createRequest *api.CreateCluster) error {
-	r := regexp.MustCompile(`^[a-z0-9]{1,20}$`)
-	if ok := r.MatchString(createRequest.Name); !ok {
-		return fmt.Errorf("invalid value for name, cluster name can only include a-z, 0-9 and a maximum of 20 characters")
-	}
-
+func setAzureDefaults(createRequest *api.CreateCluster) {
 	if createRequest.ClusterConfiguration.Head.InstanceType == "" {
 		createRequest.ClusterConfiguration.Head.InstanceType = azureDefaultInstanceType
 	}
@@ -957,7 +933,6 @@ func validateAzureCluster(createRequest *api.CreateCluster) error {
 			createRequest.ClusterConfiguration.Workers[i].InstanceType = azureDefaultInstanceType
 		}
 	}
-	return nil
 }
 
 func resourceClusterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
