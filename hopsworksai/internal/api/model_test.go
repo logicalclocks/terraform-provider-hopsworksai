@@ -249,6 +249,12 @@ func TestSortSupportedNodeTypes(t *testing.T) {
 			Memory: 8,
 			GPUs:   2,
 		},
+		{
+			Id:     "node-type-11",
+			CPUs:   2,
+			Memory: 16,
+			GPUs:   0,
+		},
 	}
 
 	expected := SupportedInstanceTypeList{
@@ -256,6 +262,12 @@ func TestSortSupportedNodeTypes(t *testing.T) {
 			Id:     "node-type-5",
 			CPUs:   2,
 			Memory: 8,
+			GPUs:   0,
+		},
+		{
+			Id:     "node-type-11",
+			CPUs:   2,
+			Memory: 16,
 			GPUs:   0,
 		},
 		{
@@ -317,5 +329,66 @@ func TestSortSupportedNodeTypes(t *testing.T) {
 	input.Sort()
 	if !reflect.DeepEqual(expected, input) {
 		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", expected, input)
+	}
+}
+
+func TestGetAllNodeTypes(t *testing.T) {
+	expected := []string{
+		HeadNode.String(),
+		WorkerNode.String(),
+		RonDBManagementNode.String(),
+		RonDBDataNode.String(),
+		RonDBMySQLNode.String(),
+		RonDBAPINode.String(),
+	}
+
+	output := GetAllNodeTypes()
+	if !reflect.DeepEqual(expected, output) {
+		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
+	}
+}
+
+func TestClusterStateString(t *testing.T) {
+	states := []ClusterState{
+		Starting,
+		Pending,
+		Initializing,
+		Running,
+		Stopping,
+		Stopped,
+		Error,
+		TerminationWarning,
+		ShuttingDown,
+		Updating,
+		Decommissioning,
+		RonDBInitializing,
+		StartingHopsworks,
+		WorkerPending,
+		WorkerInitializing,
+		WorkerStarting,
+		WorkerError,
+		WorkerShuttingdown,
+		WorkerDecommissioning,
+		ClusterDeleted,
+	}
+
+	for _, v := range states {
+		if string(v) != v.String() {
+			t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", string(v), v.String())
+		}
+	}
+}
+
+func TestActivationStateString(t *testing.T) {
+	states := []ActivationState{
+		Startable,
+		Stoppable,
+		Terminable,
+	}
+
+	for _, v := range states {
+		if string(v) != v.String() {
+			t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", string(v), v.String())
+		}
 	}
 }
