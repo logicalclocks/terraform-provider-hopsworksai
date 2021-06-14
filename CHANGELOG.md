@@ -1,7 +1,7 @@
 ## 0.2.0 (Unreleased)
 
 BUG FIXES:
-* resource/hopsworksai_cluster: check if `ecr_registry_account_id` is not an empty string before setting it
+* resource/hopsworksai_cluster: check if `ecr_registry_account_id`, `eks_cluster_name`, and `aks_cluster_name` is not an empty string before setting it
 * resource/hopsworksai_cluster: Skip name validation and relay on backend for validation
 
 ENHANCEMENTS:
