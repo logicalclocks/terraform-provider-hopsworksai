@@ -140,7 +140,7 @@ Optional:
 - **downscale_wait_time** (Number) The time to wait before removing unused resources. Defaults to `300`.
 - **max_workers** (Number) The maximum number of workers created by auto scaling. Defaults to `10`.
 - **min_workers** (Number) The minimum number of workers created by auto scaling. Defaults to `0`.
-- **standby_workers** (Number) The percentage of standby workers to be always available during auto scaling. If you set this value to 0 new workers will only be added when a job or a notebook requests the resources. This attribute will not be taken into account if you set the minimum number of workers to 0 and no resources are used in the cluster, instead, it will start to take effect as soon as you start using resources. Defaults to `0.5`.
+- **standby_workers** (Number) The percentage of workers to be always available during auto scaling. If you set this value to 0 new workers will only be added when a job or a notebook requests the resources. This attribute will not be taken into account if you set the minimum number of workers to 0 and no resources are used in the cluster, instead, it will start to take effect as soon as you start using resources. Defaults to `0.5`.
 
 
 <a id="nestedblock--autoscale--gpu_workers"></a>
@@ -156,7 +156,7 @@ Optional:
 - **downscale_wait_time** (Number) The time to wait before removing unused resources. Defaults to `300`.
 - **max_workers** (Number) The maximum number of workers created by auto scaling. Defaults to `10`.
 - **min_workers** (Number) The minimum number of workers created by auto scaling. Defaults to `0`.
-- **standby_workers** (Number) The percentage of standby workers to be always available during auto scaling. If you set this value to 0 new workers will only be added when a job or a notebook requests the resources. This attribute will not be taken into account if you set the minimum number of workers to 0 and no resources are used in the cluster, instead, it will start to take effect as soon as you start using resources. Defaults to `0.5`.
+- **standby_workers** (Number) The percentage of workers to be always available during auto scaling. If you set this value to 0 new workers will only be added when a job or a notebook requests the resources. This attribute will not be taken into account if you set the minimum number of workers to 0 and no resources are used in the cluster, instead, it will start to take effect as soon as you start using resources. Defaults to `0.5`.
 
 
 

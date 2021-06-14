@@ -565,7 +565,7 @@ func autoscaleSchema() *schema.Resource {
 				Default:     defaultAutoscaleConfiguration().MaxWorkers,
 			},
 			"standby_workers": {
-				Description:  "The percentage of standby workers to be always available during auto scaling. If you set this value to 0 new workers will only be added when a job or a notebook requests the resources. This attribute will not be taken into account if you set the minimum number of workers to 0 and no resources are used in the cluster, instead, it will start to take effect as soon as you start using resources.",
+				Description:  "The percentage of workers to be always available during auto scaling. If you set this value to 0 new workers will only be added when a job or a notebook requests the resources. This attribute will not be taken into account if you set the minimum number of workers to 0 and no resources are used in the cluster, instead, it will start to take effect as soon as you start using resources.",
 				Type:         schema.TypeFloat,
 				Optional:     true,
 				Default:      defaultAutoscaleConfiguration().StandbyWorkers,
