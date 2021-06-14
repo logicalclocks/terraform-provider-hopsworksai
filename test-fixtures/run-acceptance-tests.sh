@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e 
 ACCTEST_TIMEOUT=${ACCTEST_TIMEOUT:-120m}
-ACCTEST_PARALLELISM=${ACCTEST_PARALLELISM:-4}
+ACCTEST_PARALLELISM=${ACCTEST_PARALLELISM:-3}
 
 TF_VAR_skip_aws=${TF_VAR_skip_aws:-false}
 TF_VAR_skip_azure=${TF_VAR_skip_azure:-false}

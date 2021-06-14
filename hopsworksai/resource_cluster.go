@@ -821,7 +821,7 @@ func createAWSCluster(awsAttributes map[string]interface{}, baseRequest *api.Cre
 		}
 	}
 
-	if v, ok := awsAttributes["eks_cluster_name"]; ok {
+	if v, ok := awsAttributes["eks_cluster_name"]; ok && v != "" {
 		req.EksClusterName = v.(string)
 		if registry, okR := awsAttributes["ecr_registry_account_id"]; okR && registry != "" {
 			req.EcrRegistryAccountId = registry.(string)
@@ -864,7 +864,7 @@ func createAzureCluster(azureAttributes map[string]interface{}, baseRequest *api
 		}
 	}
 
-	if aks, ok := azureAttributes["aks_cluster_name"]; ok {
+	if aks, ok := azureAttributes["aks_cluster_name"]; ok && aks != "" {
 		req.AksClusterName = aks.(string)
 		if registry, okR := azureAttributes["acr_registry_name"]; okR {
 			req.AcrRegistryName = registry.(string)
