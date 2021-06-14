@@ -33,12 +33,13 @@ func FlattenCluster(cluster *api.Cluster) map[string]interface{} {
 		"managed_users":                  cluster.ManagedUsers,
 		"backup_retention_period":        cluster.BackupRetentionPeriod,
 		"update_state":                   "none",
-		"workers":                        flattenWorkers(cluster.ClusterConfiguration.Workers),
+		"workers":                        flattenWorkers(cluster.Autoscale, cluster.ClusterConfiguration.Workers),
 		"aws_attributes":                 flattenAWSAttributes(cluster),
 		"azure_attributes":               flattenAzureAttributes(cluster),
 		"open_ports":                     flattenPorts(&cluster.Ports),
 		"tags":                           flattenTags(cluster.Tags),
 		"rondb":                          flattenRonDB(cluster.RonDB),
+		"autoscale":                      flattenAutoscaleConfiguration(cluster.Autoscale),
 	}
 }
 
@@ -51,7 +52,10 @@ func flattenHead(head *api.HeadConfiguration) []map[string]interface{} {
 	}
 }
 
-func flattenWorkers(workers []api.WorkerConfiguration) *schema.Set {
+func flattenWorkers(autoscale *api.AutoscaleConfiguration, workers []api.WorkerConfiguration) *schema.Set {
+	if autoscale != nil {
+		return schema.NewSet(helpers.WorkerSetHash, []interface{}{})
+	}
 	workersArray := make([]interface{}, len(workers))
 	for i, v := range workers {
 		workersArray[i] = flattenWorker(v)
@@ -171,6 +175,50 @@ func flattenRonDB(ronDB *api.RonDBConfiguration) []map[string]interface{} {
 				flattenWorker(ronDB.APINodes),
 			},
 		},
+	}
+}
+
+func flattenAutoscaleConfiguration(autoscale *api.AutoscaleConfiguration) []map[string]interface{} {
+	if autoscale == nil {
+		return nil
+	}
+
+	var nonGPUNodes []interface{} = make([]interface{}, 0)
+	var gpuNodes []interface{} = make([]interface{}, 0)
+	if autoscale.NonGPU != nil {
+		nonGPUNodes = append(nonGPUNodes, flattenAutoscaleConfigurationBase(autoscale.NonGPU))
+	}
+	if autoscale.GPU != nil {
+		gpuNodes = append(gpuNodes, flattenAutoscaleConfigurationBase(autoscale.GPU))
+	}
+
+	return []map[string]interface{}{
+		{
+			"non_gpu_workers": nonGPUNodes,
+			"gpu_workers":     gpuNodes,
+		},
+	}
+}
+
+func flattenAutoscaleConfigurationBase(autoscale *api.AutoscaleConfigurationBase) map[string]interface{} {
+	return map[string]interface{}{
+		"instance_type":       autoscale.InstanceType,
+		"disk_size":           autoscale.DiskSize,
+		"min_workers":         autoscale.MinWorkers,
+		"max_workers":         autoscale.MaxWorkers,
+		"standby_workers":     autoscale.StandbyWorkers,
+		"downscale_wait_time": autoscale.DownscaleWaitTime,
+	}
+}
+
+func ExpandAutoscaleConfigurationBase(config map[string]interface{}) *api.AutoscaleConfigurationBase {
+	return &api.AutoscaleConfigurationBase{
+		InstanceType:      config["instance_type"].(string),
+		DiskSize:          config["disk_size"].(int),
+		MinWorkers:        config["min_workers"].(int),
+		MaxWorkers:        config["max_workers"].(int),
+		StandbyWorkers:    config["standby_workers"].(float64),
+		DownscaleWaitTime: config["downscale_wait_time"].(int),
 	}
 }
 

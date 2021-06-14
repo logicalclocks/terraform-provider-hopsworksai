@@ -1,15 +1,14 @@
 ## 0.2.0 (Unreleased)
 
-NOTES:
-
 BUG FIXES:
 * resource/hopsworksai_cluster: check if `ecr_registry_account_id` is not an empty string before setting it
 * resource/hopsworksai_cluster: Skip name validation and relay on backend for validation
 
 ENHANCEMENTS:
+* more unit tests
 * resource/hopsworksai_cluster: Add a new attribute `rondb`
 * resource/hopsworksai_cluster: Set computed to true for `head/instance_type`, `workers/instance_type`, and `azure_attributes/storage_container_name` 
-* more unit tests
+* resource/hopsworksai_cluster: Add a new attribute `autoscale`
 
 FEATURES:
 * **New Data Source**: `hopsworksai_instance_type`

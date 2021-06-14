@@ -33,6 +33,7 @@ data "hopsworksai_clusters" "cluster" {
 
 - **activation_state** (String) The current activation state of the cluster.
 - **attach_public_ip** (Boolean) Attach or do not attach a public ip to the cluster. This can be useful if you intend to create a cluster in a private network.
+- **autoscale** (List of Object) Setup auto scaling. (see [below for nested schema](#nestedatt--autoscale))
 - **aws_attributes** (List of Object) The configurations required to run the cluster on Amazon AWS. (see [below for nested schema](#nestedatt--aws_attributes))
 - **azure_attributes** (List of Object) The configurations required to run the cluster on Microsoft Azure. (see [below for nested schema](#nestedatt--azure_attributes))
 - **backup_retention_period** (Number) The validity of cluster backups in days. If set to 0 cluster backups are disabled.
@@ -42,7 +43,7 @@ data "hopsworksai_clusters" "cluster" {
 - **managed_users** (Boolean) Enable or disable Hopsworks.ai to manage your users.
 - **name** (String) The name of the cluster, must be unique.
 - **open_ports** (List of Object) Open the required ports to communicate with one of the Hopsworks services. (see [below for nested schema](#nestedatt--open_ports))
-- **rondb** (List of Object) Setup a cluster with managed RonDB (see [below for nested schema](#nestedatt--rondb))
+- **rondb** (List of Object) Setup a cluster with managed RonDB. (see [below for nested schema](#nestedatt--rondb))
 - **ssh_key** (String) The ssh key name that will be attached to this cluster.
 - **start_date** (String) The starting date of the cluster. The date is represented in RFC3339 format.
 - **state** (String) The current state of the cluster.
@@ -51,6 +52,41 @@ data "hopsworksai_clusters" "cluster" {
 - **url** (String) The url generated to access the cluster.
 - **version** (String) The version of the cluster.
 - **workers** (Set of Object) The configurations of worker nodes. You can add as many as you want of this block to create workers with different configurations. (see [below for nested schema](#nestedatt--workers))
+
+<a id="nestedatt--autoscale"></a>
+### Nested Schema for `autoscale`
+
+Read-Only:
+
+- **gpu_workers** (List of Object) (see [below for nested schema](#nestedobjatt--autoscale--gpu_workers))
+- **non_gpu_workers** (List of Object) (see [below for nested schema](#nestedobjatt--autoscale--non_gpu_workers))
+
+<a id="nestedobjatt--autoscale--gpu_workers"></a>
+### Nested Schema for `autoscale.gpu_workers`
+
+Read-Only:
+
+- **disk_size** (Number)
+- **downscale_wait_time** (Number)
+- **instance_type** (String)
+- **max_workers** (Number)
+- **min_workers** (Number)
+- **standby_workers** (Number)
+
+
+<a id="nestedobjatt--autoscale--non_gpu_workers"></a>
+### Nested Schema for `autoscale.non_gpu_workers`
+
+Read-Only:
+
+- **disk_size** (Number)
+- **downscale_wait_time** (Number)
+- **instance_type** (String)
+- **max_workers** (Number)
+- **min_workers** (Number)
+- **standby_workers** (Number)
+
+
 
 <a id="nestedatt--aws_attributes"></a>
 ### Nested Schema for `aws_attributes`

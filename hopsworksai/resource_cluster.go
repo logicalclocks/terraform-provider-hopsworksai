@@ -76,6 +76,16 @@ func defaultRonDBConfiguration(cloud api.CloudProvider) api.RonDBConfiguration {
 	return ronDB
 }
 
+func defaultAutoscaleConfiguration() api.AutoscaleConfigurationBase {
+	return api.AutoscaleConfigurationBase{
+		DiskSize:          512,
+		MinWorkers:        0,
+		MaxWorkers:        10,
+		StandbyWorkers:    0.5,
+		DownscaleWaitTime: 300,
+	}
+}
+
 func clusterSchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
 		"cluster_id": {
@@ -124,10 +134,11 @@ func clusterSchema() map[string]*schema.Schema {
 			},
 		},
 		"workers": {
-			Description: "The configurations of worker nodes. You can add as many as you want of this block to create workers with different configurations.",
-			Type:        schema.TypeSet,
-			Optional:    true,
-			Set:         helpers.WorkerSetHash,
+			Description:   "The configurations of worker nodes. You can add as many as you want of this block to create workers with different configurations.",
+			Type:          schema.TypeSet,
+			Optional:      true,
+			Set:           helpers.WorkerSetHash,
+			ConflictsWith: []string{"autoscale"},
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
 					"instance_type": {
@@ -289,12 +300,37 @@ func clusterSchema() map[string]*schema.Schema {
 			},
 		},
 		"rondb": {
-			Description: "Setup a cluster with managed RonDB",
+			Description: "Setup a cluster with managed RonDB.",
 			Type:        schema.TypeList,
 			Optional:    true,
 			ForceNew:    true,
 			MaxItems:    1,
 			Elem:        ronDBSchema(),
+		},
+		"autoscale": {
+			Description:   "Setup auto scaling.",
+			Type:          schema.TypeList,
+			Optional:      true,
+			MaxItems:      1,
+			ConflictsWith: []string{"workers"},
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"non_gpu_workers": {
+						Description: "Setup auto scaling for non gpu nodes.",
+						Type:        schema.TypeList,
+						Required:    true,
+						MaxItems:    1,
+						Elem:        autoscaleSchema(),
+					},
+					"gpu_workers": {
+						Description: "Setup auto scaling for gpu nodes.",
+						Type:        schema.TypeList,
+						Optional:    true,
+						MaxItems:    1,
+						Elem:        autoscaleSchema(),
+					},
+				},
+			},
 		},
 	}
 }
@@ -496,6 +532,50 @@ func ronDBSchema() *schema.Resource {
 						},
 					},
 				},
+			},
+		},
+	}
+}
+
+func autoscaleSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"instance_type": {
+				Description: "The instance type to use while auto scaling.",
+				Type:        schema.TypeString,
+				Required:    true,
+			},
+			"disk_size": {
+				Description: "The disk size to use while auto scaling",
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     defaultAutoscaleConfiguration().DiskSize,
+			},
+			"min_workers": {
+				Description:  "The minimum number of workers created by auto scaling.",
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Default:      defaultAutoscaleConfiguration().MinWorkers,
+				ValidateFunc: validation.IntAtLeast(0),
+			},
+			"max_workers": {
+				Description: "The maximum number of workers created by auto scaling.",
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     defaultAutoscaleConfiguration().MaxWorkers,
+			},
+			"standby_workers": {
+				Description:  "The percentage of standby workers to be always available during auto scaling. If you set this value to 0 new workers will only be added when a job or a notebook requests the resources. This attribute will not be taken into account if you set the minimum number of workers to 0 and no resources are used in the cluster, instead, it will start to take effect as soon as you start using resources.",
+				Type:         schema.TypeFloat,
+				Optional:     true,
+				Default:      defaultAutoscaleConfiguration().StandbyWorkers,
+				ValidateFunc: validation.FloatAtLeast(0),
+			},
+			"downscale_wait_time": {
+				Description: "The time to wait before removing unused resources.",
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     defaultAutoscaleConfiguration().DownscaleWaitTime,
 			},
 		},
 	}
@@ -908,6 +988,20 @@ func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error
 			return nil, fmt.Errorf("number of RonDB data nodes must be multiples of RonDB replication factor")
 		}
 	}
+
+	if _, ok := d.GetOk("autoscale"); ok {
+		createCluster.Autoscale = &api.AutoscaleConfiguration{}
+
+		if n, ok := d.GetOk("autoscale.0.non_gpu_workers"); ok && len(n.([]interface{})) > 0 {
+			config := n.([]interface{})[0].(map[string]interface{})
+			createCluster.Autoscale.NonGPU = structure.ExpandAutoscaleConfigurationBase(config)
+		}
+
+		if n, ok := d.GetOk("autoscale.0.gpu_workers"); ok && len(n.([]interface{})) > 0 {
+			config := n.([]interface{})[0].(map[string]interface{})
+			createCluster.Autoscale.GPU = structure.ExpandAutoscaleConfigurationBase(config)
+		}
+	}
 	return createCluster, nil
 }
 
@@ -1028,6 +1122,37 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		}
 		if err := api.UpdateOpenPorts(ctx, client, clusterId, &ports); err != nil {
 			return diag.Errorf("failed to open ports on cluster, error: %s", err)
+		}
+	}
+
+	if d.HasChange("autoscale") {
+		_, n := d.GetChange("autoscale")
+		new := n.([]interface{})
+
+		if len(new) == 0 {
+			if err := api.DisableAutoscale(ctx, client, clusterId); err != nil {
+				return diag.FromErr(err)
+			}
+		} else {
+			newConfig := new[0].(map[string]interface{})
+
+			autoscaleConfig := &api.AutoscaleConfiguration{}
+			nonGpuConfig := newConfig["non_gpu_workers"].([]interface{})
+			// required field
+			autoscaleConfig.NonGPU = structure.ExpandAutoscaleConfigurationBase(nonGpuConfig[0].(map[string]interface{}))
+
+			gpuConfig := newConfig["gpu_workers"].([]interface{})
+			if len(gpuConfig) > 0 {
+				autoscaleConfig.GPU = structure.ExpandAutoscaleConfigurationBase(gpuConfig[0].(map[string]interface{}))
+			}
+
+			if err := api.ConfigureAutoscale(ctx, client, clusterId, autoscaleConfig); err != nil {
+				return diag.FromErr(err)
+			}
+
+			if err := resourceClusterWaitForRunning(ctx, client, d.Timeout(schema.TimeoutUpdate), clusterId); err != nil {
+				return diag.FromErr(err)
+			}
 		}
 	}
 

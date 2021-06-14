@@ -74,6 +74,22 @@ func TestAccClusterAZURE_RonDB(t *testing.T) {
 	testAccCluster_RonDB(t, api.AZURE)
 }
 
+func TestAccClusterAWS_Autoscale(t *testing.T) {
+	testAccCluster_Autoscale(t, api.AWS)
+}
+
+func TestAccClusterAZURE_Autoscale(t *testing.T) {
+	testAccCluster_Autoscale(t, api.AZURE)
+}
+
+func TestAccClusterAWS_Autoscale_Update(t *testing.T) {
+	testAccCluster_Autoscale_update(t, api.AWS)
+}
+
+func TestAccClusterAZURE_Autoscale_Update(t *testing.T) {
+	testAccCluster_Autoscale_update(t, api.AZURE)
+}
+
 func testAccCluster_basic(t *testing.T, cloud api.CloudProvider) {
 	suffix := acctest.RandString(5)
 	rName := fmt.Sprintf("test_%s", suffix)
@@ -385,6 +401,161 @@ func testAccCluster_RonDB(t *testing.T, cloud api.CloudProvider) {
 	})
 }
 
+func testAccCluster_Autoscale(t *testing.T, cloud api.CloudProvider) {
+	suffix := acctest.RandString(5)
+	rName := fmt.Sprintf("test_%s", suffix)
+	defaultAutoscaleConfig := defaultAutoscaleConfiguration()
+	resourceName := fmt.Sprintf("hopsworksai_cluster.%s", rName)
+	parallelTest(t, cloud, resource.TestCase{
+		PreCheck:     testAccPreCheck(t),
+		Providers:    testAccProviders,
+		CheckDestroy: testAccClusterCheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccClusterConfig_Autoscale(cloud, rName, suffix, fmt.Sprintf(`
+				autoscale {
+					non_gpu_workers {
+						instance_type = "%s"
+					}
+				}
+				`, testWorkerInstanceType1(cloud))),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "state", api.Running.String()),
+					resource.TestCheckResourceAttr(resourceName, "activation_state", api.Stoppable.String()),
+					resource.TestCheckResourceAttr(resourceName, "update_state", "none"),
+					resource.TestCheckResourceAttr(resourceName, "workers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.instance_type", testWorkerInstanceType1(cloud)),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.disk_size", strconv.Itoa(defaultAutoscaleConfig.DiskSize)),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.min_workers", strconv.Itoa(defaultAutoscaleConfig.MinWorkers)),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.max_workers", strconv.Itoa(defaultAutoscaleConfig.MaxWorkers)),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.standby_workers", fmt.Sprint(defaultAutoscaleConfig.StandbyWorkers)),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.downscale_wait_time", strconv.Itoa(defaultAutoscaleConfig.DownscaleWaitTime)),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccClusterConfig_Autoscale(cloud, rName, suffix, fmt.Sprintf(`
+				autoscale {
+					non_gpu_workers {
+						instance_type = "%s"
+					}
+
+					gpu_workers {
+						instance_type = "%s"
+					}
+				}
+				`, testWorkerInstanceType1(cloud), testWorkerInstanceTypeWithGPU(cloud))),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "state", api.Running.String()),
+					resource.TestCheckResourceAttr(resourceName, "activation_state", api.Stoppable.String()),
+					resource.TestCheckResourceAttr(resourceName, "update_state", "none"),
+					resource.TestCheckResourceAttr(resourceName, "workers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.instance_type", testWorkerInstanceType1(cloud)),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.disk_size", strconv.Itoa(defaultAutoscaleConfig.DiskSize)),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.min_workers", strconv.Itoa(defaultAutoscaleConfig.MinWorkers)),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.max_workers", strconv.Itoa(defaultAutoscaleConfig.MaxWorkers)),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.standby_workers", fmt.Sprint(defaultAutoscaleConfig.StandbyWorkers)),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.downscale_wait_time", strconv.Itoa(defaultAutoscaleConfig.DownscaleWaitTime)),
+
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.gpu_workers.0.instance_type", testWorkerInstanceTypeWithGPU(cloud)),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.gpu_workers.0.disk_size", strconv.Itoa(defaultAutoscaleConfig.DiskSize)),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.gpu_workers.0.min_workers", strconv.Itoa(defaultAutoscaleConfig.MinWorkers)),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.gpu_workers.0.max_workers", strconv.Itoa(defaultAutoscaleConfig.MaxWorkers)),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.gpu_workers.0.standby_workers", fmt.Sprint(defaultAutoscaleConfig.StandbyWorkers)),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.gpu_workers.0.downscale_wait_time", strconv.Itoa(defaultAutoscaleConfig.DownscaleWaitTime)),
+				),
+			},
+		},
+	})
+}
+
+func testAccCluster_Autoscale_update(t *testing.T, cloud api.CloudProvider) {
+	suffix := acctest.RandString(5)
+	rName := fmt.Sprintf("test_%s", suffix)
+	defaultAutoscaleConfig := defaultAutoscaleConfiguration()
+	resourceName := fmt.Sprintf("hopsworksai_cluster.%s", rName)
+	parallelTest(t, cloud, resource.TestCase{
+		PreCheck:     testAccPreCheck(t),
+		Providers:    testAccProviders,
+		CheckDestroy: testAccClusterCheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccClusterConfig_Autoscale_Update(cloud, rName, suffix, fmt.Sprintf(`
+				workers {
+					instance_type = "%s"
+				}
+				`, testWorkerInstanceType1(cloud))),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "state", api.Running.String()),
+					resource.TestCheckResourceAttr(resourceName, "activation_state", api.Stoppable.String()),
+					resource.TestCheckResourceAttr(resourceName, "update_state", "none"),
+					resource.TestCheckResourceAttr(resourceName, "workers.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.#", "0"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccClusterConfig_Autoscale_Update(cloud, rName, suffix, fmt.Sprintf(`
+				autoscale {
+					non_gpu_workers {
+						instance_type = "%s"
+					}
+				}
+				`, testWorkerInstanceType1(cloud))),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "state", api.Running.String()),
+					resource.TestCheckResourceAttr(resourceName, "activation_state", api.Stoppable.String()),
+					resource.TestCheckResourceAttr(resourceName, "update_state", "none"),
+					resource.TestCheckResourceAttr(resourceName, "workers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.instance_type", testWorkerInstanceType1(cloud)),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.disk_size", strconv.Itoa(defaultAutoscaleConfig.DiskSize)),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.min_workers", strconv.Itoa(defaultAutoscaleConfig.MinWorkers)),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.max_workers", strconv.Itoa(defaultAutoscaleConfig.MaxWorkers)),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.standby_workers", fmt.Sprint(defaultAutoscaleConfig.StandbyWorkers)),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.downscale_wait_time", strconv.Itoa(defaultAutoscaleConfig.DownscaleWaitTime)),
+				),
+			},
+			{
+				Config: testAccClusterConfig_Autoscale_Update(cloud, rName, suffix, ""),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "autoscale.#", "0"),
+				),
+			},
+			{
+				Config: testAccClusterConfig_Autoscale_Update(cloud, rName, suffix, fmt.Sprintf(`
+				workers {
+					instance_type = "%s"
+				}
+				`, testWorkerInstanceType1(cloud))),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "state", api.Running.String()),
+					resource.TestCheckResourceAttr(resourceName, "activation_state", api.Stoppable.String()),
+					resource.TestCheckResourceAttr(resourceName, "update_state", "none"),
+					resource.TestCheckResourceAttr(resourceName, "workers.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+func testWorkerInstanceTypeWithGPU(cloud api.CloudProvider) string {
+	if cloud == api.AWS {
+		return "g3s.xlarge"
+	} else if cloud == api.AZURE {
+		return "Standard_NC6"
+	}
+	return ""
+}
+
 func testWorkerInstanceType1(cloud api.CloudProvider) string {
 	return testWorkerInstanceType(cloud, true)
 }
@@ -396,9 +567,9 @@ func testWorkerInstanceType2(cloud api.CloudProvider) string {
 func testWorkerInstanceType(cloud api.CloudProvider, alternative bool) string {
 	if cloud == api.AWS {
 		if alternative {
-			return "t3a.medium"
+			return "m5.xlarge"
 		} else {
-			return "t3a.large"
+			return "m5.2xlarge"
 		}
 	} else if cloud == api.AZURE {
 		if alternative {
@@ -431,15 +602,23 @@ func testAccClusterCheckDestroy() func(s *terraform.State) error {
 }
 
 func testAccClusterConfig_basic(cloud api.CloudProvider, rName string, suffix string, extraConfig string) string {
-	return testAccClusterConfig(cloud, rName, suffix, extraConfig, 0)
+	return testAccClusterConfig(cloud, rName, suffix, extraConfig, 2)
 }
 
 func testAccClusterConfig_workers(cloud api.CloudProvider, rName string, suffix string, extraConfig string) string {
-	return testAccClusterConfig(cloud, rName, suffix, extraConfig, 1)
+	return testAccClusterConfig(cloud, rName, suffix, extraConfig, 3)
 }
 
 func testAccClusterConfig_RonDB(cloud api.CloudProvider, rName string, suffix string, extraConfig string) string {
-	return testAccClusterConfig(cloud, rName, suffix, extraConfig, 2)
+	return testAccClusterConfig(cloud, rName, suffix, extraConfig, 4)
+}
+
+func testAccClusterConfig_Autoscale(cloud api.CloudProvider, rName string, suffix string, extraConfig string) string {
+	return testAccClusterConfig(cloud, rName, suffix, extraConfig, 5)
+}
+
+func testAccClusterConfig_Autoscale_Update(cloud api.CloudProvider, rName string, suffix string, extraConfig string) string {
+	return testAccClusterConfig(cloud, rName, suffix, extraConfig, 6)
 }
 
 func testAccClusterConfig(cloud api.CloudProvider, rName string, suffix string, extraConfig string, bucketIndex int) string {
@@ -2091,4 +2270,136 @@ func testClusterCreate_RonDB_invalidReplicationFactor(t *testing.T, cloud api.Cl
 		ExpectError:          "number of RonDB data nodes must be multiples of RonDB replication factor",
 	}
 	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_Autoscale(t *testing.T) {
+	testClusterCreate_Autoscale(t, api.AWS, true)
+	testClusterCreate_Autoscale(t, api.AZURE, true)
+	testClusterCreate_Autoscale(t, api.AWS, false)
+	testClusterCreate_Autoscale(t, api.AZURE, false)
+}
+
+func testClusterCreate_Autoscale(t *testing.T, cloud api.CloudProvider, withGpu bool) {
+	state := map[string]interface{}{
+		"name": "cluster",
+		"head": []interface{}{
+			map[string]interface{}{
+				"disk_size": 512,
+			},
+		},
+		"autoscale": []interface{}{
+			map[string]interface{}{
+				"non_gpu_workers": []interface{}{
+					map[string]interface{}{
+						"instance_type":       "non-gpu-node",
+						"disk_size":           100,
+						"min_workers":         0,
+						"max_workers":         10,
+						"standby_workers":     0.5,
+						"downscale_wait_time": 200,
+					},
+				},
+			},
+		},
+	}
+
+	if withGpu {
+		state["autoscale"].([]interface{})[0].(map[string]interface{})["gpu_workers"] = []interface{}{
+			map[string]interface{}{
+				"instance_type":       "gpu-node",
+				"disk_size":           200,
+				"min_workers":         1,
+				"max_workers":         5,
+				"standby_workers":     0.4,
+				"downscale_wait_time": 100,
+			},
+		}
+	}
+	if cloud == api.AWS {
+		state["aws_attributes"] = []interface{}{
+			map[string]interface{}{
+				"region":               "region-1",
+				"bucket_name":          "bucket-1",
+				"instance_profile_arn": "profile-1",
+			},
+		}
+	} else if cloud == api.AZURE {
+		state["azure_attributes"] = []interface{}{
+			map[string]interface{}{
+				"location":                       "location-1",
+				"resource_group":                 "resource-group-1",
+				"storage_account":                "storage-account-1",
+				"user_assigned_managed_identity": "user-identity-1",
+			},
+		}
+	}
+
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 400,
+					"message": "skip"
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					output, err := testGetAutoscaleConfig(reqBody, cloud)
+					if err != nil {
+						return err
+					}
+
+					expected := api.AutoscaleConfiguration{
+						NonGPU: &api.AutoscaleConfigurationBase{
+							InstanceType:      "non-gpu-node",
+							DiskSize:          100,
+							MinWorkers:        0,
+							MaxWorkers:        10,
+							StandbyWorkers:    0.5,
+							DownscaleWaitTime: 200,
+						},
+					}
+					if withGpu {
+						expected.GPU = &api.AutoscaleConfigurationBase{
+							InstanceType:      "gpu-node",
+							DiskSize:          200,
+							MinWorkers:        1,
+							MaxWorkers:        5,
+							StandbyWorkers:    0.4,
+							DownscaleWaitTime: 100,
+						}
+					}
+					if !reflect.DeepEqual(&expected, output) {
+						return fmt.Errorf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
+					}
+					return nil
+				},
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State:                state,
+		ExpectError:          "failed to create cluster, error: skip",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func testGetAutoscaleConfig(reqBody io.Reader, cloud api.CloudProvider) (*api.AutoscaleConfiguration, error) {
+	var output *api.AutoscaleConfiguration
+	if cloud == api.AZURE {
+		var req api.NewAzureClusterRequest
+		if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+			return nil, err
+		}
+		output = req.CreateRequest.Autoscale
+	} else if cloud == api.AWS {
+		var req api.NewAWSClusterRequest
+		if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+			return nil, err
+		}
+		output = req.CreateRequest.Autoscale
+	}
+	return output, nil
 }

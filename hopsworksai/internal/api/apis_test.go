@@ -1308,3 +1308,160 @@ func TestGetSupportedInstanceTypes_unknownProvider(t *testing.T) {
 		t.Fatalf("expected a nil output, but got %#v", output)
 	}
 }
+
+func testConfigureAutoscale(t *testing.T, reqBody string, config *AutoscaleConfiguration) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod:      http.MethodPost,
+			ExpectPath:        "/api/clusters/cluster-id-1/autoscale",
+			ExpectRequestBody: reqBody,
+			ResponseCode:      http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200
+			}`,
+			T: t,
+		},
+	}
+
+	if err := ConfigureAutoscale(context.TODO(), apiClient, "cluster-id-1", config); err != nil {
+		t.Fatalf("should not throw an error, but got %s", err)
+	}
+}
+
+func TestConfigureAutoscale(t *testing.T) {
+	testConfigureAutoscale(t, `
+	{
+		"autoscale": 
+		{
+			"nonGpu": 
+			{
+				"instanceType": "non-gpu-node",
+				"diskSize": 256,
+				"minWorkers": 0,
+				"maxWorkers": 10,
+				"standbyWorkers": 0.5,
+				"downscaleWaitTime": 300
+			},
+			"gpu":
+			{
+				"instanceType": "gpu-node",
+				"diskSize": 512,
+				"minWorkers": 1,
+				"maxWorkers": 5,
+				"standbyWorkers": 0.4,
+				"downscaleWaitTime": 200
+			}
+		}
+	}`,
+		&AutoscaleConfiguration{
+			NonGPU: &AutoscaleConfigurationBase{
+				InstanceType:      "non-gpu-node",
+				DiskSize:          256,
+				MinWorkers:        0,
+				MaxWorkers:        10,
+				StandbyWorkers:    0.5,
+				DownscaleWaitTime: 300,
+			},
+			GPU: &AutoscaleConfigurationBase{
+				InstanceType:      "gpu-node",
+				DiskSize:          512,
+				MinWorkers:        1,
+				MaxWorkers:        5,
+				StandbyWorkers:    0.4,
+				DownscaleWaitTime: 200,
+			},
+		})
+
+	testConfigureAutoscale(t, `
+	{
+		"autoscale":{
+			"nonGpu":{
+				"instanceType": "non-gpu-node",
+				"diskSize": 256,
+				"minWorkers": 0,
+				"maxWorkers": 10,
+				"standbyWorkers": 0.5,
+				"downscaleWaitTime": 300
+			}
+		}
+	}
+	`,
+		&AutoscaleConfiguration{
+			NonGPU: &AutoscaleConfigurationBase{
+				InstanceType:      "non-gpu-node",
+				DiskSize:          256,
+				MinWorkers:        0,
+				MaxWorkers:        10,
+				StandbyWorkers:    0.5,
+				DownscaleWaitTime: 300,
+			},
+		})
+
+	testConfigureAutoscale(t, `
+		{
+			"autoscale":{
+				"gpu":{
+					"instanceType": "gpu-node",
+					"diskSize": 512,
+					"minWorkers": 1,
+					"maxWorkers": 5,
+					"standbyWorkers": 0.4,
+					"downscaleWaitTime": 200
+				}
+			}
+		}
+		`,
+		&AutoscaleConfiguration{
+			GPU: &AutoscaleConfigurationBase{
+				InstanceType:      "gpu-node",
+				DiskSize:          512,
+				MinWorkers:        1,
+				MaxWorkers:        5,
+				StandbyWorkers:    0.4,
+				DownscaleWaitTime: 200,
+			},
+		})
+}
+
+func TestDisableAutoscale(t *testing.T) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod: http.MethodDelete,
+			ExpectPath:   "/api/clusters/cluster-id-1/autoscale",
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200
+			}`,
+			T: t,
+		},
+	}
+
+	if err := DisableAutoscale(context.TODO(), apiClient, "cluster-id-1"); err != nil {
+		t.Fatalf("should not throw an error, but got %s", err)
+	}
+}
+
+func TestDisableAutoscale_error(t *testing.T) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod: http.MethodDelete,
+			ExpectPath:   "/api/clusters/cluster-id-1/autoscale",
+			ResponseCode: http.StatusBadRequest,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "bad request",
+				"code": 400,
+				"message": "failed to disable"
+			}`,
+			T: t,
+		},
+	}
+
+	if err := DisableAutoscale(context.TODO(), apiClient, "cluster-id-1"); err == nil || err.Error() != "failed to disable" {
+		t.Fatalf("should throw an error, but got %s", err)
+	}
+}

@@ -123,7 +123,7 @@ func TestFlattenWorkersConfiguration(t *testing.T) {
 	}
 
 	for i, c := range cases {
-		output := flattenWorkers(c.input)
+		output := flattenWorkers(nil, c.input)
 		if c.expected.Difference(output).Len() != 0 && output.Difference(c.expected).Len() != 0 {
 			t.Fatalf("error while matching[%d]:\nexpected %#v \nbut got %#v", i, c.expected, output)
 		}
@@ -326,6 +326,24 @@ func TestFlattenCluster(t *testing.T) {
 				Count: 1,
 			},
 		},
+		Autoscale: &api.AutoscaleConfiguration{
+			NonGPU: &api.AutoscaleConfigurationBase{
+				InstanceType:      "auto-node-1",
+				DiskSize:          256,
+				MinWorkers:        0,
+				MaxWorkers:        10,
+				StandbyWorkers:    0.5,
+				DownscaleWaitTime: 300,
+			},
+			GPU: &api.AutoscaleConfigurationBase{
+				InstanceType:      "auto-gpu-node-1",
+				DiskSize:          512,
+				MinWorkers:        1,
+				MaxWorkers:        5,
+				StandbyWorkers:    0.4,
+				DownscaleWaitTime: 200,
+			},
+		},
 	}
 
 	var emptyAttributes []interface{} = nil
@@ -345,12 +363,13 @@ func TestFlattenCluster(t *testing.T) {
 		"managed_users":                  input.ManagedUsers,
 		"backup_retention_period":        input.BackupRetentionPeriod,
 		"update_state":                   "none",
-		"workers":                        flattenWorkers(input.ClusterConfiguration.Workers),
+		"workers":                        flattenWorkers(input.Autoscale, input.ClusterConfiguration.Workers),
 		"aws_attributes":                 emptyAttributes,
 		"azure_attributes":               emptyAttributes,
 		"open_ports":                     flattenPorts(&input.Ports),
 		"tags":                           flattenTags(input.Tags),
 		"rondb":                          flattenRonDB(input.RonDB),
+		"autoscale":                      flattenAutoscaleConfiguration(input.Autoscale),
 	}
 
 	for _, cloud := range []api.CloudProvider{api.AWS, api.AZURE} {
@@ -777,5 +796,155 @@ func TestFlattenRonDB_nil(t *testing.T) {
 	output := flattenRonDB(nil)
 	if output != nil {
 		t.Fatalf("error while matching:\nexpected nil \nbut got %#v", output)
+	}
+}
+
+func TestFlattenWorkersConfiguration_autoscaleEnabled(t *testing.T) {
+	input := []api.WorkerConfiguration{
+		{
+			NodeConfiguration: api.NodeConfiguration{
+				InstanceType: "node-type-1",
+				DiskSize:     512,
+			},
+			Count: 2,
+		},
+		{
+			NodeConfiguration: api.NodeConfiguration{
+				InstanceType: "node-type-2",
+				DiskSize:     256,
+			},
+			Count: 3,
+		},
+		{
+			NodeConfiguration: api.NodeConfiguration{
+				InstanceType: "node-type-3",
+				DiskSize:     1024,
+			},
+			Count: 1,
+		},
+	}
+
+	expected := schema.NewSet(helpers.WorkerSetHash, []interface{}{})
+
+	output := flattenWorkers(&api.AutoscaleConfiguration{}, input)
+	if expected.Difference(output).Len() != 0 && output.Difference(expected).Len() != 0 {
+		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
+	}
+}
+
+func TestFlattenAutoscaleConfiguration(t *testing.T) {
+	cases := []struct {
+		input    *api.AutoscaleConfiguration
+		expected []map[string]interface{}
+	}{
+		{
+			input: &api.AutoscaleConfiguration{
+				NonGPU: &api.AutoscaleConfigurationBase{
+					InstanceType:      "non-gpu-node",
+					DiskSize:          256,
+					MinWorkers:        0,
+					MaxWorkers:        5,
+					StandbyWorkers:    0.5,
+					DownscaleWaitTime: 300,
+				},
+				GPU: &api.AutoscaleConfigurationBase{
+					InstanceType:      "gpu-node",
+					DiskSize:          512,
+					MinWorkers:        1,
+					MaxWorkers:        10,
+					StandbyWorkers:    0.4,
+					DownscaleWaitTime: 200,
+				},
+			},
+			expected: []map[string]interface{}{
+				{
+					"non_gpu_workers": []interface{}{
+						map[string]interface{}{
+							"instance_type":       "non-gpu-node",
+							"disk_size":           256,
+							"min_workers":         0,
+							"max_workers":         5,
+							"standby_workers":     0.5,
+							"downscale_wait_time": 300,
+						},
+					},
+					"gpu_workers": []interface{}{
+						map[string]interface{}{
+							"instance_type":       "gpu-node",
+							"disk_size":           512,
+							"min_workers":         1,
+							"max_workers":         10,
+							"standby_workers":     0.4,
+							"downscale_wait_time": 200,
+						},
+					},
+				},
+			},
+		},
+		{
+			input: &api.AutoscaleConfiguration{
+				NonGPU: &api.AutoscaleConfigurationBase{
+					InstanceType:      "non-gpu-node",
+					DiskSize:          256,
+					MinWorkers:        0,
+					MaxWorkers:        5,
+					StandbyWorkers:    0.5,
+					DownscaleWaitTime: 300,
+				},
+			},
+			expected: []map[string]interface{}{
+				{
+					"non_gpu_workers": []interface{}{
+						map[string]interface{}{
+							"instance_type":       "non-gpu-node",
+							"disk_size":           256,
+							"min_workers":         0,
+							"max_workers":         5,
+							"standby_workers":     0.5,
+							"downscale_wait_time": 300,
+						},
+					},
+					"gpu_workers": []interface{}{},
+				},
+			},
+		},
+		{
+			input: &api.AutoscaleConfiguration{
+				GPU: &api.AutoscaleConfigurationBase{
+					InstanceType:      "gpu-node",
+					DiskSize:          512,
+					MinWorkers:        1,
+					MaxWorkers:        10,
+					StandbyWorkers:    0.4,
+					DownscaleWaitTime: 200,
+				},
+			},
+			expected: []map[string]interface{}{
+				{
+					"non_gpu_workers": []interface{}{},
+					"gpu_workers": []interface{}{
+						map[string]interface{}{
+							"instance_type":       "gpu-node",
+							"disk_size":           512,
+							"min_workers":         1,
+							"max_workers":         10,
+							"standby_workers":     0.4,
+							"downscale_wait_time": 200,
+						},
+					},
+				},
+			},
+		},
+		{
+			input:    nil,
+			expected: nil,
+		},
+	}
+
+	for i, c := range cases {
+		output := flattenAutoscaleConfiguration(c.input)
+		if !reflect.DeepEqual(c.expected, output) {
+			t.Fatalf("error while matching[%d]:\nexpected %#v \nbut got %#v", i, c.expected, output)
+		}
 	}
 }

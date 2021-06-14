@@ -53,6 +53,7 @@ Read-Only:
 
 - **activation_state** (String)
 - **attach_public_ip** (Boolean)
+- **autoscale** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--autoscale))
 - **aws_attributes** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--aws_attributes))
 - **azure_attributes** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--azure_attributes))
 - **backup_retention_period** (Number)
@@ -72,6 +73,41 @@ Read-Only:
 - **url** (String)
 - **version** (String)
 - **workers** (Set of Object) (see [below for nested schema](#nestedobjatt--clusters--workers))
+
+<a id="nestedobjatt--clusters--autoscale"></a>
+### Nested Schema for `clusters.autoscale`
+
+Read-Only:
+
+- **gpu_workers** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--autoscale--gpu_workers))
+- **non_gpu_workers** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--autoscale--non_gpu_workers))
+
+<a id="nestedobjatt--clusters--autoscale--gpu_workers"></a>
+### Nested Schema for `clusters.autoscale.gpu_workers`
+
+Read-Only:
+
+- **disk_size** (Number)
+- **downscale_wait_time** (Number)
+- **instance_type** (String)
+- **max_workers** (Number)
+- **min_workers** (Number)
+- **standby_workers** (Number)
+
+
+<a id="nestedobjatt--clusters--autoscale--non_gpu_workers"></a>
+### Nested Schema for `clusters.autoscale.non_gpu_workers`
+
+Read-Only:
+
+- **disk_size** (Number)
+- **downscale_wait_time** (Number)
+- **instance_type** (String)
+- **max_workers** (Number)
+- **min_workers** (Number)
+- **standby_workers** (Number)
+
+
 
 <a id="nestedobjatt--clusters--aws_attributes"></a>
 ### Nested Schema for `clusters.aws_attributes`

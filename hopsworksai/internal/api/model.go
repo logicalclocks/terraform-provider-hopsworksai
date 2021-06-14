@@ -103,29 +103,44 @@ type RonDBConfiguration struct {
 	APINodes        WorkerConfiguration    `json:"api"`
 }
 
+type AutoscaleConfigurationBase struct {
+	InstanceType      string  `json:"instanceType"`
+	DiskSize          int     `json:"diskSize"`
+	MinWorkers        int     `json:"minWorkers"`
+	MaxWorkers        int     `json:"maxWorkers"`
+	StandbyWorkers    float64 `json:"standbyWorkers"`
+	DownscaleWaitTime int     `json:"downscaleWaitTime"`
+}
+
+type AutoscaleConfiguration struct {
+	NonGPU *AutoscaleConfigurationBase `json:"nonGpu,omitempty"`
+	GPU    *AutoscaleConfigurationBase `json:"gpu,omitempty"`
+}
+
 type Cluster struct {
-	Id                    string               `json:"id"`
-	Name                  string               `json:"name"`
-	State                 ClusterState         `json:"state"`
-	ActivationState       ActivationState      `json:"activationState"`
-	InitializationStage   string               `json:"initializationStage"`
-	CreatedOn             int64                `json:"createdOn"`
-	StartedOn             int64                `json:"startedOn"`
-	Version               string               `json:"version"`
-	URL                   string               `json:"url"`
-	Provider              CloudProvider        `json:"provider"`
-	ErrorMessage          string               `json:"errorMessage,omitempty"`
-	Tags                  []ClusterTag         `json:"tags"`
-	SshKeyName            string               `json:"sshKeyName"`
-	ClusterConfiguration  ClusterConfiguration `json:"clusterConfiguration,omitempty"`
-	PublicIPAttached      bool                 `json:"publicIPAttached"`
-	LetsEncryptIssued     bool                 `json:"letsEncryptIssued"`
-	ManagedUsers          bool                 `json:"managedUsers"`
-	BackupRetentionPeriod int                  `json:"backupRetentionPeriod"`
-	Azure                 AzureCluster         `json:"azure,omitempty"`
-	AWS                   AWSCluster           `json:"aws,omitempty"`
-	Ports                 ServiceOpenPorts     `json:"ports"`
-	RonDB                 *RonDBConfiguration  `json:"ronDB,omitempty"`
+	Id                    string                  `json:"id"`
+	Name                  string                  `json:"name"`
+	State                 ClusterState            `json:"state"`
+	ActivationState       ActivationState         `json:"activationState"`
+	InitializationStage   string                  `json:"initializationStage"`
+	CreatedOn             int64                   `json:"createdOn"`
+	StartedOn             int64                   `json:"startedOn"`
+	Version               string                  `json:"version"`
+	URL                   string                  `json:"url"`
+	Provider              CloudProvider           `json:"provider"`
+	ErrorMessage          string                  `json:"errorMessage,omitempty"`
+	Tags                  []ClusterTag            `json:"tags"`
+	SshKeyName            string                  `json:"sshKeyName"`
+	ClusterConfiguration  ClusterConfiguration    `json:"clusterConfiguration,omitempty"`
+	PublicIPAttached      bool                    `json:"publicIPAttached"`
+	LetsEncryptIssued     bool                    `json:"letsEncryptIssued"`
+	ManagedUsers          bool                    `json:"managedUsers"`
+	BackupRetentionPeriod int                     `json:"backupRetentionPeriod"`
+	Azure                 AzureCluster            `json:"azure,omitempty"`
+	AWS                   AWSCluster              `json:"aws,omitempty"`
+	Ports                 ServiceOpenPorts        `json:"ports"`
+	RonDB                 *RonDBConfiguration     `json:"ronDB,omitempty"`
+	Autoscale             *AutoscaleConfiguration `json:"autoscale,omitempty"`
 }
 
 func (c *Cluster) IsAWSCluster() bool {
@@ -185,16 +200,17 @@ type ClusterTag struct {
 }
 
 type CreateCluster struct {
-	Name                  string               `json:"name"`
-	Version               string               `json:"version"`
-	SshKeyName            string               `json:"sshKeyName"`
-	ClusterConfiguration  ClusterConfiguration `json:"clusterConfiguration"`
-	IssueLetsEncrypt      bool                 `json:"issueLetsEncrypt"`
-	AttachPublicIP        bool                 `json:"attachPublicIP"`
-	BackupRetentionPeriod int                  `json:"backupRetentionPeriod"`
-	ManagedUsers          bool                 `json:"managedUsers"`
-	Tags                  []ClusterTag         `json:"tags"`
-	RonDB                 *RonDBConfiguration  `json:"ronDB,omitempty"`
+	Name                  string                  `json:"name"`
+	Version               string                  `json:"version"`
+	SshKeyName            string                  `json:"sshKeyName"`
+	ClusterConfiguration  ClusterConfiguration    `json:"clusterConfiguration"`
+	IssueLetsEncrypt      bool                    `json:"issueLetsEncrypt"`
+	AttachPublicIP        bool                    `json:"attachPublicIP"`
+	BackupRetentionPeriod int                     `json:"backupRetentionPeriod"`
+	ManagedUsers          bool                    `json:"managedUsers"`
+	Tags                  []ClusterTag            `json:"tags"`
+	RonDB                 *RonDBConfiguration     `json:"ronDB,omitempty"`
+	Autoscale             *AutoscaleConfiguration `json:"autoscale,omitempty"`
 }
 
 type CreateAzureCluster struct {
@@ -344,4 +360,8 @@ type GetSupportedInstanceTypesResponse struct {
 		AWS   SupportedInstanceTypes `json:"aws"`
 		AZURE SupportedInstanceTypes `json:"azure"`
 	} `json:"payload"`
+}
+
+type ConfigureAutoscaleRequest struct {
+	Autoscale *AutoscaleConfiguration `json:"autoscale,omitempty"`
 }

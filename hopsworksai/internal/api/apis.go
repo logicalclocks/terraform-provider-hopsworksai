@@ -158,3 +158,27 @@ func GetSupportedInstanceTypes(ctx context.Context, apiClient APIHandler, cloud 
 	}
 	return nil, fmt.Errorf("unknown cloud provider %s", cloud.String())
 }
+
+func ConfigureAutoscale(ctx context.Context, apiClient APIHandler, clusterId string, config *AutoscaleConfiguration) error {
+	req := ConfigureAutoscaleRequest{
+		Autoscale: config,
+	}
+	payload, err := json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("failed to marshal request: %s", err)
+	}
+
+	var response BaseResponse
+	if err := apiClient.doRequest(ctx, http.MethodPost, "/api/clusters/"+clusterId+"/autoscale", bytes.NewBuffer(payload), &response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func DisableAutoscale(ctx context.Context, apiClient APIHandler, clusterId string) error {
+	var response BaseResponse
+	if err := apiClient.doRequest(ctx, http.MethodDelete, "/api/clusters/"+clusterId+"/autoscale", nil, &response); err != nil {
+		return err
+	}
+	return nil
+}

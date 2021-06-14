@@ -83,6 +83,7 @@ resource "hopsworksai_cluster" "cluster" {
 ### Optional
 
 - **attach_public_ip** (Boolean) Attach or do not attach a public ip to the cluster. This can be useful if you intend to create a cluster in a private network. Defaults to `true`.
+- **autoscale** (Block List, Max: 1) Setup auto scaling. (see [below for nested schema](#nestedblock--autoscale))
 - **aws_attributes** (Block List, Max: 1) The configurations required to run the cluster on Amazon AWS. (see [below for nested schema](#nestedblock--aws_attributes))
 - **azure_attributes** (Block List, Max: 1) The configurations required to run the cluster on Microsoft Azure. (see [below for nested schema](#nestedblock--azure_attributes))
 - **backup_retention_period** (Number) The validity of cluster backups in days. If set to 0 cluster backups are disabled. Defaults to `0`.
@@ -90,7 +91,7 @@ resource "hopsworksai_cluster" "cluster" {
 - **issue_lets_encrypt_certificate** (Boolean) Enable or disable issuing let's encrypt certificates. This can be used to disable issuing certificates if port 80 can not be open. Defaults to `true`.
 - **managed_users** (Boolean) Enable or disable Hopsworks.ai to manage your users. Defaults to `true`.
 - **open_ports** (Block List, Max: 1) Open the required ports to communicate with one of the Hopsworks services. (see [below for nested schema](#nestedblock--open_ports))
-- **rondb** (Block List, Max: 1) Setup a cluster with managed RonDB (see [below for nested schema](#nestedblock--rondb))
+- **rondb** (Block List, Max: 1) Setup a cluster with managed RonDB. (see [below for nested schema](#nestedblock--rondb))
 - **tags** (Map of String) The list of custom tags to be attached to the cluster.
 - **timeouts** (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 - **update_state** (String) The action you can use to start or stop the cluster. Defaults to `none`.
@@ -113,6 +114,50 @@ Optional:
 
 - **disk_size** (Number) The disk size of the head node in units of GB. Defaults to `512`.
 - **instance_type** (String) The instance type of the head node. Defaults to m5.2xlarge for AWS and Standard_D8_v3 for Azure.
+
+
+<a id="nestedblock--autoscale"></a>
+### Nested Schema for `autoscale`
+
+Required:
+
+- **non_gpu_workers** (Block List, Min: 1, Max: 1) Setup auto scaling for non gpu nodes. (see [below for nested schema](#nestedblock--autoscale--non_gpu_workers))
+
+Optional:
+
+- **gpu_workers** (Block List, Max: 1) Setup auto scaling for gpu nodes. (see [below for nested schema](#nestedblock--autoscale--gpu_workers))
+
+<a id="nestedblock--autoscale--non_gpu_workers"></a>
+### Nested Schema for `autoscale.non_gpu_workers`
+
+Required:
+
+- **instance_type** (String) The instance type to use while auto scaling.
+
+Optional:
+
+- **disk_size** (Number) The disk size to use while auto scaling Defaults to `512`.
+- **downscale_wait_time** (Number) The time to wait before removing unused resources. Defaults to `300`.
+- **max_workers** (Number) The maximum number of workers created by auto scaling. Defaults to `10`.
+- **min_workers** (Number) The minimum number of workers created by auto scaling. Defaults to `0`.
+- **standby_workers** (Number) The percentage of standby workers to be always available during auto scaling. If you set this value to 0 new workers will only be added when a job or a notebook requests the resources. This attribute will not be taken into account if you set the minimum number of workers to 0 and no resources are used in the cluster, instead, it will start to take effect as soon as you start using resources. Defaults to `0.5`.
+
+
+<a id="nestedblock--autoscale--gpu_workers"></a>
+### Nested Schema for `autoscale.gpu_workers`
+
+Required:
+
+- **instance_type** (String) The instance type to use while auto scaling.
+
+Optional:
+
+- **disk_size** (Number) The disk size to use while auto scaling Defaults to `512`.
+- **downscale_wait_time** (Number) The time to wait before removing unused resources. Defaults to `300`.
+- **max_workers** (Number) The maximum number of workers created by auto scaling. Defaults to `10`.
+- **min_workers** (Number) The minimum number of workers created by auto scaling. Defaults to `0`.
+- **standby_workers** (Number) The percentage of standby workers to be always available during auto scaling. If you set this value to 0 new workers will only be added when a job or a notebook requests the resources. This attribute will not be taken into account if you set the minimum number of workers to 0 and no resources are used in the cluster, instead, it will start to take effect as soon as you start using resources. Defaults to `0.5`.
+
 
 
 <a id="nestedblock--aws_attributes"></a>
