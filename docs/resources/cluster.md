@@ -170,11 +170,14 @@ Optional:
 <a id="nestedblock--aws_attributes--network"></a>
 ### Nested Schema for `aws_attributes.network`
 
+Required:
+
+- **vpc_id** (String) The VPC id.
+
 Optional:
 
 - **security_group_id** (String) The security group id.
 - **subnet_id** (String) The subnet id.
-- **vpc_id** (String) The VPC id.
 
 
 
@@ -198,11 +201,14 @@ Optional:
 <a id="nestedblock--azure_attributes--network"></a>
 ### Nested Schema for `azure_attributes.network`
 
+Required:
+
+- **virtual_network_name** (String) The virtual network name.
+
 Optional:
 
 - **security_group_name** (String) The security group name.
 - **subnet_name** (String) The subnet name.
-- **virtual_network_name** (String) The virtual network name.
 
 
 
