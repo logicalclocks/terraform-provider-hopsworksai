@@ -73,7 +73,12 @@ resource "azurerm_ssh_public_key" "key" {
   public_key          = file("~/.ssh/id_rsa.pub")
 }
 
-# Step 4: create the cluster
+# Step 4: create a cluster with 1 worker
+data "hopsworksai_instance_type" "smallest_worker" {
+  cloud_provider = "AZURE"
+  node_type      = "worker"
+}
+
 resource "hopsworksai_cluster" "cluster" {
   name    = "tfhopsworkscluster"
   ssh_key = azurerm_ssh_public_key.key.name
@@ -82,7 +87,8 @@ resource "hopsworksai_cluster" "cluster" {
   }
 
   workers {
-    count = 1
+    instance_type = data.hopsworksai_instance_type.smallest_worker.id
+    count         = 1
   }
 
   azure_attributes {

@@ -5,10 +5,6 @@ resource "hopsworksai_cluster" "cluster" {
   head {
   }
 
-  workers {
-    count = 1
-  }
-
   aws_attributes {
     region               = "us-east-2"
     instance_profile_arn = "arn:aws:iam::0000000000:instance-profile/my-instance-profile"

@@ -20,10 +20,6 @@ resource "hopsworksai_cluster" "cluster" {
   head {
   }
 
-  workers {
-    count = 1
-  }
-
   aws_attributes {
     region               = "us-east-2"
     instance_profile_arn = "arn:aws:iam::0000000000:instance-profile/my-instance-profile"
@@ -48,10 +44,6 @@ resource "hopsworksai_cluster" "cluster" {
   ssh_key = "my-ssh-key"
 
   head {
-  }
-
-  workers {
-    count = 1
   }
 
   azure_attributes {
@@ -324,11 +316,14 @@ Optional:
 <a id="nestedblock--workers"></a>
 ### Nested Schema for `workers`
 
+Required:
+
+- **instance_type** (String) The instance type of the worker nodes.
+
 Optional:
 
 - **count** (Number) The number of worker nodes. Defaults to `1`.
 - **disk_size** (Number) The disk size of worker nodes in units of GB Defaults to `512`.
-- **instance_type** (String) The instance type of the worker nodes. Defaults to m5.2xlarge for AWS and Standard_D8_v3 for Azure.
 
 ## Import
 

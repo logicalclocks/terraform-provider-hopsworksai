@@ -1253,12 +1253,8 @@ func TestClusterCreate_AWSDefaultInstanceType(t *testing.T) {
 						return err
 					}
 					headInstanceType := req.CreateRequest.ClusterConfiguration.Head.InstanceType
-					workerInstanceType := req.CreateRequest.ClusterConfiguration.Workers[0].InstanceType
 					if headInstanceType != awsDefaultInstanceType {
 						return fmt.Errorf("expected default head instance type %s but got %s", awsDefaultInstanceType, headInstanceType)
-					}
-					if workerInstanceType != awsDefaultInstanceType {
-						return fmt.Errorf("expected default worker instance type %s but got %s", awsDefaultInstanceType, workerInstanceType)
 					}
 					return nil
 				},
@@ -1271,12 +1267,6 @@ func TestClusterCreate_AWSDefaultInstanceType(t *testing.T) {
 			"head": []interface{}{
 				map[string]interface{}{
 					"disk_size": 512,
-				},
-			},
-			"workers": []interface{}{
-				map[string]interface{}{
-					"disk_size": 256,
-					"count":     2,
 				},
 			},
 			"aws_attributes": []interface{}{
@@ -1310,12 +1300,8 @@ func TestClusterCreate_AzureDefaultInstanceType(t *testing.T) {
 						return err
 					}
 					headInstanceType := req.CreateRequest.ClusterConfiguration.Head.InstanceType
-					workerInstanceType := req.CreateRequest.ClusterConfiguration.Workers[0].InstanceType
 					if headInstanceType != azureDefaultInstanceType {
 						return fmt.Errorf("expected default head instance type %s but got %s", azureDefaultInstanceType, headInstanceType)
-					}
-					if workerInstanceType != azureDefaultInstanceType {
-						return fmt.Errorf("expected default worker instance type %s but got %s", azureDefaultInstanceType, workerInstanceType)
 					}
 					return nil
 				},
@@ -1328,12 +1314,6 @@ func TestClusterCreate_AzureDefaultInstanceType(t *testing.T) {
 			"head": []interface{}{
 				map[string]interface{}{
 					"disk_size": 512,
-				},
-			},
-			"workers": []interface{}{
-				map[string]interface{}{
-					"disk_size": 256,
-					"count":     2,
 				},
 			},
 			"azure_attributes": []interface{}{

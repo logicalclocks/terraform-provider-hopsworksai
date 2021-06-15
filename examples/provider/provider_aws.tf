@@ -70,7 +70,12 @@ resource "aws_key_pair" "key" {
   public_key = file("~/.ssh/id_rsa.pub")
 }
 
-# Step 4: create the cluster
+# Step 4: create a cluster with 1 worker 
+data "hopsworksai_instance_type" "smallest_worker" {
+  cloud_provider = "AWS"
+  node_type      = "worker"
+}
+
 resource "hopsworksai_cluster" "cluster" {
   name    = "tf-hopsworks-cluster"
   ssh_key = aws_key_pair.key.key_name
@@ -79,7 +84,8 @@ resource "hopsworksai_cluster" "cluster" {
   }
 
   workers {
-    count = 1
+    instance_type = data.hopsworksai_instance_type.smallest_worker.id
+    count         = 1
   }
 
   aws_attributes {

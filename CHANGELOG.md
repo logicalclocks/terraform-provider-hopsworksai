@@ -7,7 +7,8 @@ BUG FIXES:
 ENHANCEMENTS:
 * more unit tests
 * resource/hopsworksai_cluster: Add a new attribute `rondb`
-* resource/hopsworksai_cluster: Set computed to true for `head/instance_type`, `workers/instance_type`, and `azure_attributes/storage_container_name` 
+* resource/hopsworksai_cluster: Set Computed to true for `head/instance_type` and `azure_attributes/storage_container_name` 
+* resource/hopsworksai_cluster: Set Required to true for `workers/instance_type`
 * resource/hopsworksai_cluster: Add a new attribute `autoscale`
 
 FEATURES:

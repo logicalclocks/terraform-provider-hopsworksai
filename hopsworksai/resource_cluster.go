@@ -142,10 +142,9 @@ func clusterSchema() map[string]*schema.Schema {
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
 					"instance_type": {
-						Description: fmt.Sprintf("The instance type of the worker nodes. Defaults to %s for AWS and %s for Azure.", awsDefaultInstanceType, azureDefaultInstanceType),
+						Description: "The instance type of the worker nodes.",
 						Type:        schema.TypeString,
-						Optional:    true,
-						Computed:    true,
+						Required:    true,
 					},
 					"disk_size": {
 						Description:  "The disk size of worker nodes in units of GB",
@@ -1009,23 +1008,11 @@ func setAWSDefaults(createRequest *api.CreateCluster) {
 	if createRequest.ClusterConfiguration.Head.InstanceType == "" {
 		createRequest.ClusterConfiguration.Head.InstanceType = awsDefaultInstanceType
 	}
-
-	for i := 0; i < len(createRequest.ClusterConfiguration.Workers); i++ {
-		if createRequest.ClusterConfiguration.Workers[i].InstanceType == "" {
-			createRequest.ClusterConfiguration.Workers[i].InstanceType = awsDefaultInstanceType
-		}
-	}
 }
 
 func setAzureDefaults(createRequest *api.CreateCluster) {
 	if createRequest.ClusterConfiguration.Head.InstanceType == "" {
 		createRequest.ClusterConfiguration.Head.InstanceType = azureDefaultInstanceType
-	}
-
-	for i := 0; i < len(createRequest.ClusterConfiguration.Workers); i++ {
-		if createRequest.ClusterConfiguration.Workers[i].InstanceType == "" {
-			createRequest.ClusterConfiguration.Workers[i].InstanceType = azureDefaultInstanceType
-		}
 	}
 }
 

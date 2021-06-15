@@ -5,10 +5,6 @@ resource "hopsworksai_cluster" "cluster" {
   head {
   }
 
-  workers {
-    count = 1
-  }
-
   azure_attributes {
     location                       = "northeurope"
     resource_group                 = "mygroup"
