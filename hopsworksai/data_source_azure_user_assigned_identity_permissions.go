@@ -31,6 +31,12 @@ func dataSourceAzureUserAssignedIdentityPermissions() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 			},
+			"enable_aks_and_acr": {
+				Description: "Add permissions required to enable access to Azure AKS and ACR from within your Hopsworks cluster.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+			},
 			"actions": {
 				Description: "The actions permissions.",
 				Type:        schema.TypeList,
@@ -96,6 +102,15 @@ func dataSourceAzureUserAssignedIdentityPermissionsRead(ctx context.Context, d *
 			"Microsoft.Compute/virtualMachines/write",
 			"Microsoft.Compute/disks/read",
 			"Microsoft.Compute/disks/write")
+	}
+
+	if d.Get("enable_aks_and_acr").(bool) {
+		actions = append(actions, "Microsoft.ContainerRegistry/registries/pull/read",
+			"Microsoft.ContainerRegistry/registries/push/write",
+			"Microsoft.ContainerRegistry/registries/artifacts/delete",
+			"Microsoft.ContainerService/managedClusters/listClusterUserCredential/action",
+			"Microsoft.ContainerService/managedClusters/read",
+		)
 	}
 
 	d.SetId(strconv.Itoa(schema.HashString(strings.Join(actions, ","))))

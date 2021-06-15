@@ -12,6 +12,7 @@ ENHANCEMENTS:
 * resource/hopsworksai_cluster: Set Required to true for `workers/instance_type`
 * resource/hopsworksai_cluster: Set Required to true for `azure_attributes/network/virtual_network_name` and `aws_attributes/network/vpc_id`
 * resource/hopsworksai_cluster: Set Computed to true for `azure_attributes/network/subnet_name`,  `azure_attributes/network/security_group_name`, `aws_attributes/network/subnet_id` and `aws_attributes/network/security_group_id`
+* datasource/azure_user_assigned_identity_permissions: Add a new attribute `enable_aks_and_acr`
 
 
 FEATURES:
