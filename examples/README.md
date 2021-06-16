@@ -1,9 +1,11 @@
 # Examples
 
-This directory contains examples that are mostly used for documentation, but can also be run/tested manually via the Terraform CLI.
+This directory contains examples that are mostly used for documentation. Also, it contains complete examples that can be executed directly using Terraform CLI.
 
-The document generation tool looks for files in the following locations by default. All other *.tf files besides the ones mentioned below are ignored by the documentation tool. This is useful for creating examples that can run and/or ar testable even if some parts are not relevant for the documentation.
+1. The examples under the following directories are used by the document generation tool to generate the documentations.
 
-* **provider/provider.tf** example file for the provider index page
-* **data-sources/<full data source name>/data-source.tf** example file for the named data source page
-* **resources/<full resource name>/resource.tf** example file for the named data source page
+    * **provider/provider.tf** example file for the provider index page
+    * **data-sources/<full data source name>/data-source.tf** example file for the named data source page
+    * **resources/<full resource name>/resource.tf** example file for the named data source page
+
+2. The examples under **complete** directory are full examples that can be executed directly using Terraform CLI.
