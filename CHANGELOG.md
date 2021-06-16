@@ -1,4 +1,4 @@
-## 0.2.0 (Unreleased)
+## 0.2.0 (June 16, 2021)
 
 BUG FIXES:
 * resource/hopsworksai_cluster: check if `ecr_registry_account_id`, `eks_cluster_name`, and `aks_cluster_name` is not an empty string before setting it
