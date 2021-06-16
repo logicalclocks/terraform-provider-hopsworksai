@@ -645,6 +645,7 @@ func awsAttributesSchema() *schema.Resource {
 				Description:  "The account id used for ECR. Defaults to the user's account id, inferred from the instance profille ARN.",
 				Type:         schema.TypeString,
 				Optional:     true,
+				Computed:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^\d{12}$`), "Invalid ECR account id"),
 			},
