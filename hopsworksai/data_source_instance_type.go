@@ -2,6 +2,8 @@ package hopsworksai
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -14,7 +16,7 @@ func dataSourceInstanceType() *schema.Resource {
 		Description: "Use this data source to get the smallest instance type for head, worker, and RonDB nodes.",
 		Schema: map[string]*schema.Schema{
 			"node_type": {
-				Description:  "The node type that you want to get its smallest instance type.",
+				Description:  fmt.Sprintf("The node type that you want to get its smallest instance type. It has to be one of these types (%s).", strings.Join(api.GetAllNodeTypes(), ", ")),
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringInSlice(api.GetAllNodeTypes(), false),

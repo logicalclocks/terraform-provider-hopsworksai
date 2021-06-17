@@ -34,7 +34,7 @@ data "hopsworksai_instance_type" "supported_type" {
 ### Required
 
 - **cloud_provider** (String) The cloud provider where you plan to create your cluster.
-- **node_type** (String) The node type that you want to get its smallest instance type.
+- **node_type** (String) The node type that you want to get its smallest instance type. It has to be one of these types (head, worker, rondb_management, rondb_data, rondb_mysql, rondb_api).
 
 ### Optional
 
