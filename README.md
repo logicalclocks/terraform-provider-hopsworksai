@@ -14,7 +14,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "3.42.0"
+      version = ">=3.42.0"
     }
     hopsworksai = {
       source = "logicalclocks/hopsworksai"
@@ -22,13 +22,13 @@ terraform {
   }
 }
 
-locals {
-  region      = "us-east-2"
-  bucket_name = "tf-hopsworks-bucket"
+variable "region" {
+  type    = string
+  default = "us-east-2"
 }
 
 provider "aws" {
-  region = local.region
+  region = var.region
 }
 
 provider "hopsworksai" {
@@ -36,53 +36,13 @@ provider "hopsworksai" {
   api_key = "YOUR HOPSWORKS API KEY"
 }
 
-# Step 1: create an instance profile to allow hopsworks cluster 
-data "hopsworksai_aws_instance_profile_policy" "policy" {
-  bucket_name = local.bucket_name
+# Step 1: create the required aws resources, an ssh key, an s3 bucket, and an instance profile with the required hopsworks permissions
+module "aws" {
+  source = "logicalclocks/helpers/hopsworksai//modules/aws"
+  region = var.region
 }
 
-resource "aws_iam_role" "role" {
-  name = "tf-hopsworksai-instance-profile-role"
-  assume_role_policy = jsonencode(
-    {
-      Version = "2012-10-17"
-      Statement = [
-        {
-          Action = "sts:AssumeRole"
-          Effect = "Allow"
-          Principal = {
-            Service = "ec2.amazonaws.com"
-          }
-        },
-      ]
-    }
-  )
-
-  inline_policy {
-    name   = "hopsworksai"
-    policy = data.hopsworksai_aws_instance_profile_policy.policy.json
-  }
-}
-
-resource "aws_iam_instance_profile" "profile" {
-  name = "hopsworksai-instance-profile"
-  role = aws_iam_role.role.name
-}
-
-# Step 2: create s3 bucket to be used by your hopsworks cluster to store your data
-resource "aws_s3_bucket" "bucket" {
-  bucket        = local.bucket_name
-  acl           = "private"
-  force_destroy = true
-}
-
-# Step 3: create an ssh key pair 
-resource "aws_key_pair" "key" {
-  key_name   = "tf-hopsworksai-key"
-  public_key = file("~/.ssh/id_rsa.pub")
-}
-
-# Step 4: create a cluster with 1 worker 
+# Step 2: create a cluster with 1 worker
 data "hopsworksai_instance_type" "smallest_worker" {
   cloud_provider = "AWS"
   node_type      = "worker"
@@ -90,7 +50,7 @@ data "hopsworksai_instance_type" "smallest_worker" {
 
 resource "hopsworksai_cluster" "cluster" {
   name    = "tf-hopsworks-cluster"
-  ssh_key = aws_key_pair.key.key_name
+  ssh_key = module.aws.ssh_key_pair_name
 
   head {
   }
@@ -101,20 +61,20 @@ resource "hopsworksai_cluster" "cluster" {
   }
 
   aws_attributes {
-    region               = local.region
-    bucket_name          = local.bucket_name
-    instance_profile_arn = aws_iam_instance_profile.profile.arn
+    region               = var.region
+    bucket_name          = module.aws.bucket_name
+    instance_profile_arn = module.aws.instance_profile_arn
   }
 
   open_ports {
     ssh = true
   }
-
-  tags = {
-    Purpose = "testing"
-  }
 }
 
+# Outputs the url of the newly created cluster 
+output "hopsworks_cluster_url" {
+  value = hopsworksai_cluster.cluster.url
+}
 ```
 
 ## Requirements
