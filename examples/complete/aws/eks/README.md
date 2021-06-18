@@ -9,7 +9,7 @@ First ensure that your aws credentials are setup correctly by running the follow
 aws configure 
 ```
 
-Then, run the following commands. Replace the placeholder with your Hopsworks API Key. The EKS and Hopsworks clusters will be created in us-east-2 region by default, however, you can configure the region to use by setting the variable region when applying the changes `-var="region=YOUR_REGION"`
+Then, run the following commands. Replace the placeholder with your Hopsworks API Key. The EKS and Hopsworks clusters will be created in us-east-2 region by default, however, you can configure which region to use by setting the variable region when applying the changes `-var="region=YOUR_REGION"`
 
 ```bash
 export HOPSWORKSAI_API_KEY=<YOUR_HOPSWORKSAI_API_KEY>
@@ -17,3 +17,6 @@ terraform init
 terraform apply
 ```
 
+## Terminate the cluster
+
+You can run `terraform destroy` to delete the cluster and all the other required cloud resources created in this example.

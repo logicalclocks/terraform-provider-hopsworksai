@@ -38,4 +38,4 @@ test-fixtures/**/.keys
 
 coverage.txt
 
-.terraform.lock*
+.terraform*

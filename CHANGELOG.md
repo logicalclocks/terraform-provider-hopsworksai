@@ -1,10 +1,8 @@
 ## 0.3.0 (Unreleased)
 
-BUG FIXES:
-
 ENHANCEMENTS:
-
-FEATURES:
+* Update documentations 
+* Add more examples
 
 ## 0.2.0 (June 16, 2021)
 
