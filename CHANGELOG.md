@@ -1,4 +1,4 @@
-## 0.3.0 (Unreleased)
+## 0.2.1 (June 18, 2021)
 
 ENHANCEMENTS:
 * Update documentations 
