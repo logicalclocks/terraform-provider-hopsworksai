@@ -108,6 +108,7 @@ func flattenAzureAttributes(cluster *api.Cluster) []interface{} {
 		"user_assigned_managed_identity": cluster.Azure.ManagedIdentity,
 		"network": []map[string]interface{}{
 			{
+				"resource_group":       cluster.Azure.NetworkResourceGroup,
 				"virtual_network_name": cluster.Azure.VirtualNetworkName,
 				"subnet_name":          cluster.Azure.SubnetName,
 				"security_group_name":  cluster.Azure.SecurityGroupName,

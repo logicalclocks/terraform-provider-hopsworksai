@@ -288,6 +288,7 @@ func TestClustersDataSourceRead(t *testing.T) {
 							"storage_container_name":         "",
 							"network": []interface{}{
 								map[string]interface{}{
+									"resource_group":       "",
 									"virtual_network_name": "",
 									"subnet_name":          "",
 									"security_group_name":  "",

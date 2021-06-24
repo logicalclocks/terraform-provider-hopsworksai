@@ -203,12 +203,13 @@ Optional:
 
 Required:
 
+- **subnet_name** (String) The subnet name.
 - **virtual_network_name** (String) The virtual network name.
 
 Optional:
 
+- **resource_group** (String) The resource group where the network resources reside. If not specified, the azure_attributes/resource_group will be used.
 - **security_group_name** (String) The security group name.
-- **subnet_name** (String) The subnet name.
 
 
 

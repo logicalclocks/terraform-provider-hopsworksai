@@ -187,16 +187,17 @@ func TestFlattenAzureAttributes(t *testing.T) {
 	input := &api.Cluster{
 		Provider: api.AZURE,
 		Azure: api.AzureCluster{
-			Location:           "location-1",
-			ResourceGroup:      "resource-group-1",
-			ManagedIdentity:    "managed-identity-1",
-			BlobContainerName:  "blob-container-name-1",
-			StorageAccount:     "storage-account-1",
-			VirtualNetworkName: "virtual-network-name-1",
-			SubnetName:         "subnet-name-1",
-			SecurityGroupName:  "security-group-name-1",
-			AksClusterName:     "aks-cluster-name-1",
-			AcrRegistryName:    "acr-registry-name-1",
+			Location:             "location-1",
+			ResourceGroup:        "resource-group-1",
+			ManagedIdentity:      "managed-identity-1",
+			BlobContainerName:    "blob-container-name-1",
+			StorageAccount:       "storage-account-1",
+			VirtualNetworkName:   "virtual-network-name-1",
+			SubnetName:           "subnet-name-1",
+			SecurityGroupName:    "security-group-name-1",
+			AksClusterName:       "aks-cluster-name-1",
+			AcrRegistryName:      "acr-registry-name-1",
+			NetworkResourceGroup: "network-resource-group-1",
 		},
 	}
 
@@ -209,6 +210,7 @@ func TestFlattenAzureAttributes(t *testing.T) {
 			"user_assigned_managed_identity": input.Azure.ManagedIdentity,
 			"network": []map[string]interface{}{
 				{
+					"resource_group":       input.Azure.NetworkResourceGroup,
 					"virtual_network_name": input.Azure.VirtualNetworkName,
 					"subnet_name":          input.Azure.SubnetName,
 					"security_group_name":  input.Azure.SecurityGroupName,

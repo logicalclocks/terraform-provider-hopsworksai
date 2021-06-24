@@ -130,6 +130,7 @@ Read-Only:
 
 Read-Only:
 
+- **resource_group** (String)
 - **security_group_name** (String)
 - **subnet_name** (String)
 - **virtual_network_name** (String)

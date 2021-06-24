@@ -262,6 +262,7 @@ func TestClusterDataSourceRead_AZURE(t *testing.T) {
 								"managedIdentity": "profile-1",
 								"blobContainerName": "container-1",
 								"storageAccount": "account-1",
+								"networkResourceGroup": "network-resource-group-1",
 								"virtualNetworkName": "network-name-1",
 								"subnetName": "subnet-name-1",
 								"securityGroupName": "security-group-name-1"
@@ -315,6 +316,7 @@ func TestClusterDataSourceRead_AZURE(t *testing.T) {
 					"storage_container_name":         "container-1",
 					"network": []interface{}{
 						map[string]interface{}{
+							"resource_group":       "network-resource-group-1",
 							"virtual_network_name": "network-name-1",
 							"subnet_name":          "subnet-name-1",
 							"security_group_name":  "security-group-name-1",

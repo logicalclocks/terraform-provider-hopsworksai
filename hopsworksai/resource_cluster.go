@@ -696,6 +696,13 @@ func azureAttributesSchema() *schema.Resource {
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"resource_group": {
+							Description: "The resource group where the network resources reside. If not specified, the azure_attributes/resource_group will be used.",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
+						},
 						"virtual_network_name": {
 							Description: "The virtual network name.",
 							Type:        schema.TypeString,
@@ -705,8 +712,7 @@ func azureAttributesSchema() *schema.Resource {
 						"subnet_name": {
 							Description: "The subnet name.",
 							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
+							Required:    true,
 							ForceNew:    true,
 						},
 						"security_group_name": {
@@ -865,6 +871,7 @@ func createAzureCluster(azureAttributes map[string]interface{}, baseRequest *api
 			req.VirtualNetworkName = network["virtual_network_name"].(string)
 			req.SubnetName = network["subnet_name"].(string)
 			req.SecurityGroupName = network["security_group_name"].(string)
+			req.NetworkResourceGroup = network["resource_group"].(string)
 		}
 	}
 

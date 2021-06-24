@@ -152,16 +152,17 @@ func (c *Cluster) IsAzureCluster() bool {
 }
 
 type AzureCluster struct {
-	Location           string `json:"location"`
-	ManagedIdentity    string `json:"managedIdentity"`
-	ResourceGroup      string `json:"resourceGroup"`
-	BlobContainerName  string `json:"blobContainerName"`
-	StorageAccount     string `json:"storageAccount"`
-	VirtualNetworkName string `json:"virtualNetworkName"`
-	SubnetName         string `json:"subnetName"`
-	SecurityGroupName  string `json:"securityGroupName"`
-	AksClusterName     string `json:"aksClusterName"`
-	AcrRegistryName    string `json:"acrRegistryName"`
+	Location             string `json:"location"`
+	ManagedIdentity      string `json:"managedIdentity"`
+	ResourceGroup        string `json:"resourceGroup"`
+	BlobContainerName    string `json:"blobContainerName"`
+	StorageAccount       string `json:"storageAccount"`
+	NetworkResourceGroup string `json:"networkResourceGroup"`
+	VirtualNetworkName   string `json:"virtualNetworkName"`
+	SubnetName           string `json:"subnetName"`
+	SecurityGroupName    string `json:"securityGroupName"`
+	AksClusterName       string `json:"aksClusterName"`
+	AcrRegistryName      string `json:"acrRegistryName"`
 }
 
 type AWSCluster struct {
