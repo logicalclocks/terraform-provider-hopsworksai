@@ -1,4 +1,4 @@
-## 0.3.0 (Unreleased)
+## 0.3.0 (June 24, 2021)
 
 BUG FIXES:
 * resource/hopsworksai_cluster: Set Required to true for `azure_attributes/network/subnet_name` to ensure setting the subnet_name if setting up your own network configuration
