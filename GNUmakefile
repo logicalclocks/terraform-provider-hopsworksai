@@ -1,7 +1,7 @@
 HOSTNAME=registry.terraform.io
 NAMESPACE=logicalclocks
 NAME=hopsworksai
-VERSION=0.3.0
+VERSION=0.4.0
 BINARY=terraform-provider-${NAME}
 
 default: build
