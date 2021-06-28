@@ -3,6 +3,7 @@
 BREAKING CHANGES:
 
 BUG FIXES:
+* resource/hopsworksai_cluster: Fix validation condition for `backup_retention_period`
 
 ENHANCEMENTS:
 
