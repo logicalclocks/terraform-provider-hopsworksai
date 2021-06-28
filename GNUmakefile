@@ -1,23 +1,13 @@
-HOSTNAME=registry.terraform.io
-NAMESPACE=logicalclocks
-NAME=hopsworksai
-VERSION=0.4.0
-BINARY=terraform-provider-${NAME}
-
 default: build
 
 generate: fmt
+	@echo "Generating documentations ..."
 	go generate  ./...
 
-build: generate
+build: generate lint
 	@echo "Building source code ..."
 	mkdir -p ./bin
-	go build -o ./bin/${BINARY}
-
-install: build lint test
-	@echo "Installing provider for terraform 0.13+ into ~/.terraform.d/plugins ... "
-	@mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/$(shell go version | awk '{print $$4}' | sed 's#/#_#')
-	@mv ./bin/${BINARY} ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/$(shell go version | awk '{print $$4}' | sed 's#/#_#')
+	go build -o ./bin/terraform-provider-hopsworksai
 
 fmt:
 	@echo "Formatting source code using gofmt"
@@ -30,16 +20,19 @@ lint:
 	golangci-lint run ./...
 
 test:
+	@echo "Running unit tests ..."
 	go test ./... -v -race -coverprofile=coverage.txt -covermode=atomic $(TESTARGS) -parallel=4
 
 coverage: test
+	@echo "Running code coverage ..."
 	go tool cover -html coverage.txt 
 
 testacc:
+	@echo "Running acceptance tests ..."
 	./test-fixtures/run-acceptance-tests.sh
 
 sweep:
 	@echo "WARNING: This will destroy infrastructure. Use only in development accounts."
 	go test ./hopsworksai -v -sweep="all" $(SWEEPARGS) -timeout 60m
 
-.PHONY: build install testacc generate test fmt lint sweep coverage
+.PHONY: build testacc generate test fmt lint sweep coverage
