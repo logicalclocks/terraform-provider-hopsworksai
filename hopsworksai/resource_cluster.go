@@ -177,7 +177,7 @@ func clusterSchema() map[string]*schema.Schema {
 			Default:     0,
 			ValidateFunc: func(val interface{}, key string) (warnings []string, errors []error) {
 				v := val.(int)
-				if v != 0 || v < 7 {
+				if v != 0 && v < 7 {
 					errors = append(errors, fmt.Errorf("%q must be either 0 (disabled) or at least 7 days, got: %d", key, v))
 				}
 				return
