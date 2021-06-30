@@ -81,6 +81,7 @@ output "hopsworks_cluster_url" {
 
 -	[Terraform](https://www.terraform.io/downloads.html) >= 0.13.x
 -	[Go](https://golang.org/doc/install) >= 1.15
+-	[golangci-lint](https://golangci-lint.run/usage/install/)
 
 
 ## Quick Starts
