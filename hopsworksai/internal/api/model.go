@@ -141,6 +141,7 @@ type Cluster struct {
 	Ports                 ServiceOpenPorts        `json:"ports"`
 	RonDB                 *RonDBConfiguration     `json:"ronDB,omitempty"`
 	Autoscale             *AutoscaleConfiguration `json:"autoscale,omitempty"`
+	InitScript            string                  `json:"initScript"`
 }
 
 func (c *Cluster) IsAWSCluster() bool {
@@ -212,6 +213,7 @@ type CreateCluster struct {
 	Tags                  []ClusterTag            `json:"tags"`
 	RonDB                 *RonDBConfiguration     `json:"ronDB,omitempty"`
 	Autoscale             *AutoscaleConfiguration `json:"autoscale,omitempty"`
+	InitScript            string                  `json:"initScript"`
 }
 
 type CreateAzureCluster struct {

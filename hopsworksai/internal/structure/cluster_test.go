@@ -346,6 +346,7 @@ func TestFlattenCluster(t *testing.T) {
 				DownscaleWaitTime: 200,
 			},
 		},
+		InitScript: "#!/usr/bin/env bash\nset -e\necho 'Hello World'",
 	}
 
 	var emptyAttributes []interface{} = nil
@@ -372,6 +373,7 @@ func TestFlattenCluster(t *testing.T) {
 		"tags":                           flattenTags(input.Tags),
 		"rondb":                          flattenRonDB(input.RonDB),
 		"autoscale":                      flattenAutoscaleConfiguration(input.Autoscale),
+		"init_script":                    input.InitScript,
 	}
 
 	for _, cloud := range []api.CloudProvider{api.AWS, api.AZURE} {
