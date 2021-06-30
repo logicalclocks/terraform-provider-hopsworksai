@@ -47,9 +47,13 @@ func Provider(version string) func() *schema.Provider {
 				"hopsworksai_instance_types":                           dataSourceInstanceTypes(),
 				"hopsworksai_aws_instance_profile_policy":              dataSourceAWSInstanceProfilePolicy(),
 				"hopsworksai_azure_user_assigned_identity_permissions": dataSourceAzureUserAssignedIdentityPermissions(),
+				"hopsworksai_backups":                                  dataSourceBackups(),
+				"hopsworksai_backup":                                   dataSourceBackup(),
 			},
 			ResourcesMap: map[string]*schema.Resource{
-				"hopsworksai_cluster": clusterResource(),
+				"hopsworksai_cluster":             clusterResource(),
+				"hopsworksai_backup":              backupResource(),
+				"hopsworksai_cluster_from_backup": clusterFromBackupResource(),
 			},
 		}
 
@@ -66,7 +70,7 @@ func configure(version string, p *schema.Provider) func(context.Context, *schema
 			ApiKey:     d.Get("api_key").(string),
 			ApiVersion: Default_API_VERSION,
 			Client: &http.Client{
-				Timeout: time.Second * 30,
+				Timeout: 3 * time.Minute,
 			},
 		}, nil
 	}

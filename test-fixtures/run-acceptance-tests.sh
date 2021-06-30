@@ -30,7 +30,7 @@ fi
 
 echo "Initialize test fixtures"
 terraform init || ( rm -rf .terraform* && terraform init )
-terraform destroy -target=module.aws -auto-approve || terraform destroy -target=module.aws -auto-approve
+terraform destroy -auto-approve || terraform destroy -auto-approve
 terraform apply -auto-approve || terraform apply -auto-approve
 
 echo "Setting environment variables for testing"
@@ -40,6 +40,9 @@ if [ ${TF_VAR_skip_aws} = false ]; then
     export TF_HOPSWORKSAI_AWS_BUCKET_NAMES=$(terraform output -raw aws_bucket_names)
     export TF_HOPSWORKSAI_AWS_INSTANCE_PROFILE_ARN=$(terraform output -raw aws_instance_profile_arn)
     export TF_HOPSWORKSAI_AWS_SSH_KEY=$(terraform output -raw aws_ssh_key_name)
+    export TF_HOPSWORKSAI_AWS_VPC_ID=$(terraform output -raw aws_vpc_id)
+    export TF_HOPSWORKSAI_AWS_SUBNET_ID=$(terraform output -raw aws_subnet_id)
+    export TF_HOPSWORKSAI_AWS_SECURITY_GROUP_ID=$(terraform output -raw aws_security_group_id)
 fi 
 
 export TF_HOPSWORKSAI_AZURE_SKIP=${TF_VAR_skip_azure}
@@ -49,6 +52,9 @@ if [ ${TF_VAR_skip_azure} = false ]; then
     export TF_HOPSWORKSAI_AZURE_STORAGE_ACCOUNT_NAME=$(terraform output -raw azure_storage_account_name)
     export TF_HOPSWORKSAI_AZURE_USER_ASSIGNED_IDENTITY_NAME=$(terraform output -raw azure_user_assigned_identity_name)
     export TF_HOPSWORKSAI_AZURE_SSH_KEY=$(terraform output -raw azure_ssh_key_name)
+    export TF_HOPSWORKSAI_AZURE_VIRTUAL_NETWORK_NAME=$(terraform output -raw azure_virtual_network_name)
+    export TF_HOPSWORKSAI_AZURE_SUBNET_NAME=$(terraform output -raw azure_subnet_name)
+    export TF_HOPSWORKSAI_AZURE_SECURITY_GROUP_NAME=$(terraform output -raw azure_security_group_name)
 fi
 
 popd

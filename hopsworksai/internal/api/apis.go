@@ -182,3 +182,75 @@ func DisableAutoscale(ctx context.Context, apiClient APIHandler, clusterId strin
 	}
 	return nil
 }
+
+func NewBackup(ctx context.Context, apiClient APIHandler, clusterId string, backupName string) (string, error) {
+	req := NewBackupRequest{}
+	req.Backup.ClusterId = clusterId
+	req.Backup.BackupName = backupName
+	payload, err := json.Marshal(req)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal request: %s", err)
+	}
+
+	var response NewBackupResponse
+	if err := apiClient.doRequest(ctx, http.MethodPost, "/api/backups", bytes.NewBuffer(payload), &response); err != nil {
+		return "", err
+	}
+
+	return response.Payload.Id, nil
+}
+
+func GetBackup(ctx context.Context, apiClient APIHandler, backupId string) (*Backup, error) {
+	var response GetBackupResponse
+	if err := apiClient.doRequest(ctx, http.MethodGet, "/api/backups/"+backupId, nil, &response); err != nil {
+		return nil, err
+	}
+	if response.Code == http.StatusNotFound {
+		log.Printf("[DEBUG] backup (id: %s) is not found", backupId)
+		return nil, nil
+	}
+	return &response.Payload.Backup, nil
+}
+
+func DeleteBackup(ctx context.Context, apiClient APIHandler, backupId string) error {
+	var response BaseResponse
+	if err := apiClient.doRequest(ctx, http.MethodDelete, "/api/backups/"+backupId, nil, &response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func GetBackups(ctx context.Context, apiClient APIHandler, clusterId string) ([]Backup, error) {
+	var filter = ""
+	if clusterId != "" {
+		filter = "?clusterId=" + clusterId
+	}
+	var response GetBackupsResponse
+	if err := apiClient.doRequest(ctx, http.MethodGet, "/api/backups"+filter, nil, &response); err != nil {
+		return nil, err
+	}
+	return response.Payload.Backups, nil
+}
+
+func NewClusterFromBackup(ctx context.Context, apiClient APIHandler, backupId string, createRequest interface{}) (string, error) {
+	switch createRequest.(type) {
+	case CreateAWSClusterFromBackup, *CreateAWSClusterFromBackup:
+		log.Printf("[DEBUG] restore aws cluster: #%v", createRequest)
+	case CreateAzureClusterFromBackup, *CreateAzureClusterFromBackup:
+		log.Printf("[DEBUG] resore azure cluster: #%v", createRequest)
+	default:
+		return "", fmt.Errorf("unknown create request #%v", createRequest)
+	}
+	req := NewClusterFromBackupRequest{
+		CreateRequest: createRequest,
+	}
+	payload, err := json.Marshal(req)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal request: %s", err)
+	}
+	var response NewClusterResponse
+	if err := apiClient.doRequest(ctx, http.MethodPost, "/api/clusters/restore/"+backupId, bytes.NewBuffer(payload), &response); err != nil {
+		return "", err
+	}
+	return response.Payload.Id, nil
+}

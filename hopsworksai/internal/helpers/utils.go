@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"reflect"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -13,22 +14,27 @@ func SuppressDiffForNonSetKeys(k, old, new string, d *schema.ResourceData) bool 
 	return old != "" && new == "" && !ok
 }
 
-func convertClusterStates(states []api.ClusterState) []string {
-	stringArr := make([]string, len(states))
-	for i, v := range states {
-		stringArr[i] = v.String()
+func convertStateArray(states interface{}) []string {
+	statesArr := reflect.ValueOf(states)
+	stringArr := make([]string, statesArr.Len())
+	for i := 0; i < statesArr.Len(); i++ {
+		stringArr[i] = statesArr.Index(i).String()
 	}
 	return stringArr
 }
 
 func ClusterStateChange(pending []api.ClusterState, target []api.ClusterState, timeout time.Duration, refreshFunc resource.StateRefreshFunc) *resource.StateChangeConf {
-	return clusterStateChange(pending, target, timeout, refreshFunc, 30*time.Second)
+	return stateChange(convertStateArray(pending), convertStateArray(target), timeout, refreshFunc, 30*time.Second)
 }
 
-func clusterStateChange(pending []api.ClusterState, target []api.ClusterState, timeout time.Duration, refreshFunc resource.StateRefreshFunc, minTimeout time.Duration) *resource.StateChangeConf {
+func BackupStateChange(pending []api.BackupState, target []api.BackupState, timeout time.Duration, refreshFunc resource.StateRefreshFunc) *resource.StateChangeConf {
+	return stateChange(convertStateArray(pending), convertStateArray(target), timeout, refreshFunc, 30*time.Second)
+}
+
+func stateChange(pending []string, target []string, timeout time.Duration, refreshFunc resource.StateRefreshFunc, minTimeout time.Duration) *resource.StateChangeConf {
 	return &resource.StateChangeConf{
-		Pending:    convertClusterStates(pending),
-		Target:     convertClusterStates(target),
+		Pending:    pending,
+		Target:     target,
 		Refresh:    refreshFunc,
 		Timeout:    timeout,
 		MinTimeout: minTimeout,

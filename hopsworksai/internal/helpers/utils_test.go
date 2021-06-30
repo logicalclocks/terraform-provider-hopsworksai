@@ -55,7 +55,7 @@ func TestConvertClusterStates(t *testing.T) {
 	}
 
 	for i, c := range cases {
-		output := convertClusterStates(c.input)
+		output := convertStateArray(c.input)
 		if !reflect.DeepEqual(c.expected, output) {
 			t.Fatalf("error while matching[%d]:\nexpected %#v \nbut got %#v", i, c.expected, output)
 		}
@@ -63,6 +63,7 @@ func TestConvertClusterStates(t *testing.T) {
 }
 
 func TestClusterStateChange(t *testing.T) {
+	t.Parallel()
 	pending := []api.ClusterState{
 		api.Pending,
 		api.Initializing,
@@ -94,7 +95,55 @@ func TestClusterStateChange(t *testing.T) {
 	}
 	state <- api.Running.String()
 
-	stateChange := clusterStateChange(pending, target, 20*time.Second, refreshFunc, 1*time.Second)
+	stateChange := ClusterStateChange(pending, target, 2*time.Minute, refreshFunc)
+	output, err := stateChange.WaitForStateContext(context.TODO())
+
+	if len(state) != 0 {
+		t.Fatal("all state changes should be consumed")
+	}
+
+	if err != nil {
+		t.Fatalf("unexpected error while waiting for state change %s", err)
+	}
+
+	if !reflect.DeepEqual(expected, output) {
+		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
+	}
+}
+
+func TestBackupStateChange(t *testing.T) {
+	t.Parallel()
+	pending := []api.BackupState{
+		api.PendingBackup,
+		api.ProcessingBackup,
+		api.InitializingBackup,
+		api.DeletingBackup,
+	}
+
+	target := []api.BackupState{
+		api.BackupSucceed,
+		api.BackupFailed,
+	}
+
+	expected := "Expected-Output"
+
+	bufferSize := 5
+	state := make(chan string, bufferSize)
+
+	refreshFunc := func() (interface{}, string, error) {
+		value := <-state
+		if value == api.BackupSucceed.String() {
+			return expected, value, nil
+		}
+		return "", value, nil
+	}
+
+	for i := 0; i < bufferSize-1; i++ {
+		state <- pending[rand.Intn(len(pending))].String()
+	}
+	state <- api.BackupSucceed.String()
+
+	stateChange := BackupStateChange(pending, target, 2*time.Minute, refreshFunc)
 	output, err := stateChange.WaitForStateContext(context.TODO())
 
 	if len(state) != 0 {

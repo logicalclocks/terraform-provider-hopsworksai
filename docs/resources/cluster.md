@@ -195,12 +195,12 @@ Optional:
 
 Required:
 
+- **subnet_id** (String) The subnet id.
 - **vpc_id** (String) The VPC id.
 
 Optional:
 
 - **security_group_id** (String) The security group id.
-- **subnet_id** (String) The subnet id.
 
 
 

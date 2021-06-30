@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/logicalclocks/terraform-provider-hopsworksai/hopsworksai/internal/api"
 	"github.com/logicalclocks/terraform-provider-hopsworksai/hopsworksai/internal/helpers"
 	"github.com/logicalclocks/terraform-provider-hopsworksai/hopsworksai/internal/test"
@@ -36,28 +35,10 @@ func testAccClusterDataSource_basic(t *testing.T, cloud api.CloudProvider) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccClusterDataSourceConfig(cloud, rName, suffix),
-				Check:  testAccClusterDataSourceCheckAllAttributes(resourceName, dataSourceName),
+				Check:  testAccResourceDataSourceCheckAllAttributes(resourceName, dataSourceName),
 			},
 		},
 	})
-}
-
-func testAccClusterDataSourceCheckAllAttributes(resourceName string, dataSourceName string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[resourceName]
-		if !ok {
-			return fmt.Errorf("resource %s not found", resourceName)
-		}
-		for k := range rs.Primary.Attributes {
-			if k == "id" || k == "%" || k == "*" {
-				continue
-			}
-			if err := resource.TestCheckResourceAttrPair(resourceName, k, dataSourceName, k)(s); err != nil {
-				return fmt.Errorf("Error while checking %s  err: %s", k, err)
-			}
-		}
-		return nil
-	}
 }
 
 func testAccClusterDataSourceConfig(cloud api.CloudProvider, rName string, suffix string) string {
@@ -85,7 +66,7 @@ func testAccClusterDataSourceConfig(cloud api.CloudProvider, rName string, suffi
 		strings.ToLower(cloud.String()),
 		suffix,
 		testAccClusterCloudSSHKeyAttribute(cloud),
-		testAccClusterCloudConfigAttributes(cloud, 0),
+		testAccClusterCloudConfigAttributes(cloud, 0, false),
 		default_CLUSTER_TAG_KEY,
 		default_CLUSTER_TAG_VALUE,
 		rName,
@@ -354,6 +335,30 @@ func TestClusterDataSourceRead_error(t *testing.T) {
 			"cluster_id": "cluster-id-1",
 		},
 		ExpectError: "bad request get cluster failed",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterDataSourceRead_notFound(t *testing.T) {
+	r := &test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"statue": "ok",
+					"code": 404,
+					"message": "no cluster"
+				}`,
+			},
+		},
+		Resource:             dataSourceCluster(),
+		OperationContextFunc: dataSourceCluster().ReadContext,
+		State: map[string]interface{}{
+			"cluster_id": "cluster-id-1",
+		},
+		ExpectError: "cluster not found for cluster_id cluster-id-1",
 	}
 	r.Apply(t, context.TODO())
 }

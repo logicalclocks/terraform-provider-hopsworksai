@@ -4,6 +4,8 @@ BREAKING CHANGES:
 
 BUG FIXES:
 * resource/hopsworksai_cluster: Fix validation condition for `backup_retention_period`
+* datasource/hopsworksai_cluster: Check if cluster is not nil before updating state
+* resource/hopsworksai_cluster: Set Required to true for `aws_attributes/network/subnet_id` to ensure setting the subnet_name if setting up your own network configuration
 
 ENHANCEMENTS:
 * resource/hopsworksai_cluster: Add a new attribute `init_script`
@@ -12,6 +14,11 @@ ENHANCEMENTS:
 * resource/hopsworksai_cluster: Add a new attribute `run_init_script_first`
 
 FEATURES:
+* **New Resource**: `hopsworksai_backup`
+* **New Resource**: `hopsworksai_cluster_from_backup`
+* **New Data Source**: `hopsworksai_backup`
+* **New Data Source**: `hopsworksai_backups`
+
 
 ## 0.3.0 (June 24, 2021)
 

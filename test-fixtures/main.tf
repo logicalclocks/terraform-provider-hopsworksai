@@ -21,10 +21,11 @@ module "aws" {
   bucket_name_prefix = "tf-bucket-${random_string.suffix.result}"
   # This is the number of buckets to be created for testing
   # Important that this number have be incremented for each new AWS test case that require creating a cluster
-  num_buckets           = 7
+  num_buckets           = 11
   instance_profile_name = "tf-instance-profile-${random_string.suffix.result}"
   ssh_key_name          = "tf-key-${random_string.suffix.result}"
   ssh_public_key        = file("${path.module}/.keys/tf.pub")
+  vpc_name              = "tf-vpc-${random_string.suffix.result}"
 }
 
 module "azure" {
@@ -35,4 +36,5 @@ module "azure" {
   user_assigned_identity_name = "tf-identity-${random_string.suffix.result}"
   ssh_key_name                = "tf-key-${random_string.suffix.result}"
   ssh_public_key              = file("${path.module}/.keys/tf.pub")
+  virtual_network_name        = "tf-vnet-${random_string.suffix.result}"
 }
