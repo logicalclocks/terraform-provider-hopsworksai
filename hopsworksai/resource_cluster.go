@@ -331,6 +331,12 @@ func clusterSchema() map[string]*schema.Schema {
 				},
 			},
 		},
+		"init_script": {
+			Description: "A bash script that will run on all nodes during their initialization (must start with #!/usr/bin/env bash)",
+			Type:        schema.TypeString,
+			Optional:    true,
+			ForceNew:    true,
+		},
 	}
 }
 
@@ -912,6 +918,7 @@ func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error
 		ManagedUsers:          d.Get("managed_users").(bool),
 		BackupRetentionPeriod: d.Get("backup_retention_period").(int),
 		Tags:                  tagsArr,
+		InitScript:            d.Get("init_script").(string),
 	}
 
 	if v, ok := d.GetOk("workers"); ok {

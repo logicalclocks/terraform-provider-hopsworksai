@@ -549,6 +549,7 @@ func TestNewClusterAWS(t *testing.T) {
 							"count": 1
 						}
 					},
+					"initScript": "",
 					"region": "region-1",
 					"bucketName": "bucket-1",
 					"instanceProfileArn": "profile-1",
@@ -733,6 +734,7 @@ func TestNewClusterAZURE(t *testing.T) {
 							"count": 1
 						}
 					},
+					"initScript": "",
 					"location": "location-1",
 					"managedIdentity": "profile-1",
 					"resourceGroup": "resource-group-1",
