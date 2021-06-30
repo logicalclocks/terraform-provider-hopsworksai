@@ -6,6 +6,7 @@ BUG FIXES:
 * resource/hopsworksai_cluster: Fix validation condition for `backup_retention_period`
 
 ENHANCEMENTS:
+* resource/hopsworksai_cluster: Add a new attribute `init_script`
 
 FEATURES:
 
@@ -41,7 +42,6 @@ ENHANCEMENTS:
 * datasource/azure_user_assigned_identity_permissions: Add a new attribute `enable_aks_and_acr`
 * resource/hopsworksai_cluster: Set Computed to true for `aws_attributes/ecr_registry_account_id` 
 * complete example to create Hopsworks clusters with AKS/ACR and EKS/ECR
-* resource/hopsworksai_cluster: Add a new attribute `init_script`
 
 FEATURES:
 * **New Data Source**: `hopsworksai_instance_type`
