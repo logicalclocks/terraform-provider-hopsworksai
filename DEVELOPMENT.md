@@ -4,9 +4,9 @@
 
 1. Clone the repository
 1. Enter the repository directory
-1. Build the provider using the `make install` command: 
+1. Build the provider using the `make` command: 
 ```sh
-$ make install
+$ make
 ```
 
 ## Adding Dependencies
@@ -27,7 +27,7 @@ Then commit the changes to `go.mod` and `go.sum`.
 
 If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (see [Requirements](README.md#requirements) above).
 
-To compile the provider, run `make install`. This will build the provider and put the provider binary in the terraform plugin directory.
+To compile the provider, run `make`. This will build the provider and put the provider binary in the terraform plugin directory.
 
 To generate or update documentation, run `make generate`.
 
