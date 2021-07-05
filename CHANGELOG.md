@@ -7,6 +7,7 @@ BUG FIXES:
 
 ENHANCEMENTS:
 * resource/hopsworksai_cluster: Add a new attribute `init_script`
+* resource/hopsworksai_cluster: Add a new attribute `spot_config`
 
 FEATURES:
 

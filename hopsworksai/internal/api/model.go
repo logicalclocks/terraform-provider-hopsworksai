@@ -103,13 +103,19 @@ type RonDBConfiguration struct {
 	APINodes        WorkerConfiguration    `json:"api"`
 }
 
+type SpotConfiguration struct {
+	MaxPrice         int  `json:"maxPrice"`
+	FallBackOnDemand bool `json:"fallBackOnDemand"`
+}
+
 type AutoscaleConfigurationBase struct {
-	InstanceType      string  `json:"instanceType"`
-	DiskSize          int     `json:"diskSize"`
-	MinWorkers        int     `json:"minWorkers"`
-	MaxWorkers        int     `json:"maxWorkers"`
-	StandbyWorkers    float64 `json:"standbyWorkers"`
-	DownscaleWaitTime int     `json:"downscaleWaitTime"`
+	InstanceType      string             `json:"instanceType"`
+	DiskSize          int                `json:"diskSize"`
+	MinWorkers        int                `json:"minWorkers"`
+	MaxWorkers        int                `json:"maxWorkers"`
+	StandbyWorkers    float64            `json:"standbyWorkers"`
+	DownscaleWaitTime int                `json:"downscaleWaitTime"`
+	SpotInfo          *SpotConfiguration `json:"spotInfo,omitempty"`
 }
 
 type AutoscaleConfiguration struct {
@@ -188,7 +194,8 @@ type HeadConfiguration struct {
 
 type WorkerConfiguration struct {
 	NodeConfiguration
-	Count int `json:"count"`
+	Count    int                `json:"count"`
+	SpotInfo *SpotConfiguration `json:"spotInfo,omitempty"`
 }
 
 type ClusterConfiguration struct {

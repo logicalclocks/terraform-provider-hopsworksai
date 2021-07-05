@@ -65,10 +65,23 @@ func flattenWorkers(autoscale *api.AutoscaleConfiguration, workers []api.WorkerC
 }
 
 func flattenWorker(worker api.WorkerConfiguration) map[string]interface{} {
-	return map[string]interface{}{
+	workerConf := map[string]interface{}{
 		"instance_type": worker.InstanceType,
 		"disk_size":     worker.DiskSize,
 		"count":         worker.Count,
+	}
+	if worker.SpotInfo != nil {
+		workerConf["spot_config"] = flattenSpotInfo(worker.SpotInfo)
+	}
+	return workerConf
+}
+
+func flattenSpotInfo(spotInfo *api.SpotConfiguration) []interface{} {
+	return []interface{}{
+		map[string]interface{}{
+			"max_price_percent":   spotInfo.MaxPrice,
+			"fall_back_on_demand": spotInfo.FallBackOnDemand,
+		},
 	}
 }
 
@@ -203,7 +216,7 @@ func flattenAutoscaleConfiguration(autoscale *api.AutoscaleConfiguration) []map[
 }
 
 func flattenAutoscaleConfigurationBase(autoscale *api.AutoscaleConfigurationBase) map[string]interface{} {
-	return map[string]interface{}{
+	autoscaleConf := map[string]interface{}{
 		"instance_type":       autoscale.InstanceType,
 		"disk_size":           autoscale.DiskSize,
 		"min_workers":         autoscale.MinWorkers,
@@ -211,10 +224,14 @@ func flattenAutoscaleConfigurationBase(autoscale *api.AutoscaleConfigurationBase
 		"standby_workers":     autoscale.StandbyWorkers,
 		"downscale_wait_time": autoscale.DownscaleWaitTime,
 	}
+	if autoscale.SpotInfo != nil {
+		autoscaleConf["spot_config"] = flattenSpotInfo(autoscale.SpotInfo)
+	}
+	return autoscaleConf
 }
 
 func ExpandAutoscaleConfigurationBase(config map[string]interface{}) *api.AutoscaleConfigurationBase {
-	return &api.AutoscaleConfigurationBase{
+	autoscaleConf := &api.AutoscaleConfigurationBase{
 		InstanceType:      config["instance_type"].(string),
 		DiskSize:          config["disk_size"].(int),
 		MinWorkers:        config["min_workers"].(int),
@@ -222,6 +239,17 @@ func ExpandAutoscaleConfigurationBase(config map[string]interface{}) *api.Autosc
 		StandbyWorkers:    config["standby_workers"].(float64),
 		DownscaleWaitTime: config["downscale_wait_time"].(int),
 	}
+	if _, ok := config["spot_config"]; ok {
+		spot_configArr := config["spot_config"].([]interface{})
+		if len(spot_configArr) > 0 && spot_configArr[0] != nil {
+			spot_config := spot_configArr[0].(map[string]interface{})
+			autoscaleConf.SpotInfo = &api.SpotConfiguration{
+				MaxPrice:         spot_config["max_price_percent"].(int),
+				FallBackOnDemand: spot_config["fall_back_on_demand"].(bool),
+			}
+		}
+	}
+	return autoscaleConf
 }
 
 func ExpandWorkers(workers *schema.Set) map[api.NodeConfiguration]api.WorkerConfiguration {
@@ -234,10 +262,21 @@ func ExpandWorkers(workers *schema.Set) map[api.NodeConfiguration]api.WorkerConf
 }
 
 func ExpandWorker(workerConfig map[string]interface{}) api.WorkerConfiguration {
-	return api.WorkerConfiguration{
+	workerConf := api.WorkerConfiguration{
 		NodeConfiguration: ExpandNode(workerConfig),
 		Count:             workerConfig["count"].(int),
 	}
+	if _, ok := workerConfig["spot_config"]; ok {
+		spot_configArr := workerConfig["spot_config"].([]interface{})
+		if len(spot_configArr) > 0 && spot_configArr[0] != nil {
+			spot_config := spot_configArr[0].(map[string]interface{})
+			workerConf.SpotInfo = &api.SpotConfiguration{
+				MaxPrice:         spot_config["max_price_percent"].(int),
+				FallBackOnDemand: spot_config["fall_back_on_demand"].(bool),
+			}
+		}
+	}
+	return workerConf
 }
 
 func ExpandNode(config map[string]interface{}) api.NodeConfiguration {

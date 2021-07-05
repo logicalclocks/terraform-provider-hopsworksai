@@ -1511,6 +1511,7 @@ func TestClusterRead_AWS(t *testing.T) {
 					"instance_type": "node-type-2",
 					"disk_size":     256,
 					"count":         2,
+					"spot_config":   []interface{}{},
 				},
 			}),
 			"attach_public_ip":               true,
@@ -1627,6 +1628,7 @@ func TestClusterRead_AZURE(t *testing.T) {
 					"instance_type": "node-type-2",
 					"disk_size":     256,
 					"count":         2,
+					"spot_config":   []interface{}{},
 				},
 			}),
 			"attach_public_ip":               true,
@@ -2279,6 +2281,11 @@ func testClusterCreate_Autoscale(t *testing.T, cloud api.CloudProvider, withGpu 
 						"max_workers":         10,
 						"standby_workers":     0.5,
 						"downscale_wait_time": 200,
+						"spot_config": []interface{}{
+							map[string]interface{}{
+								"max_price_percent": 10,
+							},
+						},
 					},
 				},
 			},
@@ -2341,6 +2348,10 @@ func testClusterCreate_Autoscale(t *testing.T, cloud api.CloudProvider, withGpu 
 							MaxWorkers:        10,
 							StandbyWorkers:    0.5,
 							DownscaleWaitTime: 200,
+							SpotInfo: &api.SpotConfiguration{
+								MaxPrice:         10,
+								FallBackOnDemand: true,
+							},
 						},
 					}
 					if withGpu {

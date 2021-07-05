@@ -160,6 +160,30 @@ func clusterSchema() map[string]*schema.Schema {
 						Default:      1,
 						ValidateFunc: validation.IntAtLeast(0),
 					},
+					"spot_config": {
+						Description: "The configuration to use spot instances",
+						Type:        schema.TypeList,
+						Optional:    true,
+						MaxItems:    1,
+						MinItems:    1,
+						Elem: &schema.Resource{
+							Schema: map[string]*schema.Schema{
+								"max_price_percent": {
+									Description:  "The maximum spot instance price in percentage of the on-demand price.",
+									Type:         schema.TypeInt,
+									Optional:     true,
+									Default:      100,
+									ValidateFunc: validation.IntBetween(1, 200),
+								},
+								"fall_back_on_demand": {
+									Description: "Fall back to on demand instance if unable to allocate a spot instance",
+									Type:        schema.TypeBool,
+									Optional:    true,
+									Default:     true,
+								},
+							},
+						},
+					},
 				},
 			},
 		},
@@ -581,6 +605,30 @@ func autoscaleSchema() *schema.Resource {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Default:     defaultAutoscaleConfiguration().DownscaleWaitTime,
+			},
+			"spot_config": {
+				Description: "The configuration to use spot instances",
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				MinItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"max_price_percent": {
+							Description:  "The maximum spot instance price in percentage of the on-demand price.",
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      100,
+							ValidateFunc: validation.IntBetween(1, 200),
+						},
+						"fall_back_on_demand": {
+							Description: "Fall back to on demand instance if unable to allocate a spot instance",
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     true,
+						},
+					},
+				},
 			},
 		},
 	}

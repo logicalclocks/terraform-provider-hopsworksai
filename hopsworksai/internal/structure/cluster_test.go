@@ -59,6 +59,17 @@ func TestFlattenWorkersConfiguration(t *testing.T) {
 					},
 					Count: 1,
 				},
+				{
+					NodeConfiguration: api.NodeConfiguration{
+						InstanceType: "node-type-4",
+						DiskSize:     1024,
+					},
+					Count: 1,
+					SpotInfo: &api.SpotConfiguration{
+						MaxPrice:         10,
+						FallBackOnDemand: false,
+					},
+				},
 			},
 			expected: schema.NewSet(helpers.WorkerSetHash, []interface{}{
 				map[string]interface{}{
@@ -75,6 +86,17 @@ func TestFlattenWorkersConfiguration(t *testing.T) {
 					"instance_type": "node-type-3",
 					"disk_size":     1024,
 					"count":         1,
+				},
+				map[string]interface{}{
+					"instance_type": "node-type-4",
+					"disk_size":     1024,
+					"count":         1,
+					"spot_config": []interface{}{
+						map[string]interface{}{
+							"max_price_percent":   10,
+							"fall_back_on_demand": false,
+						},
+					},
 				},
 			}),
 		},
@@ -450,6 +472,12 @@ func TestExpandWorker(t *testing.T) {
 		"instance_type": "instance-type-1",
 		"disk_size":     512,
 		"count":         2,
+		"spot_config": []interface{}{
+			map[string]interface{}{
+				"max_price_percent":   100,
+				"fall_back_on_demand": true,
+			},
+		},
 	}
 
 	expected := api.WorkerConfiguration{
@@ -458,6 +486,10 @@ func TestExpandWorker(t *testing.T) {
 			DiskSize:     512,
 		},
 		Count: 2,
+		SpotInfo: &api.SpotConfiguration{
+			MaxPrice:         100,
+			FallBackOnDemand: true,
+		},
 	}
 
 	output := ExpandWorker(input)
@@ -472,6 +504,12 @@ func TestExpandWorkers(t *testing.T) {
 			"instance_type": "node-type-1",
 			"disk_size":     512,
 			"count":         2,
+			"spot_config": []interface{}{
+				map[string]interface{}{
+					"max_price_percent":   100,
+					"fall_back_on_demand": true,
+				},
+			},
 		},
 		map[string]interface{}{
 			"instance_type": "node-type-1",
@@ -495,6 +533,10 @@ func TestExpandWorkers(t *testing.T) {
 				DiskSize:     512,
 			},
 			Count: 2,
+			SpotInfo: &api.SpotConfiguration{
+				MaxPrice:         100,
+				FallBackOnDemand: true,
+			},
 		},
 		{
 			InstanceType: "node-type-1",
@@ -850,6 +892,10 @@ func TestFlattenAutoscaleConfiguration(t *testing.T) {
 					MaxWorkers:        5,
 					StandbyWorkers:    0.5,
 					DownscaleWaitTime: 300,
+					SpotInfo: &api.SpotConfiguration{
+						MaxPrice:         1,
+						FallBackOnDemand: true,
+					},
 				},
 				GPU: &api.AutoscaleConfigurationBase{
 					InstanceType:      "gpu-node",
@@ -858,6 +904,10 @@ func TestFlattenAutoscaleConfiguration(t *testing.T) {
 					MaxWorkers:        10,
 					StandbyWorkers:    0.4,
 					DownscaleWaitTime: 200,
+					SpotInfo: &api.SpotConfiguration{
+						MaxPrice:         2,
+						FallBackOnDemand: true,
+					},
 				},
 			},
 			expected: []map[string]interface{}{
@@ -870,6 +920,12 @@ func TestFlattenAutoscaleConfiguration(t *testing.T) {
 							"max_workers":         5,
 							"standby_workers":     0.5,
 							"downscale_wait_time": 300,
+							"spot_config": []interface{}{
+								map[string]interface{}{
+									"max_price_percent":   1,
+									"fall_back_on_demand": true,
+								},
+							},
 						},
 					},
 					"gpu_workers": []interface{}{
@@ -880,6 +936,12 @@ func TestFlattenAutoscaleConfiguration(t *testing.T) {
 							"max_workers":         10,
 							"standby_workers":     0.4,
 							"downscale_wait_time": 200,
+							"spot_config": []interface{}{
+								map[string]interface{}{
+									"max_price_percent":   2,
+									"fall_back_on_demand": true,
+								},
+							},
 						},
 					},
 				},
