@@ -86,6 +86,24 @@ func defaultAutoscaleConfiguration() api.AutoscaleConfigurationBase {
 	}
 }
 
+func spotSchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"max_price_percent": {
+			Description:  "The maximum spot instance price in percentage of the on-demand price.",
+			Type:         schema.TypeInt,
+			Optional:     true,
+			Default:      100,
+			ValidateFunc: validation.IntBetween(1, 200),
+		},
+		"fall_back_on_demand": {
+			Description: "Fall back to on demand instance if unable to allocate a spot instance",
+			Type:        schema.TypeBool,
+			Optional:    true,
+			Default:     true,
+		},
+	}
+}
+
 func clusterSchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
 		"cluster_id": {
@@ -167,21 +185,7 @@ func clusterSchema() map[string]*schema.Schema {
 						MaxItems:    1,
 						MinItems:    1,
 						Elem: &schema.Resource{
-							Schema: map[string]*schema.Schema{
-								"max_price_percent": {
-									Description:  "The maximum spot instance price in percentage of the on-demand price.",
-									Type:         schema.TypeInt,
-									Optional:     true,
-									Default:      100,
-									ValidateFunc: validation.IntBetween(1, 200),
-								},
-								"fall_back_on_demand": {
-									Description: "Fall back to on demand instance if unable to allocate a spot instance",
-									Type:        schema.TypeBool,
-									Optional:    true,
-									Default:     true,
-								},
-							},
+							Schema: spotSchema(),
 						},
 					},
 				},
@@ -613,21 +617,7 @@ func autoscaleSchema() *schema.Resource {
 				MaxItems:    1,
 				MinItems:    1,
 				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"max_price_percent": {
-							Description:  "The maximum spot instance price in percentage of the on-demand price.",
-							Type:         schema.TypeInt,
-							Optional:     true,
-							Default:      100,
-							ValidateFunc: validation.IntBetween(1, 200),
-						},
-						"fall_back_on_demand": {
-							Description: "Fall back to on demand instance if unable to allocate a spot instance",
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     true,
-						},
-					},
+					Schema: spotSchema(),
 				},
 			},
 		},
