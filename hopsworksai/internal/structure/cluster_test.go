@@ -1014,3 +1014,38 @@ func TestFlattenAutoscaleConfiguration(t *testing.T) {
 		}
 	}
 }
+
+func TestExpandAutoscaleConfigurationBase(t *testing.T) {
+	input := map[string]interface{}{
+		"instance_type":       "instance-type-1",
+		"disk_size":           512,
+		"min_workers":         1,
+		"max_workers":         2,
+		"standby_workers":     0.5,
+		"downscale_wait_time": 200,
+		"spot_config": []interface{}{
+			map[string]interface{}{
+				"max_price_percent":   10,
+				"fall_back_on_demand": false,
+			},
+		},
+	}
+
+	expected := api.AutoscaleConfigurationBase{
+		InstanceType:      "instance-type-1",
+		DiskSize:          512,
+		MinWorkers:        1,
+		MaxWorkers:        2,
+		StandbyWorkers:    0.5,
+		DownscaleWaitTime: 200,
+		SpotInfo: &api.SpotConfiguration{
+			MaxPrice:         10,
+			FallBackOnDemand: false,
+		},
+	}
+
+	output := ExpandAutoscaleConfigurationBase(input)
+	if !reflect.DeepEqual(&expected, output) {
+		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", &expected, output)
+	}
+}
