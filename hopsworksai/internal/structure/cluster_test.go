@@ -523,11 +523,8 @@ func TestExpandWorkers(t *testing.T) {
 		},
 	})
 
-	expected := map[api.NodeConfiguration]api.WorkerConfiguration{
-		{
-			InstanceType: "node-type-1",
-			DiskSize:     512,
-		}: {
+	expected := map[string]api.WorkerConfiguration{
+		"node-type-1-512-100-true-": {
 			NodeConfiguration: api.NodeConfiguration{
 				InstanceType: "node-type-1",
 				DiskSize:     512,
@@ -538,20 +535,14 @@ func TestExpandWorkers(t *testing.T) {
 				FallBackOnDemand: true,
 			},
 		},
-		{
-			InstanceType: "node-type-1",
-			DiskSize:     256,
-		}: {
+		"node-type-1-256-": {
 			NodeConfiguration: api.NodeConfiguration{
 				InstanceType: "node-type-1",
 				DiskSize:     256,
 			},
 			Count: 3,
 		},
-		{
-			InstanceType: "node-type-3",
-			DiskSize:     1024,
-		}: {
+		"node-type-3-1024-": {
 			NodeConfiguration: api.NodeConfiguration{
 				InstanceType: "node-type-3",
 				DiskSize:     1024,

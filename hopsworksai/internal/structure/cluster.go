@@ -252,11 +252,11 @@ func ExpandAutoscaleConfigurationBase(config map[string]interface{}) *api.Autosc
 	return autoscaleConf
 }
 
-func ExpandWorkers(workers *schema.Set) map[api.NodeConfiguration]api.WorkerConfiguration {
-	workersMap := make(map[api.NodeConfiguration]api.WorkerConfiguration, workers.Len())
+func ExpandWorkers(workers *schema.Set) map[string]api.WorkerConfiguration {
+	workersMap := make(map[string]api.WorkerConfiguration, workers.Len())
 	for _, v := range workers.List() {
 		worker := ExpandWorker(v.(map[string]interface{}))
-		workersMap[worker.NodeConfiguration] = worker
+		workersMap[helpers.WorkerKey(v)] = worker
 	}
 	return workersMap
 }

@@ -86,6 +86,13 @@ func defaultAutoscaleConfiguration() api.AutoscaleConfigurationBase {
 	}
 }
 
+func defaultSpotConfig() api.SpotConfiguration {
+	return api.SpotConfiguration{
+		MaxPrice:         100,
+		FallBackOnDemand: true,
+	}
+}
+
 func spotSchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
 		"max_price_percent": {
@@ -1116,12 +1123,12 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 				if oldWorker, found := oldWorkersMap[k]; found {
 					if newWorker.Count > oldWorker.Count {
 						toAdd = append(toAdd, api.WorkerConfiguration{
-							NodeConfiguration: k,
+							NodeConfiguration: newWorker.NodeConfiguration,
 							Count:             newWorker.Count - oldWorker.Count,
 						})
 					} else if newWorker.Count < oldWorker.Count {
 						toRemove = append(toRemove, api.WorkerConfiguration{
-							NodeConfiguration: k,
+							NodeConfiguration: newWorker.NodeConfiguration,
 							Count:             oldWorker.Count - newWorker.Count,
 						})
 					}

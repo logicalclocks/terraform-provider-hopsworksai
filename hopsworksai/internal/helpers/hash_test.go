@@ -34,7 +34,7 @@ func TestSpotWorkerSetHash(t *testing.T) {
 		},
 	}
 
-	expected := schema.HashString(fmt.Sprintf("%s-%d-%d-%d-%t-", "node-type-1", 512, 1, 100, false))
+	expected := schema.HashString(fmt.Sprintf("%s-%d-%d-%t-%d-", "node-type-1", 512, 100, false, 1))
 	output := WorkerSetHash(worker)
 	if expected != output {
 		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
