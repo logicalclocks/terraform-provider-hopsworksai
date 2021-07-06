@@ -350,6 +350,51 @@ func testAccCluster_workers(t *testing.T, cloud api.CloudProvider) {
 					}),
 				),
 			},
+			{
+				Config: testAccClusterConfig_workers(cloud, rName, suffix, fmt.Sprintf(`
+				workers{
+					instance_type = "%s"
+					disk_size = 512
+					count = 1
+					spot_config {
+						max_price_percent = 10
+					}
+				}
+				`, testWorkerInstanceType2(cloud))),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "state", api.Running.String()),
+					resource.TestCheckResourceAttr(resourceName, "activation_state", api.Stoppable.String()),
+					resource.TestCheckResourceAttr(resourceName, "update_state", "none"),
+					resource.TestCheckResourceAttr(resourceName, "workers.#", "1"),
+					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "workers.*", map[string]string{
+						"instance_type":                     testWorkerInstanceType2(cloud),
+						"disk_size":                         "512",
+						"count":                             "1",
+						"spot_config.0.max_price_percent":   "10",
+						"spot_config.0.fall_back_on_demand": "true",
+					}),
+				),
+			},
+			{
+				Config: testAccClusterConfig_workers(cloud, rName, suffix, fmt.Sprintf(`
+				workers{
+					instance_type = "%s"
+					disk_size = 512
+					count = 1
+				}
+				`, testWorkerInstanceType2(cloud))),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "state", api.Running.String()),
+					resource.TestCheckResourceAttr(resourceName, "activation_state", api.Stoppable.String()),
+					resource.TestCheckResourceAttr(resourceName, "update_state", "none"),
+					resource.TestCheckResourceAttr(resourceName, "workers.#", "1"),
+					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "workers.*", map[string]string{
+						"instance_type": testWorkerInstanceType2(cloud),
+						"disk_size":     "512",
+						"count":         "1",
+					}),
+				),
+			},
 		},
 	})
 }
@@ -430,6 +475,32 @@ func testAccCluster_Autoscale(t *testing.T, cloud api.CloudProvider) {
 					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.max_workers", strconv.Itoa(defaultAutoscaleConfig.MaxWorkers)),
 					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.standby_workers", fmt.Sprint(defaultAutoscaleConfig.StandbyWorkers)),
 					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.downscale_wait_time", strconv.Itoa(defaultAutoscaleConfig.DownscaleWaitTime)),
+				),
+			},
+			{
+				Config: testAccClusterConfig_Autoscale(cloud, rName, suffix, fmt.Sprintf(`
+				autoscale {
+					non_gpu_workers {
+						instance_type = "%s"
+						spot_config {
+
+						}
+					}
+				}
+				`, testWorkerInstanceType1(cloud))),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "state", api.Running.String()),
+					resource.TestCheckResourceAttr(resourceName, "activation_state", api.Stoppable.String()),
+					resource.TestCheckResourceAttr(resourceName, "update_state", "none"),
+					resource.TestCheckResourceAttr(resourceName, "workers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.instance_type", testWorkerInstanceType1(cloud)),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.disk_size", strconv.Itoa(defaultAutoscaleConfig.DiskSize)),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.min_workers", strconv.Itoa(defaultAutoscaleConfig.MinWorkers)),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.max_workers", strconv.Itoa(defaultAutoscaleConfig.MaxWorkers)),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.standby_workers", fmt.Sprint(defaultAutoscaleConfig.StandbyWorkers)),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.downscale_wait_time", strconv.Itoa(defaultAutoscaleConfig.DownscaleWaitTime)),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.spot_config.0.max_price_percent", strconv.Itoa(defaultSpotConfig().MaxPrice)),
+					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.spot_config.0.fall_back_on_demand", strconv.FormatBool(defaultSpotConfig().FallBackOnDemand)),
 				),
 			},
 			{
@@ -1511,6 +1582,7 @@ func TestClusterRead_AWS(t *testing.T) {
 					"instance_type": "node-type-2",
 					"disk_size":     256,
 					"count":         2,
+					"spot_config":   []interface{}{},
 				},
 			}),
 			"attach_public_ip":               true,
@@ -1627,6 +1699,7 @@ func TestClusterRead_AZURE(t *testing.T) {
 					"instance_type": "node-type-2",
 					"disk_size":     256,
 					"count":         2,
+					"spot_config":   []interface{}{},
 				},
 			}),
 			"attach_public_ip":               true,
@@ -2279,6 +2352,11 @@ func testClusterCreate_Autoscale(t *testing.T, cloud api.CloudProvider, withGpu 
 						"max_workers":         10,
 						"standby_workers":     0.5,
 						"downscale_wait_time": 200,
+						"spot_config": []interface{}{
+							map[string]interface{}{
+								"max_price_percent": 10,
+							},
+						},
 					},
 				},
 			},
@@ -2341,6 +2419,10 @@ func testClusterCreate_Autoscale(t *testing.T, cloud api.CloudProvider, withGpu 
 							MaxWorkers:        10,
 							StandbyWorkers:    0.5,
 							DownscaleWaitTime: 200,
+							SpotInfo: &api.SpotConfiguration{
+								MaxPrice:         10,
+								FallBackOnDemand: true,
+							},
 						},
 					}
 					if withGpu {

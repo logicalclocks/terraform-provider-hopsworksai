@@ -133,7 +133,17 @@ Optional:
 - **downscale_wait_time** (Number) The time to wait before removing unused resources. Defaults to `300`.
 - **max_workers** (Number) The maximum number of workers created by auto scaling. Defaults to `10`.
 - **min_workers** (Number) The minimum number of workers created by auto scaling. Defaults to `0`.
+- **spot_config** (Block List, Max: 1) The configuration to use spot instances (see [below for nested schema](#nestedblock--autoscale--non_gpu_workers--spot_config))
 - **standby_workers** (Number) The percentage of workers to be always available during auto scaling. If you set this value to 0 new workers will only be added when a job or a notebook requests the resources. This attribute will not be taken into account if you set the minimum number of workers to 0 and no resources are used in the cluster, instead, it will start to take effect as soon as you start using resources. Defaults to `0.5`.
+
+<a id="nestedblock--autoscale--non_gpu_workers--spot_config"></a>
+### Nested Schema for `autoscale.non_gpu_workers.spot_config`
+
+Optional:
+
+- **fall_back_on_demand** (Boolean) Fall back to on demand instance if unable to allocate a spot instance Defaults to `true`.
+- **max_price_percent** (Number) The maximum spot instance price in percentage of the on-demand price. Defaults to `100`.
+
 
 
 <a id="nestedblock--autoscale--gpu_workers"></a>
@@ -149,7 +159,17 @@ Optional:
 - **downscale_wait_time** (Number) The time to wait before removing unused resources. Defaults to `300`.
 - **max_workers** (Number) The maximum number of workers created by auto scaling. Defaults to `10`.
 - **min_workers** (Number) The minimum number of workers created by auto scaling. Defaults to `0`.
+- **spot_config** (Block List, Max: 1) The configuration to use spot instances (see [below for nested schema](#nestedblock--autoscale--gpu_workers--spot_config))
 - **standby_workers** (Number) The percentage of workers to be always available during auto scaling. If you set this value to 0 new workers will only be added when a job or a notebook requests the resources. This attribute will not be taken into account if you set the minimum number of workers to 0 and no resources are used in the cluster, instead, it will start to take effect as soon as you start using resources. Defaults to `0.5`.
+
+<a id="nestedblock--autoscale--gpu_workers--spot_config"></a>
+### Nested Schema for `autoscale.gpu_workers.spot_config`
+
+Optional:
+
+- **fall_back_on_demand** (Boolean) Fall back to on demand instance if unable to allocate a spot instance Defaults to `true`.
+- **max_price_percent** (Number) The maximum spot instance price in percentage of the on-demand price. Defaults to `100`.
+
 
 
 
@@ -332,6 +352,15 @@ Optional:
 
 - **count** (Number) The number of worker nodes. Defaults to `1`.
 - **disk_size** (Number) The disk size of worker nodes in units of GB Defaults to `512`.
+- **spot_config** (Block List, Max: 1) The configuration to use spot instances (see [below for nested schema](#nestedblock--workers--spot_config))
+
+<a id="nestedblock--workers--spot_config"></a>
+### Nested Schema for `workers.spot_config`
+
+Optional:
+
+- **fall_back_on_demand** (Boolean) Fall back to on demand instance if unable to allocate a spot instance Defaults to `true`.
+- **max_price_percent** (Number) The maximum spot instance price in percentage of the on-demand price. Defaults to `100`.
 
 ## Import
 

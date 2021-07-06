@@ -86,6 +86,31 @@ func defaultAutoscaleConfiguration() api.AutoscaleConfigurationBase {
 	}
 }
 
+func defaultSpotConfig() api.SpotConfiguration {
+	return api.SpotConfiguration{
+		MaxPrice:         100,
+		FallBackOnDemand: true,
+	}
+}
+
+func spotSchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"max_price_percent": {
+			Description:  "The maximum spot instance price in percentage of the on-demand price.",
+			Type:         schema.TypeInt,
+			Optional:     true,
+			Default:      100,
+			ValidateFunc: validation.IntBetween(1, 200),
+		},
+		"fall_back_on_demand": {
+			Description: "Fall back to on demand instance if unable to allocate a spot instance",
+			Type:        schema.TypeBool,
+			Optional:    true,
+			Default:     true,
+		},
+	}
+}
+
 func clusterSchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
 		"cluster_id": {
@@ -159,6 +184,16 @@ func clusterSchema() map[string]*schema.Schema {
 						Optional:     true,
 						Default:      1,
 						ValidateFunc: validation.IntAtLeast(0),
+					},
+					"spot_config": {
+						Description: "The configuration to use spot instances",
+						Type:        schema.TypeList,
+						Optional:    true,
+						MaxItems:    1,
+						MinItems:    1,
+						Elem: &schema.Resource{
+							Schema: spotSchema(),
+						},
 					},
 				},
 			},
@@ -581,6 +616,16 @@ func autoscaleSchema() *schema.Resource {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Default:     defaultAutoscaleConfiguration().DownscaleWaitTime,
+			},
+			"spot_config": {
+				Description: "The configuration to use spot instances",
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				MinItems:    1,
+				Elem: &schema.Resource{
+					Schema: spotSchema(),
+				},
 			},
 		},
 	}
@@ -1078,12 +1123,12 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 				if oldWorker, found := oldWorkersMap[k]; found {
 					if newWorker.Count > oldWorker.Count {
 						toAdd = append(toAdd, api.WorkerConfiguration{
-							NodeConfiguration: k,
+							NodeConfiguration: newWorker.NodeConfiguration,
 							Count:             newWorker.Count - oldWorker.Count,
 						})
 					} else if newWorker.Count < oldWorker.Count {
 						toRemove = append(toRemove, api.WorkerConfiguration{
-							NodeConfiguration: k,
+							NodeConfiguration: newWorker.NodeConfiguration,
 							Count:             oldWorker.Count - newWorker.Count,
 						})
 					}

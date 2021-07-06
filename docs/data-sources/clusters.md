@@ -93,7 +93,17 @@ Read-Only:
 - **instance_type** (String)
 - **max_workers** (Number)
 - **min_workers** (Number)
+- **spot_config** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--autoscale--gpu_workers--spot_config))
 - **standby_workers** (Number)
+
+<a id="nestedobjatt--clusters--autoscale--gpu_workers--spot_config"></a>
+### Nested Schema for `clusters.autoscale.gpu_workers.standby_workers`
+
+Read-Only:
+
+- **fall_back_on_demand** (Boolean)
+- **max_price_percent** (Number)
+
 
 
 <a id="nestedobjatt--clusters--autoscale--non_gpu_workers"></a>
@@ -106,7 +116,17 @@ Read-Only:
 - **instance_type** (String)
 - **max_workers** (Number)
 - **min_workers** (Number)
+- **spot_config** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--autoscale--non_gpu_workers--spot_config))
 - **standby_workers** (Number)
+
+<a id="nestedobjatt--clusters--autoscale--non_gpu_workers--spot_config"></a>
+### Nested Schema for `clusters.autoscale.non_gpu_workers.standby_workers`
+
+Read-Only:
+
+- **fall_back_on_demand** (Boolean)
+- **max_price_percent** (Number)
+
 
 
 
@@ -272,5 +292,14 @@ Read-Only:
 - **count** (Number)
 - **disk_size** (Number)
 - **instance_type** (String)
+- **spot_config** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--workers--spot_config))
+
+<a id="nestedobjatt--clusters--workers--spot_config"></a>
+### Nested Schema for `clusters.workers.spot_config`
+
+Read-Only:
+
+- **fall_back_on_demand** (Boolean)
+- **max_price_percent** (Number)
 
 
