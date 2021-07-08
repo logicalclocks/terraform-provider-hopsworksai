@@ -14,6 +14,5 @@ Then, run the following commands. Replace the placeholders with your Hopsworks A
 ```bash
 export HOPSWORKSAI_API_KEY=<YOUR_HOPSWORKSAI_API_KEY>
 terraform init
-terraform apply -var="azure_resource_group=<YOUR_RESOURCE_GROUP>"
+terraform apply  -var="resource_group=<YOUR_RESOURCE_GROUP>"
 ```
-
