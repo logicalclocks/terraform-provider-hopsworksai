@@ -148,6 +148,7 @@ type Cluster struct {
 	RonDB                 *RonDBConfiguration     `json:"ronDB,omitempty"`
 	Autoscale             *AutoscaleConfiguration `json:"autoscale,omitempty"`
 	InitScript            string                  `json:"initScript"`
+	OS                    string                  `json:"os,omitempty"`
 }
 
 func (c *Cluster) IsAWSCluster() bool {
@@ -221,6 +222,7 @@ type CreateCluster struct {
 	RonDB                 *RonDBConfiguration     `json:"ronDB,omitempty"`
 	Autoscale             *AutoscaleConfiguration `json:"autoscale,omitempty"`
 	InitScript            string                  `json:"initScript"`
+	OS                    string                  `json:"os,omitempty"`
 }
 
 type CreateAzureCluster struct {

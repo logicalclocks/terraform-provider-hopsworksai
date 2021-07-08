@@ -369,6 +369,7 @@ func TestFlattenCluster(t *testing.T) {
 			},
 		},
 		InitScript: "#!/usr/bin/env bash\nset -e\necho 'Hello World'",
+		OS:         "centos",
 	}
 
 	var emptyAttributes []interface{} = nil
@@ -396,6 +397,7 @@ func TestFlattenCluster(t *testing.T) {
 		"rondb":                          flattenRonDB(input.RonDB),
 		"autoscale":                      flattenAutoscaleConfiguration(input.Autoscale),
 		"init_script":                    input.InitScript,
+		"os":                             input.OS,
 	}
 
 	for _, cloud := range []api.CloudProvider{api.AWS, api.AZURE} {

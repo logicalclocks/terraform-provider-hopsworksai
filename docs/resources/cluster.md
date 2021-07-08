@@ -84,6 +84,7 @@ resource "hopsworksai_cluster" "cluster" {
 - **issue_lets_encrypt_certificate** (Boolean) Enable or disable issuing let's encrypt certificates. This can be used to disable issuing certificates if port 80 can not be open. Defaults to `true`.
 - **managed_users** (Boolean) Enable or disable Hopsworks.ai to manage your users. Defaults to `true`.
 - **open_ports** (Block List, Max: 1) Open the required ports to communicate with one of the Hopsworks services. (see [below for nested schema](#nestedblock--open_ports))
+- **os** (String) The operating system to use for the instances. Supported systems are ubuntu in all regions and centos in some specific regions Defaults to `ubuntu`.
 - **rondb** (Block List, Max: 1) Setup a cluster with managed RonDB. (see [below for nested schema](#nestedblock--rondb))
 - **tags** (Map of String) The list of custom tags to be attached to the cluster.
 - **timeouts** (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))

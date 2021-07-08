@@ -44,6 +44,7 @@ data "hopsworksai_clusters" "cluster" {
 - **managed_users** (Boolean) Enable or disable Hopsworks.ai to manage your users.
 - **name** (String) The name of the cluster, must be unique.
 - **open_ports** (List of Object) Open the required ports to communicate with one of the Hopsworks services. (see [below for nested schema](#nestedatt--open_ports))
+- **os** (String) The operating system to use for the instances. Supported systems are ubuntu in all regions and centos in some specific regions
 - **rondb** (List of Object) Setup a cluster with managed RonDB. (see [below for nested schema](#nestedatt--rondb))
 - **ssh_key** (String) The ssh key name that will be attached to this cluster.
 - **start_date** (String) The starting date of the cluster. The date is represented in RFC3339 format.
