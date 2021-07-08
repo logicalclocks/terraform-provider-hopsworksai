@@ -65,6 +65,7 @@ Read-Only:
 - **managed_users** (Boolean)
 - **name** (String)
 - **open_ports** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--open_ports))
+- **os** (String)
 - **rondb** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--rondb))
 - **ssh_key** (String)
 - **start_date** (String)

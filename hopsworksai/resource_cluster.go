@@ -372,6 +372,14 @@ func clusterSchema() map[string]*schema.Schema {
 			Optional:    true,
 			ForceNew:    true,
 		},
+		"os": {
+			Description:  "The operating system to use for the instances. Supported systems are ubuntu in all regions and centos in some specific regions",
+			Type:         schema.TypeString,
+			Optional:     true,
+			ForceNew:     true,
+			Default:      "ubuntu",
+			ValidateFunc: validation.StringInSlice([]string{"ubuntu", "centos"}, false),
+		},
 	}
 }
 
@@ -964,6 +972,7 @@ func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error
 		BackupRetentionPeriod: d.Get("backup_retention_period").(int),
 		Tags:                  tagsArr,
 		InitScript:            d.Get("init_script").(string),
+		OS:                    d.Get("os").(string),
 	}
 
 	if v, ok := d.GetOk("workers"); ok {
