@@ -368,8 +368,9 @@ func TestFlattenCluster(t *testing.T) {
 				DownscaleWaitTime: 200,
 			},
 		},
-		InitScript: "#!/usr/bin/env bash\nset -e\necho 'Hello World'",
-		OS:         "centos",
+		InitScript:      "#!/usr/bin/env bash\nset -e\necho 'Hello World'",
+		InitScriptFirst: true,
+		OS:              "centos",
 	}
 
 	var emptyAttributes []interface{} = nil
@@ -397,6 +398,7 @@ func TestFlattenCluster(t *testing.T) {
 		"rondb":                          flattenRonDB(input.RonDB),
 		"autoscale":                      flattenAutoscaleConfiguration(input.Autoscale),
 		"init_script":                    input.InitScript,
+		"init_script_first":              input.InitScriptFirst,
 		"os":                             input.OS,
 	}
 

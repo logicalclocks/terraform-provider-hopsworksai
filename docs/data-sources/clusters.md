@@ -61,6 +61,7 @@ Read-Only:
 - **creation_date** (String)
 - **head** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--head))
 - **init_script** (String)
+- **init_script_first** (Boolean)
 - **issue_lets_encrypt_certificate** (Boolean)
 - **managed_users** (Boolean)
 - **name** (String)
