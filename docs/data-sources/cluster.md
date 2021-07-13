@@ -46,6 +46,7 @@ data "hopsworksai_clusters" "cluster" {
 - **open_ports** (List of Object) Open the required ports to communicate with one of the Hopsworks services. (see [below for nested schema](#nestedatt--open_ports))
 - **os** (String) The operating system to use for the instances. Supported systems are ubuntu in all regions and centos in some specific regions
 - **rondb** (List of Object) Setup a cluster with managed RonDB. (see [below for nested schema](#nestedatt--rondb))
+- **run_init_script_first** (Boolean) Run the init script before any other node initialization. WARNING if your initscript interfere with the following node initialization the cluster may not start properly. Make sure that you know what you are doing.
 - **ssh_key** (String) The ssh key name that will be attached to this cluster.
 - **start_date** (String) The starting date of the cluster. The date is represented in RFC3339 format.
 - **state** (String) The current state of the cluster.

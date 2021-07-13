@@ -67,6 +67,7 @@ Read-Only:
 - **open_ports** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--open_ports))
 - **os** (String)
 - **rondb** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--rondb))
+- **run_init_script_first** (Boolean)
 - **ssh_key** (String)
 - **start_date** (String)
 - **state** (String)

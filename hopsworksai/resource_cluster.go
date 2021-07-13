@@ -372,6 +372,12 @@ func clusterSchema() map[string]*schema.Schema {
 			Optional:    true,
 			ForceNew:    true,
 		},
+		"run_init_script_first": {
+			Description: "Run the init script before any other node initialization. WARNING if your initscript interfere with the following node initialization the cluster may not start properly. Make sure that you know what you are doing.",
+			Type:        schema.TypeBool,
+			Optional:    true,
+			ForceNew:    true,
+		},
 		"os": {
 			Description:  "The operating system to use for the instances. Supported systems are ubuntu in all regions and centos in some specific regions",
 			Type:         schema.TypeString,
@@ -972,6 +978,7 @@ func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error
 		BackupRetentionPeriod: d.Get("backup_retention_period").(int),
 		Tags:                  tagsArr,
 		InitScript:            d.Get("init_script").(string),
+		RunInitScriptFirst:    d.Get("run_init_script_first").(bool),
 		OS:                    d.Get("os").(string),
 	}
 
