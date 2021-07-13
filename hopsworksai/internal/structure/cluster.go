@@ -41,7 +41,7 @@ func FlattenCluster(cluster *api.Cluster) map[string]interface{} {
 		"rondb":                          flattenRonDB(cluster.RonDB),
 		"autoscale":                      flattenAutoscaleConfiguration(cluster.Autoscale),
 		"init_script":                    cluster.InitScript,
-		"init_script_first":              cluster.InitScriptFirst,
+		"run_init_script_first":          cluster.RunInitScriptFirst,
 		"os":                             cluster.OS,
 	}
 }

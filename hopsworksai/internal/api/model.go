@@ -148,7 +148,7 @@ type Cluster struct {
 	RonDB                 *RonDBConfiguration     `json:"ronDB,omitempty"`
 	Autoscale             *AutoscaleConfiguration `json:"autoscale,omitempty"`
 	InitScript            string                  `json:"initScript"`
-	InitScriptFirst       bool                    `json:"initScriptFirst"`
+	RunInitScriptFirst    bool                    `json:"runInitScriptFirst"`
 	OS                    string                  `json:"os,omitempty"`
 }
 
@@ -223,7 +223,7 @@ type CreateCluster struct {
 	RonDB                 *RonDBConfiguration     `json:"ronDB,omitempty"`
 	Autoscale             *AutoscaleConfiguration `json:"autoscale,omitempty"`
 	InitScript            string                  `json:"initScript"`
-	InitScriptFirst       bool                    `json:"initScriptFirst"`
+	RunInitScriptFirst    bool                    `json:"runInitScriptFirst"`
 	OS                    string                  `json:"os,omitempty"`
 }
 

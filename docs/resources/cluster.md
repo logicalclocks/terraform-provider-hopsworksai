@@ -81,12 +81,12 @@ resource "hopsworksai_cluster" "cluster" {
 - **backup_retention_period** (Number) The validity of cluster backups in days. If set to 0 cluster backups are disabled. Defaults to `0`.
 - **id** (String) The ID of this resource.
 - **init_script** (String) A bash script that will run on all nodes during their initialization (must start with #!/usr/bin/env bash)
-- **init_script_first** (Boolean) Run the init script before any other node initialization. WARNING if your initscript interfere with the following node initialization the cluster may not start properly. Make sure that you know what you are doing.
 - **issue_lets_encrypt_certificate** (Boolean) Enable or disable issuing let's encrypt certificates. This can be used to disable issuing certificates if port 80 can not be open. Defaults to `true`.
 - **managed_users** (Boolean) Enable or disable Hopsworks.ai to manage your users. Defaults to `true`.
 - **open_ports** (Block List, Max: 1) Open the required ports to communicate with one of the Hopsworks services. (see [below for nested schema](#nestedblock--open_ports))
 - **os** (String) The operating system to use for the instances. Supported systems are ubuntu in all regions and centos in some specific regions Defaults to `ubuntu`.
 - **rondb** (Block List, Max: 1) Setup a cluster with managed RonDB. (see [below for nested schema](#nestedblock--rondb))
+- **run_init_script_first** (Boolean) Run the init script before any other node initialization. WARNING if your initscript interfere with the following node initialization the cluster may not start properly. Make sure that you know what you are doing.
 - **tags** (Map of String) The list of custom tags to be attached to the cluster.
 - **timeouts** (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 - **update_state** (String) The action you can use to start or stop the cluster. Defaults to `none`.
