@@ -237,7 +237,7 @@ func NewClusterFromBackup(ctx context.Context, apiClient APIHandler, backupId st
 	case CreateAWSClusterFromBackup, *CreateAWSClusterFromBackup:
 		log.Printf("[DEBUG] restore aws cluster: #%v", createRequest)
 	case CreateAzureClusterFromBackup, *CreateAzureClusterFromBackup:
-		log.Printf("[DEBUG] resore azure cluster: #%v", createRequest)
+		log.Printf("[DEBUG] restore azure cluster: #%v", createRequest)
 	default:
 		return "", fmt.Errorf("unknown create request #%v", createRequest)
 	}
