@@ -1,0 +1,1 @@
+terraform import hopsworksai_backup.my_backup <backup_id>

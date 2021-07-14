@@ -1010,37 +1010,469 @@ func TestFlattenAutoscaleConfiguration(t *testing.T) {
 	}
 }
 
-func TestExpandAutoscaleConfigurationBase(t *testing.T) {
+func TestExpandAutoscaleConfiguration(t *testing.T) {
+	cases := []struct {
+		input    []interface{}
+		expected *api.AutoscaleConfiguration
+	}{
+		{
+			expected: &api.AutoscaleConfiguration{
+				NonGPU: &api.AutoscaleConfigurationBase{
+					InstanceType:      "non-gpu-node",
+					DiskSize:          256,
+					MinWorkers:        0,
+					MaxWorkers:        5,
+					StandbyWorkers:    0.5,
+					DownscaleWaitTime: 300,
+					SpotInfo: &api.SpotConfiguration{
+						MaxPrice:         1,
+						FallBackOnDemand: true,
+					},
+				},
+				GPU: &api.AutoscaleConfigurationBase{
+					InstanceType:      "gpu-node",
+					DiskSize:          512,
+					MinWorkers:        1,
+					MaxWorkers:        10,
+					StandbyWorkers:    0.4,
+					DownscaleWaitTime: 200,
+					SpotInfo: &api.SpotConfiguration{
+						MaxPrice:         2,
+						FallBackOnDemand: true,
+					},
+				},
+			},
+			input: []interface{}{
+				map[string]interface{}{
+					"non_gpu_workers": []interface{}{
+						map[string]interface{}{
+							"instance_type":       "non-gpu-node",
+							"disk_size":           256,
+							"min_workers":         0,
+							"max_workers":         5,
+							"standby_workers":     0.5,
+							"downscale_wait_time": 300,
+							"spot_config": []interface{}{
+								map[string]interface{}{
+									"max_price_percent":   1,
+									"fall_back_on_demand": true,
+								},
+							},
+						},
+					},
+					"gpu_workers": []interface{}{
+						map[string]interface{}{
+							"instance_type":       "gpu-node",
+							"disk_size":           512,
+							"min_workers":         1,
+							"max_workers":         10,
+							"standby_workers":     0.4,
+							"downscale_wait_time": 200,
+							"spot_config": []interface{}{
+								map[string]interface{}{
+									"max_price_percent":   2,
+									"fall_back_on_demand": true,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			expected: &api.AutoscaleConfiguration{
+				NonGPU: &api.AutoscaleConfigurationBase{
+					InstanceType:      "non-gpu-node",
+					DiskSize:          256,
+					MinWorkers:        0,
+					MaxWorkers:        5,
+					StandbyWorkers:    0.5,
+					DownscaleWaitTime: 300,
+				},
+			},
+			input: []interface{}{
+				map[string]interface{}{
+					"non_gpu_workers": []interface{}{
+						map[string]interface{}{
+							"instance_type":       "non-gpu-node",
+							"disk_size":           256,
+							"min_workers":         0,
+							"max_workers":         5,
+							"standby_workers":     0.5,
+							"downscale_wait_time": 300,
+						},
+					},
+					"gpu_workers": []interface{}{},
+				},
+			},
+		},
+		{
+			expected: &api.AutoscaleConfiguration{
+				GPU: &api.AutoscaleConfigurationBase{
+					InstanceType:      "gpu-node",
+					DiskSize:          512,
+					MinWorkers:        1,
+					MaxWorkers:        10,
+					StandbyWorkers:    0.4,
+					DownscaleWaitTime: 200,
+				},
+			},
+			input: []interface{}{
+				map[string]interface{}{
+					"non_gpu_workers": []interface{}{},
+					"gpu_workers": []interface{}{
+						map[string]interface{}{
+							"instance_type":       "gpu-node",
+							"disk_size":           512,
+							"min_workers":         1,
+							"max_workers":         10,
+							"standby_workers":     0.4,
+							"downscale_wait_time": 200,
+						},
+					},
+				},
+			},
+		},
+		{
+			input:    nil,
+			expected: nil,
+		},
+	}
+
+	for i, c := range cases {
+		output := ExpandAutoscaleConfiguration(c.input)
+		if !reflect.DeepEqual(c.expected, output) {
+			t.Fatalf("error while matching[%d]:\nexpected %#v \nbut got %#v", i, c.expected, output)
+		}
+	}
+}
+
+func TestExpandTags(t *testing.T) {
 	input := map[string]interface{}{
-		"instance_type":       "instance-type-1",
-		"disk_size":           512,
-		"min_workers":         1,
-		"max_workers":         2,
-		"standby_workers":     0.5,
-		"downscale_wait_time": 200,
-		"spot_config": []interface{}{
-			map[string]interface{}{
-				"max_price_percent":   10,
-				"fall_back_on_demand": false,
+		"tag1": "tag1-value",
+		"tag2": "tag2-value",
+	}
+
+	expected := []api.ClusterTag{
+		{
+			Name:  "tag1",
+			Value: "tag1-value",
+		},
+		{
+			Name:  "tag2",
+			Value: "tag2-value",
+		},
+	}
+
+	output := ExpandTags(input)
+	if !reflect.DeepEqual(expected, output) {
+		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
+	}
+}
+
+func TestFlattenClusters(t *testing.T) {
+	input := []api.Cluster{
+		{
+			Id:                  "cluster-id-1",
+			Name:                "cluster",
+			State:               "state-1",
+			ActivationState:     "activation-state-1",
+			InitializationStage: "initializtion-stage-1",
+			CreatedOn:           1605374387069,
+			StartedOn:           1605374388069,
+			Version:             "cluster-version",
+			URL:                 "cluster-url",
+			Provider:            api.AWS,
+			Tags: []api.ClusterTag{
+				{
+					Name:  "tag1",
+					Value: "tagvalue1",
+				},
+			},
+			SshKeyName:            "ssh-key-1",
+			PublicIPAttached:      true,
+			LetsEncryptIssued:     true,
+			ManagedUsers:          true,
+			BackupRetentionPeriod: 0,
+			ClusterConfiguration: api.ClusterConfiguration{
+				Head: api.HeadConfiguration{
+					NodeConfiguration: api.NodeConfiguration{
+						InstanceType: "head-node-type-1",
+						DiskSize:     512,
+					},
+				},
+				Workers: []api.WorkerConfiguration{
+					{
+						NodeConfiguration: api.NodeConfiguration{
+							InstanceType: "worker-node-type-1",
+							DiskSize:     256,
+						},
+						Count: 1,
+					},
+				},
+			},
+			Ports: api.ServiceOpenPorts{
+				FeatureStore:       true,
+				OnlineFeatureStore: false,
+				Kafka:              true,
+				SSH:                false,
+			},
+			RonDB: &api.RonDBConfiguration{
+				Configuration: api.RonDBBaseConfiguration{
+					NdbdDefault: api.RonDBNdbdDefaultConfiguration{
+						ReplicationFactor: 2,
+					},
+					General: api.RonDBGeneralConfiguration{
+						Benchmark: api.RonDBBenchmarkConfiguration{
+							GrantUserPrivileges: false,
+						},
+					},
+				},
+				ManagementNodes: api.WorkerConfiguration{
+					NodeConfiguration: api.NodeConfiguration{
+						InstanceType: "mgm-node-1",
+						DiskSize:     30,
+					},
+					Count: 1,
+				},
+				DataNodes: api.WorkerConfiguration{
+					NodeConfiguration: api.NodeConfiguration{
+						InstanceType: "data-node-1",
+						DiskSize:     512,
+					},
+					Count: 2,
+				},
+				MYSQLNodes: api.WorkerConfiguration{
+					NodeConfiguration: api.NodeConfiguration{
+						InstanceType: "mysqld-node-1",
+						DiskSize:     100,
+					},
+					Count: 1,
+				},
+				APINodes: api.WorkerConfiguration{
+					NodeConfiguration: api.NodeConfiguration{
+						InstanceType: "api-node-1",
+						DiskSize:     50,
+					},
+					Count: 1,
+				},
+			},
+			Autoscale: &api.AutoscaleConfiguration{
+				NonGPU: &api.AutoscaleConfigurationBase{
+					InstanceType:      "auto-node-1",
+					DiskSize:          256,
+					MinWorkers:        0,
+					MaxWorkers:        10,
+					StandbyWorkers:    0.5,
+					DownscaleWaitTime: 300,
+				},
+				GPU: &api.AutoscaleConfigurationBase{
+					InstanceType:      "auto-gpu-node-1",
+					DiskSize:          512,
+					MinWorkers:        1,
+					MaxWorkers:        5,
+					StandbyWorkers:    0.4,
+					DownscaleWaitTime: 200,
+				},
+			},
+			InitScript: "#!/usr/bin/env bash\nset -e\necho 'Hello World'",
+			AWS: api.AWSCluster{
+				Region:               "region-1",
+				InstanceProfileArn:   "instance-profile-1",
+				BucketName:           "bucket-name-1",
+				VpcId:                "vpc-id-1",
+				SubnetId:             "subnet-id-1",
+				SecurityGroupId:      "security-group-1",
+				EksClusterName:       "eks-cluster-name-1",
+				EcrRegistryAccountId: "ecr-registry-account-1",
+			},
+		},
+		{
+			Id:                  "cluster-id-2",
+			Name:                "cluster2",
+			State:               "state-2",
+			ActivationState:     "activation-state-1",
+			InitializationStage: "initializtion-stage-1",
+			CreatedOn:           1605374387010,
+			StartedOn:           1605374388010,
+			Version:             "cluster-version-2",
+			URL:                 "cluster-url-2",
+			Provider:            api.AZURE,
+			Tags: []api.ClusterTag{
+				{
+					Name:  "tag1",
+					Value: "tagvalue1",
+				},
+			},
+			SshKeyName:            "ssh-key-1",
+			PublicIPAttached:      true,
+			LetsEncryptIssued:     true,
+			ManagedUsers:          true,
+			BackupRetentionPeriod: 0,
+			ClusterConfiguration: api.ClusterConfiguration{
+				Head: api.HeadConfiguration{
+					NodeConfiguration: api.NodeConfiguration{
+						InstanceType: "head-node-type-1",
+						DiskSize:     512,
+					},
+				},
+				Workers: []api.WorkerConfiguration{
+					{
+						NodeConfiguration: api.NodeConfiguration{
+							InstanceType: "worker-node-type-1",
+							DiskSize:     256,
+						},
+						Count: 1,
+					},
+				},
+			},
+			Ports: api.ServiceOpenPorts{
+				FeatureStore:       true,
+				OnlineFeatureStore: false,
+				Kafka:              true,
+				SSH:                false,
+			},
+			RonDB: &api.RonDBConfiguration{
+				Configuration: api.RonDBBaseConfiguration{
+					NdbdDefault: api.RonDBNdbdDefaultConfiguration{
+						ReplicationFactor: 2,
+					},
+					General: api.RonDBGeneralConfiguration{
+						Benchmark: api.RonDBBenchmarkConfiguration{
+							GrantUserPrivileges: false,
+						},
+					},
+				},
+				ManagementNodes: api.WorkerConfiguration{
+					NodeConfiguration: api.NodeConfiguration{
+						InstanceType: "mgm-node-1",
+						DiskSize:     30,
+					},
+					Count: 1,
+				},
+				DataNodes: api.WorkerConfiguration{
+					NodeConfiguration: api.NodeConfiguration{
+						InstanceType: "data-node-1",
+						DiskSize:     512,
+					},
+					Count: 2,
+				},
+				MYSQLNodes: api.WorkerConfiguration{
+					NodeConfiguration: api.NodeConfiguration{
+						InstanceType: "mysqld-node-1",
+						DiskSize:     100,
+					},
+					Count: 1,
+				},
+				APINodes: api.WorkerConfiguration{
+					NodeConfiguration: api.NodeConfiguration{
+						InstanceType: "api-node-1",
+						DiskSize:     50,
+					},
+					Count: 1,
+				},
+			},
+			Autoscale: &api.AutoscaleConfiguration{
+				NonGPU: &api.AutoscaleConfigurationBase{
+					InstanceType:      "auto-node-1",
+					DiskSize:          256,
+					MinWorkers:        0,
+					MaxWorkers:        10,
+					StandbyWorkers:    0.5,
+					DownscaleWaitTime: 300,
+				},
+				GPU: &api.AutoscaleConfigurationBase{
+					InstanceType:      "auto-gpu-node-1",
+					DiskSize:          512,
+					MinWorkers:        1,
+					MaxWorkers:        5,
+					StandbyWorkers:    0.4,
+					DownscaleWaitTime: 200,
+				},
+			},
+			InitScript: "#!/usr/bin/env bash\nset -e\necho 'Hello World 2'",
+			Azure: api.AzureCluster{
+				Location:           "location-1",
+				ResourceGroup:      "resource-group-1",
+				ManagedIdentity:    "managed-identity-1",
+				BlobContainerName:  "blob-container-name-1",
+				StorageAccount:     "storage-account-1",
+				VirtualNetworkName: "virtual-network-name-1",
+				SubnetName:         "subnet-name-1",
+				SecurityGroupName:  "security-group-name-1",
+				AksClusterName:     "aks-cluster-name-1",
+				AcrRegistryName:    "acr-registry-name-1",
 			},
 		},
 	}
 
-	expected := api.AutoscaleConfigurationBase{
-		InstanceType:      "instance-type-1",
-		DiskSize:          512,
-		MinWorkers:        1,
-		MaxWorkers:        2,
-		StandbyWorkers:    0.5,
-		DownscaleWaitTime: 200,
-		SpotInfo: &api.SpotConfiguration{
-			MaxPrice:         10,
-			FallBackOnDemand: false,
+	var emptyAttributes []interface{} = nil
+	expected := []map[string]interface{}{
+		{
+			"cluster_id":                     input[0].Id,
+			"name":                           input[0].Name,
+			"url":                            input[0].URL,
+			"state":                          input[0].State,
+			"activation_state":               input[0].ActivationState,
+			"creation_date":                  time.Unix(input[0].CreatedOn, 0).Format(time.RFC3339),
+			"start_date":                     time.Unix(input[0].StartedOn, 0).Format(time.RFC3339),
+			"version":                        input[0].Version,
+			"ssh_key":                        input[0].SshKeyName,
+			"head":                           flattenHead(&input[0].ClusterConfiguration.Head),
+			"issue_lets_encrypt_certificate": input[0].LetsEncryptIssued,
+			"attach_public_ip":               input[0].PublicIPAttached,
+			"managed_users":                  input[0].ManagedUsers,
+			"backup_retention_period":        input[0].BackupRetentionPeriod,
+			"update_state":                   "none",
+			"workers":                        flattenWorkers(input[0].Autoscale, input[0].ClusterConfiguration.Workers),
+			"aws_attributes":                 flattenAWSAttributes(&input[0]),
+			"azure_attributes":               emptyAttributes,
+			"open_ports":                     flattenPorts(&input[0].Ports),
+			"tags":                           flattenTags(input[0].Tags),
+			"rondb":                          flattenRonDB(input[0].RonDB),
+			"autoscale":                      flattenAutoscaleConfiguration(input[0].Autoscale),
+			"init_script":                    input[0].InitScript,
+		},
+		{
+			"cluster_id":                     input[1].Id,
+			"name":                           input[1].Name,
+			"url":                            input[1].URL,
+			"state":                          input[1].State,
+			"activation_state":               input[1].ActivationState,
+			"creation_date":                  time.Unix(input[1].CreatedOn, 0).Format(time.RFC3339),
+			"start_date":                     time.Unix(input[1].StartedOn, 0).Format(time.RFC3339),
+			"version":                        input[1].Version,
+			"ssh_key":                        input[1].SshKeyName,
+			"head":                           flattenHead(&input[1].ClusterConfiguration.Head),
+			"issue_lets_encrypt_certificate": input[1].LetsEncryptIssued,
+			"attach_public_ip":               input[1].PublicIPAttached,
+			"managed_users":                  input[1].ManagedUsers,
+			"backup_retention_period":        input[1].BackupRetentionPeriod,
+			"update_state":                   "none",
+			"workers":                        flattenWorkers(input[1].Autoscale, input[1].ClusterConfiguration.Workers),
+			"aws_attributes":                 emptyAttributes,
+			"azure_attributes":               flattenAzureAttributes(&input[1]),
+			"open_ports":                     flattenPorts(&input[1].Ports),
+			"tags":                           flattenTags(input[1].Tags),
+			"rondb":                          flattenRonDB(input[1].RonDB),
+			"autoscale":                      flattenAutoscaleConfiguration(input[1].Autoscale),
+			"init_script":                    input[1].InitScript,
 		},
 	}
 
-	output := ExpandAutoscaleConfigurationBase(input)
-	if !reflect.DeepEqual(&expected, output) {
-		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", &expected, output)
+	output := FlattenClusters(input)
+
+	for i, expectedCluster := range expected {
+		outputCluster := output[i]
+		for k, v := range expectedCluster {
+			if k == "workers" {
+				expectedWorker, outputWorker := v.(*schema.Set), outputCluster[k].(*schema.Set)
+				if expectedWorker.Difference(outputWorker).Len() != 0 && outputWorker.Difference(expectedWorker).Len() != 0 {
+					t.Fatalf("error while matching workers:\nexpected %#v \nbut got %#v", expectedWorker, outputWorker)
+				}
+			} else if !reflect.DeepEqual(v, outputCluster[k]) {
+				t.Fatalf("error while matching %s:\nexpected %#v \nbut got %#v ", k, v, outputCluster[k])
+			}
+		}
 	}
 }

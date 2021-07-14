@@ -232,6 +232,26 @@ func flattenAutoscaleConfigurationBase(autoscale *api.AutoscaleConfigurationBase
 	return autoscaleConf
 }
 
+func ExpandAutoscaleConfiguration(autoscaleConfig []interface{}) *api.AutoscaleConfiguration {
+	if autoscaleConfig == nil {
+		return nil
+	}
+	autoscale := &api.AutoscaleConfiguration{}
+	if len(autoscaleConfig) > 0 {
+		autoscaleConfigMap := autoscaleConfig[0].(map[string]interface{})
+		if v, ok := autoscaleConfigMap["non_gpu_workers"]; ok && len(v.([]interface{})) > 0 {
+			config := v.([]interface{})[0].(map[string]interface{})
+			autoscale.NonGPU = ExpandAutoscaleConfigurationBase(config)
+		}
+
+		if v, ok := autoscaleConfigMap["gpu_workers"]; ok && len(v.([]interface{})) > 0 {
+			config := v.([]interface{})[0].(map[string]interface{})
+			autoscale.GPU = ExpandAutoscaleConfigurationBase(config)
+		}
+	}
+	return autoscale
+}
+
 func ExpandAutoscaleConfigurationBase(config map[string]interface{}) *api.AutoscaleConfigurationBase {
 	autoscaleConf := &api.AutoscaleConfigurationBase{
 		InstanceType:      config["instance_type"].(string),
@@ -295,4 +315,17 @@ func ExpandPorts(ports map[string]interface{}) api.ServiceOpenPorts {
 		Kafka:              ports["kafka"].(bool),
 		SSH:                ports["ssh"].(bool),
 	}
+}
+
+func ExpandTags(tags map[string]interface{}) []api.ClusterTag {
+	tagsArr := make([]api.ClusterTag, len(tags))
+	var index int = 0
+	for k, v := range tags {
+		tagsArr[index] = api.ClusterTag{
+			Name:  k,
+			Value: v.(string),
+		}
+		index++
+	}
+	return tagsArr
 }

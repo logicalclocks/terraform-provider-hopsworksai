@@ -219,7 +219,7 @@ type CreateCluster struct {
 	AttachPublicIP        bool                    `json:"attachPublicIP"`
 	BackupRetentionPeriod int                     `json:"backupRetentionPeriod"`
 	ManagedUsers          bool                    `json:"managedUsers"`
-	Tags                  []ClusterTag            `json:"tags"`
+	Tags                  []ClusterTag            `json:"tags,omitempty"`
 	RonDB                 *RonDBConfiguration     `json:"ronDB,omitempty"`
 	Autoscale             *AutoscaleConfiguration `json:"autoscale,omitempty"`
 	InitScript            string                  `json:"initScript"`
@@ -378,4 +378,86 @@ type GetSupportedInstanceTypesResponse struct {
 
 type ConfigureAutoscaleRequest struct {
 	Autoscale *AutoscaleConfiguration `json:"autoscale,omitempty"`
+}
+
+type BackupState string
+
+const (
+	PendingBackup      BackupState = "pending"
+	InitializingBackup BackupState = "initializing"
+	ProcessingBackup   BackupState = "processing"
+	DeletingBackup     BackupState = "deleting"
+	BackupSucceed      BackupState = "succeed"
+	BackupFailed       BackupState = "failed"
+	// local state not in Hopsworks.ai
+	BackupDeleted BackupState = "tf-backup-deleted"
+)
+
+func (s BackupState) String() string {
+	return string(s)
+}
+
+type Backup struct {
+	Id            string        `json:"backupId"`
+	Name          string        `json:"backupName"`
+	ClusterId     string        `json:"clusterId"`
+	CreatedOn     int64         `json:"createdOn"`
+	CloudProvider CloudProvider `json:"cloudProvider"`
+	State         BackupState   `json:"state"`
+	StateMessage  string        `json:"stateMessage"`
+}
+
+type NewBackupRequest struct {
+	Backup struct {
+		ClusterId  string `json:"clusterId"`
+		BackupName string `json:"backupName"`
+	} `json:"backup"`
+}
+
+type NewBackupResponse struct {
+	BaseResponse
+	Payload struct {
+		Id string `json:"backupId"`
+	} `json:"payload"`
+}
+
+type GetBackupResponse struct {
+	BaseResponse
+	Payload struct {
+		Backup Backup `json:"backup"`
+	} `json:"payload"`
+}
+
+type GetBackupsResponse struct {
+	BaseResponse
+	Payload struct {
+		Backups []Backup `json:"backups"`
+	} `json:"payload"`
+}
+
+type CreateClusterFromBackup struct {
+	Name       string                  `json:"name,omitempty"`
+	SshKeyName string                  `json:"sshKeyName,omitempty"`
+	Tags       []ClusterTag            `json:"tags,omitempty"`
+	Autoscale  *AutoscaleConfiguration `json:"autoscale,omitempty"`
+}
+
+type CreateAzureClusterFromBackup struct {
+	CreateClusterFromBackup
+	NetworkResourceGroup string `json:"networkResourceGroup,omitempty"`
+	VirtualNetworkName   string `json:"virtualNetworkName,omitempty"`
+	SubnetName           string `json:"subnetName,omitempty"`
+	SecurityGroupName    string `json:"securityGroupName,omitempty"`
+}
+
+type CreateAWSClusterFromBackup struct {
+	CreateClusterFromBackup
+	InstanceProfileArn string `json:"instanceProfileArn,omitempty"`
+	VpcId              string `json:"vpcId,omitempty"`
+	SubnetId           string `json:"subnetId,omitempty"`
+	SecurityGroupId    string `json:"securityGroupId,omitempty"`
+}
+
+type NewClusterFromBackupRequest struct {
+	CreateRequest interface{} `json:"cluster"`
 }

@@ -22,3 +22,8 @@ variable "ssh_public_key" {
   description = "Public key used with this ssh key pair"
   type        = string
 }
+
+variable "virtual_network_name" {
+  description = "Virtual network name"
+  type        = string
+}

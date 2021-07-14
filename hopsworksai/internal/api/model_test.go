@@ -392,3 +392,21 @@ func TestActivationStateString(t *testing.T) {
 		}
 	}
 }
+
+func TestBackupStateString(t *testing.T) {
+	states := []BackupState{
+		PendingBackup,
+		ProcessingBackup,
+		InitializingBackup,
+		DeletingBackup,
+		BackupSucceed,
+		BackupFailed,
+		BackupDeleted,
+	}
+
+	for _, v := range states {
+		if string(v) != v.String() {
+			t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", string(v), v.String())
+		}
+	}
+}

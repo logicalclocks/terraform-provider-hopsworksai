@@ -1471,3 +1471,611 @@ func TestDisableAutoscale_error(t *testing.T) {
 		t.Fatalf("should throw an error, but got %s", err)
 	}
 }
+
+func TestNewBackup(t *testing.T) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod: http.MethodPost,
+			ExpectPath:   "/api/backups",
+			ExpectRequestBody: `{
+				"backup": {
+					"clusterId": "cluster-id-1",
+					"backupName": "my-new-backup"
+				}
+			}`,
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200,
+				"payload": {
+					"backupId": "new-backup-1"
+				}
+			}`,
+			T: t,
+		},
+	}
+
+	id, err := NewBackup(context.TODO(), apiClient, "cluster-id-1", "my-new-backup")
+
+	if id != "new-backup-1" {
+		t.Fatalf("expected id new-backup-1 but got %s", id)
+	}
+
+	if err != nil {
+		t.Fatalf("should not throw an error, but got %s", err)
+	}
+}
+
+func TestNewBackup_error(t *testing.T) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod: http.MethodPost,
+			ExpectPath:   "/api/backups",
+			ExpectRequestBody: `{
+				"backup": {
+					"clusterId": "cluster-id-1",
+					"backupName": "my-new-backup"
+				}
+			}`,
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200,
+				"payload": {
+					"backupId": "new-backup-1"
+				},
+			}`,
+			T: t,
+		},
+	}
+
+	id, err := NewBackup(context.TODO(), apiClient, "cluster-id-1", "my-new-backup")
+
+	if err == nil || !strings.HasPrefix(err.Error(), "failed to decode json") {
+		t.Fatalf("should throw an error, but got %s", err)
+	}
+
+	if id != "" {
+		t.Fatalf("expected empty id but got %s", id)
+	}
+}
+
+func TestGetBackup(t *testing.T) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod: http.MethodGet,
+			ExpectPath:   "/api/backups/backup-id-1",
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200,
+				"payload": {
+					"backup": {
+						"backupId": "backup-id-1",
+						"backupName": "backup-name",
+						"clusterId": "cluster-id-1",
+						"cloudProvider": "AWS",
+						"createdOn": 1,
+						"state": "succeed",
+						"stateMessage": "message"
+					}
+				}
+			}`,
+			T: t,
+		},
+	}
+
+	expected := &Backup{
+		Id:            "backup-id-1",
+		Name:          "backup-name",
+		ClusterId:     "cluster-id-1",
+		CreatedOn:     1,
+		CloudProvider: AWS,
+		State:         BackupSucceed,
+		StateMessage:  "message",
+	}
+
+	output, err := GetBackup(context.TODO(), apiClient, "backup-id-1")
+
+	if err != nil {
+		t.Fatalf("should not throw an error, but got %s", err)
+	}
+
+	if !reflect.DeepEqual(expected, output) {
+		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
+	}
+}
+
+func TestGetBackup_notfound(t *testing.T) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod: http.MethodGet,
+			ExpectPath:   "/api/backups/backup-id-1",
+			ResponseCode: http.StatusNotFound,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "Not found",
+				"code": 404
+			}`,
+			T: t,
+		},
+	}
+
+	output, err := GetBackup(context.TODO(), apiClient, "backup-id-1")
+
+	if err != nil {
+		t.Fatalf("should not throw an error, but got %s", err)
+	}
+
+	if output != nil {
+		t.Fatalf("expected nil for not found backup but got %#v", output)
+	}
+}
+
+func TestGetBackup_error(t *testing.T) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod: http.MethodGet,
+			ExpectPath:   "/api/backups/backup-id-1",
+			ResponseCode: http.StatusNotFound,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "Not found",
+				"code": 404,
+			}`,
+			T: t,
+		},
+	}
+
+	output, err := GetBackup(context.TODO(), apiClient, "backup-id-1")
+
+	if err == nil || !strings.HasPrefix(err.Error(), "failed to decode json") {
+		t.Fatalf("should throw an error, but got %s", err)
+	}
+
+	if output != nil {
+		t.Fatalf("expected nil when encountering error during get backup but got %#v", output)
+	}
+}
+
+func TestDeleteBackup(t *testing.T) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod: http.MethodDelete,
+			ExpectPath:   "/api/backups/backup-id-1",
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200
+			}`,
+			T: t,
+		},
+	}
+
+	if err := DeleteBackup(context.TODO(), apiClient, "backup-id-1"); err != nil {
+		t.Fatalf("should not throw an error, but got %s", err)
+	}
+}
+
+func TestDeleteBackup_error(t *testing.T) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod: http.MethodDelete,
+			ExpectPath:   "/api/backups/backup-id-1",
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200,
+			}`,
+			T: t,
+		},
+	}
+
+	if err := DeleteBackup(context.TODO(), apiClient, "backup-id-1"); err == nil || !strings.HasPrefix(err.Error(), "failed to decode json") {
+		t.Fatalf("should throw an error, but got %s", err)
+	}
+}
+
+func TestGetBackups(t *testing.T) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod:       http.MethodGet,
+			ExpectPath:         "/api/backups",
+			ExpectRequestQuery: "clusterId=cluster-id-1",
+			ResponseCode:       http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200,
+				"payload": {
+					"backups": [
+						{
+							"backupId": "backup-id-1",
+							"backupName": "backup-name",
+							"clusterId": "cluster-id-1",
+							"cloudProvider": "AWS",
+							"createdOn": 1,
+							"state": "succeed",
+							"stateMessage": "message"
+						},
+						{
+							"backupId": "backup-id-2",
+							"backupName": "backup-name-2",
+							"clusterId": "cluster-id-1",
+							"cloudProvider": "AWS",
+							"createdOn": 10,
+							"state": "failed",
+							"stateMessage": "failure message"
+						}
+					]
+				}
+			}`,
+			T: t,
+		},
+	}
+
+	expected := []Backup{
+		{
+			Id:            "backup-id-1",
+			Name:          "backup-name",
+			ClusterId:     "cluster-id-1",
+			CreatedOn:     1,
+			CloudProvider: AWS,
+			State:         BackupSucceed,
+			StateMessage:  "message",
+		},
+		{
+			Id:            "backup-id-2",
+			Name:          "backup-name-2",
+			ClusterId:     "cluster-id-1",
+			CreatedOn:     10,
+			CloudProvider: AWS,
+			State:         BackupFailed,
+			StateMessage:  "failure message",
+		},
+	}
+
+	output, err := GetBackups(context.TODO(), apiClient, "cluster-id-1")
+
+	if err != nil {
+		t.Fatalf("should not throw an error, but got %s", err)
+	}
+
+	if !reflect.DeepEqual(expected, output) {
+		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
+	}
+}
+
+func TestGetBackups_error(t *testing.T) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod:       http.MethodGet,
+			ExpectPath:         "/api/backups",
+			ExpectRequestQuery: "clusterId=cluster-id-1",
+			ResponseCode:       http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200,
+				"payload": {
+					"backups": [
+						{
+							"backupId": "backup-id-1",
+							"backupName": "backup-name",
+							"clusterId": "cluster-id-1",
+							"cloudProvider": "AWS",
+							"createdOn": 1,
+							"state": "succeed",
+							"stateMessage": "message"
+						},
+						{
+							"backupId": "backup-id-2",
+							"backupName": "backup-name-2",
+							"clusterId": "cluster-id-1",
+							"cloudProvider": "AWS",
+							"createdOn": 10,
+							"state": "failed",
+							"stateMessage": "failure message"
+						},
+					]
+				}
+			}`,
+			T: t,
+		},
+	}
+
+	output, err := GetBackups(context.TODO(), apiClient, "cluster-id-1")
+
+	if err == nil || !strings.HasPrefix(err.Error(), "failed to decode json") {
+		t.Fatalf("should throw an error, but got %s", err)
+	}
+
+	if output != nil {
+		t.Fatalf("expected nil when encountering an error during get backups, but got %#v", output)
+	}
+}
+
+func TestNewClusterFromBackup(t *testing.T) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod: http.MethodPost,
+			ExpectPath:   "/api/clusters/restore/backup-id-1",
+			ExpectRequestBody: `{
+				"cluster":{
+
+				}
+			}`,
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200,
+				"payload": {
+					"id": "cluster-id-1"
+				}
+			}`,
+			T: t,
+		},
+	}
+
+	id, err := NewClusterFromBackup(context.TODO(), apiClient, "backup-id-1", CreateAWSClusterFromBackup{})
+	if err != nil {
+		t.Fatalf("should not throw an error, but got %s", err)
+	}
+
+	if id != "cluster-id-1" {
+		t.Fatalf("expected cluster id (cluster-id-1), but got %s", id)
+	}
+
+	id, err = NewClusterFromBackup(context.TODO(), apiClient, "backup-id-1", CreateAzureClusterFromBackup{})
+	if err != nil {
+		t.Fatalf("should not throw an error, but got %s", err)
+	}
+
+	if id != "cluster-id-1" {
+		t.Fatalf("expected cluster id (cluster-id-1), but got %s", id)
+	}
+}
+
+func TestNewClusterFromBackup_error(t *testing.T) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod: http.MethodPost,
+			ExpectPath:   "/api/clusters/restore/backup-id-1",
+			ExpectRequestBody: `{
+				"cluster":{
+
+				}
+			}`,
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200,
+				"payload": {
+					"id": "cluster-id-1"
+				},
+			}`,
+			T: t,
+		},
+	}
+
+	id, err := NewClusterFromBackup(context.TODO(), apiClient, "backup-id-1", CreateAWSClusterFromBackup{})
+	if err == nil || !strings.HasPrefix(err.Error(), "failed to decode json") {
+		t.Fatalf("should throw an error, but got %s", err)
+	}
+
+	if id != "" {
+		t.Fatalf("expected empty cluster id when encountering an error, but got %s", id)
+	}
+}
+
+func TestNewClusterFromBackup_AWS_changeConfig(t *testing.T) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod: http.MethodPost,
+			ExpectPath:   "/api/clusters/restore/backup-id-1",
+			ExpectRequestBody: `{
+				"cluster":{
+					"name": "new-cluster-name",
+					"sshKeyName": "new-ssh-key",
+					"tags": [
+						{
+							"name": "tag1",
+							"value": "tag1-value"
+						}
+					],
+					"autoscale":{
+						"nonGpu": {
+							"instanceType": "new-node-type",
+							"diskSize": 512,
+							"minWorkers": 1,
+							"maxWorkers": 10,
+							"standbyWorkers": 0.7,
+							"downscaleWaitTime": 500,
+							"spotInfo": {
+								"maxPrice": 100,
+								"fallBackOnDemand": false
+							}
+						}
+					},
+					"instanceProfileArn": "new-profile",
+					"vpcId": "new-vpc",
+					"subnetId": "new-subnet",
+					"securityGroupId": "new-security-group"
+				}
+			}`,
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200,
+				"payload": {
+					"id": "cluster-id-1"
+				}
+			}`,
+			T: t,
+		},
+	}
+
+	id, err := NewClusterFromBackup(context.TODO(), apiClient, "backup-id-1", CreateAWSClusterFromBackup{
+		CreateClusterFromBackup: CreateClusterFromBackup{
+			Name:       "new-cluster-name",
+			SshKeyName: "new-ssh-key",
+			Tags: []ClusterTag{
+				{
+					Name:  "tag1",
+					Value: "tag1-value",
+				},
+			},
+			Autoscale: &AutoscaleConfiguration{
+				NonGPU: &AutoscaleConfigurationBase{
+					InstanceType:      "new-node-type",
+					DiskSize:          512,
+					MinWorkers:        1,
+					MaxWorkers:        10,
+					StandbyWorkers:    0.7,
+					DownscaleWaitTime: 500,
+					SpotInfo: &SpotConfiguration{
+						MaxPrice:         100,
+						FallBackOnDemand: false,
+					},
+				},
+			},
+		},
+		InstanceProfileArn: "new-profile",
+		VpcId:              "new-vpc",
+		SubnetId:           "new-subnet",
+		SecurityGroupId:    "new-security-group",
+	})
+
+	if err != nil {
+		t.Fatalf("should not throw an error, but got %s", err)
+	}
+
+	if id != "cluster-id-1" {
+		t.Fatalf("expected cluster id (cluster-id-1), but got %s", id)
+	}
+}
+
+func TestNewClusterFromBackup_AZURE_changeConfig(t *testing.T) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod: http.MethodPost,
+			ExpectPath:   "/api/clusters/restore/backup-id-1",
+			ExpectRequestBody: `{
+				"cluster":{
+					"name": "new-cluster-name",
+					"sshKeyName": "new-ssh-key",
+					"tags": [
+						{
+							"name": "tag1",
+							"value": "tag1-value"
+						}
+					],
+					"autoscale":{
+						"nonGpu": {
+							"instanceType": "new-node-type",
+							"diskSize": 512,
+							"minWorkers": 1,
+							"maxWorkers": 10,
+							"standbyWorkers": 0.7,
+							"downscaleWaitTime": 500,
+							"spotInfo": {
+								"maxPrice": 100,
+								"fallBackOnDemand": false
+							}
+						}
+					},
+					"networkResourceGroup": "new-resource-group",
+					"virtualNetworkName": "new-virtual-network",
+					"subnetName": "new-subnet",
+					"securityGroupName": "new-security-group"
+				}
+			}`,
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200,
+				"payload": {
+					"id": "cluster-id-1"
+				}
+			}`,
+			T: t,
+		},
+	}
+
+	id, err := NewClusterFromBackup(context.TODO(), apiClient, "backup-id-1", CreateAzureClusterFromBackup{
+		CreateClusterFromBackup: CreateClusterFromBackup{
+			Name:       "new-cluster-name",
+			SshKeyName: "new-ssh-key",
+			Tags: []ClusterTag{
+				{
+					Name:  "tag1",
+					Value: "tag1-value",
+				},
+			},
+			Autoscale: &AutoscaleConfiguration{
+				NonGPU: &AutoscaleConfigurationBase{
+					InstanceType:      "new-node-type",
+					DiskSize:          512,
+					MinWorkers:        1,
+					MaxWorkers:        10,
+					StandbyWorkers:    0.7,
+					DownscaleWaitTime: 500,
+					SpotInfo: &SpotConfiguration{
+						MaxPrice:         100,
+						FallBackOnDemand: false,
+					},
+				},
+			},
+		},
+		NetworkResourceGroup: "new-resource-group",
+		VirtualNetworkName:   "new-virtual-network",
+		SubnetName:           "new-subnet",
+		SecurityGroupName:    "new-security-group",
+	})
+
+	if err != nil {
+		t.Fatalf("should not throw an error, but got %s", err)
+	}
+
+	if id != "cluster-id-1" {
+		t.Fatalf("expected cluster id (cluster-id-1), but got %s", id)
+	}
+}
+
+func TestNewClusterFromBackup_unknownCloud(t *testing.T) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod: http.MethodPost,
+			ExpectPath:   "/api/clusters/restore/backup-id-1",
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200,
+				"payload": {
+					"id": "cluster-id-1"
+				}
+			}`,
+			T: t,
+		},
+	}
+
+	id, err := NewClusterFromBackup(context.TODO(), apiClient, "backup-id-1", nil)
+
+	if err == nil || err.Error() != "unknown create request #<nil>" {
+		t.Fatalf("should throw unknown request error, but got %s", err)
+	}
+
+	if id != "" {
+		t.Fatalf("expected empty cluster-id, but got %s", id)
+	}
+}

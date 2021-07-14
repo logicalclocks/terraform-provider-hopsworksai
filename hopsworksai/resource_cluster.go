@@ -685,8 +685,7 @@ func awsAttributesSchema() *schema.Resource {
 						"subnet_id": {
 							Description: "The subnet id.",
 							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
+							Required:    true,
 							ForceNew:    true,
 						},
 						"security_group_id": {
@@ -951,16 +950,6 @@ func createAzureCluster(azureAttributes map[string]interface{}, baseRequest *api
 
 func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error) {
 	headConfig := d.Get("head").([]interface{})[0].(map[string]interface{})
-	tagsMap := d.Get("tags").(map[string]interface{})
-	tagsArr := make([]api.ClusterTag, len(tagsMap))
-	var index int = 0
-	for k, v := range tagsMap {
-		tagsArr[index] = api.ClusterTag{
-			Name:  k,
-			Value: v.(string),
-		}
-		index++
-	}
 
 	createCluster := &api.CreateCluster{
 		Name:       d.Get("name").(string),
@@ -976,7 +965,7 @@ func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error
 		AttachPublicIP:        d.Get("attach_public_ip").(bool),
 		ManagedUsers:          d.Get("managed_users").(bool),
 		BackupRetentionPeriod: d.Get("backup_retention_period").(int),
-		Tags:                  tagsArr,
+		Tags:                  structure.ExpandTags(d.Get("tags").(map[string]interface{})),
 		InitScript:            d.Get("init_script").(string),
 		RunInitScriptFirst:    d.Get("run_init_script_first").(bool),
 		OS:                    d.Get("os").(string),
@@ -1068,18 +1057,8 @@ func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error
 		}
 	}
 
-	if _, ok := d.GetOk("autoscale"); ok {
-		createCluster.Autoscale = &api.AutoscaleConfiguration{}
-
-		if n, ok := d.GetOk("autoscale.0.non_gpu_workers"); ok && len(n.([]interface{})) > 0 {
-			config := n.([]interface{})[0].(map[string]interface{})
-			createCluster.Autoscale.NonGPU = structure.ExpandAutoscaleConfigurationBase(config)
-		}
-
-		if n, ok := d.GetOk("autoscale.0.gpu_workers"); ok && len(n.([]interface{})) > 0 {
-			config := n.([]interface{})[0].(map[string]interface{})
-			createCluster.Autoscale.GPU = structure.ExpandAutoscaleConfigurationBase(config)
-		}
+	if v, ok := d.GetOk("autoscale"); ok {
+		createCluster.Autoscale = structure.ExpandAutoscaleConfiguration(v.([]interface{}))
 	}
 	return createCluster, nil
 }

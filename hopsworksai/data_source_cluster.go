@@ -2,8 +2,6 @@ package hopsworksai
 
 import (
 	"context"
-	"strconv"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -34,8 +32,11 @@ func dataSourceClusterRead(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.FromErr(err)
 	}
 
-	// always run
-	d.SetId(strconv.FormatInt(time.Now().Unix(), 10))
+	if cluster == nil {
+		return diag.Errorf("cluster not found for cluster_id %s", clusterId)
+	}
+
+	d.SetId(clusterId)
 	for k, v := range structure.FlattenCluster(cluster) {
 		if err := d.Set(k, v); err != nil {
 			return diag.FromErr(err)

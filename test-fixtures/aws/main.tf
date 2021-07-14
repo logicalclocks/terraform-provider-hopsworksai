@@ -70,3 +70,44 @@ resource "aws_key_pair" "key" {
     Purpose = "Hopsworks.ai"
   }
 }
+
+data "aws_availability_zones" "available" {
+}
+
+module "vpc" {
+  source         = "terraform-aws-modules/vpc/aws"
+  version        = "3.2.0"
+  name           = var.vpc_name
+  cidr           = "10.0.0.0/16"
+  azs            = data.aws_availability_zones.available.names
+  public_subnets = ["10.0.101.0/24"]
+
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+
+  manage_default_security_group = true
+  default_security_group_ingress = [
+    {
+      self     = true
+      protocol = "-1"
+    },
+    {
+      from_port   = 80
+      to_port     = 80
+      protocol    = "tcp"
+      cidr_blocks = "0.0.0.0/0"
+    },
+    {
+      from_port   = 443
+      to_port     = 443
+      protocol    = "tcp"
+      cidr_blocks = "0.0.0.0/0"
+    },
+  ]
+  default_security_group_egress = [
+    {
+      protocol    = "-1"
+      cidr_blocks = "0.0.0.0/0"
+    },
+  ]
+}
