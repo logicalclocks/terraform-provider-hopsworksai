@@ -1,6 +1,4 @@
-## 0.4.0 (Unreleased)
-
-BREAKING CHANGES:
+## 0.4.0 (July 14, 2021)
 
 BUG FIXES:
 * resource/hopsworksai_cluster: Fix validation condition for `backup_retention_period`
