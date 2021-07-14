@@ -13,6 +13,7 @@ ENHANCEMENTS:
 * resource/hopsworksai_cluster: Add new attributes `workers/spot_config`, `autoscale/non_gpu_workers/spot_config`, and `autoscale/gpu_workers/spot_config`
 * resource/hopsworksai_cluster: Add a new attribute `os`
 * resource/hopsworksai_cluster: Add a new attribute `run_init_script_first`
+* Allow setting aws_profile and aws_region when running acceptance tests
 
 FEATURES:
 * **New Resource**: `hopsworksai_backup`

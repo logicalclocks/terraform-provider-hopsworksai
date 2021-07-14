@@ -1,5 +1,6 @@
 provider "aws" {
-  region = var.aws_region
+  region  = var.aws_region
+  profile = var.aws_profile
 }
 
 provider "azurerm" {
@@ -25,7 +26,6 @@ module "aws" {
   instance_profile_name = "tf-instance-profile-${random_string.suffix.result}"
   ssh_key_name          = "tf-key-${random_string.suffix.result}"
   ssh_public_key        = file("${path.module}/.keys/tf.pub")
-  vpc_name              = "tf-vpc-${random_string.suffix.result}"
 }
 
 module "azure" {

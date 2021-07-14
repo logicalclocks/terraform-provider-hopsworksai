@@ -49,6 +49,8 @@ In order to run the full suite of Acceptance tests, you need do the following:
    export TF_VAR_skip_aws=false # Setting it to true will not run any acceptance tests on AWS
    export TF_VAR_skip_azure=false # Setting it to true will not run any acceptance tests on Azure
    export TF_VAR_azure_resource_group=<YOUR AZURE RESOURCE GROUP> # no need to set if you skip tests on Azure
+   export TF_VAR_aws_profile=<YOUR AWS PROFILE> # If not set, the default aws profile is used
+   export TF_VAR_aws_region=<YOUR AWS REGION> # If not set, us-east-2 is used
 ```
 * Run all the acceptance tests using the following command 
 
