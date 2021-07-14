@@ -1280,6 +1280,7 @@ func resourceClusterWaitForRunning(ctx context.Context, client *api.HopsworksAIC
 			api.Running,
 			api.Error,
 			api.WorkerError,
+			api.CommandFailed,
 		},
 		timeout,
 		func() (result interface{}, state string, err error) {
@@ -1354,6 +1355,7 @@ func resourceClusterWaitForDeleting(ctx context.Context, client *api.HopsworksAI
 			api.Error,
 			api.ClusterDeleted,
 			api.TerminationWarning,
+			api.CommandFailed,
 		},
 		timeout,
 		func() (result interface{}, state string, err error) {
