@@ -10,6 +10,12 @@ variable "aws_region" {
   default     = "us-east-2"
 }
 
+variable "aws_profile" {
+  description = "AWS profile to use."
+  type        = string
+  default     = "default"
+}
+
 variable "skip_aws" {
   description = "Skip creating resources for AWS tests"
   type        = bool

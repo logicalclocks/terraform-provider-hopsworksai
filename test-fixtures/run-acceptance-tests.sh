@@ -5,6 +5,10 @@ ACCTEST_PARALLELISM=${ACCTEST_PARALLELISM:-2}
 
 TF_VAR_skip_aws=${TF_VAR_skip_aws:-false}
 TF_VAR_skip_azure=${TF_VAR_skip_azure:-false}
+
+TF_VAR_aws_profile=${TF_VAR_aws_profile:-default}
+TF_VAR_aws_region=${TF_VAR_aws_region:-us-east-2}
+
 if [ -z ${HOPSWORKSAI_API_KEY} ] ; then 
     echo "Environment variable HOPSWORKSAI_API_KEY is not set, you need to export your Hopsworks API key to run the acceptance tests"
     exit 1

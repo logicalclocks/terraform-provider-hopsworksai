@@ -71,43 +71,62 @@ resource "aws_key_pair" "key" {
   }
 }
 
-data "aws_availability_zones" "available" {
-}
-
-module "vpc" {
-  source         = "terraform-aws-modules/vpc/aws"
-  version        = "3.2.0"
-  name           = var.vpc_name
-  cidr           = "10.0.0.0/16"
-  azs            = data.aws_availability_zones.available.names
-  public_subnets = ["10.0.101.0/24"]
-
+resource "aws_vpc" "vpc" {
+  cidr_block           = "10.0.0.0/16"
   enable_dns_support   = true
   enable_dns_hostnames = true
+}
 
-  manage_default_security_group = true
-  default_security_group_ingress = [
-    {
-      self     = true
-      protocol = "-1"
-    },
-    {
-      from_port   = 80
-      to_port     = 80
-      protocol    = "tcp"
-      cidr_blocks = "0.0.0.0/0"
-    },
-    {
-      from_port   = 443
-      to_port     = 443
-      protocol    = "tcp"
-      cidr_blocks = "0.0.0.0/0"
-    },
-  ]
-  default_security_group_egress = [
-    {
-      protocol    = "-1"
-      cidr_blocks = "0.0.0.0/0"
-    },
-  ]
+resource "aws_subnet" "subnet" {
+  vpc_id                  = aws_vpc.vpc.id
+  cidr_block              = "10.0.1.0/24"
+  map_public_ip_on_launch = true
+}
+
+resource "aws_internet_gateway" "internet_gateway" {
+  vpc_id = aws_vpc.vpc.id
+}
+
+resource "aws_route_table" "route_table" {
+  vpc_id = aws_vpc.vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.internet_gateway.id
+  }
+}
+
+resource "aws_route_table_association" "route_to_subnet" {
+  subnet_id      = aws_subnet.subnet.id
+  route_table_id = aws_route_table.route_table.id
+}
+
+resource "aws_security_group" "security_group" {
+  vpc_id = aws_vpc.vpc.id
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = -1
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 0
+    to_port   = 0
+    self      = true
+    protocol  = "-1"
+  }
 }

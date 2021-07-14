@@ -15,13 +15,13 @@ output "ssh_key_name" {
 }
 
 output "vpc_id" {
-  value = module.vpc.vpc_id
+  value = aws_vpc.vpc.id
 }
 
 output "subnet_id" {
-  value = module.vpc.public_subnets[0]
+  value = aws_subnet.subnet.id
 }
 
 output "security_group_id" {
-  value = module.vpc.default_security_group_id
+  value = aws_security_group.security_group.id
 }

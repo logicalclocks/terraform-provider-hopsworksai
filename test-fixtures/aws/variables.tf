@@ -28,8 +28,3 @@ variable "ssh_public_key" {
   description = "Public key used with this ssh key pair"
   type        = string
 }
-
-variable "vpc_name" {
-  description = "VPC name"
-  type        = string
-}
