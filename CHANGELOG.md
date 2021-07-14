@@ -6,6 +6,7 @@ BUG FIXES:
 * resource/hopsworksai_cluster: Fix validation condition for `backup_retention_period`
 * datasource/hopsworksai_cluster: Check if cluster is not nil before updating state
 * resource/hopsworksai_cluster: Set Required to true for `aws_attributes/network/subnet_id` to ensure setting the subnet_name if setting up your own network configuration
+* Add command-failed to cluster error states
 
 ENHANCEMENTS:
 * resource/hopsworksai_cluster: Add a new attribute `init_script`

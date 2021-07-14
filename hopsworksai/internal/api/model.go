@@ -36,6 +36,7 @@ const (
 	Decommissioning    ClusterState = "decommissioning"
 	RonDBInitializing  ClusterState = "rondb-initializing"
 	StartingHopsworks  ClusterState = "starting-hopsworks"
+	CommandFailed      ClusterState = "command-failed"
 	// Worker states
 	WorkerPending         ClusterState = worker + "-" + Pending
 	WorkerInitializing    ClusterState = worker + "-" + Initializing
