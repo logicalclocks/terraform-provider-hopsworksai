@@ -173,6 +173,7 @@ type AzureCluster struct {
 	SecurityGroupName    string `json:"securityGroupName"`
 	AksClusterName       string `json:"aksClusterName"`
 	AcrRegistryName      string `json:"acrRegistryName"`
+	SearchDomain         string `json:"searchDomain"`
 }
 
 type AWSCluster struct {

@@ -220,6 +220,7 @@ func TestFlattenAzureAttributes(t *testing.T) {
 			AksClusterName:       "aks-cluster-name-1",
 			AcrRegistryName:      "acr-registry-name-1",
 			NetworkResourceGroup: "network-resource-group-1",
+			SearchDomain:         "internal.cloudapp.net",
 		},
 	}
 
@@ -240,6 +241,7 @@ func TestFlattenAzureAttributes(t *testing.T) {
 			},
 			"aks_cluster_name":  input.Azure.AksClusterName,
 			"acr_registry_name": input.Azure.AcrRegistryName,
+			"search_domain":     input.Azure.SearchDomain,
 		},
 	}
 
@@ -430,6 +432,7 @@ func TestFlattenCluster(t *testing.T) {
 				SecurityGroupName:  "security-group-name-1",
 				AksClusterName:     "aks-cluster-name-1",
 				AcrRegistryName:    "acr-registry-name-1",
+				SearchDomain:       "internal.cloudapp.net",
 			}
 			input.AWS = api.AWSCluster{}
 			expected["aws_attributes"] = emptyAttributes
@@ -1402,6 +1405,7 @@ func TestFlattenClusters(t *testing.T) {
 				SecurityGroupName:  "security-group-name-1",
 				AksClusterName:     "aks-cluster-name-1",
 				AcrRegistryName:    "acr-registry-name-1",
+				SearchDomain:       "internal.cloudapp.net",
 			},
 		},
 	}

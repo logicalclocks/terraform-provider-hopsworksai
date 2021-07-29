@@ -132,6 +132,7 @@ func flattenAzureAttributes(cluster *api.Cluster) []interface{} {
 		},
 		"aks_cluster_name":  cluster.Azure.AksClusterName,
 		"acr_registry_name": cluster.Azure.AcrRegistryName,
+		"search_domain":     cluster.Azure.SearchDomain,
 	}
 	return azureAttributes
 }

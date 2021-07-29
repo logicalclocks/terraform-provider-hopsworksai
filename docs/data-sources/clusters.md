@@ -165,6 +165,7 @@ Read-Only:
 - **location** (String)
 - **network** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--azure_attributes--network))
 - **resource_group** (String)
+- **search_domain** (String)
 - **storage_account** (String)
 - **storage_container_name** (String)
 - **user_assigned_managed_identity** (String)
