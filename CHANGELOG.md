@@ -1,13 +1,18 @@
-## 0.5.0 (Unreleased)
+## 0.6.0 (Unreleased)
 
 BREAKING CHANGES:
 
 BUG FIXES:
 
 ENHANCEMENTS:
-* resource/hopsworksai_cluster: Add a new attribute `search_domain`
+
 
 FEATURES:
+
+## 0.5.0 (July 30, 2021)
+
+ENHANCEMENTS:
+* resource/hopsworksai_cluster: Add a new attribute `search_domain`
 
 
 ## 0.4.0 (July 14, 2021)
