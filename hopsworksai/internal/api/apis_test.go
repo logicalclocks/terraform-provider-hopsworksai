@@ -249,7 +249,8 @@ func TestGetClusterAZURE(t *testing.T) {
 							"subnetName": "subnet-name-1",
 							"securityGroupName": "security-group-name-1",
 							"aksClusterName": "aks-cluster-name-1",
-							"acrRegistryName": "acr-registry-name-1"
+							"acrRegistryName": "acr-registry-name-1",
+							"searchDomain": "internal.cloudapp.net"
 						}
 					}
 				}
@@ -308,6 +309,7 @@ func TestGetClusterAZURE(t *testing.T) {
 			SecurityGroupName:  "security-group-name-1",
 			AksClusterName:     "aks-cluster-name-1",
 			AcrRegistryName:    "acr-registry-name-1",
+			SearchDomain:       "internal.cloudapp.net",
 		},
 	}
 
@@ -747,7 +749,8 @@ func TestNewClusterAZURE(t *testing.T) {
 					"subnetName": "subnet-1",
 					"securityGroupName": "security-group-1",
 					"aksClusterName": "aks-cluster-1",
-					"acrRegistryName": "acr-registry-1"
+					"acrRegistryName": "acr-registry-1",
+					"searchDomain": "internal.cloudapp.net"
 				}
 			}`,
 			ResponseCode: http.StatusOK,
@@ -848,6 +851,7 @@ func TestNewClusterAZURE(t *testing.T) {
 			SecurityGroupName:    "security-group-1",
 			AksClusterName:       "aks-cluster-1",
 			AcrRegistryName:      "acr-registry-1",
+			SearchDomain:         "internal.cloudapp.net",
 		},
 	}
 

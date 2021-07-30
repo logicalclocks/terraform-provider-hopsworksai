@@ -801,6 +801,13 @@ func azureAttributesSchema() *schema.Resource {
 				Optional:    true,
 				ForceNew:    true,
 			},
+			"search_domain": {
+				Description: "The search domain to use for node address resolution. If not specified it will use the Azure default one.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Default:     "internal.cloudapp.net",
+			},
 		},
 	}
 }
@@ -925,6 +932,7 @@ func createAzureCluster(azureAttributes map[string]interface{}, baseRequest *api
 			StorageAccount:    azureAttributes["storage_account"].(string),
 			BlobContainerName: containerName,
 			ManagedIdentity:   azureAttributes["user_assigned_managed_identity"].(string),
+			SearchDomain:      azureAttributes["search_domain"].(string),
 		},
 	}
 

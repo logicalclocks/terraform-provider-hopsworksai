@@ -164,6 +164,7 @@ Read-Only:
 - **aks_cluster_name** (String) The name of the AKS cluster.
 - **location** (String) The location where the cluster will be created.
 - **resource_group** (String) The resource group where the cluster will be created.
+- **search_domain** (String) The search domain to use for node address resolution. If not specified it will use the Azure default one.
 - **storage_account** (String) The azure storage account that the cluster will use to store data in.
 - **storage_container_name** (String) The name of the azure storage container that the cluster will use to store data in. If not specified, it will be automatically generated.
 - **user_assigned_managed_identity** (String) The azure user assigned managed identity that the cluster will be started with.

@@ -1666,7 +1666,8 @@ func TestClusterRead_AZURE(t *testing.T) {
 								"networkResourceGroup": "network-resource-group-1",
 								"virtualNetworkName": "network-name-1",
 								"subnetName": "subnet-name-1",
-								"securityGroupName": "security-group-name-1"
+								"securityGroupName": "security-group-name-1",
+								"searchDomain": "internal.cloudapp.net"
 							}
 						}
 					}
@@ -1723,6 +1724,7 @@ func TestClusterRead_AZURE(t *testing.T) {
 					},
 					"aks_cluster_name":  "",
 					"acr_registry_name": "",
+					"search_domain":     "internal.cloudapp.net",
 				},
 			},
 			"aws_attributes": []interface{}{},
