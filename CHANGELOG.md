@@ -5,7 +5,8 @@ BREAKING CHANGES:
 BUG FIXES:
 
 ENHANCEMENTS:
-
+* resource/hopsworksai_cluster: Add support for updating `version` attribute to allow upgrade and rollback
+* resource/hopsworksai_cluster: Add a new computed attribute `upgrade_in_progress`
 
 FEATURES:
 * **New Data Source**: `hopsworksai_version`

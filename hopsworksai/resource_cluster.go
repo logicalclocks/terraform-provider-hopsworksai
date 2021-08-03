@@ -125,10 +125,9 @@ func clusterSchema() map[string]*schema.Schema {
 			ForceNew:    true,
 		},
 		"version": {
-			Description: "The version of the cluster.",
+			Description: "The version of the cluster. For existing clusters, you can change this attribute to upgrade to a newer version of Hopsworks. If upgrade process ended up in an error state, you can always rollback to the old version by resetting this attribute to the old version.",
 			Type:        schema.TypeString,
 			Optional:    true,
-			ForceNew:    true,
 			Default:     "2.2.0",
 		},
 		"head": {
@@ -385,6 +384,25 @@ func clusterSchema() map[string]*schema.Schema {
 			ForceNew:     true,
 			Default:      api.Ubuntu,
 			ValidateFunc: validation.StringInSlice([]string{api.Ubuntu.String(), api.CentOS.String()}, false),
+		},
+		"upgrade_in_progress": {
+			Description: "Information about ongoing cluster upgrade if any.",
+			Type:        schema.TypeList,
+			Computed:    true,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"from_version": {
+						Description: "The source version from which the cluster is upgrading.",
+						Type:        schema.TypeString,
+						Computed:    true,
+					},
+					"to_version": {
+						Description: "The upgrade version to which the cluster is upgrading.",
+						Type:        schema.TypeString,
+						Computed:    true,
+					},
+				},
+			},
 		},
 	}
 }
@@ -827,7 +845,7 @@ func clusterResource() *schema.Resource {
 			Create: schema.DefaultTimeout(45 * time.Minute),
 			Read:   schema.DefaultTimeout(5 * time.Minute),
 			Delete: schema.DefaultTimeout(30 * time.Minute),
-			Update: schema.DefaultTimeout(45 * time.Minute),
+			Update: schema.DefaultTimeout(4 * time.Hour),
 		},
 	}
 }
@@ -1249,6 +1267,31 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		}
 	}
 
+	if d.HasChange("version") {
+		o, n := d.GetChange("version")
+		fromVersion := o.(string)
+		toVersion := n.(string)
+
+		clusterState := d.Get("state").(string)
+		upgradeInProgressFromVersion, upgradeInProgressFromVersionOk := d.GetOk("upgrade_in_progress.0.from_version")
+		upgradeInProgressToVersion, upgradeInProgressToVersionOk := d.GetOk("upgrade_in_progress.0.to_version")
+
+		if !upgradeInProgressFromVersionOk && !upgradeInProgressToVersionOk {
+			if err := api.UpgradeCluster(ctx, client, clusterId, toVersion); err != nil {
+				return diag.FromErr(err)
+			}
+			if err := resourceClusterWaitForRunning(ctx, client, d.Timeout(schema.TimeoutUpdate), clusterId); err != nil {
+				return diag.FromErr(err)
+			}
+		} else if clusterState == api.Error.String() && upgradeInProgressToVersion.(string) == fromVersion && upgradeInProgressFromVersion.(string) == toVersion {
+			if err := api.RollbackUpgradeCluster(ctx, client, clusterId); err != nil {
+				return diag.FromErr(err)
+			}
+			if err := resourceClusterWaitForStopping(ctx, client, d.Timeout(schema.TimeoutUpdate), clusterId); err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	}
 	return resourceClusterRead(ctx, d, meta)
 }
 

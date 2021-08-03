@@ -136,6 +136,11 @@ type AutoscaleConfiguration struct {
 	GPU    *AutoscaleConfigurationBase `json:"gpu,omitempty"`
 }
 
+type UpgradeInProgress struct {
+	From string `json:"from"`
+	To   string `json:"to"`
+}
+
 type Cluster struct {
 	Id                    string                  `json:"id"`
 	Name                  string                  `json:"name"`
@@ -163,6 +168,7 @@ type Cluster struct {
 	InitScript            string                  `json:"initScript"`
 	RunInitScriptFirst    bool                    `json:"runInitScriptFirst"`
 	OS                    OS                      `json:"os,omitempty"`
+	UpgradeInProgress     *UpgradeInProgress      `json:"upgradeInProgress,omitempty"`
 }
 
 func (c *Cluster) IsAWSCluster() bool {
@@ -495,4 +501,8 @@ type GetSupportedVersionsResponse struct {
 	Payload struct {
 		Versions []SupportedVersion `json:"versions"`
 	} `json:"payload"`
+}
+
+type UpgradeClusterRequest struct {
+	Version string `json:"version"`
 }

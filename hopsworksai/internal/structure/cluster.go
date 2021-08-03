@@ -43,6 +43,7 @@ func FlattenCluster(cluster *api.Cluster) map[string]interface{} {
 		"init_script":                    cluster.InitScript,
 		"run_init_script_first":          cluster.RunInitScriptFirst,
 		"os":                             cluster.OS,
+		"upgrade_in_progress":            flattenUpgradeInProgress(cluster.UpgradeInProgress),
 	}
 }
 
@@ -329,4 +330,16 @@ func ExpandTags(tags map[string]interface{}) []api.ClusterTag {
 		index++
 	}
 	return tagsArr
+}
+
+func flattenUpgradeInProgress(upgradeInProgress *api.UpgradeInProgress) []interface{} {
+	if upgradeInProgress == nil {
+		return nil
+	}
+	return []interface{}{
+		map[string]interface{}{
+			"from_version": upgradeInProgress.From,
+			"to_version":   upgradeInProgress.To,
+		},
+	}
 }

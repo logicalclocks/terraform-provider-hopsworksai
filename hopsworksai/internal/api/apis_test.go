@@ -2243,3 +2243,91 @@ func testGetSupportedVersions_error(t *testing.T, cloud CloudProvider) {
 		t.Fatalf("error while matching:\nexpected nil \nbut got %#v", output)
 	}
 }
+
+func TestUpgradeCluster(t *testing.T) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod: http.MethodPost,
+			ExpectPath:   "/api/clusters/cluster-id-1/upgrade",
+			ExpectRequestBody: `{
+				"version": "v2"
+			}`,
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200
+			}`,
+			T: t,
+		},
+	}
+
+	if err := UpgradeCluster(context.TODO(), apiClient, "cluster-id-1", "v2"); err != nil {
+		t.Fatalf("should not throw an error, but got %s", err)
+	}
+}
+
+func TestUpgradeCluster_API_error(t *testing.T) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod: http.MethodPost,
+			ExpectPath:   "/api/clusters/cluster-id-1/upgrade",
+			ExpectRequestBody: `{
+				"version": "v2"
+			}`,
+			ResponseCode: http.StatusBadRequest,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "error",
+				"code": 400,
+				"message": "failure to start upgrade"
+			}`,
+			T: t,
+		},
+	}
+
+	if err := UpgradeCluster(context.TODO(), apiClient, "cluster-id-1", "v2"); err == nil || err.Error() != "failure to start upgrade" {
+		t.Fatalf("should throw an error, but got %s", err)
+	}
+}
+
+func TestRollbackUpgradeCluster(t *testing.T) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod: http.MethodPut,
+			ExpectPath:   "/api/clusters/cluster-id-1/upgrade/rollback",
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200
+			}`,
+			T: t,
+		},
+	}
+
+	if err := RollbackUpgradeCluster(context.TODO(), apiClient, "cluster-id-1"); err != nil {
+		t.Fatalf("should not throw an error, but got %s", err)
+	}
+}
+
+func TestRollbackUpgradeCluster_API_error(t *testing.T) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod: http.MethodPut,
+			ExpectPath:   "/api/clusters/cluster-id-1/upgrade/rollback",
+			ResponseCode: http.StatusBadRequest,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "error",
+				"code": 400,
+				"message": "failure to start rollback"
+			}`,
+			T: t,
+		},
+	}
+
+	if err := RollbackUpgradeCluster(context.TODO(), apiClient, "cluster-id-1"); err == nil || err.Error() != "failure to start rollback" {
+		t.Fatalf("should throw an error, but got %s", err)
+	}
+}
