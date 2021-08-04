@@ -254,3 +254,11 @@ func NewClusterFromBackup(ctx context.Context, apiClient APIHandler, backupId st
 	}
 	return response.Payload.Id, nil
 }
+
+func GetSupportedVersions(ctx context.Context, apiClient APIHandler, cloud CloudProvider) ([]SupportedVersion, error) {
+	var response GetSupportedVersionsResponse
+	if err := apiClient.doRequest(ctx, http.MethodGet, "/api/clusters/hopsworks/versions/"+cloud.String(), nil, &response); err != nil {
+		return nil, err
+	}
+	return response.Payload.Versions, nil
+}

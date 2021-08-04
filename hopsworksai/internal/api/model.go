@@ -65,6 +65,18 @@ func (s ActivationState) String() string {
 	return string(s)
 }
 
+// OS
+type OS string
+
+const (
+	Ubuntu OS = "ubuntu"
+	CentOS OS = "centos"
+)
+
+func (o OS) String() string {
+	return string(o)
+}
+
 type BaseResponse struct {
 	ApiVersion string `json:"apiVersion"`
 	Status     string `json:"status"`
@@ -150,7 +162,7 @@ type Cluster struct {
 	Autoscale             *AutoscaleConfiguration `json:"autoscale,omitempty"`
 	InitScript            string                  `json:"initScript"`
 	RunInitScriptFirst    bool                    `json:"runInitScriptFirst"`
-	OS                    string                  `json:"os,omitempty"`
+	OS                    OS                      `json:"os,omitempty"`
 }
 
 func (c *Cluster) IsAWSCluster() bool {
@@ -226,7 +238,7 @@ type CreateCluster struct {
 	Autoscale             *AutoscaleConfiguration `json:"autoscale,omitempty"`
 	InitScript            string                  `json:"initScript"`
 	RunInitScriptFirst    bool                    `json:"runInitScriptFirst"`
-	OS                    string                  `json:"os,omitempty"`
+	OS                    OS                      `json:"os,omitempty"`
 }
 
 type CreateAzureCluster struct {
@@ -462,4 +474,25 @@ type CreateAWSClusterFromBackup struct {
 
 type NewClusterFromBackupRequest struct {
 	CreateRequest interface{} `json:"cluster"`
+}
+
+type SupportedVersionRegions struct {
+	Ubuntu []string `json:"ubuntu,omitempty"`
+	CentOS []string `json:"centos,omitempty"`
+}
+
+type SupportedVersion struct {
+	Version               string                  `json:"version"`
+	UpgradableFromVersion string                  `json:"upgradableFromVersion"`
+	Default               bool                    `json:"default"`
+	Experimental          bool                    `json:"experimental"`
+	Regions               SupportedVersionRegions `json:"regions"`
+	ReleaseNotesUrl       string                  `json:"releaseNotesUrl"`
+}
+
+type GetSupportedVersionsResponse struct {
+	BaseResponse
+	Payload struct {
+		Versions []SupportedVersion `json:"versions"`
+	} `json:"payload"`
 }

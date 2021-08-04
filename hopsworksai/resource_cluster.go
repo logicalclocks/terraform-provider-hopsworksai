@@ -383,8 +383,8 @@ func clusterSchema() map[string]*schema.Schema {
 			Type:         schema.TypeString,
 			Optional:     true,
 			ForceNew:     true,
-			Default:      "ubuntu",
-			ValidateFunc: validation.StringInSlice([]string{"ubuntu", "centos"}, false),
+			Default:      api.Ubuntu,
+			ValidateFunc: validation.StringInSlice([]string{api.Ubuntu.String(), api.CentOS.String()}, false),
 		},
 	}
 }
@@ -976,7 +976,7 @@ func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error
 		Tags:                  structure.ExpandTags(d.Get("tags").(map[string]interface{})),
 		InitScript:            d.Get("init_script").(string),
 		RunInitScriptFirst:    d.Get("run_init_script_first").(bool),
-		OS:                    d.Get("os").(string),
+		OS:                    api.OS(d.Get("os").(string)),
 	}
 
 	if v, ok := d.GetOk("workers"); ok {

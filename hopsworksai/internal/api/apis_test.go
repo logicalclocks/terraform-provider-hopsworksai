@@ -2083,3 +2083,163 @@ func TestNewClusterFromBackup_unknownCloud(t *testing.T) {
 		t.Fatalf("expected empty cluster-id, but got %s", id)
 	}
 }
+
+func TestGetSupportedVersions_AWS(t *testing.T) {
+	testGetSupportedVersions(t, AWS)
+}
+
+func TestGetSupportedVersions_AZURE(t *testing.T) {
+	testGetSupportedVersions(t, AZURE)
+}
+
+func testGetSupportedVersions(t *testing.T, cloud CloudProvider) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod: http.MethodGet,
+			ExpectPath:   "/api/clusters/hopsworks/versions/" + cloud.String(),
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200,
+				"payload": {
+					"versions":[
+						{
+							"version": "1.0",
+							"upgradableFromVersion": "N/A",
+							"default": false,
+							"experimental": true,
+							"regions": {
+								"ubuntu": [
+									"region-5",
+									"region-6"
+								]
+							},
+							"releaseNotesUrl": "notes-1"
+						},
+						{
+							"version": "2.0",
+							"upgradableFromVersion": "1.0",
+							"default": false,
+							"experimental": false,
+							"regions": {
+								"centos": [
+									"region-1",
+									"region-2"
+								]
+							},
+							"releaseNotesUrl": "notes-2"
+						},
+						{
+							"version": "3.0",
+							"upgradableFromVersion": "2.0",
+							"default": true,
+							"experimental": false,
+							"regions": {
+								"centos": [
+									"region-1",
+									"region-2"
+								],
+								"ubuntu": [
+									"region-3",
+									"region-4"
+								]
+							},
+							"releaseNotesUrl": "notes-3"
+						}
+					]
+				}
+			}`,
+			T: t,
+		},
+	}
+
+	expected := []SupportedVersion{
+		{
+			Version:               "1.0",
+			UpgradableFromVersion: "N/A",
+			Default:               false,
+			Experimental:          true,
+			Regions: SupportedVersionRegions{
+				Ubuntu: []string{
+					"region-5",
+					"region-6",
+				},
+			},
+			ReleaseNotesUrl: "notes-1",
+		},
+		{
+			Version:               "2.0",
+			UpgradableFromVersion: "1.0",
+			Default:               false,
+			Experimental:          false,
+			Regions: SupportedVersionRegions{
+				CentOS: []string{
+					"region-1",
+					"region-2",
+				},
+			},
+			ReleaseNotesUrl: "notes-2",
+		},
+		{
+			Version:               "3.0",
+			UpgradableFromVersion: "2.0",
+			Default:               true,
+			Experimental:          false,
+			Regions: SupportedVersionRegions{
+				CentOS: []string{
+					"region-1",
+					"region-2",
+				},
+				Ubuntu: []string{
+					"region-3",
+					"region-4",
+				},
+			},
+			ReleaseNotesUrl: "notes-3",
+		},
+	}
+	output, err := GetSupportedVersions(context.TODO(), apiClient, cloud)
+
+	if err != nil {
+		t.Fatalf("should not throw an error, but got %s", err)
+	}
+
+	if !reflect.DeepEqual(expected, output) {
+		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
+	}
+}
+
+func TestGetSupportedVersions_AWS_error(t *testing.T) {
+	testGetSupportedVersions_error(t, AWS)
+}
+
+func TestGetSupportedVersions_AZURE_error(t *testing.T) {
+	testGetSupportedVersions_error(t, AZURE)
+}
+
+func testGetSupportedVersions_error(t *testing.T, cloud CloudProvider) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod: http.MethodGet,
+			ExpectPath:   "/api/clusters/hopsworks/versions/" + cloud.String(),
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "error",
+				"code": 400,
+				"message": "no versions"
+			}`,
+			T: t,
+		},
+	}
+	output, err := GetSupportedVersions(context.TODO(), apiClient, cloud)
+
+	if err == nil || err.Error() != "no versions" {
+		t.Fatalf("should throw an error [no versions], but got %s", err)
+	}
+
+	if output != nil {
+		t.Fatalf("error while matching:\nexpected nil \nbut got %#v", output)
+	}
+}

@@ -8,6 +8,8 @@ ENHANCEMENTS:
 
 
 FEATURES:
+* **New Data Source**: `hopsworksai_version`
+
 
 ## 0.5.0 (July 30, 2021)
 

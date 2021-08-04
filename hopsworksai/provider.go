@@ -49,6 +49,7 @@ func Provider(version string) func() *schema.Provider {
 				"hopsworksai_azure_user_assigned_identity_permissions": dataSourceAzureUserAssignedIdentityPermissions(),
 				"hopsworksai_backups":                                  dataSourceBackups(),
 				"hopsworksai_backup":                                   dataSourceBackup(),
+				"hopsworksai_version":                                  dataSourceVersion(),
 			},
 			ResourcesMap: map[string]*schema.Resource{
 				"hopsworksai_cluster":             clusterResource(),
