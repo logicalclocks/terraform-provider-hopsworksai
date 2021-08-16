@@ -125,7 +125,7 @@ func clusterSchema() map[string]*schema.Schema {
 			ForceNew:    true,
 		},
 		"version": {
-			Description: "The version of the cluster. For existing clusters, you can change this attribute to upgrade to a newer version of Hopsworks. If upgrade process ended up in an error state, you can always rollback to the old version by resetting this attribute to the old version.",
+			Description: "The version of the cluster. For existing clusters, you can change this attribute to upgrade to a newer version of Hopsworks. If the upgrade process ended up in an error state, you can always rollback to the old version by resetting this attribute to the old version.",
 			Type:        schema.TypeString,
 			Optional:    true,
 			Default:     "2.2.0",
@@ -392,12 +392,12 @@ func clusterSchema() map[string]*schema.Schema {
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
 					"from_version": {
-						Description: "The source version from which the cluster is upgrading.",
+						Description: "The version from which the cluster is upgrading.",
 						Type:        schema.TypeString,
 						Computed:    true,
 					},
 					"to_version": {
-						Description: "The upgrade version to which the cluster is upgrading.",
+						Description: "The version to which the cluster is upgrading.",
 						Type:        schema.TypeString,
 						Computed:    true,
 					},

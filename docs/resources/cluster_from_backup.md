@@ -57,7 +57,7 @@ resource "hopsworksai_cluster_from_backup" "cluster" {
 - **state** (String) The current state of the cluster.
 - **upgrade_in_progress** (List of Object) Information about ongoing cluster upgrade if any. (see [below for nested schema](#nestedatt--upgrade_in_progress))
 - **url** (String) The url generated to access the cluster.
-- **version** (String) The version of the cluster. For existing clusters, you can change this attribute to upgrade to a newer version of Hopsworks. If upgrade process ended up in an error state, you can always rollback to the old version by resetting this attribute to the old version.
+- **version** (String) The version of the cluster. For existing clusters, you can change this attribute to upgrade to a newer version of Hopsworks. If the upgrade process ended up in an error state, you can always rollback to the old version by resetting this attribute to the old version.
 
 <a id="nestedblock--autoscale"></a>
 ### Nested Schema for `autoscale`

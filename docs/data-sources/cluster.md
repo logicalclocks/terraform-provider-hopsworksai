@@ -54,7 +54,7 @@ data "hopsworksai_clusters" "cluster" {
 - **update_state** (String) The action you can use to start or stop the cluster.
 - **upgrade_in_progress** (List of Object) Information about ongoing cluster upgrade if any. (see [below for nested schema](#nestedatt--upgrade_in_progress))
 - **url** (String) The url generated to access the cluster.
-- **version** (String) The version of the cluster. For existing clusters, you can change this attribute to upgrade to a newer version of Hopsworks. If upgrade process ended up in an error state, you can always rollback to the old version by resetting this attribute to the old version.
+- **version** (String) The version of the cluster. For existing clusters, you can change this attribute to upgrade to a newer version of Hopsworks. If the upgrade process ended up in an error state, you can always rollback to the old version by resetting this attribute to the old version.
 - **workers** (Set of Object) The configurations of worker nodes. You can add as many as you want of this block to create workers with different configurations. (see [below for nested schema](#nestedatt--workers))
 
 <a id="nestedatt--autoscale"></a>
