@@ -55,8 +55,9 @@ resource "hopsworksai_cluster_from_backup" "cluster" {
 - **run_init_script_first** (Boolean) Run the init script before any other node initialization. WARNING if your initscript interfere with the following node initialization the cluster may not start properly. Make sure that you know what you are doing.
 - **start_date** (String) The starting date of the cluster. The date is represented in RFC3339 format.
 - **state** (String) The current state of the cluster.
+- **upgrade_in_progress** (List of Object) Information about ongoing cluster upgrade if any. (see [below for nested schema](#nestedatt--upgrade_in_progress))
 - **url** (String) The url generated to access the cluster.
-- **version** (String) The version of the cluster.
+- **version** (String) The version of the cluster. For existing clusters, you can change this attribute to upgrade to a newer version of Hopsworks. If the upgrade process ended up in an error state, you can always rollback to the old version by resetting this attribute to the old version.
 
 <a id="nestedblock--autoscale"></a>
 ### Nested Schema for `autoscale`
@@ -320,5 +321,15 @@ Read-Only:
 - **count** (Number)
 - **disk_size** (Number)
 - **instance_type** (String)
+
+
+
+<a id="nestedatt--upgrade_in_progress"></a>
+### Nested Schema for `upgrade_in_progress`
+
+Read-Only:
+
+- **from_version** (String)
+- **to_version** (String)
 
 

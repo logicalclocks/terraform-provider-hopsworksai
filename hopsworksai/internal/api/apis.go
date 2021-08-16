@@ -262,3 +262,26 @@ func GetSupportedVersions(ctx context.Context, apiClient APIHandler, cloud Cloud
 	}
 	return response.Payload.Versions, nil
 }
+
+func UpgradeCluster(ctx context.Context, apiClient APIHandler, clusterId string, upgradeToVersion string) error {
+	req := UpgradeClusterRequest{
+		Version: upgradeToVersion,
+	}
+	payload, err := json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("failed to marshal request: %s", err)
+	}
+	var response BaseResponse
+	if err := apiClient.doRequest(ctx, http.MethodPost, "/api/clusters/"+clusterId+"/upgrade", bytes.NewBuffer(payload), &response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func RollbackUpgradeCluster(ctx context.Context, apiClient APIHandler, clusterId string) error {
+	var response BaseResponse
+	if err := apiClient.doRequest(ctx, http.MethodPut, "/api/clusters/"+clusterId+"/upgrade/rollback", nil, &response); err != nil {
+		return err
+	}
+	return nil
+}

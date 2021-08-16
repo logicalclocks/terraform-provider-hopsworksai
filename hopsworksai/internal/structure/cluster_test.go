@@ -373,6 +373,10 @@ func TestFlattenCluster(t *testing.T) {
 		InitScript:         "#!/usr/bin/env bash\nset -e\necho 'Hello World'",
 		RunInitScriptFirst: true,
 		OS:                 "centos",
+		UpgradeInProgress: &api.UpgradeInProgress{
+			From: "v1",
+			To:   "v2",
+		},
 	}
 
 	var emptyAttributes []interface{} = nil
@@ -402,6 +406,7 @@ func TestFlattenCluster(t *testing.T) {
 		"init_script":                    input.InitScript,
 		"run_init_script_first":          input.RunInitScriptFirst,
 		"os":                             input.OS,
+		"upgrade_in_progress":            flattenUpgradeInProgress(input.UpgradeInProgress),
 	}
 
 	for _, cloud := range []api.CloudProvider{api.AWS, api.AZURE} {
@@ -1477,6 +1482,33 @@ func TestFlattenClusters(t *testing.T) {
 			} else if !reflect.DeepEqual(v, outputCluster[k]) {
 				t.Fatalf("error while matching %s:\nexpected %#v \nbut got %#v ", k, v, outputCluster[k])
 			}
+		}
+	}
+}
+
+func TestFlattenUpgradeInProgress(t *testing.T) {
+	input := []*api.UpgradeInProgress{
+		{
+			From: "v1",
+			To:   "v2",
+		},
+		nil,
+	}
+
+	expected := [][]interface{}{
+		{
+			map[string]interface{}{
+				"from_version": "v1",
+				"to_version":   "v2",
+			},
+		},
+		nil,
+	}
+
+	for i := range input {
+		output := flattenUpgradeInProgress(input[i])
+		if !reflect.DeepEqual(expected[i], output) {
+			t.Fatalf("error while matching[%d]:\nexpected %#v \nbut got %#v", i, expected[i], output)
 		}
 	}
 }

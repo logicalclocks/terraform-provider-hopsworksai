@@ -90,7 +90,7 @@ resource "hopsworksai_cluster" "cluster" {
 - **tags** (Map of String) The list of custom tags to be attached to the cluster.
 - **timeouts** (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 - **update_state** (String) The action you can use to start or stop the cluster. Defaults to `none`.
-- **version** (String) The version of the cluster. Defaults to `2.2.0`.
+- **version** (String) The version of the cluster. For existing clusters, you can change this attribute to upgrade to a newer version of Hopsworks. If the upgrade process ended up in an error state, you can always rollback to the old version by resetting this attribute to the old version. Defaults to `2.2.0`.
 - **workers** (Block Set) The configurations of worker nodes. You can add as many as you want of this block to create workers with different configurations. (see [below for nested schema](#nestedblock--workers))
 
 ### Read-Only
@@ -100,6 +100,7 @@ resource "hopsworksai_cluster" "cluster" {
 - **creation_date** (String) The creation date of the cluster. The date is represented in RFC3339 format.
 - **start_date** (String) The starting date of the cluster. The date is represented in RFC3339 format.
 - **state** (String) The current state of the cluster.
+- **upgrade_in_progress** (List of Object) Information about ongoing cluster upgrade if any. (see [below for nested schema](#nestedatt--upgrade_in_progress))
 - **url** (String) The url generated to access the cluster.
 
 <a id="nestedblock--head"></a>
@@ -364,6 +365,16 @@ Optional:
 
 - **fall_back_on_demand** (Boolean) Fall back to on demand instance if unable to allocate a spot instance Defaults to `true`.
 - **max_price_percent** (Number) The maximum spot instance price in percentage of the on-demand price. Defaults to `100`.
+
+
+
+<a id="nestedatt--upgrade_in_progress"></a>
+### Nested Schema for `upgrade_in_progress`
+
+Read-Only:
+
+- **from_version** (String)
+- **to_version** (String)
 
 ## Import
 

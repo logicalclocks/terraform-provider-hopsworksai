@@ -73,6 +73,7 @@ Read-Only:
 - **state** (String)
 - **tags** (Map of String)
 - **update_state** (String)
+- **upgrade_in_progress** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--upgrade_in_progress))
 - **url** (String)
 - **version** (String)
 - **workers** (Set of Object) (see [below for nested schema](#nestedobjatt--clusters--workers))
@@ -285,6 +286,15 @@ Read-Only:
 - **disk_size** (Number)
 - **instance_type** (String)
 
+
+
+<a id="nestedobjatt--clusters--upgrade_in_progress"></a>
+### Nested Schema for `clusters.upgrade_in_progress`
+
+Read-Only:
+
+- **from_version** (String)
+- **to_version** (String)
 
 
 <a id="nestedobjatt--clusters--workers"></a>
