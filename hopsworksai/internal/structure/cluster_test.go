@@ -237,6 +237,7 @@ func TestFlattenAzureAttributes(t *testing.T) {
 					"virtual_network_name": input.Azure.VirtualNetworkName,
 					"subnet_name":          input.Azure.SubnetName,
 					"security_group_name":  input.Azure.SecurityGroupName,
+					"search_domain":        input.Azure.SearchDomain,
 				},
 			},
 			"aks_cluster_name":  input.Azure.AksClusterName,

@@ -220,7 +220,7 @@ Optional:
 - **acr_registry_name** (String) The name of the ACR registry.
 - **aks_cluster_name** (String) The name of the AKS cluster.
 - **network** (Block List, Max: 1) The network configurations. (see [below for nested schema](#nestedblock--azure_attributes--network))
-- **search_domain** (String) The search domain to use for node address resolution. If not specified it will use the Azure default one. Defaults to `internal.cloudapp.net`.
+- **search_domain** (String, Deprecated) The search domain to use for node address resolution. If not specified it will use the Azure default one (internal.cloudapp.net).  Use azure_attributes/network/search_domain instead.
 - **storage_container_name** (String) The name of the azure storage container that the cluster will use to store data in. If not specified, it will be automatically generated.
 
 <a id="nestedblock--azure_attributes--network"></a>
@@ -234,6 +234,7 @@ Required:
 Optional:
 
 - **resource_group** (String) The resource group where the network resources reside. If not specified, the azure_attributes/resource_group will be used.
+- **search_domain** (String) The search domain to use for node address resolution. If not specified it will use the Azure default one (internal.cloudapp.net).
 - **security_group_name** (String) The security group name.
 
 

@@ -804,6 +804,14 @@ func azureAttributesSchema() *schema.Resource {
 							Computed:    true,
 							ForceNew:    true,
 						},
+						"search_domain": {
+							Description:   "The search domain to use for node address resolution. If not specified it will use the Azure default one (internal.cloudapp.net). ",
+							Type:          schema.TypeString,
+							Optional:      true,
+							Computed:      true,
+							ForceNew:      true,
+							ConflictsWith: []string{"azure_attributes.0.search_domain"},
+						},
 					},
 				},
 			},
@@ -820,11 +828,13 @@ func azureAttributesSchema() *schema.Resource {
 				ForceNew:    true,
 			},
 			"search_domain": {
-				Description: "The search domain to use for node address resolution. If not specified it will use the Azure default one.",
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Default:     "internal.cloudapp.net",
+				Description:   "The search domain to use for node address resolution. If not specified it will use the Azure default one (internal.cloudapp.net). ",
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ForceNew:      true,
+				Deprecated:    "Use azure_attributes/network/search_domain instead.",
+				ConflictsWith: []string{"azure_attributes.0.network.0.search_domain"},
 			},
 		},
 	}
@@ -865,14 +875,14 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 	if aws, ok := d.GetOk("aws_attributes"); ok {
 		awsAttributes := aws.([]interface{})
 		if len(awsAttributes) > 0 {
-			createRequest = createAWSCluster(awsAttributes[0].(map[string]interface{}), baseRequest)
+			createRequest = createAWSCluster(d, baseRequest)
 		}
 	}
 
 	if azure, ok := d.GetOk("azure_attributes"); ok {
 		azureAttributes := azure.([]interface{})
 		if len(azureAttributes) > 0 {
-			createRequest = createAzureCluster(azureAttributes[0].(map[string]interface{}), baseRequest)
+			createRequest = createAzureCluster(d, baseRequest)
 		}
 	}
 
@@ -899,30 +909,26 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourceClusterRead(ctx, d, meta)
 }
 
-func createAWSCluster(awsAttributes map[string]interface{}, baseRequest *api.CreateCluster) *api.CreateAWSCluster {
+func createAWSCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) *api.CreateAWSCluster {
 	setAWSDefaults(baseRequest)
 	req := api.CreateAWSCluster{
 		CreateCluster: *baseRequest,
 		AWSCluster: api.AWSCluster{
-			Region:             awsAttributes["region"].(string),
-			BucketName:         awsAttributes["bucket_name"].(string),
-			InstanceProfileArn: awsAttributes["instance_profile_arn"].(string),
+			Region:             d.Get("aws_attributes.0.region").(string),
+			BucketName:         d.Get("aws_attributes.0.bucket_name").(string),
+			InstanceProfileArn: d.Get("aws_attributes.0.instance_profile_arn").(string),
 		},
 	}
 
-	if v, ok := awsAttributes["network"]; ok {
-		networkArr := v.([]interface{})
-		if len(networkArr) > 0 && networkArr[0] != nil {
-			network := networkArr[0].(map[string]interface{})
-			req.VpcId = network["vpc_id"].(string)
-			req.SubnetId = network["subnet_id"].(string)
-			req.SecurityGroupId = network["security_group_id"].(string)
-		}
+	if _, ok := d.GetOk("aws_attributes.0.network"); ok {
+		req.VpcId = d.Get("aws_attributes.0.network.0.vpc_id").(string)
+		req.SubnetId = d.Get("aws_attributes.0.network.0.subnet_id").(string)
+		req.SecurityGroupId = d.Get("aws_attributes.0.network.0.security_group_id").(string)
 	}
 
-	if v, ok := awsAttributes["eks_cluster_name"]; ok && v != "" {
+	if v, ok := d.GetOk("aws_attributes.0.eks_cluster_name"); ok {
 		req.EksClusterName = v.(string)
-		if registry, okR := awsAttributes["ecr_registry_account_id"]; okR && registry != "" {
+		if registry, okR := d.GetOk("aws_attributes.0.ecr_registry_account_id"); okR {
 			req.EcrRegistryAccountId = registry.(string)
 		} else {
 			submatches := instanceProfileRegex().FindStringSubmatch(req.InstanceProfileArn)
@@ -934,10 +940,12 @@ func createAWSCluster(awsAttributes map[string]interface{}, baseRequest *api.Cre
 	return &req
 }
 
-func createAzureCluster(azureAttributes map[string]interface{}, baseRequest *api.CreateCluster) *api.CreateAzureCluster {
+func createAzureCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) *api.CreateAzureCluster {
 	setAzureDefaults(baseRequest)
-	containerName := azureAttributes["storage_container_name"].(string)
-	if containerName == "" {
+	var containerName string
+	if v, ok := d.GetOk("azure_attributes.0.storage_container_name"); ok {
+		containerName = v.(string)
+	} else {
 		suffix := time.Now().UnixNano() / 1e6
 		containerName = fmt.Sprintf("hopsworksai-%d", suffix)
 	}
@@ -945,29 +953,33 @@ func createAzureCluster(azureAttributes map[string]interface{}, baseRequest *api
 	req := api.CreateAzureCluster{
 		CreateCluster: *baseRequest,
 		AzureCluster: api.AzureCluster{
-			Location:          azureAttributes["location"].(string),
-			ResourceGroup:     azureAttributes["resource_group"].(string),
-			StorageAccount:    azureAttributes["storage_account"].(string),
+			Location:          d.Get("azure_attributes.0.location").(string),
+			ResourceGroup:     d.Get("azure_attributes.0.resource_group").(string),
+			StorageAccount:    d.Get("azure_attributes.0.storage_account").(string),
 			BlobContainerName: containerName,
-			ManagedIdentity:   azureAttributes["user_assigned_managed_identity"].(string),
-			SearchDomain:      azureAttributes["search_domain"].(string),
+			ManagedIdentity:   d.Get("azure_attributes.0.user_assigned_managed_identity").(string),
 		},
 	}
 
-	if v, ok := azureAttributes["network"]; ok {
-		networkArr := v.([]interface{})
-		if len(networkArr) > 0 && networkArr[0] != nil {
-			network := networkArr[0].(map[string]interface{})
-			req.VirtualNetworkName = network["virtual_network_name"].(string)
-			req.SubnetName = network["subnet_name"].(string)
-			req.SecurityGroupName = network["security_group_name"].(string)
-			req.NetworkResourceGroup = network["resource_group"].(string)
-		}
+	// deprecated, to be removed in next major version
+	if v, ok := d.GetOk("azure_attributes.0.search_domain"); ok {
+		req.SearchDomain = v.(string)
+	} else if v, ok := d.GetOk("azure_attributes.0.network.0.search_domain"); ok {
+		req.SearchDomain = v.(string)
+	} else {
+		req.SearchDomain = "internal.cloudapp.net"
 	}
 
-	if aks, ok := azureAttributes["aks_cluster_name"]; ok && aks != "" {
+	if _, ok := d.GetOk("azure_attributes.0.network"); ok {
+		req.VirtualNetworkName = d.Get("azure_attributes.0.network.0.virtual_network_name").(string)
+		req.SubnetName = d.Get("azure_attributes.0.network.0.subnet_name").(string)
+		req.SecurityGroupName = d.Get("azure_attributes.0.network.0.security_group_name").(string)
+		req.NetworkResourceGroup = d.Get("azure_attributes.0.network.0.resource_group").(string)
+	}
+
+	if aks, ok := d.GetOk("azure_attributes.0.aks_cluster_name"); ok {
 		req.AksClusterName = aks.(string)
-		if registry, okR := azureAttributes["acr_registry_name"]; okR {
+		if registry, okR := d.GetOk("azure_attributes.0.acr_registry_name"); okR {
 			req.AcrRegistryName = registry.(string)
 		}
 	}

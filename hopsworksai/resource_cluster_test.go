@@ -1720,6 +1720,7 @@ func TestClusterRead_AZURE(t *testing.T) {
 							"virtual_network_name": "network-name-1",
 							"subnet_name":          "subnet-name-1",
 							"security_group_name":  "security-group-name-1",
+							"search_domain":        "internal.cloudapp.net",
 						},
 					},
 					"aks_cluster_name":  "",
