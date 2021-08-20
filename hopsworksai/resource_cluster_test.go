@@ -1720,6 +1720,7 @@ func TestClusterRead_AZURE(t *testing.T) {
 							"virtual_network_name": "network-name-1",
 							"subnet_name":          "subnet-name-1",
 							"security_group_name":  "security-group-name-1",
+							"search_domain":        "internal.cloudapp.net",
 						},
 					},
 					"aks_cluster_name":  "",
@@ -2720,6 +2721,199 @@ func TestClusterUpdate_upgrade_rollback_error(t *testing.T) {
 			},
 		},
 		ExpectError: "failed to rollback upgrade",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_AZURE_container(t *testing.T) {
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 400,
+					"message": "skip"
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					var req api.NewAzureClusterRequest
+					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+						return err
+					}
+					if req.CreateRequest.BlobContainerName != "container-1" {
+						return fmt.Errorf("error while matching:\nexpected container-1 \nbut got %#v", req.CreateRequest.BlobContainerName)
+					}
+					return nil
+				},
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"head": []interface{}{
+				map[string]interface{}{
+					"disk_size": 512,
+				},
+			},
+			"azure_attributes": []interface{}{
+				map[string]interface{}{
+					"location":                       "location-1",
+					"resource_group":                 "resource-group-1",
+					"storage_account":                "storage-account-1",
+					"user_assigned_managed_identity": "user-identity-1",
+					"storage_container_name":         "container-1",
+				},
+			},
+		},
+		ExpectError: "failed to create cluster, error: skip",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_AZURE_searchDomain_deprecated(t *testing.T) {
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 400,
+					"message": "skip"
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					var req api.NewAzureClusterRequest
+					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+						return err
+					}
+					if req.CreateRequest.SearchDomain != "my-domain.com" {
+						return fmt.Errorf("error while matching:\nexpected my-domain.com \nbut got %#v", req.CreateRequest.SearchDomain)
+					}
+					return nil
+				},
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"head": []interface{}{
+				map[string]interface{}{
+					"disk_size": 512,
+				},
+			},
+			"azure_attributes": []interface{}{
+				map[string]interface{}{
+					"location":                       "location-1",
+					"resource_group":                 "resource-group-1",
+					"storage_account":                "storage-account-1",
+					"user_assigned_managed_identity": "user-identity-1",
+					"search_domain":                  "my-domain.com",
+				},
+			},
+		},
+		ExpectError: "failed to create cluster, error: skip",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_AZURE_searchDomain(t *testing.T) {
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 400,
+					"message": "skip"
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					var req api.NewAzureClusterRequest
+					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+						return err
+					}
+					if req.CreateRequest.SearchDomain != "my-domain.com" {
+						return fmt.Errorf("error while matching:\nexpected my-domain.com \nbut got %#v", req.CreateRequest.SearchDomain)
+					}
+					return nil
+				},
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"head": []interface{}{
+				map[string]interface{}{
+					"disk_size": 512,
+				},
+			},
+			"azure_attributes": []interface{}{
+				map[string]interface{}{
+					"location":                       "location-1",
+					"resource_group":                 "resource-group-1",
+					"storage_account":                "storage-account-1",
+					"user_assigned_managed_identity": "user-identity-1",
+					"network": []interface{}{
+						map[string]interface{}{
+							"search_domain": "my-domain.com",
+						},
+					},
+				},
+			},
+		},
+		ExpectError: "failed to create cluster, error: skip",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_AZURE_ASK_cluster(t *testing.T) {
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 400,
+					"message": "skip"
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					var req api.NewAzureClusterRequest
+					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+						return err
+					}
+					if req.CreateRequest.AksClusterName != "aks-cluster-1" || req.CreateRequest.AcrRegistryName != "acr-registry-1" {
+						return fmt.Errorf("error while matching:\nexpected aks-cluster-1, acr-registry-1 \nbut got %#v, %#v", req.CreateRequest.AksClusterName, req.CreateRequest.AcrRegistryName)
+					}
+					return nil
+				},
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"head": []interface{}{
+				map[string]interface{}{
+					"disk_size": 512,
+				},
+			},
+			"azure_attributes": []interface{}{
+				map[string]interface{}{
+					"location":                       "location-1",
+					"resource_group":                 "resource-group-1",
+					"storage_account":                "storage-account-1",
+					"user_assigned_managed_identity": "user-identity-1",
+					"aks_cluster_name":               "aks-cluster-1",
+					"acr_registry_name":              "acr-registry-1",
+				},
+			},
+		},
+		ExpectError: "failed to create cluster, error: skip",
 	}
 	r.Apply(t, context.TODO())
 }

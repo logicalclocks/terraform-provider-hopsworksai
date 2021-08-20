@@ -129,6 +129,7 @@ func flattenAzureAttributes(cluster *api.Cluster) []interface{} {
 				"virtual_network_name": cluster.Azure.VirtualNetworkName,
 				"subnet_name":          cluster.Azure.SubnetName,
 				"security_group_name":  cluster.Azure.SecurityGroupName,
+				"search_domain":        cluster.Azure.SearchDomain,
 			},
 		},
 		"aks_cluster_name":  cluster.Azure.AksClusterName,

@@ -292,6 +292,7 @@ func TestClustersDataSourceRead(t *testing.T) {
 									"virtual_network_name": "",
 									"subnet_name":          "",
 									"security_group_name":  "",
+									"search_domain":        "",
 								},
 							},
 							"aks_cluster_name":  "",
