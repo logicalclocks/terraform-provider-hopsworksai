@@ -1137,6 +1137,34 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 
 	clusterId := d.Id()
 
+	if d.HasChange("version") {
+		o, n := d.GetChange("version")
+		fromVersion := o.(string)
+		toVersion := n.(string)
+
+		clusterState := d.Get("state").(string)
+		upgradeInProgressFromVersion, upgradeInProgressFromVersionOk := d.GetOk("upgrade_in_progress.0.from_version")
+		upgradeInProgressToVersion, upgradeInProgressToVersionOk := d.GetOk("upgrade_in_progress.0.to_version")
+
+		if !upgradeInProgressFromVersionOk && !upgradeInProgressToVersionOk {
+			if err := api.UpgradeCluster(ctx, client, clusterId, toVersion); err != nil {
+				return diag.FromErr(err)
+			}
+			if err := resourceClusterWaitForRunning(ctx, client, d.Timeout(schema.TimeoutUpdate), clusterId); err != nil {
+				return diag.FromErr(err)
+			}
+		} else if clusterState == api.Error.String() && upgradeInProgressToVersion.(string) == fromVersion && upgradeInProgressFromVersion.(string) == toVersion {
+			if err := api.RollbackUpgradeCluster(ctx, client, clusterId); err != nil {
+				return diag.FromErr(err)
+			}
+			if err := resourceClusterWaitForStopping(ctx, client, d.Timeout(schema.TimeoutUpdate), clusterId); err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
+		return resourceClusterRead(ctx, d, meta)
+	}
+
 	if d.HasChange("workers") {
 		o, n := d.GetChange("workers")
 		old, new := o.(*schema.Set), n.(*schema.Set)
@@ -1275,32 +1303,6 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 				} else {
 					return diag.Errorf("cluster is not in stoppable state, current activation state is %s", activationState)
 				}
-			}
-		}
-	}
-
-	if d.HasChange("version") {
-		o, n := d.GetChange("version")
-		fromVersion := o.(string)
-		toVersion := n.(string)
-
-		clusterState := d.Get("state").(string)
-		upgradeInProgressFromVersion, upgradeInProgressFromVersionOk := d.GetOk("upgrade_in_progress.0.from_version")
-		upgradeInProgressToVersion, upgradeInProgressToVersionOk := d.GetOk("upgrade_in_progress.0.to_version")
-
-		if !upgradeInProgressFromVersionOk && !upgradeInProgressToVersionOk {
-			if err := api.UpgradeCluster(ctx, client, clusterId, toVersion); err != nil {
-				return diag.FromErr(err)
-			}
-			if err := resourceClusterWaitForRunning(ctx, client, d.Timeout(schema.TimeoutUpdate), clusterId); err != nil {
-				return diag.FromErr(err)
-			}
-		} else if clusterState == api.Error.String() && upgradeInProgressToVersion.(string) == fromVersion && upgradeInProgressFromVersion.(string) == toVersion {
-			if err := api.RollbackUpgradeCluster(ctx, client, clusterId); err != nil {
-				return diag.FromErr(err)
-			}
-			if err := resourceClusterWaitForStopping(ctx, client, d.Timeout(schema.TimeoutUpdate), clusterId); err != nil {
-				return diag.FromErr(err)
 			}
 		}
 	}

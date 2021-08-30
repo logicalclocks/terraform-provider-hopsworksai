@@ -3,6 +3,7 @@
 BREAKING CHANGES:
 
 BUG FIXES:
+* resource/hopsworksai_cluster: The `version` updates should always run with no other updates.
 
 ENHANCEMENTS:
 * resource/hopsworksai_cluster: Add support for updating `version` attribute to allow upgrade and rollback
