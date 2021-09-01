@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e 
 ACCTEST_TIMEOUT=${ACCTEST_TIMEOUT:-240m}
 ACCTEST_PARALLELISM=${ACCTEST_PARALLELISM:-2}

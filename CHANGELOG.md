@@ -4,6 +4,7 @@ BREAKING CHANGES:
 
 BUG FIXES:
 * resource/hopsworksai_cluster: The `version` updates should always run with no other updates.
+* Fix TestExpandTags to avoid inconsistent results due to different ordering when iterating the tags map.
 
 ENHANCEMENTS:
 * resource/hopsworksai_cluster: Add support for updating `version` attribute to allow upgrade and rollback
