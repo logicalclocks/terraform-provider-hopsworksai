@@ -1162,7 +1162,7 @@ func TestExpandTags(t *testing.T) {
 		"tag2": "tag2-value",
 	}
 
-	expected := []api.ClusterTag{
+	expected1 := []api.ClusterTag{
 		{
 			Name:  "tag1",
 			Value: "tag1-value",
@@ -1173,9 +1173,20 @@ func TestExpandTags(t *testing.T) {
 		},
 	}
 
+	expected2 := []api.ClusterTag{
+		{
+			Name:  "tag2",
+			Value: "tag2-value",
+		},
+		{
+			Name:  "tag1",
+			Value: "tag1-value",
+		},
+	}
+
 	output := ExpandTags(input)
-	if !reflect.DeepEqual(expected, output) {
-		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
+	if !(reflect.DeepEqual(expected1, output) || reflect.DeepEqual(expected2, output)) {
+		t.Fatalf("error while matching:\nexpected %#v or %#v \nbut got %#v", expected1, expected2, output)
 	}
 }
 
