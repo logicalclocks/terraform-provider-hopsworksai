@@ -67,21 +67,23 @@ func testAccClusterFromBackup_basic(t *testing.T, cloud api.CloudProvider) {
 					resource.TestCheckResourceAttr(backupResourceName, "state", api.BackupSucceed.String()),
 					resource.TestCheckResourceAttr(backupResourceName, "backup_name", backupName),
 					resource.TestCheckResourceAttr(backupResourceName, "cloud_provider", cloud.String()),
-					testAccClusterFromBackup_setResourceID_asEnvVar(clusterResourceName, "TF_VAR_acc_test_cluster_id"),
+					testAccClusterFromBackup_setResourceID_asEnvVar(clusterResourceName, "TF_VAR_acc_test_cluster_id_"+cloud.String()),
 				),
 			},
 			{
 				Config: fmt.Sprintf(`
-				variable "acc_test_cluster_id"{
+				variable "acc_test_cluster_id_%s"{
 
 				}
 
 				resource "hopsworksai_backup" "%s"{
-					cluster_id = var.acc_test_cluster_id
+					cluster_id = var.acc_test_cluster_id_%s
 					backup_name = "%s"
 				}
 				`,
+					cloud.String(),
 					rName,
+					cloud.String(),
 					backupName,
 				),
 				Check: resource.ComposeTestCheckFunc(
@@ -92,12 +94,12 @@ func testAccClusterFromBackup_basic(t *testing.T, cloud api.CloudProvider) {
 			},
 			{
 				Config: fmt.Sprintf(`
-				variable "acc_test_cluster_id"{
+				variable "acc_test_cluster_id_%s"{
 					
 				}
 
 				resource "hopsworksai_backup" "%s"{
-					cluster_id = var.acc_test_cluster_id
+					cluster_id = var.acc_test_cluster_id_%s
 					backup_name = "%s"
 				}
 
@@ -105,7 +107,9 @@ func testAccClusterFromBackup_basic(t *testing.T, cloud api.CloudProvider) {
 					source_backup_id = %s.id
 				}
 				`,
+					cloud.String(),
 					rName,
+					cloud.String(),
 					backupName,
 					rName,
 					backupResourceName,
