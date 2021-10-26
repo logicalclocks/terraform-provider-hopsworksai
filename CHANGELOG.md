@@ -10,6 +10,7 @@ ENHANCEMENTS:
 * resource/hopsworksai_cluster: Add support for updating `version` attribute to allow upgrade and rollback
 * resource/hopsworksai_cluster: Add a new computed attribute `upgrade_in_progress`
 * resource/hopsworksai_cluster: Rename attribute `azure_attributes/search_domain` to `azure_attributes/network/search_domain` and deprecate `azure_attributes/search_domain`
+* resource/hopsworksai_cluster: Update default `version` to 2.4.0
 
 FEATURES:
 * **New Data Source**: `hopsworksai_version`
