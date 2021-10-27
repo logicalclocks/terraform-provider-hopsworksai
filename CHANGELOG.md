@@ -1,3 +1,14 @@
+## 0.7.0 (Unreleased)
+
+BREAKING CHANGES:
+
+BUG FIXES:
+
+ENHANCEMENTS:
+
+FEATURES:
+
+
 ## 0.6.0 (October 27, 2021)
 
 BREAKING CHANGES:
