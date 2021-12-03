@@ -1,5 +1,6 @@
 provider "aws" {
-  region = var.region
+  region  = var.region
+  profile = var.profile
 }
 
 provider "hopsworksai" {
@@ -113,7 +114,9 @@ provider "kubernetes" {
       "eks",
       "get-token",
       "--cluster-name",
-      data.aws_eks_cluster.cluster.name
+      data.aws_eks_cluster.cluster.name,
+      "--profile",
+      var.profile
     ]
   }
 }

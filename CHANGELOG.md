@@ -5,6 +5,7 @@ BREAKING CHANGES:
 BUG FIXES:
 
 ENHANCEMENTS:
+* examples/complete/aws: add aws profile in variables
 
 FEATURES:
 
