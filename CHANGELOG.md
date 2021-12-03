@@ -6,6 +6,7 @@ BUG FIXES:
 
 ENHANCEMENTS:
 * examples/complete/aws: add aws profile in variables
+* datasource/dataSourceAWSInstanceProfilePolicy: Add possibility to limit permissions to eks cluster name.
 
 FEATURES:
 

@@ -18,7 +18,8 @@ func TestAccAWSInstanceProfilePolicy_basic(t *testing.T) {
 	}
 	policy.Statements = append(policy.Statements, awsCloudWatchPermissions()...)
 	policy.Statements = append(policy.Statements, awsUpgradePermissions())
-	policy.Statements = append(policy.Statements, awsEKSECRPermissions()...)
+	var allowDescribeEKSResource interface{} = "arn:aws:eks:*:*:cluster/*"
+	policy.Statements = append(policy.Statements, awsEKSECRPermissions(allowDescribeEKSResource)...)
 
 	resource.UnitTest(t, resource.TestCase{
 		Providers: testAccProviders,
@@ -44,7 +45,8 @@ func TestAccAWSInstanceProfilePolicy_singleBucket(t *testing.T) {
 	}
 	policy.Statements = append(policy.Statements, awsCloudWatchPermissions()...)
 	policy.Statements = append(policy.Statements, awsUpgradePermissions())
-	policy.Statements = append(policy.Statements, awsEKSECRPermissions()...)
+	var allowDescribeEKSResource interface{} = "arn:aws:eks:*:*:cluster/*"
+	policy.Statements = append(policy.Statements, awsEKSECRPermissions(allowDescribeEKSResource)...)
 
 	resource.UnitTest(t, resource.TestCase{
 		Providers: testAccProviders,
