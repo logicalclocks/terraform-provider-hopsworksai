@@ -18,13 +18,41 @@ func TestAccAWSInstanceProfilePolicy_basic(t *testing.T) {
 	}
 	policy.Statements = append(policy.Statements, awsCloudWatchPermissions()...)
 	policy.Statements = append(policy.Statements, awsUpgradePermissions())
-	policy.Statements = append(policy.Statements, awsEKSECRPermissions()...)
+	var allowDescribeEKSResource interface{} = "arn:aws:eks:*:*:cluster/*"
+	policy.Statements = append(policy.Statements, awsEKSECRPermissions(allowDescribeEKSResource)...)
 
 	resource.UnitTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAWSInstanceProfilePolicyConfig_basic(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(dataSourceName, "json", testAccAWSPolicyToJSONString(t, policy)),
+				),
+			},
+		},
+	})
+}
+
+func TestAccAWSInstanceProfilePolicy_eks_restriction(t *testing.T) {
+	dataSourceName := "data.hopsworksai_aws_instance_profile_policy.test"
+	policy := &awsPolicy{
+		Version: "2012-10-17",
+		Statements: []awsPolicyStatement{
+			awsStoragePermissions("*"),
+			awsBackupPermissions("*"),
+		},
+	}
+	policy.Statements = append(policy.Statements, awsCloudWatchPermissions()...)
+	policy.Statements = append(policy.Statements, awsUpgradePermissions())
+	var allowDescribeEKSResource interface{} = "arn:aws:eks:*:*:cluster/cluster_name"
+	policy.Statements = append(policy.Statements, awsEKSECRPermissions(allowDescribeEKSResource)...)
+
+	resource.UnitTest(t, resource.TestCase{
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAWSInstanceProfilePolicyConfig_eks_restriction(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(dataSourceName, "json", testAccAWSPolicyToJSONString(t, policy)),
 				),
@@ -44,7 +72,8 @@ func TestAccAWSInstanceProfilePolicy_singleBucket(t *testing.T) {
 	}
 	policy.Statements = append(policy.Statements, awsCloudWatchPermissions()...)
 	policy.Statements = append(policy.Statements, awsUpgradePermissions())
-	policy.Statements = append(policy.Statements, awsEKSECRPermissions()...)
+	var allowDescribeEKSResource interface{} = "arn:aws:eks:*:*:cluster/*"
+	policy.Statements = append(policy.Statements, awsEKSECRPermissions(allowDescribeEKSResource)...)
 
 	resource.UnitTest(t, resource.TestCase{
 		Providers: testAccProviders,
@@ -133,6 +162,14 @@ func TestAccAWSInstanceProfilePolicy_enableOnlyStorage(t *testing.T) {
 func testAccAWSInstanceProfilePolicyConfig_basic() string {
 	return `
 	data "hopsworksai_aws_instance_profile_policy" "test" {
+	}
+	`
+}
+
+func testAccAWSInstanceProfilePolicyConfig_eks_restriction() string {
+	return `
+	data "hopsworksai_aws_instance_profile_policy" "test" {
+		eks_cluster_name = "cluster_name"
 	}
 	`
 }

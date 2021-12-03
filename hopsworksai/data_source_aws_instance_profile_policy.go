@@ -61,6 +61,11 @@ func dataSourceAWSInstanceProfilePolicy() *schema.Resource {
 				Optional:    true,
 				Default:     true,
 			},
+			"eks_cluster_name": {
+				Description: "Limit permissions to eks cluster.",
+				Type:        schema.TypeString,
+				Optional:    true,
+			},
 			"json": {
 				Description: "The instance profile policy in JSON format.",
 				Type:        schema.TypeString,
@@ -143,7 +148,7 @@ func awsUpgradePermissions() awsPolicyStatement {
 	}
 }
 
-func awsEKSECRPermissions() []awsPolicyStatement {
+func awsEKSECRPermissions(allowDescribeEKSResource interface{}) []awsPolicyStatement {
 	return []awsPolicyStatement{
 		{
 			Sid:    "AllowPullMainImages",
@@ -191,7 +196,7 @@ func awsEKSECRPermissions() []awsPolicyStatement {
 			Action: []string{
 				"eks:DescribeCluster",
 			},
-			Resources: "arn:aws:eks:*:*:cluster/*",
+			Resources: allowDescribeEKSResource,
 		},
 	}
 }
@@ -228,7 +233,12 @@ func dataSourceAWSInstanceProfilePolicyRead(ctx context.Context, d *schema.Resou
 	}
 
 	if d.Get("enable_eks_and_ecr").(bool) {
-		policy.Statements = append(policy.Statements, awsEKSECRPermissions()...)
+		var allowDescribeEKSResource interface{} = "arn:aws:eks:*:*:cluster/*"
+		if v, ok := d.GetOk("eks_cluster_name"); ok {
+			eksClusterName := v.(string)
+			allowDescribeEKSResource = fmt.Sprintf("arn:aws:eks:*:*:cluster/%s", eksClusterName)
+		}
+		policy.Statements = append(policy.Statements, awsEKSECRPermissions(allowDescribeEKSResource)...)
 	}
 
 	policyJson, err := json.MarshalIndent(policy, "", "  ")
