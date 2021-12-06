@@ -35,6 +35,7 @@ data "hopsworksai_aws_instance_profile_policy" "policy" {
 ### Optional
 
 - **bucket_name** (String) Limit permissions to this S3 bucket.
+- **cluster_id** (String) Limit docker repository permissions to the cluster id.
 - **eks_cluster_name** (String) Limit permissions to eks cluster.
 - **enable_backup** (Boolean) Add permissions required to allow creating backups of your clusters. Defaults to `true`.
 - **enable_cloud_watch** (Boolean) Add permissions required to allow collecting your cluster logs using cloud watch. Defaults to `true`.
