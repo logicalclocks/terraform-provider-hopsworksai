@@ -66,6 +66,11 @@ func dataSourceAWSInstanceProfilePolicy() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
+			"cluster_id": {
+				Description: "Limit docker repository permissions to the cluster id.",
+				Type:        schema.TypeString,
+				Optional:    true,
+			},
 			"json": {
 				Description: "The instance profile policy in JSON format.",
 				Type:        schema.TypeString,
@@ -148,7 +153,7 @@ func awsUpgradePermissions() awsPolicyStatement {
 	}
 }
 
-func awsEKSECRPermissions(allowDescribeEKSResource interface{}) []awsPolicyStatement {
+func awsEKSECRPermissions(allowDescribeEKSResource interface{}, allowPushandPullImagesResource interface{}) []awsPolicyStatement {
 	return []awsPolicyStatement{
 		{
 			Sid:    "AllowPullMainImages",
@@ -179,10 +184,7 @@ func awsEKSECRPermissions(allowDescribeEKSResource interface{}) []awsPolicyState
 				"ecr:GetLifecyclePolicy",
 				"ecr:PutLifecyclePolicy",
 			},
-			Resources: []string{
-				"arn:aws:ecr:*:*:repository/*/filebeat",
-				"arn:aws:ecr:*:*:repository/*/base",
-			},
+			Resources: allowPushandPullImagesResource,
 		}, {
 			Sid:    "AllowGetAuthToken",
 			Effect: "Allow",
@@ -238,7 +240,18 @@ func dataSourceAWSInstanceProfilePolicyRead(ctx context.Context, d *schema.Resou
 			eksClusterName := v.(string)
 			allowDescribeEKSResource = fmt.Sprintf("arn:aws:eks:*:*:cluster/%s", eksClusterName)
 		}
-		policy.Statements = append(policy.Statements, awsEKSECRPermissions(allowDescribeEKSResource)...)
+		var allowPushandPullImagesResource = []string{
+			"arn:aws:ecr:*:*:repository/*/filebeat",
+			"arn:aws:ecr:*:*:repository/*/base",
+		}
+		if v, ok := d.GetOk("cluster_id"); ok {
+			clusterId := v.(string)
+			allowPushandPullImagesResource = []string{
+				fmt.Sprintf("arn:aws:ecr:*:*:repository/%s/filebeat", clusterId),
+				fmt.Sprintf("arn:aws:ecr:*:*:repository/%s/base", clusterId),
+			}
+		}
+		policy.Statements = append(policy.Statements, awsEKSECRPermissions(allowDescribeEKSResource, allowPushandPullImagesResource)...)
 	}
 
 	policyJson, err := json.MarshalIndent(policy, "", "  ")
