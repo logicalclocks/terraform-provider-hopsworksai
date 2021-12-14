@@ -1,16 +1,9 @@
-## 0.7.0 (Unreleased)
-
-BREAKING CHANGES:
-
-BUG FIXES:
+## 0.7.0 (December 14, 2021)
 
 ENHANCEMENTS:
 * examples/complete/aws: add aws profile in variables
 * datasource/dataSourceAWSInstanceProfilePolicy: Add possibility to limit permissions to eks cluster name.
 * datasource/dataSourceAWSInstanceProfilePolicy: Add possibility to limit permissions to cluster id.
-
-FEATURES:
-
 
 ## 0.6.0 (October 27, 2021)
 
