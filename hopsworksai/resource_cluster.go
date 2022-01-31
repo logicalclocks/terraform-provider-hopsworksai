@@ -1442,7 +1442,7 @@ func resourceClusterWaitForDeleting(ctx context.Context, client *api.HopsworksAI
 		return err
 	}
 
-	if resp != nil && resp.(api.Cluster).Id != "" {
+	if resp != nil && resp.(*api.Cluster).Id != "" {
 		return fmt.Errorf("failed to delete cluster, error: %s", resp.(*api.Cluster).ErrorMessage)
 	}
 	return nil
