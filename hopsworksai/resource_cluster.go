@@ -1430,7 +1430,7 @@ func resourceClusterWaitForDeleting(ctx context.Context, client *api.HopsworksAI
 			}
 			if cluster == nil {
 				log.Printf("[DEBUG] cluster (id: %s) is not found", clusterId)
-				return api.Cluster{Id: ""}, api.ClusterDeleted.String(), nil
+				return &api.Cluster{Id: ""}, api.ClusterDeleted.String(), nil
 			}
 			log.Printf("[INFO] polled cluster state: %s, stage: %s", cluster.State, cluster.InitializationStage)
 			return cluster, cluster.State.String(), nil
