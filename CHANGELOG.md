@@ -3,6 +3,7 @@
 BREAKING CHANGES:
 
 BUG FIXES:
+* resource/hopsworksai_cluster: fix incorrect conversion error
 
 ENHANCEMENTS:
 
