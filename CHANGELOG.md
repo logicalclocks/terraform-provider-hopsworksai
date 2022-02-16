@@ -1,11 +1,17 @@
 ## 0.8.0 (Unreleased)
 
+NOTES:
+
+* datasource/aws_instance_profile_policy: Deprecate `enable_upgrade` attribute since these permissions are not required anymore from version 2.4.0 onwards
+* datasource/azure_user_assigned_identity_permissions: Deprecate `enable_upgrade` attribute since these permissions are not required anymore from version 2.4.0 onwards
+
 BREAKING CHANGES:
 
 BUG FIXES:
 * resource/hopsworksai_cluster: fix incorrect conversion error
 
 ENHANCEMENTS:
+* datasource/aws_instance_profile_policy: Set Default to false for `enable_upgrade` attribute 
 
 FEATURES:
 
