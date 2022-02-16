@@ -53,7 +53,8 @@ func dataSourceAWSInstanceProfilePolicy() *schema.Resource {
 				Description: "Add permissions required to enable upgrade to newer versions of Hopsworks.",
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Default:     true,
+				Default:     false,
+				Deprecated:  "These permissions are not required anymore to upgrade from version 2.4.0 and onwards.",
 			},
 			"enable_eks_and_ecr": {
 				Description: "Add permissions required to enable access to Amazon EKS and ECR from within your Hopsworks cluster.",

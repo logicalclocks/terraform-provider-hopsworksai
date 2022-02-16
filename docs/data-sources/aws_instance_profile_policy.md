@@ -41,7 +41,7 @@ data "hopsworksai_aws_instance_profile_policy" "policy" {
 - **enable_cloud_watch** (Boolean) Add permissions required to allow collecting your cluster logs using cloud watch. Defaults to `true`.
 - **enable_eks_and_ecr** (Boolean) Add permissions required to enable access to Amazon EKS and ECR from within your Hopsworks cluster. Defaults to `true`.
 - **enable_storage** (Boolean) Add permissions required to allow Hopsworks clusters to read and write from and to your aws S3 buckets. Defaults to `true`.
-- **enable_upgrade** (Boolean) Add permissions required to enable upgrade to newer versions of Hopsworks. Defaults to `true`.
+- **enable_upgrade** (Boolean, Deprecated) Add permissions required to enable upgrade to newer versions of Hopsworks. Defaults to `false`. These permissions are not required anymore to upgrade from version 2.4.0 and onwards.
 - **id** (String) The ID of this resource.
 
 ### Read-Only
