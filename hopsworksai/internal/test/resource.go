@@ -31,34 +31,47 @@ type Operation struct {
 	Response          string
 	ExpectRequestBody string
 	CheckRequestBody  func(reqBody io.Reader) error
+	RunOnlyOnce       bool
+	alreadyRan        bool
 }
 
-func newHttpClient(t *testing.T, ops []Operation) *httpClient {
+func getKey(method string, path string) string {
+	return method + " " + path
+}
+
+func newHttpClient(t *testing.T, opsMap map[string][]Operation) *httpClient {
+
 	return &httpClient{
 		DoFunc: func(req *http.Request) (*http.Response, error) {
-			for _, op := range ops {
-				if req.URL.Path == op.Path && req.Method == op.Method {
-					if op.ExpectRequestBody != "" || op.CheckRequestBody != nil {
-						reqBody, err := ioutil.ReadAll(req.Body)
-						if err != nil {
-							return nil, err
-						}
-						reqBodyString := string(reqBody)
-						expected := test.CompactJSONString(op.ExpectRequestBody)
-						if op.ExpectRequestBody != "" && reqBodyString != expected {
-							t.Fatalf("invalid req body, expected:\n%s, but got:\n%s", expected, reqBodyString)
-						}
-						if op.CheckRequestBody != nil {
-							if err := op.CheckRequestBody(io.NopCloser(strings.NewReader(reqBodyString))); err != nil {
-								t.Fatal(err)
-							}
+			key := getKey(req.Method, req.URL.Path)
+			for i, op := range opsMap[key] {
+				if op.alreadyRan && op.RunOnlyOnce {
+					continue
+				}
+
+				if op.ExpectRequestBody != "" || op.CheckRequestBody != nil {
+					reqBody, err := ioutil.ReadAll(req.Body)
+					if err != nil {
+						return nil, err
+					}
+					reqBodyString := string(reqBody)
+					expected := test.CompactJSONString(op.ExpectRequestBody)
+					if op.ExpectRequestBody != "" && reqBodyString != expected {
+						t.Fatalf("invalid req body, expected:\n%s, but got:\n%s", expected, reqBodyString)
+					}
+					if op.CheckRequestBody != nil {
+						if err := op.CheckRequestBody(io.NopCloser(strings.NewReader(reqBodyString))); err != nil {
+							t.Fatal(err)
 						}
 					}
-					return &http.Response{
-						StatusCode: http.StatusOK,
-						Body:       io.NopCloser(strings.NewReader(op.Response)),
-					}, nil
 				}
+
+				opsMap[key][i].alreadyRan = true
+
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(strings.NewReader(op.Response)),
+				}, nil
 			}
 			return &http.Response{StatusCode: http.StatusServiceUnavailable}, nil
 		},
@@ -98,9 +111,26 @@ func getResourceData(ctx context.Context, t *testing.T, r *schema.Resource, curr
 	return nil
 }
 
+func httpOpsToMap(ops []Operation) map[string][]Operation {
+	opsMap := make(map[string][]Operation)
+	for _, op := range ops {
+		key := getKey(op.Method, op.Path)
+		if v, ok := opsMap[key]; ok {
+			opsMap[key] = append(v, op)
+		} else {
+			opsMap[key] = []Operation{
+				op,
+			}
+		}
+	}
+	return opsMap
+}
+
 func (r *ResourceFixture) Apply(t *testing.T, ctx context.Context) {
+	opsMap := httpOpsToMap(r.HttpOps)
+
 	mockClient := &api.HopsworksAIClient{
-		Client: newHttpClient(t, r.HttpOps),
+		Client: newHttpClient(t, opsMap),
 	}
 
 	var data *schema.ResourceData
@@ -147,6 +177,14 @@ func (r *ResourceFixture) Apply(t *testing.T, ctx context.Context) {
 			}
 		} else {
 			checkStateEqual(t, "", r.ExpectState, data)
+		}
+	}
+
+	for key, ops := range opsMap {
+		for i, op := range ops {
+			if op.RunOnlyOnce && !op.alreadyRan {
+				t.Fatalf("operation [%d] (%s) were supposed to run but did not", i, key)
+			}
 		}
 	}
 }
