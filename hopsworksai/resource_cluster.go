@@ -1150,7 +1150,7 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 			if err := api.UpgradeCluster(ctx, client, clusterId, toVersion); err != nil {
 				return diag.FromErr(err)
 			}
-			if err := resourceClusterWaitForRunning(ctx, client, d.Timeout(schema.TimeoutUpdate), clusterId); err != nil {
+			if err := resourceClusterWaitForRunningAfterUpgrade(ctx, client, d.Timeout(schema.TimeoutUpdate), clusterId); err != nil {
 				return diag.FromErr(err)
 			}
 		} else if clusterState == api.Error.String() && upgradeInProgressToVersion.(string) == fromVersion && upgradeInProgressFromVersion.(string) == toVersion {
@@ -1326,21 +1326,35 @@ func resourceClusterDelete(ctx context.Context, d *schema.ResourceData, meta int
 }
 
 func resourceClusterWaitForRunning(ctx context.Context, client *api.HopsworksAIClient, timeout time.Duration, clusterId string) error {
+	return resourceClusterWaitForRunningBase(ctx, client, timeout, clusterId, false)
+}
+
+func resourceClusterWaitForRunningAfterUpgrade(ctx context.Context, client *api.HopsworksAIClient, timeout time.Duration, clusterId string) error {
+	return resourceClusterWaitForRunningBase(ctx, client, timeout, clusterId, true)
+}
+
+func resourceClusterWaitForRunningBase(ctx context.Context, client *api.HopsworksAIClient, timeout time.Duration, clusterId string, isUpgrade bool) error {
+	pendingStates := []api.ClusterState{
+		api.Starting,
+		api.Pending,
+		api.Initializing,
+		api.Updating,
+		api.Decommissioning,
+		api.WorkerStarting,
+		api.WorkerPending,
+		api.WorkerInitializing,
+		api.WorkerShuttingdown,
+		api.WorkerDecommissioning,
+		api.RonDBInitializing,
+		api.StartingHopsworks,
+	}
+
+	if isUpgrade {
+		pendingStates = append(pendingStates, api.Stopped, api.Stopping)
+	}
+
 	waitUntilRunning := helpers.ClusterStateChange(
-		[]api.ClusterState{
-			api.Starting,
-			api.Pending,
-			api.Initializing,
-			api.Updating,
-			api.Decommissioning,
-			api.WorkerStarting,
-			api.WorkerPending,
-			api.WorkerInitializing,
-			api.WorkerShuttingdown,
-			api.WorkerDecommissioning,
-			api.RonDBInitializing,
-			api.StartingHopsworks,
-		},
+		pendingStates,
 		[]api.ClusterState{
 			api.Running,
 			api.Error,
@@ -1356,7 +1370,12 @@ func resourceClusterWaitForRunning(ctx context.Context, client *api.HopsworksAIC
 			if cluster == nil {
 				return nil, "", fmt.Errorf("cluster not found for cluster id %s", clusterId)
 			}
-			log.Printf("[INFO] polled cluster state: %s, stage: %s", cluster.State, cluster.InitializationStage)
+
+			log.Printf("[INFO] polled cluster state: %s, stage: %s, upgradeInProgess: %#v", cluster.State, cluster.InitializationStage, cluster.UpgradeInProgress)
+
+			if isUpgrade && cluster.State == api.Running && cluster.UpgradeInProgress != nil {
+				return cluster, api.Pending.String(), nil
+			}
 			return cluster, cluster.State.String(), nil
 		},
 	)
@@ -1382,6 +1401,7 @@ func resourceClusterWaitForStopping(ctx context.Context, client *api.HopsworksAI
 		},
 		[]api.ClusterState{
 			api.Stopped,
+			api.ExternallyStopped,
 			api.Error,
 		},
 		timeout,
@@ -1404,7 +1424,7 @@ func resourceClusterWaitForStopping(ctx context.Context, client *api.HopsworksAI
 	}
 
 	cluster := resp.(*api.Cluster)
-	if cluster.State != api.Stopped {
+	if cluster.State != api.Stopped && cluster.State != api.ExternallyStopped {
 		return fmt.Errorf("failed to stop cluster, error: %s", cluster.ErrorMessage)
 	}
 	return nil

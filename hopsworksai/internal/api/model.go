@@ -21,6 +21,7 @@ func (c CloudProvider) String() string {
 type ClusterState string
 
 const worker = "worker"
+const externally = "externally"
 
 const (
 	Starting           ClusterState = "starting"
@@ -37,6 +38,7 @@ const (
 	RonDBInitializing  ClusterState = "rondb-initializing"
 	StartingHopsworks  ClusterState = "starting-hopsworks"
 	CommandFailed      ClusterState = "command-failed"
+	ExternallyStopped  ClusterState = externally + "-" + Stopped
 	// Worker states
 	WorkerPending         ClusterState = worker + "-" + Pending
 	WorkerInitializing    ClusterState = worker + "-" + Initializing
