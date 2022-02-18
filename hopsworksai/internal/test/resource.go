@@ -40,7 +40,6 @@ func getKey(method string, path string) string {
 }
 
 func newHttpClient(t *testing.T, opsMap map[string][]Operation) *httpClient {
-
 	return &httpClient{
 		DoFunc: func(req *http.Request) (*http.Response, error) {
 			key := getKey(req.Method, req.URL.Path)
