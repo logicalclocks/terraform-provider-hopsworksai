@@ -14,6 +14,7 @@ BUG FIXES:
 ENHANCEMENTS:
 * datasource/aws_instance_profile_policy: Set Default to false for `enable_upgrade` attribute 
 * resource/hopsworksai_cluster: Set Default `version` to 2.5.0
+* Extend resource testing framework to allow multiplexing HTTP requests with the same method and path
 
 FEATURES:
 
