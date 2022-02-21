@@ -10,10 +10,12 @@ BREAKING CHANGES:
 BUG FIXES:
 * resource/hopsworksai_cluster: fix incorrect conversion error
 * datasource/aws_instance_profile_policy: Add missing backup permissions
+* resource/hopsworksai_cluster: fix upgrade and rollback to work with version 2.4.0 and onwards
 
 ENHANCEMENTS:
 * datasource/aws_instance_profile_policy: Set Default to false for `enable_upgrade` attribute 
 * resource/hopsworksai_cluster: Set Default `version` to 2.5.0
+* Extend resource testing framework to allow multiplexing HTTP requests with the same method and path
 
 FEATURES:
 

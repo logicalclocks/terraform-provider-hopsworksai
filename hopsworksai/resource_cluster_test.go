@@ -2533,6 +2533,146 @@ func TestClusterUpdate_upgrade(t *testing.T) {
 	r.Apply(t, context.TODO())
 }
 
+func TestClusterUpdate_upgrade_pipeline(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"cluster": {
+							"id": "cluster-id-1",
+							"name": "cluster-name-1",
+							"state" : "pending",
+							"provider": "AZURE",
+							"version": "v1",
+							"ports":{
+								"featureStore": false,
+								"onlineFeatureStore": false,
+								"kafka": false,
+								"ssh": false
+							}
+						}
+					}
+				}`,
+				RunOnlyOnce: true,
+			},
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"cluster": {
+							"id": "cluster-id-1",
+							"name": "cluster-name-1",
+							"state" : "running",
+							"provider": "AZURE",
+							"version": "v2",
+							"upgradeInProgress": {
+								"from": "v1",
+								"to": "v2"
+							},
+							"ports":{
+								"featureStore": false,
+								"onlineFeatureStore": false,
+								"kafka": false,
+								"ssh": false
+							}
+						}
+					}
+				}`,
+				RunOnlyOnce: true,
+			},
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"cluster": {
+							"id": "cluster-id-1",
+							"name": "cluster-name-1",
+							"state" : "running",
+							"provider": "AZURE",
+							"version": "v2",
+							"ports":{
+								"featureStore": false,
+								"onlineFeatureStore": false,
+								"kafka": false,
+								"ssh": false
+							}
+						}
+					}
+				}`,
+				RunOnlyOnce: true,
+			},
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"cluster": {
+							"id": "cluster-id-1",
+							"name": "cluster-name-1",
+							"state" : "running",
+							"provider": "AZURE",
+							"version": "v2",
+							"ports":{
+								"featureStore": false,
+								"onlineFeatureStore": false,
+								"kafka": false,
+								"ssh": false
+							}
+						}
+					}
+				}`,
+				RunOnlyOnce: true,
+			},
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters/cluster-id-1/upgrade",
+				ExpectRequestBody: `{
+					"version": "v2"
+				}`,
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200
+				}`,
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().UpdateContext,
+		Id:                   "cluster-id-1",
+		Update:               true,
+		State: map[string]interface{}{
+			"version": "v2",
+			"open_ports": []interface{}{
+				map[string]interface{}{
+					"ssh":                  false,
+					"kafka":                false,
+					"feature_store":        false,
+					"online_feature_store": false,
+				},
+			},
+		},
+	}
+	r.Apply(t, context.TODO())
+}
+
 func TestClusterUpdate_upgrade_error(t *testing.T) {
 	t.Parallel()
 	r := test.ResourceFixture{
@@ -2611,6 +2751,70 @@ func TestClusterUpdate_upgrade_rollback(t *testing.T) {
 							"id": "cluster-id-1",
 							"name": "cluster-name-1",
 							"state" : "stopped",
+							"provider": "AZURE",
+							"version": "v2",
+							"ports":{
+								"featureStore": false,
+								"onlineFeatureStore": false,
+								"kafka": false,
+								"ssh": false
+							}
+						}
+					}
+				}`,
+			},
+			{
+				Method: http.MethodPut,
+				Path:   "/api/clusters/cluster-id-1/upgrade/rollback",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200
+				}`,
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().UpdateContext,
+		Id:                   "cluster-id-1",
+		Update:               true,
+		State: map[string]interface{}{
+			"version": "v1",
+			"state":   api.Error.String(),
+			"upgrade_in_progress": []interface{}{
+				map[string]interface{}{
+					"from_version": "v1",
+					"to_version":   "v2",
+				},
+			},
+			"open_ports": []interface{}{
+				map[string]interface{}{
+					"ssh":                  false,
+					"kafka":                false,
+					"feature_store":        false,
+					"online_feature_store": false,
+				},
+			},
+		},
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterUpdate_upgrade_rollback_externally_stopped(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"cluster": {
+							"id": "cluster-id-1",
+							"name": "cluster-name-1",
+							"state" : "externally-stopped",
 							"provider": "AZURE",
 							"version": "v2",
 							"ports":{
