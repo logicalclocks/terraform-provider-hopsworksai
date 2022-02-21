@@ -9,6 +9,7 @@ BREAKING CHANGES:
 
 BUG FIXES:
 * resource/hopsworksai_cluster: fix incorrect conversion error
+* datasource/aws_instance_profile_policy: Add missing backup permissions
 * resource/hopsworksai_cluster: fix upgrade and rollback to work with version 2.4.0 and onwards
 
 ENHANCEMENTS:

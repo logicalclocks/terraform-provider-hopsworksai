@@ -108,6 +108,8 @@ func awsBackupPermissions(s3Resources interface{}) awsPolicyStatement {
 			"S3:PutLifecycleConfiguration",
 			"S3:GetLifecycleConfiguration",
 			"S3:PutBucketVersioning",
+			"S3:ListBucketVersions",
+			"S3:DeleteObjectVersion",
 		},
 		Resources: s3Resources,
 	}
