@@ -9,6 +9,7 @@ BREAKING CHANGES:
 
 BUG FIXES:
 * resource/hopsworksai_cluster: fix incorrect conversion error
+* datasource/aws_instance_profile_policy: Add missing backup permissions
 
 ENHANCEMENTS:
 * datasource/aws_instance_profile_policy: Set Default to false for `enable_upgrade` attribute 
