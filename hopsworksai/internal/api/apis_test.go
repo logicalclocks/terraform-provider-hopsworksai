@@ -2331,3 +2331,50 @@ func TestRollbackUpgradeCluster_API_error(t *testing.T) {
 		t.Fatalf("should throw an error, but got %s", err)
 	}
 }
+
+func TestModifyInstanceType(t *testing.T) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod: http.MethodPut,
+			ExpectPath:   "/api/clusters/cluster-id-1/nodes/modify-instance-type",
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200
+			}`,
+			T: t,
+		},
+	}
+
+	if err := ModifyInstanceType(context.TODO(), apiClient, "cluster-id-1", HeadNode, "type1"); err != nil {
+		t.Fatalf("should not throw an error, but got %s", err)
+	}
+
+	for _, node := range []NodeType{WorkerNode, RonDBManagementNode} {
+		if err := ModifyInstanceType(context.TODO(), apiClient, "cluster-id-1", node, "type1"); err == nil || err.Error() != fmt.Sprintf("modifying instance type for %s is not supported", node.String()) {
+			t.Fatalf("should throw an error, but got %s", err)
+		}
+	}
+}
+
+func TestModifyInstanceType_error(t *testing.T) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod: http.MethodPut,
+			ExpectPath:   "/api/clusters/cluster-id-1/nodes/modify-instance-type",
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "error",
+				"code": 400,
+				"message": "failed to modify instance type"
+			}`,
+			T: t,
+		},
+	}
+
+	if err := ModifyInstanceType(context.TODO(), apiClient, "cluster-id-1", HeadNode, "type1"); err == nil || err.Error() != "failed to modify instance type" {
+		t.Fatalf("should throw an error, but got %s", err)
+	}
+}

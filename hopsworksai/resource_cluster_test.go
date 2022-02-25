@@ -618,6 +618,148 @@ func testAccCluster_Autoscale_update(t *testing.T, cloud api.CloudProvider) {
 	})
 }
 
+func TestAccClusterAWS_Head_upscale(t *testing.T) {
+	testAccCluster_Head_upscale(t, api.AWS, "m5.2xlarge", "m5.4xlarge")
+}
+
+func TestAccClusterAZURE_Head_upscale(t *testing.T) {
+	testAccCluster_Head_upscale(t, api.AZURE, "Standard_D8_v3", "Standard_D16_v3")
+}
+
+func testAccCluster_Head_upscale(t *testing.T, cloud api.CloudProvider, currentInstanceType string, newInstanceType string) {
+	suffix := acctest.RandString(5)
+	rName := fmt.Sprintf("test_%s", suffix)
+	resourceName := fmt.Sprintf("hopsworksai_cluster.%s", rName)
+	parallelTest(t, cloud, resource.TestCase{
+		PreCheck:     testAccPreCheck(t),
+		Providers:    testAccProviders,
+		CheckDestroy: testAccClusterCheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccClusterConfig_Head_upscale(cloud, rName, suffix, currentInstanceType, ""),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "state", api.Running.String()),
+					resource.TestCheckResourceAttr(resourceName, "activation_state", api.Stoppable.String()),
+					resource.TestCheckResourceAttr(resourceName, "update_state", "none"),
+					resource.TestCheckResourceAttr(resourceName, "workers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "head.0.instance_type", currentInstanceType),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccClusterConfig_Head_upscale(cloud, rName, suffix, currentInstanceType, `update_state = "stop"`),
+				Check:  resource.TestCheckResourceAttr(resourceName, "state", api.Stopped.String()),
+			},
+			{
+				Config: testAccClusterConfig_Head_upscale(cloud, rName, suffix, newInstanceType, ""),
+				Check:  resource.TestCheckResourceAttr(resourceName, "head.0.instance_type", newInstanceType),
+			},
+		},
+	})
+}
+
+func TestAccClusterAWS_RonDB_upscale(t *testing.T) {
+	testAccCluster_RonDB_upscale(t, api.AWS, "t3a.xlarge", "t3a.2xlarge", "t3a.medium", "t3a.large", "t3a.medium", "t3a.large")
+}
+
+func TestAccClusterAZURE_RonDB_upscale(t *testing.T) {
+	testAccCluster_RonDB_upscale(t, api.AZURE, "Standard_D4s_v4", "Standard_D8s_v4", "Standard_D2s_v4", "Standard_D4s_v4", "Standard_D2s_v4", "Standard_D4s_v4")
+}
+
+func testAccCluster_RonDB_upscale(t *testing.T, cloud api.CloudProvider, currentDataNodeType string, newDataNodeType string, currentMySQLNodeType string, newMySQLNodeType string, currentAPINodeType string, newAPINodeType string) {
+	suffix := acctest.RandString(5)
+	rName := fmt.Sprintf("test_%s", suffix)
+	resourceName := fmt.Sprintf("hopsworksai_cluster.%s", rName)
+	parallelTest(t, cloud, resource.TestCase{
+		PreCheck:     testAccPreCheck(t),
+		Providers:    testAccProviders,
+		CheckDestroy: testAccClusterCheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccClusterConfig_RonDB_upscale(cloud, rName, suffix, fmt.Sprintf(`
+				rondb {
+					data_nodes {
+						instance_type = "%s"
+					}
+
+					mysql_nodes {
+						instance_type = "%s"
+					}
+
+					api_nodes {
+						instance_type = "%s"
+						count = 1
+					}
+				}
+				`, currentDataNodeType, currentMySQLNodeType, currentAPINodeType)),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "state", api.Running.String()),
+					resource.TestCheckResourceAttr(resourceName, "activation_state", api.Stoppable.String()),
+					resource.TestCheckResourceAttr(resourceName, "update_state", "none"),
+					resource.TestCheckResourceAttr(resourceName, "rondb.0.data_nodes.0.instance_type", currentDataNodeType),
+					resource.TestCheckResourceAttr(resourceName, "rondb.0.mysql_nodes.0.instance_type", currentMySQLNodeType),
+					resource.TestCheckResourceAttr(resourceName, "rondb.0.api_nodes.0.instance_type", currentAPINodeType),
+					resource.TestCheckResourceAttr(resourceName, "rondb.0.api_nodes.0.count", "1"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccClusterConfig_RonDB_upscale(cloud, rName, suffix, fmt.Sprintf(`
+				rondb {
+					data_nodes {
+						instance_type = "%s"
+					}
+
+					mysql_nodes {
+						instance_type = "%s"
+					}
+
+					api_nodes {
+						instance_type = "%s"
+						count = 1
+					}
+				}
+
+				update_state = "stop"
+				`, currentDataNodeType, currentMySQLNodeType, currentAPINodeType)),
+				Check: resource.TestCheckResourceAttr(resourceName, "state", api.Stopped.String()),
+			},
+			{
+				Config: testAccClusterConfig_RonDB_upscale(cloud, rName, suffix, fmt.Sprintf(`
+				rondb {
+					data_nodes {
+						instance_type = "%s"
+					}
+
+					mysql_nodes {
+						instance_type = "%s"
+					}
+
+					api_nodes {
+						instance_type = "%s"
+						count = 1
+					}
+				}
+				`, newDataNodeType, newMySQLNodeType, newAPINodeType)),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "rondb.0.data_nodes.0.instance_type", newDataNodeType),
+					resource.TestCheckResourceAttr(resourceName, "rondb.0.mysql_nodes.0.instance_type", newMySQLNodeType),
+					resource.TestCheckResourceAttr(resourceName, "rondb.0.api_nodes.0.instance_type", newAPINodeType),
+					resource.TestCheckResourceAttr(resourceName, "rondb.0.api_nodes.0.count", "1"),
+				),
+			},
+		},
+	})
+}
+
 func testWorkerInstanceTypeWithGPU(cloud api.CloudProvider) string {
 	if cloud == api.AWS {
 		return "g3s.xlarge"
@@ -690,6 +832,41 @@ func testAccClusterConfig_Autoscale(cloud api.CloudProvider, rName string, suffi
 
 func testAccClusterConfig_Autoscale_Update(cloud api.CloudProvider, rName string, suffix string, extraConfig string) string {
 	return testAccClusterConfig(cloud, rName, suffix, extraConfig, 6)
+}
+
+func testAccClusterConfig_Head_upscale(cloud api.CloudProvider, rName string, suffix string, instanceType string, extraConfig string) string {
+	return fmt.Sprintf(`
+	resource "hopsworksai_cluster" "%s" {
+		name    = "%s%s%s"
+		ssh_key = "%s"	  
+		head {
+			instance_type = "%s"
+		}
+		
+		%s
+		
+		%s 
+
+		tags = {
+		  "%s" = "%s"
+		}
+	  }
+	`,
+		rName,
+		default_CLUSTER_NAME_PREFIX,
+		strings.ToLower(cloud.String()),
+		suffix,
+		testAccClusterCloudSSHKeyAttribute(cloud),
+		instanceType,
+		testAccClusterCloudConfigAttributes(cloud, 11, false),
+		extraConfig,
+		default_CLUSTER_TAG_KEY,
+		default_CLUSTER_TAG_VALUE,
+	)
+}
+
+func testAccClusterConfig_RonDB_upscale(cloud api.CloudProvider, rName string, suffix string, extraConfig string) string {
+	return testAccClusterConfig(cloud, rName, suffix, extraConfig, 12)
 }
 
 func testAccClusterConfig(cloud api.CloudProvider, rName string, suffix string, extraConfig string, bucketIndex int) string {
@@ -3118,6 +3295,828 @@ func TestClusterCreate_AZURE_ASK_cluster(t *testing.T) {
 			},
 		},
 		ExpectError: "failed to create cluster, error: skip",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterUpdate_modifyInstancetype_head(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"cluster": {
+							"id": "cluster-id-1",
+							"name": "cluster-name-1",
+							"state" : "running",
+							"provider": "AZURE",
+							"version": "v1",
+							"clusterConfiguration": {
+								"head": {
+									"instanceType": "old-head-node-type-1",
+									"diskSize": 512
+								}
+							},
+							"ports":{
+								"featureStore": false,
+								"onlineFeatureStore": false,
+								"kafka": false,
+								"ssh": false
+							}
+						}
+					}
+				}`,
+			},
+			{
+				Method: http.MethodPut,
+				Path:   "/api/clusters/cluster-id-1/nodes/modify-instance-type",
+				ExpectRequestBody: `{
+					"nodeInfo": {
+						"nodeType": "head",
+						"instanceType": "new-head-node-type-1"
+					}
+				}`,
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200
+				}`,
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().UpdateContext,
+		Id:                   "cluster-id-1",
+		Update:               true,
+		State: map[string]interface{}{
+			"version": "v1",
+			"head": []interface{}{
+				map[string]interface{}{
+					"instance_type": "new-head-node-type-1",
+					"disk_size":     512,
+				},
+			},
+			"open_ports": []interface{}{
+				map[string]interface{}{
+					"ssh":                  false,
+					"kafka":                false,
+					"feature_store":        false,
+					"online_feature_store": false,
+				},
+			},
+		},
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterUpdate_modifyInstancetype_head_error(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"cluster": {
+							"id": "cluster-id-1",
+							"name": "cluster-name-1",
+							"state" : "running",
+							"provider": "AZURE",
+							"version": "v1",
+							"clusterConfiguration": {
+								"head": {
+									"instanceType": "old-head-node-type-1",
+									"diskSize": 512
+								}
+							},
+							"ports":{
+								"featureStore": false,
+								"onlineFeatureStore": false,
+								"kafka": false,
+								"ssh": false
+							}
+						}
+					}
+				}`,
+			},
+			{
+				Method: http.MethodPut,
+				Path:   "/api/clusters/cluster-id-1/nodes/modify-instance-type",
+				ExpectRequestBody: `{
+					"nodeInfo": {
+						"nodeType": "head",
+						"instanceType": "new-head-node-type-1"
+					}
+				}`,
+				Response: `{
+					"apiVersion": "v1",
+					"status": "error",
+					"code": 400,
+					"message": "could not change instance type"
+				}`,
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().UpdateContext,
+		Id:                   "cluster-id-1",
+		Update:               true,
+		State: map[string]interface{}{
+			"version": "v1",
+			"head": []interface{}{
+				map[string]interface{}{
+					"instance_type": "new-head-node-type-1",
+					"disk_size":     512,
+				},
+			},
+			"open_ports": []interface{}{
+				map[string]interface{}{
+					"ssh":                  false,
+					"kafka":                false,
+					"feature_store":        false,
+					"online_feature_store": false,
+				},
+			},
+		},
+		ExpectError: "could not change instance type",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterUpdate_modifyInstancetype_rondb(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"cluster": {
+							"id": "cluster-id-1",
+							"name": "cluster-name-1",
+							"state" : "running",
+							"provider": "AZURE",
+							"version": "v1",
+							"ronDB": {
+								"configuration": {
+									"ndbdDefault": {
+										"replicationFactor": 2
+									},
+									"general": {
+										"benchmark": {
+											"grantUserPrivileges": false
+										}
+									}
+								},
+								"mgmd": {
+									"instanceType": "mgm-node-1",
+									"diskSize": 30,
+									"count": 1
+								},
+								"ndbd": {
+									"instanceType": "data-node-1",
+									"diskSize": 512,
+									"count": 2
+								},
+								"mysqld": {
+									"instanceType": "mysqld-node-1",
+									"diskSize": 100,
+									"count": 1
+								},
+								"api": {
+									"instanceType": "api-node-1",
+									"diskSize": 50,
+									"count": 1
+								}
+							},
+							"ports":{
+								"featureStore": false,
+								"onlineFeatureStore": false,
+								"kafka": false,
+								"ssh": false
+							}
+						}
+					}
+				}`,
+			},
+			{
+				Method: http.MethodPut,
+				Path:   "/api/clusters/cluster-id-1/nodes/modify-instance-type",
+				ExpectRequestBody: `{
+					"nodeInfo": {
+						"nodeType": "rondb_data",
+						"instanceType": "new-data-node-1"
+					}
+				}`,
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200
+				}`,
+				RunOnlyOnce: true,
+			},
+			{
+				Method: http.MethodPut,
+				Path:   "/api/clusters/cluster-id-1/nodes/modify-instance-type",
+				ExpectRequestBody: `{
+					"nodeInfo": {
+						"nodeType": "rondb_mysql",
+						"instanceType": "new-mysqld-node-1"
+					}
+				}`,
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200
+				}`,
+				RunOnlyOnce: true,
+			},
+			{
+				Method: http.MethodPut,
+				Path:   "/api/clusters/cluster-id-1/nodes/modify-instance-type",
+				ExpectRequestBody: `{
+					"nodeInfo": {
+						"nodeType": "rondb_api",
+						"instanceType": "new-api-node-1"
+					}
+				}`,
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200
+				}`,
+				RunOnlyOnce: true,
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().UpdateContext,
+		Id:                   "cluster-id-1",
+		Update:               true,
+		State: map[string]interface{}{
+			"version": "v1",
+			"rondb": []interface{}{
+				map[string]interface{}{
+					"configuration": []interface{}{
+						map[string]interface{}{
+							"ndbd_default": []interface{}{
+								map[string]interface{}{
+									"replication_factor": 2,
+								},
+							},
+							"general": []interface{}{
+								map[string]interface{}{
+									"benchmark": []interface{}{
+										map[string]interface{}{
+											"grant_user_privileges": false,
+										},
+									},
+								},
+							},
+						},
+					},
+					"management_nodes": []interface{}{
+						map[string]interface{}{
+							"instance_type": "mgm-node-1",
+							"disk_size":     30,
+							"count":         1,
+						},
+					},
+					"data_nodes": []interface{}{
+						map[string]interface{}{
+							"instance_type": "new-data-node-1",
+							"disk_size":     512,
+							"count":         2,
+						},
+					},
+					"mysql_nodes": []interface{}{
+						map[string]interface{}{
+							"instance_type": "new-mysqld-node-1",
+							"disk_size":     100,
+							"count":         1,
+						},
+					},
+					"api_nodes": []interface{}{
+						map[string]interface{}{
+							"instance_type": "new-api-node-1",
+							"disk_size":     50,
+							"count":         1,
+						},
+					},
+				},
+			},
+			"open_ports": []interface{}{
+				map[string]interface{}{
+					"ssh":                  false,
+					"kafka":                false,
+					"feature_store":        false,
+					"online_feature_store": false,
+				},
+			},
+		},
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterUpdate_modifyInstancetype_rondb_data_error(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"cluster": {
+							"id": "cluster-id-1",
+							"name": "cluster-name-1",
+							"state" : "running",
+							"provider": "AZURE",
+							"version": "v1",
+							"ronDB": {
+								"configuration": {
+									"ndbdDefault": {
+										"replicationFactor": 2
+									},
+									"general": {
+										"benchmark": {
+											"grantUserPrivileges": false
+										}
+									}
+								},
+								"mgmd": {
+									"instanceType": "mgm-node-1",
+									"diskSize": 30,
+									"count": 1
+								},
+								"ndbd": {
+									"instanceType": "data-node-1",
+									"diskSize": 512,
+									"count": 2
+								},
+								"mysqld": {
+									"instanceType": "mysqld-node-1",
+									"diskSize": 100,
+									"count": 1
+								},
+								"api": {
+									"instanceType": "api-node-1",
+									"diskSize": 50,
+									"count": 1
+								}
+							},
+							"ports":{
+								"featureStore": false,
+								"onlineFeatureStore": false,
+								"kafka": false,
+								"ssh": false
+							}
+						}
+					}
+				}`,
+			},
+			{
+				Method: http.MethodPut,
+				Path:   "/api/clusters/cluster-id-1/nodes/modify-instance-type",
+				ExpectRequestBody: `{
+					"nodeInfo": {
+						"nodeType": "rondb_data",
+						"instanceType": "new-data-node-1"
+					}
+				}`,
+				Response: `{
+					"apiVersion": "v1",
+					"status": "error",
+					"code": 400,
+					"message": "could not change rondb datanode instance type"
+				}`,
+				RunOnlyOnce: true,
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().UpdateContext,
+		Id:                   "cluster-id-1",
+		Update:               true,
+		State: map[string]interface{}{
+			"version": "v1",
+			"rondb": []interface{}{
+				map[string]interface{}{
+					"configuration": []interface{}{
+						map[string]interface{}{
+							"ndbd_default": []interface{}{
+								map[string]interface{}{
+									"replication_factor": 2,
+								},
+							},
+							"general": []interface{}{
+								map[string]interface{}{
+									"benchmark": []interface{}{
+										map[string]interface{}{
+											"grant_user_privileges": false,
+										},
+									},
+								},
+							},
+						},
+					},
+					"management_nodes": []interface{}{
+						map[string]interface{}{
+							"instance_type": "mgm-node-1",
+							"disk_size":     30,
+							"count":         1,
+						},
+					},
+					"data_nodes": []interface{}{
+						map[string]interface{}{
+							"instance_type": "new-data-node-1",
+							"disk_size":     512,
+							"count":         2,
+						},
+					},
+					"mysql_nodes": []interface{}{
+						map[string]interface{}{
+							"instance_type": "new-mysqld-node-1",
+							"disk_size":     100,
+							"count":         1,
+						},
+					},
+					"api_nodes": []interface{}{
+						map[string]interface{}{
+							"instance_type": "new-api-node-1",
+							"disk_size":     50,
+							"count":         1,
+						},
+					},
+				},
+			},
+			"open_ports": []interface{}{
+				map[string]interface{}{
+					"ssh":                  false,
+					"kafka":                false,
+					"feature_store":        false,
+					"online_feature_store": false,
+				},
+			},
+		},
+		ExpectError: "could not change rondb datanode instance type",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterUpdate_modifyInstancetype_rondb_mysql_error(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"cluster": {
+							"id": "cluster-id-1",
+							"name": "cluster-name-1",
+							"state" : "running",
+							"provider": "AZURE",
+							"version": "v1",
+							"ronDB": {
+								"configuration": {
+									"ndbdDefault": {
+										"replicationFactor": 2
+									},
+									"general": {
+										"benchmark": {
+											"grantUserPrivileges": false
+										}
+									}
+								},
+								"mgmd": {
+									"instanceType": "mgm-node-1",
+									"diskSize": 30,
+									"count": 1
+								},
+								"ndbd": {
+									"instanceType": "data-node-1",
+									"diskSize": 512,
+									"count": 2
+								},
+								"mysqld": {
+									"instanceType": "mysqld-node-1",
+									"diskSize": 100,
+									"count": 1
+								},
+								"api": {
+									"instanceType": "api-node-1",
+									"diskSize": 50,
+									"count": 1
+								}
+							},
+							"ports":{
+								"featureStore": false,
+								"onlineFeatureStore": false,
+								"kafka": false,
+								"ssh": false
+							}
+						}
+					}
+				}`,
+			},
+			{
+				Method: http.MethodPut,
+				Path:   "/api/clusters/cluster-id-1/nodes/modify-instance-type",
+				ExpectRequestBody: `{
+					"nodeInfo": {
+						"nodeType": "rondb_data",
+						"instanceType": "new-data-node-1"
+					}
+				}`,
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200
+				}`,
+				RunOnlyOnce: true,
+			},
+			{
+				Method: http.MethodPut,
+				Path:   "/api/clusters/cluster-id-1/nodes/modify-instance-type",
+				ExpectRequestBody: `{
+					"nodeInfo": {
+						"nodeType": "rondb_mysql",
+						"instanceType": "new-mysqld-node-1"
+					}
+				}`,
+				Response: `{
+					"apiVersion": "v1",
+					"status": "error",
+					"code": 400,
+					"message": "could not change rondb mysql node instance type"
+				}`,
+				RunOnlyOnce: true,
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().UpdateContext,
+		Id:                   "cluster-id-1",
+		Update:               true,
+		State: map[string]interface{}{
+			"version": "v1",
+			"rondb": []interface{}{
+				map[string]interface{}{
+					"configuration": []interface{}{
+						map[string]interface{}{
+							"ndbd_default": []interface{}{
+								map[string]interface{}{
+									"replication_factor": 2,
+								},
+							},
+							"general": []interface{}{
+								map[string]interface{}{
+									"benchmark": []interface{}{
+										map[string]interface{}{
+											"grant_user_privileges": false,
+										},
+									},
+								},
+							},
+						},
+					},
+					"management_nodes": []interface{}{
+						map[string]interface{}{
+							"instance_type": "mgm-node-1",
+							"disk_size":     30,
+							"count":         1,
+						},
+					},
+					"data_nodes": []interface{}{
+						map[string]interface{}{
+							"instance_type": "new-data-node-1",
+							"disk_size":     512,
+							"count":         2,
+						},
+					},
+					"mysql_nodes": []interface{}{
+						map[string]interface{}{
+							"instance_type": "new-mysqld-node-1",
+							"disk_size":     100,
+							"count":         1,
+						},
+					},
+					"api_nodes": []interface{}{
+						map[string]interface{}{
+							"instance_type": "new-api-node-1",
+							"disk_size":     50,
+							"count":         1,
+						},
+					},
+				},
+			},
+			"open_ports": []interface{}{
+				map[string]interface{}{
+					"ssh":                  false,
+					"kafka":                false,
+					"feature_store":        false,
+					"online_feature_store": false,
+				},
+			},
+		},
+		ExpectError: "could not change rondb mysql node instance type",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterUpdate_modifyInstancetype_rondb_api_error(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"cluster": {
+							"id": "cluster-id-1",
+							"name": "cluster-name-1",
+							"state" : "running",
+							"provider": "AZURE",
+							"version": "v1",
+							"ronDB": {
+								"configuration": {
+									"ndbdDefault": {
+										"replicationFactor": 2
+									},
+									"general": {
+										"benchmark": {
+											"grantUserPrivileges": false
+										}
+									}
+								},
+								"mgmd": {
+									"instanceType": "mgm-node-1",
+									"diskSize": 30,
+									"count": 1
+								},
+								"ndbd": {
+									"instanceType": "data-node-1",
+									"diskSize": 512,
+									"count": 2
+								},
+								"mysqld": {
+									"instanceType": "mysqld-node-1",
+									"diskSize": 100,
+									"count": 1
+								},
+								"api": {
+									"instanceType": "api-node-1",
+									"diskSize": 50,
+									"count": 1
+								}
+							},
+							"ports":{
+								"featureStore": false,
+								"onlineFeatureStore": false,
+								"kafka": false,
+								"ssh": false
+							}
+						}
+					}
+				}`,
+			},
+			{
+				Method: http.MethodPut,
+				Path:   "/api/clusters/cluster-id-1/nodes/modify-instance-type",
+				ExpectRequestBody: `{
+					"nodeInfo": {
+						"nodeType": "rondb_data",
+						"instanceType": "new-data-node-1"
+					}
+				}`,
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200
+				}`,
+				RunOnlyOnce: true,
+			},
+			{
+				Method: http.MethodPut,
+				Path:   "/api/clusters/cluster-id-1/nodes/modify-instance-type",
+				ExpectRequestBody: `{
+					"nodeInfo": {
+						"nodeType": "rondb_mysql",
+						"instanceType": "new-mysqld-node-1"
+					}
+				}`,
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200
+				}`,
+				RunOnlyOnce: true,
+			},
+			{
+				Method: http.MethodPut,
+				Path:   "/api/clusters/cluster-id-1/nodes/modify-instance-type",
+				ExpectRequestBody: `{
+					"nodeInfo": {
+						"nodeType": "rondb_api",
+						"instanceType": "new-api-node-1"
+					}
+				}`,
+				Response: `{
+					"apiVersion": "v1",
+					"status": "error",
+					"code": 400,
+					"message": "could not change rondb api node instance type"
+				}`,
+				RunOnlyOnce: true,
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().UpdateContext,
+		Id:                   "cluster-id-1",
+		Update:               true,
+		State: map[string]interface{}{
+			"version": "v1",
+			"rondb": []interface{}{
+				map[string]interface{}{
+					"configuration": []interface{}{
+						map[string]interface{}{
+							"ndbd_default": []interface{}{
+								map[string]interface{}{
+									"replication_factor": 2,
+								},
+							},
+							"general": []interface{}{
+								map[string]interface{}{
+									"benchmark": []interface{}{
+										map[string]interface{}{
+											"grant_user_privileges": false,
+										},
+									},
+								},
+							},
+						},
+					},
+					"management_nodes": []interface{}{
+						map[string]interface{}{
+							"instance_type": "mgm-node-1",
+							"disk_size":     30,
+							"count":         1,
+						},
+					},
+					"data_nodes": []interface{}{
+						map[string]interface{}{
+							"instance_type": "new-data-node-1",
+							"disk_size":     512,
+							"count":         2,
+						},
+					},
+					"mysql_nodes": []interface{}{
+						map[string]interface{}{
+							"instance_type": "new-mysqld-node-1",
+							"disk_size":     100,
+							"count":         1,
+						},
+					},
+					"api_nodes": []interface{}{
+						map[string]interface{}{
+							"instance_type": "new-api-node-1",
+							"disk_size":     50,
+							"count":         1,
+						},
+					},
+				},
+			},
+			"open_ports": []interface{}{
+				map[string]interface{}{
+					"ssh":                  false,
+					"kafka":                false,
+					"feature_store":        false,
+					"online_feature_store": false,
+				},
+			},
+		},
+		ExpectError: "could not change rondb api node instance type",
 	}
 	r.Apply(t, context.TODO())
 }

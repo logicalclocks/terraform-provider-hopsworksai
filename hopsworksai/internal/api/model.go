@@ -508,3 +508,12 @@ type GetSupportedVersionsResponse struct {
 type UpgradeClusterRequest struct {
 	Version string `json:"version"`
 }
+
+type NodeInfo struct {
+	NodeType     string `json:"nodeType"`
+	InstanceType string `json:"instanceType"`
+}
+
+type ModifyInstanceTypeRequest struct {
+	NodeInfo NodeInfo `json:"nodeInfo"`
+}
