@@ -144,7 +144,6 @@ func clusterSchema() map[string]*schema.Schema {
 						Type:        schema.TypeString,
 						Optional:    true,
 						Computed:    true,
-						ForceNew:    true,
 					},
 					"disk_size": {
 						Description:  "The disk size of the head node in units of GB.",
@@ -519,7 +518,6 @@ func ronDBSchema() *schema.Resource {
 							Description: fmt.Sprintf("The instance type of the RonDB data node. Defaults to %s for AWS and %s for Azure.", defaultRonDBConfiguration(api.AWS).DataNodes.InstanceType, defaultRonDBConfiguration(api.AZURE).DataNodes.InstanceType),
 							Type:        schema.TypeString,
 							Optional:    true,
-							ForceNew:    true,
 							Computed:    true,
 						},
 						"disk_size": {
@@ -552,7 +550,6 @@ func ronDBSchema() *schema.Resource {
 							Description: fmt.Sprintf("The instance type of the RonDB data node. Defaults to %s for AWS and %s for Azure.", defaultRonDBConfiguration(api.AWS).MYSQLNodes.InstanceType, defaultRonDBConfiguration(api.AZURE).MYSQLNodes.InstanceType),
 							Type:        schema.TypeString,
 							Optional:    true,
-							ForceNew:    true,
 							Computed:    true,
 						},
 						"disk_size": {
@@ -585,7 +582,6 @@ func ronDBSchema() *schema.Resource {
 							Description: fmt.Sprintf("The instance type of the RonDB data node. Defaults to %s for AWS and %s for Azure.", defaultRonDBConfiguration(api.AWS).APINodes.InstanceType, defaultRonDBConfiguration(api.AZURE).APINodes.InstanceType),
 							Type:        schema.TypeString,
 							Optional:    true,
-							ForceNew:    true,
 							Computed:    true,
 						},
 						"disk_size": {
@@ -1163,6 +1159,42 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		}
 
 		return resourceClusterRead(ctx, d, meta)
+	}
+
+	if d.HasChange("head.0.instance_type") {
+		_, n := d.GetChange("head.0.instance_type")
+		toInstanceType := n.(string)
+
+		if err := api.ModifyInstanceType(ctx, client, clusterId, api.HeadNode, toInstanceType); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("rondb.0.data_nodes.0.instance_type") {
+		_, n := d.GetChange("rondb.0.data_nodes.0.instance_type")
+		toInstanceType := n.(string)
+
+		if err := api.ModifyInstanceType(ctx, client, clusterId, api.RonDBDataNode, toInstanceType); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("rondb.0.mysql_nodes.0.instance_type") {
+		_, n := d.GetChange("rondb.0.mysql_nodes.0.instance_type")
+		toInstanceType := n.(string)
+
+		if err := api.ModifyInstanceType(ctx, client, clusterId, api.RonDBMySQLNode, toInstanceType); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("rondb.0.api_nodes.0.instance_type") {
+		_, n := d.GetChange("rondb.0.api_nodes.0.instance_type")
+		toInstanceType := n.(string)
+
+		if err := api.ModifyInstanceType(ctx, client, clusterId, api.RonDBAPINode, toInstanceType); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	if d.HasChange("workers") {

@@ -285,3 +285,24 @@ func RollbackUpgradeCluster(ctx context.Context, apiClient APIHandler, clusterId
 	}
 	return nil
 }
+
+func ModifyInstanceType(ctx context.Context, apiClient APIHandler, clusterId string, nodeType NodeType, instanceType string) error {
+	if nodeType == WorkerNode || nodeType == RonDBManagementNode {
+		return fmt.Errorf("modifying instance type for %s is not supported", nodeType.String())
+	}
+	req := ModifyInstanceTypeRequest{
+		NodeInfo: NodeInfo{
+			NodeType:     nodeType.String(),
+			InstanceType: instanceType,
+		},
+	}
+	payload, err := json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("failed to marshal request: %s", err)
+	}
+	var response BaseResponse
+	if err := apiClient.doRequest(ctx, http.MethodPut, "/api/clusters/"+clusterId+"/nodes/modify-instance-type", bytes.NewBuffer(payload), &response); err != nil {
+		return err
+	}
+	return nil
+}
