@@ -1,11 +1,9 @@
-## 0.8.0 (Unreleased)
+## 0.8.0 (February 25, 2022)
 
 NOTES:
 
 * datasource/aws_instance_profile_policy: Deprecate `enable_upgrade` attribute since these permissions are not required anymore from version 2.4.0 onwards
 * datasource/azure_user_assigned_identity_permissions: Deprecate `enable_upgrade` attribute since these permissions are not required anymore from version 2.4.0 onwards
-
-BREAKING CHANGES:
 
 BUG FIXES:
 * resource/hopsworksai_cluster: fix incorrect conversion error
@@ -17,8 +15,6 @@ ENHANCEMENTS:
 * resource/hopsworksai_cluster: Set Default `version` to 2.5.0
 * Extend resource testing framework to allow multiplexing HTTP requests with the same method and path
 * resource/hopsworksai_cluster: Add support for changing `instance_type` of head node and RonDB nodes
-
-FEATURES:
 
 ## 0.7.0 (December 14, 2021)
 
