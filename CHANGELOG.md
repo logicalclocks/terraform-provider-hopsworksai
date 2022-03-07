@@ -5,6 +5,7 @@ NOTES:
 BREAKING CHANGES:
 
 BUG FIXES:
+* resource/cluster: Add suppression check on `disk_size` attribute to avoid forced replacement during rollback
 
 ENHANCEMENTS:
 

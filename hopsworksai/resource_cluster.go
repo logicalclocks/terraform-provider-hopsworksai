@@ -152,6 +152,14 @@ func clusterSchema() map[string]*schema.Schema {
 						ForceNew:     true,
 						Default:      512,
 						ValidateFunc: validation.IntAtLeast(256),
+						DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+							if _, ok := d.GetOk("upgrade_in_progress"); ok && old == "0" && d.Get("state").(string) == api.Error.String() {
+								// This could happen only if the upgrade process failed before even starting the head node,
+								// so we should suppress this change to allow the user to rollback their cluster to old version
+								return true
+							}
+							return false
+						},
 					},
 				},
 			},
