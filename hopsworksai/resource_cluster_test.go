@@ -4120,3 +4120,36 @@ func TestClusterUpdate_modifyInstancetype_rondb_api_error(t *testing.T) {
 	}
 	r.Apply(t, context.TODO())
 }
+
+func TestSuppressDiff_HeadDiskSize_on_upgrade_failure(t *testing.T) {
+	diffFunc := clusterSchema()["head"].Elem.(*schema.Resource).Schema["disk_size"].DiffSuppressFunc
+	d := clusterResource().Data(nil)
+	if diffFunc("disk_size", "0", "512", d) {
+		t.Fatalf("should not return true if not during upgrade failure")
+	}
+
+	if err := d.Set("upgrade_in_progress", []interface{}{
+		map[string]interface{}{
+			"from_version": "2.4.0",
+			"to_version":   "2.5.0",
+		},
+	}); err != nil {
+		t.Fatalf("should not get an error but got %#v", err)
+	}
+
+	if diffFunc("disk_size", "0", "512", d) {
+		t.Fatalf("should not return true since the cluster state is not error")
+	}
+
+	if err := d.Set("state", api.Error); err != nil {
+		t.Fatalf("should not get an error but got %#v", err)
+	}
+
+	if !diffFunc("disk_size", "0", "512", d) {
+		t.Fatalf("should not return false since the cluster is on error during upgrade")
+	}
+
+	if diffFunc("disk_size", "100", "512", d) {
+		t.Fatalf("should not return true since the old disk value is not 0")
+	}
+}
