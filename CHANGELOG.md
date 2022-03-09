@@ -7,6 +7,7 @@ BREAKING CHANGES:
 BUG FIXES:
 
 ENHANCEMENTS:
+* resource/hopsworksai_cluster: Add `deactivate_hopsworksai_log_collection` attribute to deactivate or activate Hopsworks.ai log collection.
 
 FEATURES:
 

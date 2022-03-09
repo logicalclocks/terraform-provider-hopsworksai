@@ -59,6 +59,7 @@ Read-Only:
 - **backup_retention_period** (Number)
 - **cluster_id** (String)
 - **creation_date** (String)
+- **deactivate_hopsworksai_log_collection** (Boolean)
 - **head** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--head))
 - **init_script** (String)
 - **issue_lets_encrypt_certificate** (Boolean)
