@@ -411,6 +411,13 @@ func clusterSchema() map[string]*schema.Schema {
 				},
 			},
 		},
+		"deactivate_hopsworksai_log_collection": {
+			Description: "Allow Hopsworks.ai to collect services logs to help diagnose issues with the cluster. By deactivating this option, you will not be able to get full support from our teams.",
+			Type:        schema.TypeBool,
+			Optional:    true,
+			ForceNew:    true,
+			Default:     false,
+		},
 	}
 }
 
@@ -1011,6 +1018,7 @@ func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error
 		InitScript:            d.Get("init_script").(string),
 		RunInitScriptFirst:    d.Get("run_init_script_first").(bool),
 		OS:                    api.OS(d.Get("os").(string)),
+		DeactivateLogReport:   d.Get("deactivate_hopsworksai_log_collection").(bool),
 	}
 
 	if v, ok := d.GetOk("workers"); ok {
