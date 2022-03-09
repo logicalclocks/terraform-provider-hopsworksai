@@ -172,6 +172,7 @@ type Cluster struct {
 	OS                    OS                      `json:"os,omitempty"`
 	UpgradeInProgress     *UpgradeInProgress      `json:"upgradeInProgress,omitempty"`
 	DeactivateLogReport   bool                    `json:"deactivateLogReport"`
+	CollectLogs           bool                    `json:"collectLogs"`
 }
 
 func (c *Cluster) IsAWSCluster() bool {
@@ -249,6 +250,7 @@ type CreateCluster struct {
 	RunInitScriptFirst    bool                    `json:"runInitScriptFirst"`
 	OS                    OS                      `json:"os,omitempty"`
 	DeactivateLogReport   bool                    `json:"deactivateLogReport"`
+	CollectLogs           bool                    `json:"collectLogs"`
 }
 
 type CreateAzureCluster struct {

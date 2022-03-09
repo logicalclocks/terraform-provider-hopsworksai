@@ -9,6 +9,7 @@ BUG FIXES:
 
 ENHANCEMENTS:
 * resource/hopsworksai_cluster: Add `deactivate_hopsworksai_log_collection` attribute to deactivate or activate Hopsworks.ai log collection.
+* resource/hopsworksai_cluster: Add `collect_logs` attribute to enable pushing services' logs to AWS CloudWatch.
 
 FEATURES:
 
