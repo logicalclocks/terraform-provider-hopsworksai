@@ -107,7 +107,8 @@ func TestClusterDataSourceRead_AWS(t *testing.T) {
 							"clusterConfiguration": {
 								"head": {
 									"instanceType": "node-type-1",
-									"diskSize": 512
+									"diskSize": 512,
+									"nodeId": "head-node-id-1"
 								},
 								"workers": [
 									{
@@ -156,6 +157,7 @@ func TestClusterDataSourceRead_AWS(t *testing.T) {
 				map[string]interface{}{
 					"instance_type": "node-type-1",
 					"disk_size":     512,
+					"node_id":       "head-node-id-1",
 				},
 			},
 			"workers": schema.NewSet(helpers.WorkerSetHash, []interface{}{
@@ -224,7 +226,8 @@ func TestClusterDataSourceRead_AZURE(t *testing.T) {
 							"clusterConfiguration": {
 								"head": {
 									"instanceType": "node-type-1",
-									"diskSize": 512
+									"diskSize": 512,
+									"nodeId": "head-node-id-1"
 								},
 								"workers": [
 									{
@@ -277,6 +280,7 @@ func TestClusterDataSourceRead_AZURE(t *testing.T) {
 				map[string]interface{}{
 					"instance_type": "node-type-1",
 					"disk_size":     512,
+					"node_id":       "head-node-id-1",
 				},
 			},
 			"workers": schema.NewSet(helpers.WorkerSetHash, []interface{}{

@@ -49,11 +49,12 @@ func FlattenCluster(cluster *api.Cluster) map[string]interface{} {
 	}
 }
 
-func flattenHead(head *api.HeadConfiguration) []map[string]interface{} {
+func flattenHead(head *api.HeadConfigurationStatus) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
 			"instance_type": head.InstanceType,
 			"disk_size":     head.DiskSize,
+			"node_id":       head.NodeId,
 		},
 	}
 }

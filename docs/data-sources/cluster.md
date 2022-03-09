@@ -172,6 +172,7 @@ Read-Only:
 
 - **disk_size** (Number)
 - **instance_type** (String)
+- **node_id** (String)
 
 
 <a id="nestedatt--open_ports"></a>

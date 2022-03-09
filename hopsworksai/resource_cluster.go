@@ -161,6 +161,11 @@ func clusterSchema() map[string]*schema.Schema {
 							return false
 						},
 					},
+					"node_id": {
+						Description: "The corresponding aws/azure instance id of the head node.",
+						Type:        schema.TypeString,
+						Computed:    true,
+					},
 				},
 			},
 		},

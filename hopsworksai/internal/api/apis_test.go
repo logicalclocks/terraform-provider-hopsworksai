@@ -94,7 +94,8 @@ func TestGetClusterAWS(t *testing.T) {
 						"clusterConfiguration": {
 							"head": {
 								"instanceType": "node-type-1",
-								"diskSize": 512
+								"diskSize": 512,
+								"nodeId": "head-node-id"
 							},
 							"workers": [
 								{
@@ -143,12 +144,13 @@ func TestGetClusterAWS(t *testing.T) {
 			},
 		},
 		SshKeyName: "ssh-key-1",
-		ClusterConfiguration: ClusterConfiguration{
-			Head: HeadConfiguration{
+		ClusterConfiguration: ClusterConfigurationStatus{
+			Head: HeadConfigurationStatus{
 				NodeConfiguration: NodeConfiguration{
 					InstanceType: "node-type-1",
 					DiskSize:     512,
 				},
+				NodeId: "head-node-id",
 			},
 			Workers: []WorkerConfiguration{
 				{
@@ -225,7 +227,8 @@ func TestGetClusterAZURE(t *testing.T) {
 						"clusterConfiguration": {
 							"head": {
 								"instanceType": "node-type-1",
-								"diskSize": 512
+								"diskSize": 512,
+								"nodeId": "head-node-id-1"
 							},
 							"workers": [
 								{
@@ -277,12 +280,13 @@ func TestGetClusterAZURE(t *testing.T) {
 			},
 		},
 		SshKeyName: "ssh-key-1",
-		ClusterConfiguration: ClusterConfiguration{
-			Head: HeadConfiguration{
+		ClusterConfiguration: ClusterConfigurationStatus{
+			Head: HeadConfigurationStatus{
 				NodeConfiguration: NodeConfiguration{
 					InstanceType: "node-type-1",
 					DiskSize:     512,
 				},
+				NodeId: "head-node-id-1",
 			},
 			Workers: []WorkerConfiguration{
 				{

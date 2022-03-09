@@ -11,17 +11,19 @@ import (
 )
 
 func TestFlattenHeadConfiguration(t *testing.T) {
-	input := &api.HeadConfiguration{
+	input := &api.HeadConfigurationStatus{
 		NodeConfiguration: api.NodeConfiguration{
 			InstanceType: "head-type-1",
 			DiskSize:     512,
 		},
+		NodeId: "head-node-id-1",
 	}
 
 	expected := []map[string]interface{}{
 		{
 			"instance_type": input.InstanceType,
 			"disk_size":     input.DiskSize,
+			"node_id":       input.NodeId,
 		},
 	}
 
@@ -290,12 +292,13 @@ func TestFlattenCluster(t *testing.T) {
 		LetsEncryptIssued:     true,
 		ManagedUsers:          true,
 		BackupRetentionPeriod: 0,
-		ClusterConfiguration: api.ClusterConfiguration{
-			Head: api.HeadConfiguration{
+		ClusterConfiguration: api.ClusterConfigurationStatus{
+			Head: api.HeadConfigurationStatus{
 				NodeConfiguration: api.NodeConfiguration{
 					InstanceType: "head-node-type-1",
 					DiskSize:     512,
 				},
+				NodeId: "head-node-id-1",
 			},
 			Workers: []api.WorkerConfiguration{
 				{
@@ -1218,12 +1221,13 @@ func TestFlattenClusters(t *testing.T) {
 			LetsEncryptIssued:     true,
 			ManagedUsers:          true,
 			BackupRetentionPeriod: 0,
-			ClusterConfiguration: api.ClusterConfiguration{
-				Head: api.HeadConfiguration{
+			ClusterConfiguration: api.ClusterConfigurationStatus{
+				Head: api.HeadConfigurationStatus{
 					NodeConfiguration: api.NodeConfiguration{
 						InstanceType: "head-node-type-1",
 						DiskSize:     512,
 					},
+					NodeId: "head-node-id-1",
 				},
 				Workers: []api.WorkerConfiguration{
 					{
@@ -1333,12 +1337,13 @@ func TestFlattenClusters(t *testing.T) {
 			LetsEncryptIssued:     true,
 			ManagedUsers:          true,
 			BackupRetentionPeriod: 0,
-			ClusterConfiguration: api.ClusterConfiguration{
-				Head: api.HeadConfiguration{
+			ClusterConfiguration: api.ClusterConfigurationStatus{
+				Head: api.HeadConfigurationStatus{
 					NodeConfiguration: api.NodeConfiguration{
 						InstanceType: "head-node-type-1",
 						DiskSize:     512,
 					},
+					NodeId: "head-node-id-1",
 				},
 				Workers: []api.WorkerConfiguration{
 					{

@@ -113,6 +113,10 @@ Optional:
 - **disk_size** (Number) The disk size of the head node in units of GB. Defaults to `512`.
 - **instance_type** (String) The instance type of the head node. Defaults to m5.2xlarge for AWS and Standard_D8_v3 for Azure.
 
+Read-Only:
+
+- **node_id** (String) The corresponding aws/azure instance id of the head node.
+
 
 <a id="nestedblock--autoscale"></a>
 ### Nested Schema for `autoscale`
