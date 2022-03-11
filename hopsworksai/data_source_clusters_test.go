@@ -174,6 +174,7 @@ func TestClustersDataSourceRead(t *testing.T) {
 						map[string]interface{}{
 							"instance_type": "",
 							"disk_size":     0,
+							"node_id":       "",
 						},
 					},
 					"workers":                        schema.NewSet(helpers.WorkerSetHash, []interface{}{}),
@@ -223,6 +224,7 @@ func TestClustersDataSourceRead(t *testing.T) {
 						map[string]interface{}{
 							"instance_type": "",
 							"disk_size":     0,
+							"node_id":       "",
 						},
 					},
 					"workers":                        schema.NewSet(helpers.WorkerSetHash, []interface{}{}),
@@ -272,6 +274,7 @@ func TestClustersDataSourceRead(t *testing.T) {
 						map[string]interface{}{
 							"instance_type": "",
 							"disk_size":     0,
+							"node_id":       "",
 						},
 					},
 					"workers":                        schema.NewSet(helpers.WorkerSetHash, []interface{}{}),

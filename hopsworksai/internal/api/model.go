@@ -144,35 +144,35 @@ type UpgradeInProgress struct {
 }
 
 type Cluster struct {
-	Id                    string                  `json:"id"`
-	Name                  string                  `json:"name"`
-	State                 ClusterState            `json:"state"`
-	ActivationState       ActivationState         `json:"activationState"`
-	InitializationStage   string                  `json:"initializationStage"`
-	CreatedOn             int64                   `json:"createdOn"`
-	StartedOn             int64                   `json:"startedOn"`
-	Version               string                  `json:"version"`
-	URL                   string                  `json:"url"`
-	Provider              CloudProvider           `json:"provider"`
-	ErrorMessage          string                  `json:"errorMessage,omitempty"`
-	Tags                  []ClusterTag            `json:"tags"`
-	SshKeyName            string                  `json:"sshKeyName"`
-	ClusterConfiguration  ClusterConfiguration    `json:"clusterConfiguration,omitempty"`
-	PublicIPAttached      bool                    `json:"publicIPAttached"`
-	LetsEncryptIssued     bool                    `json:"letsEncryptIssued"`
-	ManagedUsers          bool                    `json:"managedUsers"`
-	BackupRetentionPeriod int                     `json:"backupRetentionPeriod"`
-	Azure                 AzureCluster            `json:"azure,omitempty"`
-	AWS                   AWSCluster              `json:"aws,omitempty"`
-	Ports                 ServiceOpenPorts        `json:"ports"`
-	RonDB                 *RonDBConfiguration     `json:"ronDB,omitempty"`
-	Autoscale             *AutoscaleConfiguration `json:"autoscale,omitempty"`
-	InitScript            string                  `json:"initScript"`
-	RunInitScriptFirst    bool                    `json:"runInitScriptFirst"`
-	OS                    OS                      `json:"os,omitempty"`
-	UpgradeInProgress     *UpgradeInProgress      `json:"upgradeInProgress,omitempty"`
-	DeactivateLogReport   bool                    `json:"deactivateLogReport"`
-	CollectLogs           bool                    `json:"collectLogs"`
+	Id                    string                     `json:"id"`
+	Name                  string                     `json:"name"`
+	State                 ClusterState               `json:"state"`
+	ActivationState       ActivationState            `json:"activationState"`
+	InitializationStage   string                     `json:"initializationStage"`
+	CreatedOn             int64                      `json:"createdOn"`
+	StartedOn             int64                      `json:"startedOn"`
+	Version               string                     `json:"version"`
+	URL                   string                     `json:"url"`
+	Provider              CloudProvider              `json:"provider"`
+	ErrorMessage          string                     `json:"errorMessage,omitempty"`
+	Tags                  []ClusterTag               `json:"tags"`
+	SshKeyName            string                     `json:"sshKeyName"`
+	ClusterConfiguration  ClusterConfigurationStatus `json:"clusterConfiguration,omitempty"`
+	PublicIPAttached      bool                       `json:"publicIPAttached"`
+	LetsEncryptIssued     bool                       `json:"letsEncryptIssued"`
+	ManagedUsers          bool                       `json:"managedUsers"`
+	BackupRetentionPeriod int                        `json:"backupRetentionPeriod"`
+	Azure                 AzureCluster               `json:"azure,omitempty"`
+	AWS                   AWSCluster                 `json:"aws,omitempty"`
+	Ports                 ServiceOpenPorts           `json:"ports"`
+	RonDB                 *RonDBConfiguration        `json:"ronDB,omitempty"`
+	Autoscale             *AutoscaleConfiguration    `json:"autoscale,omitempty"`
+	InitScript            string                     `json:"initScript"`
+	RunInitScriptFirst    bool                       `json:"runInitScriptFirst"`
+	OS                    OS                         `json:"os,omitempty"`
+	UpgradeInProgress     *UpgradeInProgress         `json:"upgradeInProgress,omitempty"`
+	DeactivateLogReport   bool                       `json:"deactivateLogReport"`
+	CollectLogs           bool                       `json:"collectLogs"`
 }
 
 func (c *Cluster) IsAWSCluster() bool {
@@ -227,6 +227,16 @@ type WorkerConfiguration struct {
 type ClusterConfiguration struct {
 	Head    HeadConfiguration     `json:"head"`
 	Workers []WorkerConfiguration `json:"workers"`
+}
+
+type HeadConfigurationStatus struct {
+	NodeConfiguration
+	NodeId string `json:"nodeId"`
+}
+
+type ClusterConfigurationStatus struct {
+	Head    HeadConfigurationStatus `json:"head"`
+	Workers []WorkerConfiguration   `json:"workers"`
 }
 
 type ClusterTag struct {
