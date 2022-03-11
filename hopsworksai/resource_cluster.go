@@ -418,6 +418,14 @@ func clusterSchema() map[string]*schema.Schema {
 			ForceNew:    true,
 			Default:     false,
 		},
+		"collect_logs": {
+			Description:   "Push services' logs to AWS cloud watch.",
+			Type:          schema.TypeBool,
+			Optional:      true,
+			ForceNew:      true,
+			Default:       false,
+			ConflictsWith: []string{"azure_attributes"},
+		},
 	}
 }
 
@@ -1019,6 +1027,7 @@ func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error
 		RunInitScriptFirst:    d.Get("run_init_script_first").(bool),
 		OS:                    api.OS(d.Get("os").(string)),
 		DeactivateLogReport:   d.Get("deactivate_hopsworksai_log_collection").(bool),
+		CollectLogs:           d.Get("collect_logs").(bool),
 	}
 
 	if v, ok := d.GetOk("workers"); ok {

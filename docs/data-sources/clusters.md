@@ -58,6 +58,7 @@ Read-Only:
 - **azure_attributes** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--azure_attributes))
 - **backup_retention_period** (Number)
 - **cluster_id** (String)
+- **collect_logs** (Boolean)
 - **creation_date** (String)
 - **deactivate_hopsworksai_log_collection** (Boolean)
 - **head** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--head))

@@ -45,6 +45,7 @@ func FlattenCluster(cluster *api.Cluster) map[string]interface{} {
 		"os":                                    cluster.OS,
 		"upgrade_in_progress":                   flattenUpgradeInProgress(cluster.UpgradeInProgress),
 		"deactivate_hopsworksai_log_collection": cluster.DeactivateLogReport,
+		"collect_logs":                          cluster.CollectLogs,
 	}
 }
 

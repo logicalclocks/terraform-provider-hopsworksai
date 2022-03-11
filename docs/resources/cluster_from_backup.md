@@ -45,6 +45,7 @@ resource "hopsworksai_cluster_from_backup" "cluster" {
 - **attach_public_ip** (Boolean) Attach or do not attach a public ip to the cluster. This can be useful if you intend to create a cluster in a private network.
 - **backup_retention_period** (Number) The validity of cluster backups in days. If set to 0 cluster backups are disabled.
 - **cluster_id** (String) The Id of the cluster.
+- **collect_logs** (Boolean) Push services' logs to AWS cloud watch.
 - **creation_date** (String) The creation date of the cluster. The date is represented in RFC3339 format.
 - **deactivate_hopsworksai_log_collection** (Boolean) Allow Hopsworks.ai to collect services logs to help diagnose issues with the cluster. By deactivating this option, you will not be able to get full support from our teams.
 - **head** (List of Object) The configurations of the head node of the cluster. (see [below for nested schema](#nestedatt--head))

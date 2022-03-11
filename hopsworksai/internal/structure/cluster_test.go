@@ -379,6 +379,7 @@ func TestFlattenCluster(t *testing.T) {
 			To:   "v2",
 		},
 		DeactivateLogReport: false,
+		CollectLogs:         false,
 	}
 
 	var emptyAttributes []interface{} = nil
@@ -410,6 +411,7 @@ func TestFlattenCluster(t *testing.T) {
 		"os":                                    input.OS,
 		"upgrade_in_progress":                   flattenUpgradeInProgress(input.UpgradeInProgress),
 		"deactivate_hopsworksai_log_collection": input.DeactivateLogReport,
+		"collect_logs":                          input.CollectLogs,
 	}
 
 	for _, cloud := range []api.CloudProvider{api.AWS, api.AZURE} {
