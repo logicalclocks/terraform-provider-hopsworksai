@@ -129,7 +129,7 @@ func testAccClusterCloudConfigAttributes(cloud api.CloudProvider, bucketIndex in
 	if cloud == api.AWS {
 		bucketNames := strings.Split(os.Getenv(env_AWS_BUCKET_NAMES), ",")
 		if bucketIndex >= len(bucketNames) {
-			if os.Getenv(resource.TestEnvVar) == "" || isAWSAccSkipped() {
+			if os.Getenv(resource.EnvTfAcc) == "" || isAWSAccSkipped() {
 				return ""
 			} else {
 				panic(fmt.Errorf("bucket index is out of range index: %d list: %#v", bucketIndex, bucketNames))
