@@ -1,9 +1,7 @@
 package main
 
 import (
-	"context"
 	"flag"
-	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
 	"github.com/logicalclocks/terraform-provider-hopsworksai/hopsworksai"
@@ -23,15 +21,6 @@ func main() {
 	flag.BoolVar(&debugMode, "debug", false, "set to true to run the provider with support for debuggers like delve")
 	flag.Parse()
 
-	opts := &plugin.ServeOpts{ProviderFunc: hopsworksai.Provider(version)}
-
-	if debugMode {
-		err := plugin.Debug(context.Background(), "registry.terraform.io/logicalclocks/hopsworksai", opts)
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-		return
-	}
-
+	opts := &plugin.ServeOpts{ProviderFunc: hopsworksai.Provider(version), Debug: debugMode}
 	plugin.Serve(opts)
 }
