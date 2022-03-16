@@ -1,8 +1,4 @@
-## 0.9.0 (Unreleased)
-
-NOTES:
-
-BREAKING CHANGES:
+## 0.9.0 (March 16, 2022)
 
 BUG FIXES:
 * resource/cluster: Add suppression check on `disk_size` attribute to avoid forced replacement during rollback
@@ -13,9 +9,6 @@ ENHANCEMENTS:
 * resource/hopsworksai_cluster: Add `head/node_id` readonly attribute to retrieve the corresponding aws/azure instance id of the head node.
 * dependencies: Bump hashicorp/terraform-plugin-sdk/v2 from 2.10.1 to 2.11.0  
 * dependencies: Bump hashicorp/terraform-plugin-docs from 0.5.1 to 0.7.0
-
-FEATURES:
-
 
 ## 0.8.0 (February 25, 2022)
 
