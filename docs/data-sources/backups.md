@@ -29,24 +29,24 @@ data "hopsworksai_backups" "backups" {
 
 ### Optional
 
-- **cluster_id** (String) The id of the cluster to retrieve its backups. If not set, all the backups are retrieved.
-- **id** (String) The ID of this resource.
+- `cluster_id` (String) The id of the cluster to retrieve its backups. If not set, all the backups are retrieved.
+- `id` (String) The ID of this resource.
 
 ### Read-Only
 
-- **backups** (List of Object) The list of backups sorted based on creation date with latest created backup first. (see [below for nested schema](#nestedatt--backups))
+- `backups` (List of Object) The list of backups sorted based on creation date with latest created backup first. (see [below for nested schema](#nestedatt--backups))
 
 <a id="nestedatt--backups"></a>
 ### Nested Schema for `backups`
 
 Read-Only:
 
-- **backup_id** (String)
-- **backup_name** (String)
-- **cloud_provider** (String)
-- **cluster_id** (String)
-- **creation_date** (String)
-- **state** (String)
-- **state_message** (String)
+- `backup_id` (String)
+- `backup_name` (String)
+- `cloud_provider` (String)
+- `cluster_id` (String)
+- `creation_date` (String)
+- `state` (String)
+- `state_message` (String)
 
 

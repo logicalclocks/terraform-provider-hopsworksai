@@ -37,28 +37,28 @@ data "hopsworksai_version" "latest" {
 
 ### Required
 
-- **cloud_provider** (String) The cloud provider where you plan to create your cluster.
+- `cloud_provider` (String) The cloud provider where you plan to create your cluster.
 
 ### Optional
 
-- **default** (Boolean) The version is the default version.
-- **experimental** (Boolean) The version is an experimental version.
-- **id** (String) The ID of this resource.
-- **os** (String) Filter based on the supported os.
-- **region** (String) Filter based on the region.
-- **upgradeable_from_version** (String) The version which is upgradeable to this version.
+- `default` (Boolean) The version is the default version.
+- `experimental` (Boolean) The version is an experimental version.
+- `id` (String) The ID of this resource.
+- `os` (String) Filter based on the supported os.
+- `region` (String) Filter based on the region.
+- `upgradeable_from_version` (String) The version which is upgradeable to this version.
 
 ### Read-Only
 
-- **release_notes_url** (String) The release notes url for this version.
-- **supported_regions** (List of Object) The list of supported operating systems per regions. (see [below for nested schema](#nestedatt--supported_regions))
+- `release_notes_url` (String) The release notes url for this version.
+- `supported_regions` (List of Object) The list of supported operating systems per regions. (see [below for nested schema](#nestedatt--supported_regions))
 
 <a id="nestedatt--supported_regions"></a>
 ### Nested Schema for `supported_regions`
 
 Read-Only:
 
-- **centos** (List of String)
-- **ubuntu** (List of String)
+- `centos` (List of String)
+- `ubuntu` (List of String)
 
 

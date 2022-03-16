@@ -24,30 +24,30 @@ resource "hopsworksai_backup" "backup" {
 
 ### Required
 
-- **backup_name** (String) The name to attach to this backup.
-- **cluster_id** (String) The id of the cluster for which you want to create a backup.
+- `backup_name` (String) The name to attach to this backup.
+- `cluster_id` (String) The id of the cluster for which you want to create a backup.
 
 ### Optional
 
-- **id** (String) The ID of this resource.
-- **timeouts** (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
+- `id` (String) The ID of this resource.
+- `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 
 ### Read-Only
 
-- **backup_id** (String) The backup id.
-- **cloud_provider** (String) The backup cloud provider.
-- **creation_date** (String) The creation date of the backup. The date is represented in RFC3339 format.
-- **state** (String) The backup state.
-- **state_message** (String) The backup state message.
+- `backup_id` (String) The backup id.
+- `cloud_provider` (String) The backup cloud provider.
+- `creation_date` (String) The creation date of the backup. The date is represented in RFC3339 format.
+- `state` (String) The backup state.
+- `state_message` (String) The backup state message.
 
 <a id="nestedblock--timeouts"></a>
 ### Nested Schema for `timeouts`
 
 Optional:
 
-- **create** (String)
-- **delete** (String)
-- **read** (String)
+- `create` (String)
+- `delete` (String)
+- `read` (String)
 
 ## Import
 

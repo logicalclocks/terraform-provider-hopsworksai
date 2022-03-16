@@ -181,4 +181,4 @@ output "hopsworks_cluster_url" {
 
 ### Optional
 
-- **api_key** (String, Sensitive) The API Key to use to connect to your account on Hopsworka.ai. Can be specified using the HOPSWORKSAI_API_KEY environment variable.
+- `api_key` (String, Sensitive) The API Key to use to connect to your account on Hopsworka.ai. Can be specified using the HOPSWORKSAI_API_KEY environment variable.
