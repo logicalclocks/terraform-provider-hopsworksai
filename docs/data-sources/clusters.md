@@ -31,19 +31,19 @@ data "hopsworksai_clusters" "awsClusters" {
 
 ### Optional
 
-- **filter** (Block List, Max: 1) Filter requested clusters based on cloud provider. (see [below for nested schema](#nestedblock--filter))
-- **id** (String) The ID of this resource.
+- `filter` (Block List, Max: 1) Filter requested clusters based on cloud provider. (see [below for nested schema](#nestedblock--filter))
+- `id` (String) The ID of this resource.
 
 ### Read-Only
 
-- **clusters** (List of Object) The list of clusters in the user's account. (see [below for nested schema](#nestedatt--clusters))
+- `clusters` (List of Object) The list of clusters in the user's account. (see [below for nested schema](#nestedatt--clusters))
 
 <a id="nestedblock--filter"></a>
 ### Nested Schema for `filter`
 
 Optional:
 
-- **cloud** (String) Filter based on cloud provider.
+- `cloud` (String) Filter based on cloud provider.
 
 
 <a id="nestedatt--clusters"></a>
@@ -51,63 +51,63 @@ Optional:
 
 Read-Only:
 
-- **activation_state** (String)
-- **attach_public_ip** (Boolean)
-- **autoscale** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--autoscale))
-- **aws_attributes** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--aws_attributes))
-- **azure_attributes** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--azure_attributes))
-- **backup_retention_period** (Number)
-- **cluster_id** (String)
-- **collect_logs** (Boolean)
-- **creation_date** (String)
-- **deactivate_hopsworksai_log_collection** (Boolean)
-- **head** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--head))
-- **init_script** (String)
-- **issue_lets_encrypt_certificate** (Boolean)
-- **managed_users** (Boolean)
-- **name** (String)
-- **open_ports** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--open_ports))
-- **os** (String)
-- **rondb** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--rondb))
-- **run_init_script_first** (Boolean)
-- **ssh_key** (String)
-- **start_date** (String)
-- **state** (String)
-- **tags** (Map of String)
-- **update_state** (String)
-- **upgrade_in_progress** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--upgrade_in_progress))
-- **url** (String)
-- **version** (String)
-- **workers** (Set of Object) (see [below for nested schema](#nestedobjatt--clusters--workers))
+- `activation_state` (String)
+- `attach_public_ip` (Boolean)
+- `autoscale` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--autoscale))
+- `aws_attributes` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--aws_attributes))
+- `azure_attributes` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--azure_attributes))
+- `backup_retention_period` (Number)
+- `cluster_id` (String)
+- `collect_logs` (Boolean)
+- `creation_date` (String)
+- `deactivate_hopsworksai_log_collection` (Boolean)
+- `head` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--head))
+- `init_script` (String)
+- `issue_lets_encrypt_certificate` (Boolean)
+- `managed_users` (Boolean)
+- `name` (String)
+- `open_ports` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--open_ports))
+- `os` (String)
+- `rondb` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--rondb))
+- `run_init_script_first` (Boolean)
+- `ssh_key` (String)
+- `start_date` (String)
+- `state` (String)
+- `tags` (Map of String)
+- `update_state` (String)
+- `upgrade_in_progress` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--upgrade_in_progress))
+- `url` (String)
+- `version` (String)
+- `workers` (Set of Object) (see [below for nested schema](#nestedobjatt--clusters--workers))
 
 <a id="nestedobjatt--clusters--autoscale"></a>
 ### Nested Schema for `clusters.autoscale`
 
 Read-Only:
 
-- **gpu_workers** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--autoscale--gpu_workers))
-- **non_gpu_workers** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--autoscale--non_gpu_workers))
+- `gpu_workers` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--autoscale--gpu_workers))
+- `non_gpu_workers` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--autoscale--non_gpu_workers))
 
 <a id="nestedobjatt--clusters--autoscale--gpu_workers"></a>
 ### Nested Schema for `clusters.autoscale.gpu_workers`
 
 Read-Only:
 
-- **disk_size** (Number)
-- **downscale_wait_time** (Number)
-- **instance_type** (String)
-- **max_workers** (Number)
-- **min_workers** (Number)
-- **spot_config** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--autoscale--gpu_workers--spot_config))
-- **standby_workers** (Number)
+- `disk_size` (Number)
+- `downscale_wait_time` (Number)
+- `instance_type` (String)
+- `max_workers` (Number)
+- `min_workers` (Number)
+- `spot_config` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--autoscale--gpu_workers--spot_config))
+- `standby_workers` (Number)
 
 <a id="nestedobjatt--clusters--autoscale--gpu_workers--spot_config"></a>
 ### Nested Schema for `clusters.autoscale.gpu_workers.standby_workers`
 
 Read-Only:
 
-- **fall_back_on_demand** (Boolean)
-- **max_price_percent** (Number)
+- `fall_back_on_demand` (Boolean)
+- `max_price_percent` (Number)
 
 
 
@@ -116,21 +116,21 @@ Read-Only:
 
 Read-Only:
 
-- **disk_size** (Number)
-- **downscale_wait_time** (Number)
-- **instance_type** (String)
-- **max_workers** (Number)
-- **min_workers** (Number)
-- **spot_config** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--autoscale--non_gpu_workers--spot_config))
-- **standby_workers** (Number)
+- `disk_size` (Number)
+- `downscale_wait_time` (Number)
+- `instance_type` (String)
+- `max_workers` (Number)
+- `min_workers` (Number)
+- `spot_config` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--autoscale--non_gpu_workers--spot_config))
+- `standby_workers` (Number)
 
 <a id="nestedobjatt--clusters--autoscale--non_gpu_workers--spot_config"></a>
 ### Nested Schema for `clusters.autoscale.non_gpu_workers.standby_workers`
 
 Read-Only:
 
-- **fall_back_on_demand** (Boolean)
-- **max_price_percent** (Number)
+- `fall_back_on_demand` (Boolean)
+- `max_price_percent` (Number)
 
 
 
@@ -140,21 +140,21 @@ Read-Only:
 
 Read-Only:
 
-- **bucket_name** (String)
-- **ecr_registry_account_id** (String)
-- **eks_cluster_name** (String)
-- **instance_profile_arn** (String)
-- **network** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--aws_attributes--network))
-- **region** (String)
+- `bucket_name` (String)
+- `ecr_registry_account_id` (String)
+- `eks_cluster_name` (String)
+- `instance_profile_arn` (String)
+- `network` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--aws_attributes--network))
+- `region` (String)
 
 <a id="nestedobjatt--clusters--aws_attributes--network"></a>
 ### Nested Schema for `clusters.aws_attributes.network`
 
 Read-Only:
 
-- **security_group_id** (String)
-- **subnet_id** (String)
-- **vpc_id** (String)
+- `security_group_id` (String)
+- `subnet_id` (String)
+- `vpc_id` (String)
 
 
 
@@ -163,26 +163,26 @@ Read-Only:
 
 Read-Only:
 
-- **acr_registry_name** (String)
-- **aks_cluster_name** (String)
-- **location** (String)
-- **network** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--azure_attributes--network))
-- **resource_group** (String)
-- **search_domain** (String)
-- **storage_account** (String)
-- **storage_container_name** (String)
-- **user_assigned_managed_identity** (String)
+- `acr_registry_name` (String)
+- `aks_cluster_name` (String)
+- `location` (String)
+- `network` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--azure_attributes--network))
+- `resource_group` (String)
+- `search_domain` (String)
+- `storage_account` (String)
+- `storage_container_name` (String)
+- `user_assigned_managed_identity` (String)
 
 <a id="nestedobjatt--clusters--azure_attributes--network"></a>
 ### Nested Schema for `clusters.azure_attributes.network`
 
 Read-Only:
 
-- **resource_group** (String)
-- **search_domain** (String)
-- **security_group_name** (String)
-- **subnet_name** (String)
-- **virtual_network_name** (String)
+- `resource_group` (String)
+- `search_domain` (String)
+- `security_group_name` (String)
+- `subnet_name` (String)
+- `virtual_network_name` (String)
 
 
 
@@ -191,9 +191,9 @@ Read-Only:
 
 Read-Only:
 
-- **disk_size** (Number)
-- **instance_type** (String)
-- **node_id** (String)
+- `disk_size` (Number)
+- `instance_type` (String)
+- `node_id` (String)
 
 
 <a id="nestedobjatt--clusters--open_ports"></a>
@@ -201,10 +201,10 @@ Read-Only:
 
 Read-Only:
 
-- **feature_store** (Boolean)
-- **kafka** (Boolean)
-- **online_feature_store** (Boolean)
-- **ssh** (Boolean)
+- `feature_store` (Boolean)
+- `kafka` (Boolean)
+- `online_feature_store` (Boolean)
+- `ssh` (Boolean)
 
 
 <a id="nestedobjatt--clusters--rondb"></a>
@@ -212,20 +212,20 @@ Read-Only:
 
 Read-Only:
 
-- **api_nodes** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--rondb--api_nodes))
-- **configuration** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--rondb--configuration))
-- **data_nodes** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--rondb--data_nodes))
-- **management_nodes** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--rondb--management_nodes))
-- **mysql_nodes** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--rondb--mysql_nodes))
+- `api_nodes` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--rondb--api_nodes))
+- `configuration` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--rondb--configuration))
+- `data_nodes` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--rondb--data_nodes))
+- `management_nodes` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--rondb--management_nodes))
+- `mysql_nodes` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--rondb--mysql_nodes))
 
 <a id="nestedobjatt--clusters--rondb--api_nodes"></a>
 ### Nested Schema for `clusters.rondb.api_nodes`
 
 Read-Only:
 
-- **count** (Number)
-- **disk_size** (Number)
-- **instance_type** (String)
+- `count` (Number)
+- `disk_size` (Number)
+- `instance_type` (String)
 
 
 <a id="nestedobjatt--clusters--rondb--configuration"></a>
@@ -233,22 +233,22 @@ Read-Only:
 
 Read-Only:
 
-- **general** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--rondb--configuration--general))
-- **ndbd_default** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--rondb--configuration--ndbd_default))
+- `general` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--rondb--configuration--general))
+- `ndbd_default` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--rondb--configuration--ndbd_default))
 
 <a id="nestedobjatt--clusters--rondb--configuration--general"></a>
 ### Nested Schema for `clusters.rondb.configuration.ndbd_default`
 
 Read-Only:
 
-- **benchmark** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--rondb--configuration--ndbd_default--benchmark))
+- `benchmark` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--rondb--configuration--ndbd_default--benchmark))
 
 <a id="nestedobjatt--clusters--rondb--configuration--ndbd_default--benchmark"></a>
 ### Nested Schema for `clusters.rondb.configuration.ndbd_default.benchmark`
 
 Read-Only:
 
-- **grant_user_privileges** (Boolean)
+- `grant_user_privileges` (Boolean)
 
 
 
@@ -257,7 +257,7 @@ Read-Only:
 
 Read-Only:
 
-- **replication_factor** (Number)
+- `replication_factor` (Number)
 
 
 
@@ -266,9 +266,9 @@ Read-Only:
 
 Read-Only:
 
-- **count** (Number)
-- **disk_size** (Number)
-- **instance_type** (String)
+- `count` (Number)
+- `disk_size` (Number)
+- `instance_type` (String)
 
 
 <a id="nestedobjatt--clusters--rondb--management_nodes"></a>
@@ -276,9 +276,9 @@ Read-Only:
 
 Read-Only:
 
-- **count** (Number)
-- **disk_size** (Number)
-- **instance_type** (String)
+- `count` (Number)
+- `disk_size` (Number)
+- `instance_type` (String)
 
 
 <a id="nestedobjatt--clusters--rondb--mysql_nodes"></a>
@@ -286,9 +286,9 @@ Read-Only:
 
 Read-Only:
 
-- **count** (Number)
-- **disk_size** (Number)
-- **instance_type** (String)
+- `count` (Number)
+- `disk_size` (Number)
+- `instance_type` (String)
 
 
 
@@ -297,8 +297,8 @@ Read-Only:
 
 Read-Only:
 
-- **from_version** (String)
-- **to_version** (String)
+- `from_version` (String)
+- `to_version` (String)
 
 
 <a id="nestedobjatt--clusters--workers"></a>
@@ -306,17 +306,17 @@ Read-Only:
 
 Read-Only:
 
-- **count** (Number)
-- **disk_size** (Number)
-- **instance_type** (String)
-- **spot_config** (List of Object) (see [below for nested schema](#nestedobjatt--clusters--workers--spot_config))
+- `count` (Number)
+- `disk_size` (Number)
+- `instance_type` (String)
+- `spot_config` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--workers--spot_config))
 
 <a id="nestedobjatt--clusters--workers--spot_config"></a>
 ### Nested Schema for `clusters.workers.spot_config`
 
 Read-Only:
 
-- **fall_back_on_demand** (Boolean)
-- **max_price_percent** (Number)
+- `fall_back_on_demand` (Boolean)
+- `max_price_percent` (Number)
 
 

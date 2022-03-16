@@ -12,7 +12,7 @@ ENHANCEMENTS:
 * resource/hopsworksai_cluster: Add `collect_logs` attribute to enable pushing services' logs to AWS CloudWatch.
 * resource/hopsworksai_cluster: Add `head/node_id` readonly attribute to retrieve the corresponding aws/azure instance id of the head node.
 * dependencies: Bump hashicorp/terraform-plugin-sdk/v2 from 2.10.1 to 2.11.0  
-* dependencies: Bump hashicorp/terraform-plugin-docs from 0.5.1 to 0.6.0
+* dependencies: Bump hashicorp/terraform-plugin-docs from 0.5.1 to 0.7.0
 
 FEATURES:
 

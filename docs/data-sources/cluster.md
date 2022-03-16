@@ -23,70 +23,70 @@ data "hopsworksai_clusters" "cluster" {
 
 ### Required
 
-- **cluster_id** (String) The Id of the cluster.
+- `cluster_id` (String) The Id of the cluster.
 
 ### Optional
 
-- **id** (String) The ID of this resource.
+- `id` (String) The ID of this resource.
 
 ### Read-Only
 
-- **activation_state** (String) The current activation state of the cluster.
-- **attach_public_ip** (Boolean) Attach or do not attach a public ip to the cluster. This can be useful if you intend to create a cluster in a private network.
-- **autoscale** (List of Object) Setup auto scaling. (see [below for nested schema](#nestedatt--autoscale))
-- **aws_attributes** (List of Object) The configurations required to run the cluster on Amazon AWS. (see [below for nested schema](#nestedatt--aws_attributes))
-- **azure_attributes** (List of Object) The configurations required to run the cluster on Microsoft Azure. (see [below for nested schema](#nestedatt--azure_attributes))
-- **backup_retention_period** (Number) The validity of cluster backups in days. If set to 0 cluster backups are disabled.
-- **collect_logs** (Boolean) Push services' logs to AWS cloud watch.
-- **creation_date** (String) The creation date of the cluster. The date is represented in RFC3339 format.
-- **deactivate_hopsworksai_log_collection** (Boolean) Allow Hopsworks.ai to collect services logs to help diagnose issues with the cluster. By deactivating this option, you will not be able to get full support from our teams.
-- **head** (List of Object) The configurations of the head node of the cluster. (see [below for nested schema](#nestedatt--head))
-- **init_script** (String) A bash script that will run on all nodes during their initialization (must start with #!/usr/bin/env bash)
-- **issue_lets_encrypt_certificate** (Boolean) Enable or disable issuing let's encrypt certificates. This can be used to disable issuing certificates if port 80 can not be open.
-- **managed_users** (Boolean) Enable or disable Hopsworks.ai to manage your users.
-- **name** (String) The name of the cluster, must be unique.
-- **open_ports** (List of Object) Open the required ports to communicate with one of the Hopsworks services. (see [below for nested schema](#nestedatt--open_ports))
-- **os** (String) The operating system to use for the instances. Supported systems are ubuntu in all regions and centos in some specific regions
-- **rondb** (List of Object) Setup a cluster with managed RonDB. (see [below for nested schema](#nestedatt--rondb))
-- **run_init_script_first** (Boolean) Run the init script before any other node initialization. WARNING if your initscript interfere with the following node initialization the cluster may not start properly. Make sure that you know what you are doing.
-- **ssh_key** (String) The ssh key name that will be attached to this cluster.
-- **start_date** (String) The starting date of the cluster. The date is represented in RFC3339 format.
-- **state** (String) The current state of the cluster.
-- **tags** (Map of String) The list of custom tags to be attached to the cluster.
-- **update_state** (String) The action you can use to start or stop the cluster.
-- **upgrade_in_progress** (List of Object) Information about ongoing cluster upgrade if any. (see [below for nested schema](#nestedatt--upgrade_in_progress))
-- **url** (String) The url generated to access the cluster.
-- **version** (String) The version of the cluster. For existing clusters, you can change this attribute to upgrade to a newer version of Hopsworks. If the upgrade process ended up in an error state, you can always rollback to the old version by resetting this attribute to the old version.
-- **workers** (Set of Object) The configurations of worker nodes. You can add as many as you want of this block to create workers with different configurations. (see [below for nested schema](#nestedatt--workers))
+- `activation_state` (String) The current activation state of the cluster.
+- `attach_public_ip` (Boolean) Attach or do not attach a public ip to the cluster. This can be useful if you intend to create a cluster in a private network.
+- `autoscale` (List of Object) Setup auto scaling. (see [below for nested schema](#nestedatt--autoscale))
+- `aws_attributes` (List of Object) The configurations required to run the cluster on Amazon AWS. (see [below for nested schema](#nestedatt--aws_attributes))
+- `azure_attributes` (List of Object) The configurations required to run the cluster on Microsoft Azure. (see [below for nested schema](#nestedatt--azure_attributes))
+- `backup_retention_period` (Number) The validity of cluster backups in days. If set to 0 cluster backups are disabled.
+- `collect_logs` (Boolean) Push services' logs to AWS cloud watch.
+- `creation_date` (String) The creation date of the cluster. The date is represented in RFC3339 format.
+- `deactivate_hopsworksai_log_collection` (Boolean) Allow Hopsworks.ai to collect services logs to help diagnose issues with the cluster. By deactivating this option, you will not be able to get full support from our teams.
+- `head` (List of Object) The configurations of the head node of the cluster. (see [below for nested schema](#nestedatt--head))
+- `init_script` (String) A bash script that will run on all nodes during their initialization (must start with #!/usr/bin/env bash)
+- `issue_lets_encrypt_certificate` (Boolean) Enable or disable issuing let's encrypt certificates. This can be used to disable issuing certificates if port 80 can not be open.
+- `managed_users` (Boolean) Enable or disable Hopsworks.ai to manage your users.
+- `name` (String) The name of the cluster, must be unique.
+- `open_ports` (List of Object) Open the required ports to communicate with one of the Hopsworks services. (see [below for nested schema](#nestedatt--open_ports))
+- `os` (String) The operating system to use for the instances. Supported systems are ubuntu in all regions and centos in some specific regions
+- `rondb` (List of Object) Setup a cluster with managed RonDB. (see [below for nested schema](#nestedatt--rondb))
+- `run_init_script_first` (Boolean) Run the init script before any other node initialization. WARNING if your initscript interfere with the following node initialization the cluster may not start properly. Make sure that you know what you are doing.
+- `ssh_key` (String) The ssh key name that will be attached to this cluster.
+- `start_date` (String) The starting date of the cluster. The date is represented in RFC3339 format.
+- `state` (String) The current state of the cluster.
+- `tags` (Map of String) The list of custom tags to be attached to the cluster.
+- `update_state` (String) The action you can use to start or stop the cluster.
+- `upgrade_in_progress` (List of Object) Information about ongoing cluster upgrade if any. (see [below for nested schema](#nestedatt--upgrade_in_progress))
+- `url` (String) The url generated to access the cluster.
+- `version` (String) The version of the cluster. For existing clusters, you can change this attribute to upgrade to a newer version of Hopsworks. If the upgrade process ended up in an error state, you can always rollback to the old version by resetting this attribute to the old version.
+- `workers` (Set of Object) The configurations of worker nodes. You can add as many as you want of this block to create workers with different configurations. (see [below for nested schema](#nestedatt--workers))
 
 <a id="nestedatt--autoscale"></a>
 ### Nested Schema for `autoscale`
 
 Read-Only:
 
-- **gpu_workers** (List of Object) (see [below for nested schema](#nestedobjatt--autoscale--gpu_workers))
-- **non_gpu_workers** (List of Object) (see [below for nested schema](#nestedobjatt--autoscale--non_gpu_workers))
+- `gpu_workers` (List of Object) (see [below for nested schema](#nestedobjatt--autoscale--gpu_workers))
+- `non_gpu_workers` (List of Object) (see [below for nested schema](#nestedobjatt--autoscale--non_gpu_workers))
 
 <a id="nestedobjatt--autoscale--gpu_workers"></a>
 ### Nested Schema for `autoscale.gpu_workers`
 
 Read-Only:
 
-- **disk_size** (Number)
-- **downscale_wait_time** (Number)
-- **instance_type** (String)
-- **max_workers** (Number)
-- **min_workers** (Number)
-- **spot_config** (List of Object) (see [below for nested schema](#nestedobjatt--autoscale--gpu_workers--spot_config))
-- **standby_workers** (Number)
+- `disk_size` (Number)
+- `downscale_wait_time` (Number)
+- `instance_type` (String)
+- `max_workers` (Number)
+- `min_workers` (Number)
+- `spot_config` (List of Object) (see [below for nested schema](#nestedobjatt--autoscale--gpu_workers--spot_config))
+- `standby_workers` (Number)
 
 <a id="nestedobjatt--autoscale--gpu_workers--spot_config"></a>
 ### Nested Schema for `autoscale.gpu_workers.spot_config`
 
 Read-Only:
 
-- **fall_back_on_demand** (Boolean)
-- **max_price_percent** (Number)
+- `fall_back_on_demand` (Boolean)
+- `max_price_percent` (Number)
 
 
 
@@ -95,21 +95,21 @@ Read-Only:
 
 Read-Only:
 
-- **disk_size** (Number)
-- **downscale_wait_time** (Number)
-- **instance_type** (String)
-- **max_workers** (Number)
-- **min_workers** (Number)
-- **spot_config** (List of Object) (see [below for nested schema](#nestedobjatt--autoscale--non_gpu_workers--spot_config))
-- **standby_workers** (Number)
+- `disk_size` (Number)
+- `downscale_wait_time` (Number)
+- `instance_type` (String)
+- `max_workers` (Number)
+- `min_workers` (Number)
+- `spot_config` (List of Object) (see [below for nested schema](#nestedobjatt--autoscale--non_gpu_workers--spot_config))
+- `standby_workers` (Number)
 
 <a id="nestedobjatt--autoscale--non_gpu_workers--spot_config"></a>
 ### Nested Schema for `autoscale.non_gpu_workers.spot_config`
 
 Read-Only:
 
-- **fall_back_on_demand** (Boolean)
-- **max_price_percent** (Number)
+- `fall_back_on_demand` (Boolean)
+- `max_price_percent` (Number)
 
 
 
@@ -119,21 +119,21 @@ Read-Only:
 
 Read-Only:
 
-- **bucket_name** (String)
-- **ecr_registry_account_id** (String)
-- **eks_cluster_name** (String)
-- **instance_profile_arn** (String)
-- **network** (List of Object) (see [below for nested schema](#nestedobjatt--aws_attributes--network))
-- **region** (String)
+- `bucket_name` (String)
+- `ecr_registry_account_id` (String)
+- `eks_cluster_name` (String)
+- `instance_profile_arn` (String)
+- `network` (List of Object) (see [below for nested schema](#nestedobjatt--aws_attributes--network))
+- `region` (String)
 
 <a id="nestedobjatt--aws_attributes--network"></a>
 ### Nested Schema for `aws_attributes.network`
 
 Read-Only:
 
-- **security_group_id** (String)
-- **subnet_id** (String)
-- **vpc_id** (String)
+- `security_group_id` (String)
+- `subnet_id` (String)
+- `vpc_id` (String)
 
 
 
@@ -142,26 +142,26 @@ Read-Only:
 
 Read-Only:
 
-- **acr_registry_name** (String)
-- **aks_cluster_name** (String)
-- **location** (String)
-- **network** (List of Object) (see [below for nested schema](#nestedobjatt--azure_attributes--network))
-- **resource_group** (String)
-- **search_domain** (String)
-- **storage_account** (String)
-- **storage_container_name** (String)
-- **user_assigned_managed_identity** (String)
+- `acr_registry_name` (String)
+- `aks_cluster_name` (String)
+- `location` (String)
+- `network` (List of Object) (see [below for nested schema](#nestedobjatt--azure_attributes--network))
+- `resource_group` (String)
+- `search_domain` (String)
+- `storage_account` (String)
+- `storage_container_name` (String)
+- `user_assigned_managed_identity` (String)
 
 <a id="nestedobjatt--azure_attributes--network"></a>
 ### Nested Schema for `azure_attributes.network`
 
 Read-Only:
 
-- **resource_group** (String)
-- **search_domain** (String)
-- **security_group_name** (String)
-- **subnet_name** (String)
-- **virtual_network_name** (String)
+- `resource_group` (String)
+- `search_domain` (String)
+- `security_group_name` (String)
+- `subnet_name` (String)
+- `virtual_network_name` (String)
 
 
 
@@ -170,9 +170,9 @@ Read-Only:
 
 Read-Only:
 
-- **disk_size** (Number)
-- **instance_type** (String)
-- **node_id** (String)
+- `disk_size` (Number)
+- `instance_type` (String)
+- `node_id` (String)
 
 
 <a id="nestedatt--open_ports"></a>
@@ -180,10 +180,10 @@ Read-Only:
 
 Read-Only:
 
-- **feature_store** (Boolean)
-- **kafka** (Boolean)
-- **online_feature_store** (Boolean)
-- **ssh** (Boolean)
+- `feature_store` (Boolean)
+- `kafka` (Boolean)
+- `online_feature_store` (Boolean)
+- `ssh` (Boolean)
 
 
 <a id="nestedatt--rondb"></a>
@@ -191,20 +191,20 @@ Read-Only:
 
 Read-Only:
 
-- **api_nodes** (List of Object) (see [below for nested schema](#nestedobjatt--rondb--api_nodes))
-- **configuration** (List of Object) (see [below for nested schema](#nestedobjatt--rondb--configuration))
-- **data_nodes** (List of Object) (see [below for nested schema](#nestedobjatt--rondb--data_nodes))
-- **management_nodes** (List of Object) (see [below for nested schema](#nestedobjatt--rondb--management_nodes))
-- **mysql_nodes** (List of Object) (see [below for nested schema](#nestedobjatt--rondb--mysql_nodes))
+- `api_nodes` (List of Object) (see [below for nested schema](#nestedobjatt--rondb--api_nodes))
+- `configuration` (List of Object) (see [below for nested schema](#nestedobjatt--rondb--configuration))
+- `data_nodes` (List of Object) (see [below for nested schema](#nestedobjatt--rondb--data_nodes))
+- `management_nodes` (List of Object) (see [below for nested schema](#nestedobjatt--rondb--management_nodes))
+- `mysql_nodes` (List of Object) (see [below for nested schema](#nestedobjatt--rondb--mysql_nodes))
 
 <a id="nestedobjatt--rondb--api_nodes"></a>
 ### Nested Schema for `rondb.api_nodes`
 
 Read-Only:
 
-- **count** (Number)
-- **disk_size** (Number)
-- **instance_type** (String)
+- `count` (Number)
+- `disk_size` (Number)
+- `instance_type` (String)
 
 
 <a id="nestedobjatt--rondb--configuration"></a>
@@ -212,22 +212,22 @@ Read-Only:
 
 Read-Only:
 
-- **general** (List of Object) (see [below for nested schema](#nestedobjatt--rondb--configuration--general))
-- **ndbd_default** (List of Object) (see [below for nested schema](#nestedobjatt--rondb--configuration--ndbd_default))
+- `general` (List of Object) (see [below for nested schema](#nestedobjatt--rondb--configuration--general))
+- `ndbd_default` (List of Object) (see [below for nested schema](#nestedobjatt--rondb--configuration--ndbd_default))
 
 <a id="nestedobjatt--rondb--configuration--general"></a>
 ### Nested Schema for `rondb.configuration.general`
 
 Read-Only:
 
-- **benchmark** (List of Object) (see [below for nested schema](#nestedobjatt--rondb--configuration--general--benchmark))
+- `benchmark` (List of Object) (see [below for nested schema](#nestedobjatt--rondb--configuration--general--benchmark))
 
 <a id="nestedobjatt--rondb--configuration--general--benchmark"></a>
 ### Nested Schema for `rondb.configuration.general.benchmark`
 
 Read-Only:
 
-- **grant_user_privileges** (Boolean)
+- `grant_user_privileges` (Boolean)
 
 
 
@@ -236,7 +236,7 @@ Read-Only:
 
 Read-Only:
 
-- **replication_factor** (Number)
+- `replication_factor` (Number)
 
 
 
@@ -245,9 +245,9 @@ Read-Only:
 
 Read-Only:
 
-- **count** (Number)
-- **disk_size** (Number)
-- **instance_type** (String)
+- `count` (Number)
+- `disk_size` (Number)
+- `instance_type` (String)
 
 
 <a id="nestedobjatt--rondb--management_nodes"></a>
@@ -255,9 +255,9 @@ Read-Only:
 
 Read-Only:
 
-- **count** (Number)
-- **disk_size** (Number)
-- **instance_type** (String)
+- `count` (Number)
+- `disk_size` (Number)
+- `instance_type` (String)
 
 
 <a id="nestedobjatt--rondb--mysql_nodes"></a>
@@ -265,9 +265,9 @@ Read-Only:
 
 Read-Only:
 
-- **count** (Number)
-- **disk_size** (Number)
-- **instance_type** (String)
+- `count` (Number)
+- `disk_size` (Number)
+- `instance_type` (String)
 
 
 
@@ -276,8 +276,8 @@ Read-Only:
 
 Read-Only:
 
-- **from_version** (String)
-- **to_version** (String)
+- `from_version` (String)
+- `to_version` (String)
 
 
 <a id="nestedatt--workers"></a>
@@ -285,17 +285,17 @@ Read-Only:
 
 Read-Only:
 
-- **count** (Number)
-- **disk_size** (Number)
-- **instance_type** (String)
-- **spot_config** (List of Object) (see [below for nested schema](#nestedobjatt--workers--spot_config))
+- `count` (Number)
+- `disk_size` (Number)
+- `instance_type` (String)
+- `spot_config` (List of Object) (see [below for nested schema](#nestedobjatt--workers--spot_config))
 
 <a id="nestedobjatt--workers--spot_config"></a>
 ### Nested Schema for `workers.spot_config`
 
 Read-Only:
 
-- **fall_back_on_demand** (Boolean)
-- **max_price_percent** (Number)
+- `fall_back_on_demand` (Boolean)
+- `max_price_percent` (Number)
 
 

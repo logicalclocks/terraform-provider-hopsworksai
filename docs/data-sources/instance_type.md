@@ -33,14 +33,14 @@ data "hopsworksai_instance_type" "supported_type" {
 
 ### Required
 
-- **cloud_provider** (String) The cloud provider where you plan to create your cluster.
-- **node_type** (String) The node type that you want to get its smallest instance type. It has to be one of these types (head, worker, rondb_management, rondb_data, rondb_mysql, rondb_api).
+- `cloud_provider` (String) The cloud provider where you plan to create your cluster.
+- `node_type` (String) The node type that you want to get its smallest instance type. It has to be one of these types (head, worker, rondb_management, rondb_data, rondb_mysql, rondb_api).
 
 ### Optional
 
-- **id** (String) The ID of this resource.
-- **min_cpus** (Number) Filter based on the minimum number of CPU cores. Defaults to `0`.
-- **min_gpus** (Number) Filter based on the minimum number of GPUs. Defaults to `0`.
-- **min_memory_gb** (Number) Filter based on the minimum memory in gigabytes. Defaults to `0`.
+- `id` (String) The ID of this resource.
+- `min_cpus` (Number) Filter based on the minimum number of CPU cores. Defaults to `0`.
+- `min_gpus` (Number) Filter based on the minimum number of GPUs. Defaults to `0`.
+- `min_memory_gb` (Number) Filter based on the minimum memory in gigabytes. Defaults to `0`.
 
 
