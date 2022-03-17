@@ -7,6 +7,7 @@ BUG FIXES:
 ENHANCEMENTS:
 acceptance_tests: Tag resources with their respective test name
 acceptance_tests: Providers is deprecated use ProviderFactories instead
+acceptance_tests: Use r5 and c5 instance types in RonDB upscale tests
 
 FEATURES:
 
