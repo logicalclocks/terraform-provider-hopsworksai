@@ -132,10 +132,10 @@ func testAccBackupCheckDestroy() func(s *terraform.State) error {
 }
 
 func testAccBackupConfig_basic(cloud api.CloudProvider, rName string, suffix string, extraConfig string, backupConfig string) string {
-	return testAccBackupConfig(cloud, rName, suffix, extraConfig, backupConfig, 7, false)
+	return testAccBackupConfig(cloud, rName, suffix, extraConfig, backupConfig, 7, false, "TestAccBackup_basic")
 }
 
-func testAccBackupConfig(cloud api.CloudProvider, rName string, suffix string, extraConfig string, backupConfig string, bucketIndex int, setNetwork bool) string {
+func testAccBackupConfig(cloud api.CloudProvider, rName string, suffix string, extraConfig string, backupConfig string, bucketIndex int, setNetwork bool, test string) string {
 	return fmt.Sprintf(`
 	resource "hopsworksai_cluster" "%s" {
 		name    = "%s%s%s"
@@ -150,6 +150,7 @@ func testAccBackupConfig(cloud api.CloudProvider, rName string, suffix string, e
 
 		tags = {
 		  "%s" = "%s"
+		  "Test" = "%s"
 		}
 	  }
 
@@ -165,6 +166,7 @@ func testAccBackupConfig(cloud api.CloudProvider, rName string, suffix string, e
 		default_CLUSTER_TAG_KEY,
 		default_CLUSTER_TAG_VALUE,
 		backupConfig,
+		test,
 	)
 }
 

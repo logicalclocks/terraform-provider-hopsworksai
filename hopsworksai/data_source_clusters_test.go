@@ -94,6 +94,7 @@ func testAccClustersDataSourceConfig(cloud api.CloudProvider, rName string, suff
 		tags = {
 		  "ListClusters" = "%s"
 		  "%s" = "%s"
+		  "Test" = "TestAccClustersDataSource_basic"
 		}
 	  }
 

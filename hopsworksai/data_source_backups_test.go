@@ -88,7 +88,7 @@ func testAccBackupsDataSource_basic(t *testing.T, cloud api.CloudProvider) {
 }
 
 func testAccBackupsDataSourceConfig_basic(cloud api.CloudProvider, rName string, suffix string, extraConfig string, backupConfig string) string {
-	return testAccBackupConfig(cloud, rName, suffix, extraConfig, backupConfig, 9, false)
+	return testAccBackupConfig(cloud, rName, suffix, extraConfig, backupConfig, 9, false, "TestAccBackupsDataSource_basic")
 }
 
 // unit tests
