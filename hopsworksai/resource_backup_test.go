@@ -165,8 +165,8 @@ func testAccBackupConfig(cloud api.CloudProvider, rName string, suffix string, e
 		extraConfig,
 		default_CLUSTER_TAG_KEY,
 		default_CLUSTER_TAG_VALUE,
-		backupConfig,
 		test,
+		backupConfig,
 	)
 }
 
