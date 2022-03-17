@@ -30,9 +30,9 @@ func testAccClusterFromBackup_basic(t *testing.T, cloud api.CloudProvider) {
 	backupName := fmt.Sprintf("%s-backup", default_CLUSTER_NAME_PREFIX)
 	clusterFromBackupResourceName := fmt.Sprintf("hopsworksai_cluster_from_backup.%s", rName)
 	parallelTest(t, cloud, resource.TestCase{
-		PreCheck:     testAccPreCheck(t),
-		Providers:    testAccProviders,
-		CheckDestroy: testAccBackupCheckDestroy(),
+		PreCheck:          testAccPreCheck(t),
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccBackupCheckDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccClusterFromBackupConfig_basic(cloud, rName, suffix, "", ""),

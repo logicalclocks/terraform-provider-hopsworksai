@@ -95,9 +95,9 @@ func testAccCluster_basic(t *testing.T, cloud api.CloudProvider) {
 	rName := fmt.Sprintf("test_%s", suffix)
 	resourceName := fmt.Sprintf("hopsworksai_cluster.%s", rName)
 	parallelTest(t, cloud, resource.TestCase{
-		PreCheck:     testAccPreCheck(t),
-		Providers:    testAccProviders,
-		CheckDestroy: testAccClusterCheckDestroy(),
+		PreCheck:          testAccPreCheck(t),
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccClusterCheckDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccClusterConfig_basic(cloud, rName, suffix, ""),
@@ -182,9 +182,9 @@ func testAccCluster_workers(t *testing.T, cloud api.CloudProvider) {
 	rName := fmt.Sprintf("test_%s", suffix)
 	resourceName := fmt.Sprintf("hopsworksai_cluster.%s", rName)
 	parallelTest(t, cloud, resource.TestCase{
-		PreCheck:     testAccPreCheck(t),
-		Providers:    testAccProviders,
-		CheckDestroy: testAccClusterCheckDestroy(),
+		PreCheck:          testAccPreCheck(t),
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccClusterCheckDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccClusterConfig_workers(cloud, rName, suffix, fmt.Sprintf(`
@@ -405,9 +405,9 @@ func testAccCluster_RonDB(t *testing.T, cloud api.CloudProvider) {
 	defaultRonDBConfig := defaultRonDBConfiguration(cloud)
 	resourceName := fmt.Sprintf("hopsworksai_cluster.%s", rName)
 	parallelTest(t, cloud, resource.TestCase{
-		PreCheck:     testAccPreCheck(t),
-		Providers:    testAccProviders,
-		CheckDestroy: testAccClusterCheckDestroy(),
+		PreCheck:          testAccPreCheck(t),
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccClusterCheckDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccClusterConfig_RonDB(cloud, rName, suffix, `
@@ -452,9 +452,9 @@ func testAccCluster_Autoscale(t *testing.T, cloud api.CloudProvider) {
 	defaultAutoscaleConfig := defaultAutoscaleConfiguration()
 	resourceName := fmt.Sprintf("hopsworksai_cluster.%s", rName)
 	parallelTest(t, cloud, resource.TestCase{
-		PreCheck:     testAccPreCheck(t),
-		Providers:    testAccProviders,
-		CheckDestroy: testAccClusterCheckDestroy(),
+		PreCheck:          testAccPreCheck(t),
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccClusterCheckDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccClusterConfig_Autoscale(cloud, rName, suffix, fmt.Sprintf(`
@@ -550,9 +550,9 @@ func testAccCluster_Autoscale_update(t *testing.T, cloud api.CloudProvider) {
 	defaultAutoscaleConfig := defaultAutoscaleConfiguration()
 	resourceName := fmt.Sprintf("hopsworksai_cluster.%s", rName)
 	parallelTest(t, cloud, resource.TestCase{
-		PreCheck:     testAccPreCheck(t),
-		Providers:    testAccProviders,
-		CheckDestroy: testAccClusterCheckDestroy(),
+		PreCheck:          testAccPreCheck(t),
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccClusterCheckDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccClusterConfig_Autoscale_Update(cloud, rName, suffix, fmt.Sprintf(`
@@ -631,9 +631,9 @@ func testAccCluster_Head_upscale(t *testing.T, cloud api.CloudProvider, currentI
 	rName := fmt.Sprintf("test_%s", suffix)
 	resourceName := fmt.Sprintf("hopsworksai_cluster.%s", rName)
 	parallelTest(t, cloud, resource.TestCase{
-		PreCheck:     testAccPreCheck(t),
-		Providers:    testAccProviders,
-		CheckDestroy: testAccClusterCheckDestroy(),
+		PreCheck:          testAccPreCheck(t),
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccClusterCheckDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccClusterConfig_Head_upscale(cloud, rName, suffix, currentInstanceType, ""),
@@ -675,9 +675,9 @@ func testAccCluster_RonDB_upscale(t *testing.T, cloud api.CloudProvider, current
 	rName := fmt.Sprintf("test_%s", suffix)
 	resourceName := fmt.Sprintf("hopsworksai_cluster.%s", rName)
 	parallelTest(t, cloud, resource.TestCase{
-		PreCheck:     testAccPreCheck(t),
-		Providers:    testAccProviders,
-		CheckDestroy: testAccClusterCheckDestroy(),
+		PreCheck:          testAccPreCheck(t),
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccClusterCheckDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccClusterConfig_RonDB_upscale(cloud, rName, suffix, fmt.Sprintf(`
@@ -796,7 +796,7 @@ func testWorkerInstanceType(cloud api.CloudProvider, alternative bool) string {
 
 func testAccClusterCheckDestroy() func(s *terraform.State) error {
 	return func(s *terraform.State) error {
-		client := testAccProvider.Meta().(*api.HopsworksAIClient)
+		client := getTestAccProvider().Meta().(*api.HopsworksAIClient)
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "hopsworksai_cluster" {
 				continue

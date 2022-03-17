@@ -30,8 +30,8 @@ func testAccClusterDataSource_basic(t *testing.T, cloud api.CloudProvider) {
 	resourceName := fmt.Sprintf("hopsworksai_cluster.%s", rName)
 	dataSourceName := fmt.Sprintf("data.hopsworksai_cluster.%s", rName)
 	parallelTest(t, cloud, resource.TestCase{
-		PreCheck:  testAccPreCheck(t),
-		Providers: testAccProviders,
+		PreCheck:          testAccPreCheck(t),
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccClusterDataSourceConfig(cloud, rName, suffix),

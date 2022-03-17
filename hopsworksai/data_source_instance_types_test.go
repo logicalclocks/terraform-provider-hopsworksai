@@ -68,8 +68,8 @@ func testAccInstanceTypesDataSource_basic(t *testing.T, cloud api.CloudProvider,
 	rName := fmt.Sprintf("test_%s", suffix)
 	dataSourceName := fmt.Sprintf("data.hopsworksai_instance_types.%s", rName)
 	parallelTest(t, cloud, resource.TestCase{
-		PreCheck:  testAccPreCheck(t),
-		Providers: testAccProviders,
+		PreCheck:          testAccPreCheck(t),
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccInstanceTypesDataSourceConfig(cloud, rName, nodeType),

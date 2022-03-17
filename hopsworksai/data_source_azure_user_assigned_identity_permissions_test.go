@@ -9,7 +9,7 @@ import (
 func TestAccAzureUserAssignedIdentity_basic(t *testing.T) {
 	dataSourceName := "data.hopsworksai_azure_user_assigned_identity_permissions.test"
 	resource.UnitTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAzureUserAssignedIdentityConfig_basic(),
@@ -35,7 +35,7 @@ func TestAccAzureUserAssignedIdentity_basic(t *testing.T) {
 func TestAccAzureUserAssignedIdentity_enableUpgradeOnly(t *testing.T) {
 	dataSourceName := "data.hopsworksai_azure_user_assigned_identity_permissions.test"
 	resource.UnitTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAzureUserAssignedIdentityConfig_enableUpgradeOnly(),
@@ -57,7 +57,7 @@ func TestAccAzureUserAssignedIdentity_enableUpgradeOnly(t *testing.T) {
 func TestAccAzureUserAssignedIdentity_enableAKSandACROnly(t *testing.T) {
 	dataSourceName := "data.hopsworksai_azure_user_assigned_identity_permissions.test"
 	resource.UnitTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAzureUserAssignedIdentityConfig_enableAKSandACROnly(),
@@ -79,7 +79,7 @@ func TestAccAzureUserAssignedIdentity_enableAKSandACROnly(t *testing.T) {
 func TestAccAzureUserAssignedIdentity_disableBackup(t *testing.T) {
 	dataSourceName := "data.hopsworksai_azure_user_assigned_identity_permissions.test"
 	resource.UnitTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAzureUserAssignedIdentityConfig_disableBackup(),
@@ -100,7 +100,7 @@ func TestAccAzureUserAssignedIdentity_disableBackup(t *testing.T) {
 func TestAccAzureUserAssignedIdentity_disableAll(t *testing.T) {
 	dataSourceName := "data.hopsworksai_azure_user_assigned_identity_permissions.test"
 	resource.UnitTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAzureUserAssignedIdentityConfig_disableAll(),

@@ -9,6 +9,9 @@ TF_VAR_skip_azure=${TF_VAR_skip_azure:-false}
 TF_VAR_aws_profile=${TF_VAR_aws_profile:-default}
 TF_VAR_aws_region=${TF_VAR_aws_region:-us-east-2}
 
+TF_ACCTEST_LOG_DIR=${TF_ACCTEST_LOG_DIR:-/tmp/tf-acc-logs/$(date +%Y%m%d_%H%M%S)}
+TF_ACCTEST_LOG_LEVEL=${TF_ACCTEST_LOG_LEVEL:-debug}
+
 if [ -z ${HOPSWORKSAI_API_KEY} ] ; then 
     echo "Environment variable HOPSWORKSAI_API_KEY is not set, you need to export your Hopsworks API key to run the acceptance tests"
     exit 1
@@ -63,8 +66,10 @@ fi
 
 popd
 
+mkdir -p $TF_ACCTEST_LOG_DIR
+
 echo "Run test cases with args ${TESTARGS} timeout ${ACCTEST_TIMEOUT} parallel ${ACCTEST_PARALLELISM}"
-TF_ACC=1 go test ./... -v ${TESTARGS} --cover -timeout ${ACCTEST_TIMEOUT} --parallel ${ACCTEST_PARALLELISM}
+TF_LOG=${TF_ACCTEST_LOG_LEVEL} TF_LOG_PATH_MASK="${TF_ACCTEST_LOG_DIR}/%s" TF_ACC=1 go test ./... -v ${TESTARGS} --cover -timeout ${ACCTEST_TIMEOUT} --parallel ${ACCTEST_PARALLELISM}
 
 pushd ${BASE_DIR}
 echo "Destroying test fixtures"

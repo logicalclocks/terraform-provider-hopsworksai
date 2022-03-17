@@ -54,9 +54,9 @@ func testAccBackup_basic(t *testing.T, cloud api.CloudProvider) {
 	clusterResourceName := fmt.Sprintf("hopsworksai_cluster.%s", rName)
 	backupResourceName := fmt.Sprintf("hopsworksai_backup.%s", rName)
 	parallelTest(t, cloud, resource.TestCase{
-		PreCheck:     testAccPreCheck(t),
-		Providers:    testAccProviders,
-		CheckDestroy: testAccBackupCheckDestroy(),
+		PreCheck:          testAccPreCheck(t),
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccBackupCheckDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBackupConfig_basic(cloud, rName, suffix, "", ""),
@@ -104,7 +104,7 @@ func testAccBackup_basic(t *testing.T, cloud api.CloudProvider) {
 
 func testAccBackupCheckDestroy() func(s *terraform.State) error {
 	return func(s *terraform.State) error {
-		client := testAccProvider.Meta().(*api.HopsworksAIClient)
+		client := getTestAccProvider().Meta().(*api.HopsworksAIClient)
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type == "hopsworksai_backup" {
 				backup, err := api.GetBackup(context.Background(), client, rs.Primary.ID)

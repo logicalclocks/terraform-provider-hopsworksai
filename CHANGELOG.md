@@ -6,6 +6,7 @@ BUG FIXES:
 
 ENHANCEMENTS:
 acceptance_tests: Tag resources with their respective test name
+acceptance_tests: Providers is deprecated use ProviderFactories instead
 
 FEATURES:
 
