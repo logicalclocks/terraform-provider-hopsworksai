@@ -663,7 +663,7 @@ func testAccCluster_Head_upscale(t *testing.T, cloud api.CloudProvider, currentI
 }
 
 func TestAccClusterAWS_RonDB_upscale(t *testing.T) {
-	testAccCluster_RonDB_upscale(t, api.AWS, "t3a.xlarge", "t3a.2xlarge", "t3a.medium", "t3a.large", "t3a.medium", "t3a.large")
+	testAccCluster_RonDB_upscale(t, api.AWS, "r5.large", "r5.xlarge", "c5.large", "c5.xlarge", "c5.large", "c5.xlarge")
 }
 
 func TestAccClusterAZURE_RonDB_upscale(t *testing.T) {
