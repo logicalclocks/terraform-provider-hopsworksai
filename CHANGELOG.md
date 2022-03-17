@@ -5,6 +5,7 @@ BREAKING CHANGES:
 BUG FIXES:
 
 ENHANCEMENTS:
+acceptance_tests: Tag resources with their respective test name
 
 FEATURES:
 

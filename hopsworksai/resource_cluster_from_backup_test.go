@@ -138,7 +138,7 @@ func testAccClusterFromBackup_setResourceID_asEnvVar(resourceName string, resour
 }
 
 func testAccClusterFromBackupConfig_basic(cloud api.CloudProvider, rName string, suffix string, extraConfig string, backupConfig string) string {
-	return testAccBackupConfig(cloud, rName, suffix, extraConfig, backupConfig, 10, true)
+	return testAccBackupConfig(cloud, rName, suffix, extraConfig, backupConfig, 10, true, "TestAccClusterFromBackup_basic")
 }
 
 // unit tests

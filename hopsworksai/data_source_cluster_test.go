@@ -54,6 +54,7 @@ func testAccClusterDataSourceConfig(cloud api.CloudProvider, rName string, suffi
 
 		tags = {
 		  "%s" = "%s"
+		  "Test" = "TestAccClusterDataSource_basic"
 		}
 	  }
 
