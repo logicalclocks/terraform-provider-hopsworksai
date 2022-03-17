@@ -27,7 +27,7 @@ func init() {
 	resource.AddTestSweepers("hopsworksai_cluster", &resource.Sweeper{
 		Name: "hopsworksai_cluster",
 		F: func(region string) error {
-			client := sharedClient()
+			client := hopsworksClient()
 
 			ctx := context.Background()
 			clusters, err := api.GetClusters(ctx, client, "")
@@ -796,7 +796,7 @@ func testWorkerInstanceType(cloud api.CloudProvider, alternative bool) string {
 
 func testAccClusterCheckDestroy() func(s *terraform.State) error {
 	return func(s *terraform.State) error {
-		client := getTestAccProvider().Meta().(*api.HopsworksAIClient)
+		client := hopsworksClient()
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "hopsworksai_cluster" {
 				continue
