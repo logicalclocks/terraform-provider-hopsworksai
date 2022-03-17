@@ -20,7 +20,7 @@ func init() {
 	resource.AddTestSweepers("hopsworksai_backup", &resource.Sweeper{
 		Name: "hopsworksai_backup",
 		F: func(region string) error {
-			client := sharedClient()
+			client := hopsworksClient()
 
 			ctx := context.Background()
 			backups, err := api.GetBackups(ctx, client, "")
@@ -104,7 +104,7 @@ func testAccBackup_basic(t *testing.T, cloud api.CloudProvider) {
 
 func testAccBackupCheckDestroy() func(s *terraform.State) error {
 	return func(s *terraform.State) error {
-		client := getTestAccProvider().Meta().(*api.HopsworksAIClient)
+		client := hopsworksClient()
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type == "hopsworksai_backup" {
 				backup, err := api.GetBackup(context.Background(), client, rs.Primary.ID)

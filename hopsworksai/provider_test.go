@@ -45,11 +45,6 @@ const (
 
 var testAccProviderFactories map[string]func() (*schema.Provider, error)
 
-func getTestAccProvider() *schema.Provider {
-	testProvider, _ := testAccProviderFactories["hopsworksai"]()
-	return testProvider
-}
-
 func init() {
 	testAccProviderFactories = map[string]func() (*schema.Provider, error){
 		"hopsworksai": func() (*schema.Provider, error) { return Provider("dev")(), nil }, //nolint:unparam

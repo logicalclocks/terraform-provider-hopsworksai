@@ -14,13 +14,13 @@ func TestMain(m *testing.M) {
 	resource.TestMain(m)
 }
 
-func sharedClient() *api.HopsworksAIClient {
+func hopsworksClient() *api.HopsworksAIClient {
 	return &api.HopsworksAIClient{
 		UserAgent:  "Terraform Acceptance Tests",
-		ApiKey:     os.Getenv("HOPSWORKSAI_API_KEY"),
+		ApiKey:     os.Getenv(env_API_KEY),
 		ApiVersion: Default_API_VERSION,
 		Client: &http.Client{
-			Timeout: time.Second * 30,
+			Timeout: time.Minute * 3,
 		},
 	}
 }
