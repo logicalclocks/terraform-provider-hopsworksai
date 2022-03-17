@@ -29,9 +29,9 @@ func testAccBackupsDataSource_basic(t *testing.T, cloud api.CloudProvider) {
 	backupsDataSourceName := fmt.Sprintf("data.hopsworksai_backups.%s", rName)
 	backupName := fmt.Sprintf("%s-list-backups", default_CLUSTER_NAME_PREFIX)
 	parallelTest(t, cloud, resource.TestCase{
-		PreCheck:     testAccPreCheck(t),
-		Providers:    testAccProviders,
-		CheckDestroy: testAccBackupCheckDestroy(),
+		PreCheck:          testAccPreCheck(t),
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccBackupCheckDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBackupsDataSourceConfig_basic(cloud, rName, suffix, "", ""),

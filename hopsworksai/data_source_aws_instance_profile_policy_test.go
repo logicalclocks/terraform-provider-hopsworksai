@@ -25,7 +25,7 @@ func TestAccAWSInstanceProfilePolicy_basic(t *testing.T) {
 	policy.Statements = append(policy.Statements, awsEKSECRPermissions(allowDescribeEKSResource, allowPushandPullImagesResource)...)
 
 	resource.UnitTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAWSInstanceProfilePolicyConfig_basic(),
@@ -55,7 +55,7 @@ func TestAccAWSInstanceProfilePolicy_eks_restriction(t *testing.T) {
 	policy.Statements = append(policy.Statements, awsEKSECRPermissions(allowDescribeEKSResource, allowPushandPullImagesResource)...)
 
 	resource.UnitTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAWSInstanceProfilePolicyConfig_eks_restriction(),
@@ -85,7 +85,7 @@ func TestAccAWSInstanceProfilePolicy_cluster_id(t *testing.T) {
 	policy.Statements = append(policy.Statements, awsEKSECRPermissions(allowDescribeEKSResource, allowPushandPullImagesResource)...)
 
 	resource.UnitTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAWSInstanceProfilePolicyConfig_cluster_id(),
@@ -115,7 +115,7 @@ func TestAccAWSInstanceProfilePolicy_singleBucket(t *testing.T) {
 	policy.Statements = append(policy.Statements, awsEKSECRPermissions(allowDescribeEKSResource, allowPushandPullImagesResource)...)
 
 	resource.UnitTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAWSInstanceProfilePolicyConfig_singleBucket(),
@@ -139,7 +139,7 @@ func TestAccAWSInstanceProfilePolicy_disableEKS(t *testing.T) {
 	policy.Statements = append(policy.Statements, awsCloudWatchPermissions()...)
 
 	resource.UnitTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAWSInstanceProfilePolicyConfig_disableEKS(),
@@ -163,7 +163,7 @@ func TestAccAWSInstanceProfilePolicy_disableEKSAndUpgrade(t *testing.T) {
 	policy.Statements = append(policy.Statements, awsCloudWatchPermissions()...)
 
 	resource.UnitTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAWSInstanceProfilePolicyConfig_disableEKSAndUpgrade(),
@@ -185,7 +185,7 @@ func TestAccAWSInstanceProfilePolicy_enableOnlyStorage(t *testing.T) {
 	}
 
 	resource.UnitTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAWSInstanceProfilePolicyConfig_enableOnlyStorage(),
@@ -210,7 +210,7 @@ func TestAccAWSInstanceProfilePolicy_enableUpgrade(t *testing.T) {
 	policy.Statements = append(policy.Statements, awsUpgradePermissions())
 
 	resource.UnitTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAWSInstanceProfilePolicyConfig_enableUpgrade(),

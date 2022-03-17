@@ -43,13 +43,16 @@ const (
 	default_CLUSTER_TAG_VALUE   = "acceptance-test"
 )
 
-var testAccProviders map[string]*schema.Provider
-var testAccProvider *schema.Provider
+var testAccProviderFactories map[string]func() (*schema.Provider, error)
+
+func getTestAccProvider() *schema.Provider {
+	testProvider, _ := testAccProviderFactories["hopsworksai"]()
+	return testProvider
+}
 
 func init() {
-	testAccProvider = Provider("dev")()
-	testAccProviders = map[string]*schema.Provider{
-		"hopsworksai": testAccProvider,
+	testAccProviderFactories = map[string]func() (*schema.Provider, error){
+		"hopsworksai": func() (*schema.Provider, error) { return Provider("dev")(), nil }, //nolint:unparam
 	}
 }
 
