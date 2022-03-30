@@ -5,8 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
+
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func GetClusters(ctx context.Context, apiClient APIHandler, cloud CloudProvider) ([]Cluster, error) {
@@ -25,10 +26,10 @@ func NewCluster(ctx context.Context, apiClient APIHandler, createRequest interfa
 	var cloudProvider CloudProvider
 	switch createRequest.(type) {
 	case CreateAzureCluster, *CreateAzureCluster:
-		log.Printf("[DEBUG] new azure cluster: #%v", createRequest)
+		tflog.Debug(ctx, fmt.Sprintf("new azure cluster: #%v", createRequest))
 		cloudProvider = AZURE
 	case CreateAWSCluster, *CreateAWSCluster:
-		log.Printf("[DEBUG] new aws cluster: #%v", createRequest)
+		tflog.Debug(ctx, fmt.Sprintf("new aws cluster: #%v", createRequest))
 		cloudProvider = AWS
 	default:
 		return "", fmt.Errorf("unknown cloud provider #%v", createRequest)
@@ -56,7 +57,7 @@ func GetCluster(ctx context.Context, apiClient APIHandler, clusterId string) (*C
 		return nil, err
 	}
 	if response.Code == http.StatusNotFound {
-		log.Printf("[DEBUG] cluster (id: %s) is not found", clusterId)
+		tflog.Debug(ctx, fmt.Sprintf("cluster (id: %s) is not found", clusterId))
 		return nil, nil
 	}
 	return &response.Payload.Cluster, nil
@@ -88,7 +89,7 @@ func StartCluster(ctx context.Context, apiClient APIHandler, clusterId string) e
 
 func AddWorkers(ctx context.Context, apiClient APIHandler, clusterId string, toAdd []WorkerConfiguration) error {
 	if len(toAdd) == 0 {
-		log.Printf("[DEBUG] skip update cluster %s due to no updates", clusterId)
+		tflog.Debug(ctx, fmt.Sprintf("skip update cluster %s due to no updates", clusterId))
 		return nil
 	}
 	req := UpdateWorkersRequest{
@@ -109,7 +110,7 @@ func AddWorkers(ctx context.Context, apiClient APIHandler, clusterId string, toA
 
 func RemoveWorkers(ctx context.Context, apiClient APIHandler, clusterId string, toRemove []WorkerConfiguration) error {
 	if len(toRemove) == 0 {
-		log.Printf("[DEBUG] skip update cluster %s due to no updates", clusterId)
+		tflog.Debug(ctx, fmt.Sprintf("skip update cluster %s due to no updates", clusterId))
 		return nil
 	}
 	req := UpdateWorkersRequest{
@@ -206,7 +207,7 @@ func GetBackup(ctx context.Context, apiClient APIHandler, backupId string) (*Bac
 		return nil, err
 	}
 	if response.Code == http.StatusNotFound {
-		log.Printf("[DEBUG] backup (id: %s) is not found", backupId)
+		tflog.Debug(ctx, fmt.Sprintf("backup (id: %s) is not found", backupId))
 		return nil, nil
 	}
 	return &response.Payload.Backup, nil
@@ -235,9 +236,9 @@ func GetBackups(ctx context.Context, apiClient APIHandler, clusterId string) ([]
 func NewClusterFromBackup(ctx context.Context, apiClient APIHandler, backupId string, createRequest interface{}) (string, error) {
 	switch createRequest.(type) {
 	case CreateAWSClusterFromBackup, *CreateAWSClusterFromBackup:
-		log.Printf("[DEBUG] restore aws cluster: #%v", createRequest)
+		tflog.Debug(ctx, fmt.Sprintf("restore aws cluster: #%v", createRequest))
 	case CreateAzureClusterFromBackup, *CreateAzureClusterFromBackup:
-		log.Printf("[DEBUG] restore azure cluster: #%v", createRequest)
+		tflog.Debug(ctx, fmt.Sprintf("restore azure cluster: #%v", createRequest))
 	default:
 		return "", fmt.Errorf("unknown create request #%v", createRequest)
 	}

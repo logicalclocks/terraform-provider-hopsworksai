@@ -6,8 +6,9 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
+
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 const host = "https://api.hopsworks.ai"
@@ -33,7 +34,8 @@ type HopsworksAIClient struct {
 
 func (a *HopsworksAIClient) doRequest(ctx context.Context, method string, endpoint string, body io.Reader, response ResponseWithValidator) error {
 	url := host + endpoint
-	log.Printf("[DEBUG] %s %s", method, url)
+	tflog.Debug(ctx, method+" "+url)
+
 	req, err := http.NewRequestWithContext(ctx, method, url, body)
 	if err != nil {
 		return err
@@ -65,7 +67,7 @@ func (a *HopsworksAIClient) doRequest(ctx context.Context, method string, endpoi
 		return fmt.Errorf("failed to decode json, resp: %s, path: %s err: %s", resp.Status, url, err)
 	}
 
-	log.Printf("[DEBUG] response struct: %#v", response)
+	tflog.Debug(ctx, fmt.Sprintf("response struct: %#v", response))
 
 	if err := response.validate(); err != nil {
 		return err

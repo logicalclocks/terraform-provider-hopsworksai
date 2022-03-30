@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"reflect"
 	"regexp"
@@ -14,6 +13,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -39,7 +39,7 @@ func init() {
 				for _, tag := range cluster.Tags {
 					if strings.HasPrefix(cluster.Name, default_CLUSTER_NAME_PREFIX) || (tag.Name == default_CLUSTER_TAG_KEY && tag.Value == default_CLUSTER_TAG_VALUE) {
 						if err := api.DeleteCluster(ctx, client, cluster.Id); err != nil {
-							log.Printf("Error destroying %s during sweep: %s", cluster.Id, err)
+							tflog.Info(ctx, fmt.Sprintf("error destroying %s during sweep: %s", cluster.Id, err))
 						}
 						break
 					}

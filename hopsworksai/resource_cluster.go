@@ -3,10 +3,10 @@ package hopsworksai
 import (
 	"context"
 	"fmt"
-	"log"
 	"regexp"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -1267,7 +1267,7 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 			}
 		}
 
-		log.Printf("[DEBUG] update workers \ntoAdd=%#v, \ntoRemove=%#v", toAdd, toRemove)
+		tflog.Debug(ctx, fmt.Sprintf("update workers \ntoAdd=%#v, \ntoRemove=%#v", toAdd, toRemove))
 		if len(toRemove) > 0 {
 			if err := api.RemoveWorkers(ctx, client, clusterId, toRemove); err != nil {
 				return diag.FromErr(err)
@@ -1433,7 +1433,7 @@ func resourceClusterWaitForRunningBase(ctx context.Context, client *api.Hopswork
 				return nil, "", fmt.Errorf("cluster not found for cluster id %s", clusterId)
 			}
 
-			log.Printf("[INFO] polled cluster state: %s, stage: %s, upgradeInProgess: %#v", cluster.State, cluster.InitializationStage, cluster.UpgradeInProgress)
+			tflog.Debug(ctx, fmt.Sprintf("polled cluster state: %s, stage: %s, upgradeInProgess: %#v", cluster.State, cluster.InitializationStage, cluster.UpgradeInProgress))
 
 			if isUpgrade && cluster.State == api.Running && cluster.UpgradeInProgress != nil {
 				return cluster, api.Pending.String(), nil
@@ -1475,7 +1475,7 @@ func resourceClusterWaitForStopping(ctx context.Context, client *api.HopsworksAI
 			if cluster == nil {
 				return nil, "", fmt.Errorf("cluster not found for cluster id %s", clusterId)
 			}
-			log.Printf("[INFO] polled cluster state: %s, stage: %s", cluster.State, cluster.InitializationStage)
+			tflog.Debug(ctx, fmt.Sprintf("polled cluster state: %s, stage: %s", cluster.State, cluster.InitializationStage))
 			return cluster, cluster.State.String(), nil
 		},
 	)
@@ -1511,10 +1511,10 @@ func resourceClusterWaitForDeleting(ctx context.Context, client *api.HopsworksAI
 				return nil, "", err
 			}
 			if cluster == nil {
-				log.Printf("[DEBUG] cluster (id: %s) is not found", clusterId)
+				tflog.Debug(ctx, fmt.Sprintf("cluster (id: %s) is not found", clusterId))
 				return &api.Cluster{Id: ""}, api.ClusterDeleted.String(), nil
 			}
-			log.Printf("[INFO] polled cluster state: %s, stage: %s", cluster.State, cluster.InitializationStage)
+			tflog.Debug(ctx, fmt.Sprintf("polled cluster state: %s, stage: %s", cluster.State, cluster.InitializationStage))
 			return cluster, cluster.State.String(), nil
 		},
 	)
