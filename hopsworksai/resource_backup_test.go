@@ -3,12 +3,12 @@ package hopsworksai
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -31,7 +31,7 @@ func init() {
 			for _, backup := range backups {
 				if strings.HasPrefix(backup.Name, default_CLUSTER_NAME_PREFIX) {
 					if err := api.DeleteBackup(ctx, client, backup.Id); err != nil {
-						log.Printf("Error destroying %s during sweep: %s", backup.Id, err)
+						tflog.Info(ctx, fmt.Sprintf("error destroying %s during sweep: %s", backup.Id, err))
 					}
 				}
 			}

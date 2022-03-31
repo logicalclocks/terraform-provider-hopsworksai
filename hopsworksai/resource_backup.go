@@ -3,9 +3,9 @@ package hopsworksai
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/logicalclocks/terraform-provider-hopsworksai/hopsworksai/internal/api"
@@ -153,7 +153,7 @@ func resourceBackupWaitForCompletion(ctx context.Context, client *api.HopsworksA
 			if backup == nil {
 				return nil, "", fmt.Errorf("backup not found for backup id %s", backupId)
 			}
-			log.Printf("[INFO] polled backup state: %s", backup.State)
+			tflog.Debug(ctx, fmt.Sprintf("polled backup state: %s", backup.State))
 			return backup, backup.State.String(), nil
 		},
 	)
@@ -187,10 +187,10 @@ func resourceBackupWaitForDeleting(ctx context.Context, client *api.HopsworksAIC
 				return nil, "", err
 			}
 			if backup == nil {
-				log.Printf("[DEBUG] backup (id: %s) is not found", backupId)
+				tflog.Debug(ctx, fmt.Sprintf("backup (id: %s) is not found", backupId))
 				return api.Backup{Id: ""}, api.BackupDeleted.String(), nil
 			}
-			log.Printf("[INFO] polled backup state: %s", backup.State)
+			tflog.Debug(ctx, fmt.Sprintf("polled backup state: %s", backup.State))
 			return backup, backup.State.String(), nil
 		},
 	)
