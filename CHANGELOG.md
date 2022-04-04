@@ -5,10 +5,11 @@ BREAKING CHANGES:
 BUG FIXES:
 
 ENHANCEMENTS:
-acceptance_tests: Tag resources with their respective test name
-acceptance_tests: Providers is deprecated use ProviderFactories instead
-acceptance_tests: Use r5 and c5 instance types in RonDB upscale tests
-logging: use tflog instead of log.Printf
+* acceptance_tests: Tag resources with their respective test name
+* acceptance_tests: Providers is deprecated use ProviderFactories instead
+* acceptance_tests: Use r5 and c5 instance types in RonDB upscale tests
+* logging: use tflog instead of log.Printf
+* dependencies: Bump hashicorp/terraform-plugin-sdk/v2 from 2.11.0 to 2.13.0  
 
 FEATURES:
 
