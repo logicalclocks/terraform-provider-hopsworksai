@@ -4,11 +4,11 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">=3.42.0"
+      version = "3.42.0"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = ">= 2.3.0"
+      version = "2.3.0"
     }
     hopsworksai = {
       source = "logicalclocks/hopsworksai"
