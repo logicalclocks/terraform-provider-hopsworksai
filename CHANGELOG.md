@@ -1,8 +1,4 @@
-## 0.10.0 (Unreleased)
-
-BREAKING CHANGES:
-
-BUG FIXES:
+## 0.9.1 (April 6, 2022)
 
 ENHANCEMENTS:
 * acceptance_tests: Tag resources with their respective test name
@@ -11,8 +7,6 @@ ENHANCEMENTS:
 * logging: use tflog instead of log.Printf
 * dependencies: Bump hashicorp/terraform-plugin-sdk/v2 from 2.11.0 to 2.13.0  
 * examples: pin aws/azure provider versions to avoid breaking changes
-
-FEATURES:
 
 ## 0.9.0 (March 16, 2022)
 
