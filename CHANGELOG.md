@@ -10,6 +10,7 @@ ENHANCEMENTS:
 * acceptance_tests: Use r5 and c5 instance types in RonDB upscale tests
 * logging: use tflog instead of log.Printf
 * dependencies: Bump hashicorp/terraform-plugin-sdk/v2 from 2.11.0 to 2.13.0  
+* examples: pin aws/azure provider versions to avoid breaking changes
 
 FEATURES:
 
