@@ -198,6 +198,13 @@ func TestClustersDataSourceRead(t *testing.T) {
 							},
 							"eks_cluster_name":        "",
 							"ecr_registry_account_id": "",
+							"bucket": []interface{}{
+								map[string]interface{}{
+									"name":       "",
+									"encryption": []interface{}{},
+									"acl":        []interface{}{},
+								},
+							},
 						},
 					},
 					"open_ports": []interface{}{
@@ -248,6 +255,13 @@ func TestClustersDataSourceRead(t *testing.T) {
 							},
 							"eks_cluster_name":        "",
 							"ecr_registry_account_id": "",
+							"bucket": []interface{}{
+								map[string]interface{}{
+									"name":       "",
+									"encryption": []interface{}{},
+									"acl":        []interface{}{},
+								},
+							},
 						},
 					},
 					"open_ports": []interface{}{
@@ -302,6 +316,13 @@ func TestClustersDataSourceRead(t *testing.T) {
 							"aks_cluster_name":  "",
 							"acr_registry_name": "",
 							"search_domain":     "",
+							"container": []interface{}{
+								map[string]interface{}{
+									"name":            "",
+									"storage_account": "",
+									"encryption":      []interface{}{},
+								},
+							},
 						},
 					},
 					"aws_attributes": []interface{}{},

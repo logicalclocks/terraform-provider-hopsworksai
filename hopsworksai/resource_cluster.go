@@ -697,10 +697,95 @@ func awsAttributesSchema() *schema.Resource {
 				ForceNew:    true,
 			},
 			"bucket_name": {
-				Description: "The name of the S3 bucket that the cluster will use to store data in.",
-				Type:        schema.TypeString,
-				Required:    true,
+				Description:   "The name of the S3 bucket that the cluster will use to store data in.",
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ForceNew:      true,
+				Deprecated:    "use aws_attributes/bucket/name instead",
+				ConflictsWith: []string{"aws_attributes.0.bucket.0.name"},
+			},
+			"bucket": {
+				Description: "The bucket configurations.",
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
 				ForceNew:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Description:   "The name of the S3 bucket that the cluster will use to store data in.",
+							Type:          schema.TypeString,
+							Optional:      true,
+							Computed:      true,
+							ForceNew:      true,
+							ConflictsWith: []string{"aws_attributes.0.bucket_name"},
+						},
+						"encryption": {
+							Description: "The server-side encryption configurations.",
+							Type:        schema.TypeList,
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"mode": {
+										Description:  "The encryption type.",
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										ForceNew:     true,
+										ValidateFunc: validation.StringInSlice([]string{"None", "SSE-S3", "SSE-KMS"}, false),
+									},
+									"kms_type": {
+										Description:  "The Key Management Service (KMS) type. This option is required for the encryption mode SSE-KMS.",
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										ForceNew:     true,
+										ValidateFunc: validation.StringInSlice([]string{"User", "Managed"}, false),
+									},
+									"user_key_arn": {
+										Description:  "The ARN of the user encryption key in KMS.",
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										ForceNew:     true,
+										ValidateFunc: validation.StringMatch(regexp.MustCompile(`^arn:aws:kms:\w+(?:-\w+)+:\d{12}:(key|alias)/(.*)$`), "invalid key arn, make sure to either use the key arn or the alias arn."),
+									},
+									"bucket_key": {
+										Description: "Enable or disable the usage of bucket key. Enabling this option (in case of SSE-KMS) would reduce the cost of SSE-KMS.",
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Computed:    true,
+										ForceNew:    true,
+									},
+								},
+							},
+						},
+						"acl": {
+							Description: "The ACL configurations.",
+							Type:        schema.TypeList,
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"bucket_owner_full_control": {
+										Description: "If ACL is enabled, allow the bucket owner to have full access control on new objects in the bucket.",
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Computed:    true,
+										ForceNew:    true,
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 			"instance_profile_arn": {
 				Description:  "The ARN of the AWS instance profile that the cluster will be started with.",
@@ -775,17 +860,70 @@ func azureAttributesSchema() *schema.Resource {
 				ForceNew:    true,
 			},
 			"storage_account": {
-				Description: "The azure storage account that the cluster will use to store data in.",
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
+				Description:   "The azure storage account that the cluster will use to store data in.",
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ForceNew:      true,
+				Deprecated:    "use azure_attributes/container/storage_account instead",
+				ConflictsWith: []string{"azure_attributes.0.container.0.storage_account"},
 			},
 			"storage_container_name": {
-				Description: "The name of the azure storage container that the cluster will use to store data in. If not specified, it will be automatically generated.",
-				Type:        schema.TypeString,
+				Description:   "The name of the azure storage container that the cluster will use to store data in. If not specified, it will be automatically generated.",
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ForceNew:      true,
+				Deprecated:    "use azure_attributes/container/name instead",
+				ConflictsWith: []string{"azure_attributes.0.container.0.name"},
+			},
+			"container": {
+				Description: "The container configurations.",
+				Type:        schema.TypeList,
 				Optional:    true,
 				Computed:    true,
 				ForceNew:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"storage_account": {
+							Description:   "The azure storage account that the cluster will use to store data in.",
+							Type:          schema.TypeString,
+							Optional:      true,
+							Computed:      true,
+							ForceNew:      true,
+							ConflictsWith: []string{"azure_attributes.0.storage_account"},
+						},
+						"name": {
+							Description:   "The name of the azure storage container that the cluster will use to store data in. If not specified, it will be automatically generated.",
+							Type:          schema.TypeString,
+							Optional:      true,
+							Computed:      true,
+							ForceNew:      true,
+							ConflictsWith: []string{"azure_attributes.0.storage_container_name"},
+						},
+						"encryption": {
+							Description: "The server-side encryption configurations.",
+							Type:        schema.TypeList,
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"mode": {
+										Description:  "The encryption type.",
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										ForceNew:     true,
+										ValidateFunc: validation.StringInSlice([]string{"None"}, false),
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 			"user_assigned_managed_identity": {
 				Description: "The azure user assigned managed identity that the cluster will be started with.",
@@ -899,14 +1037,20 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 	if aws, ok := d.GetOk("aws_attributes"); ok {
 		awsAttributes := aws.([]interface{})
 		if len(awsAttributes) > 0 {
-			createRequest = createAWSCluster(d, baseRequest)
+			createRequest, err = createAWSCluster(d, baseRequest)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 	}
 
 	if azure, ok := d.GetOk("azure_attributes"); ok {
 		azureAttributes := azure.([]interface{})
 		if len(azureAttributes) > 0 {
-			createRequest = createAzureCluster(d, baseRequest)
+			createRequest, err = createAzureCluster(d, baseRequest)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 	}
 
@@ -933,15 +1077,23 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourceClusterRead(ctx, d, meta)
 }
 
-func createAWSCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) *api.CreateAWSCluster {
+func createAWSCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) (*api.CreateAWSCluster, error) {
 	setAWSDefaults(baseRequest)
 	req := api.CreateAWSCluster{
 		CreateCluster: *baseRequest,
 		AWSCluster: api.AWSCluster{
 			Region:             d.Get("aws_attributes.0.region").(string),
-			BucketName:         d.Get("aws_attributes.0.bucket_name").(string),
 			InstanceProfileArn: d.Get("aws_attributes.0.instance_profile_arn").(string),
 		},
+	}
+
+	// deprecated to be removed in next major version
+	if v, ok := d.GetOk("aws_attributes.0.bucket_name"); ok {
+		req.BucketName = v.(string)
+	} else if v, ok := d.GetOk("aws_attributes.0.bucket.0.name"); ok {
+		req.BucketName = v.(string)
+	} else {
+		return nil, fmt.Errorf("bucket name is not set")
 	}
 
 	if _, ok := d.GetOk("aws_attributes.0.network"); ok {
@@ -961,28 +1113,68 @@ func createAWSCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) *a
 			}
 		}
 	}
-	return &req
-}
 
-func createAzureCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) *api.CreateAzureCluster {
-	setAzureDefaults(baseRequest)
-	var containerName string
-	if v, ok := d.GetOk("azure_attributes.0.storage_container_name"); ok {
-		containerName = v.(string)
+	if _, ok := d.GetOk("aws_attributes.0.bucket.0.encryption"); ok {
+		req.BucketConfiguration = &api.S3BucketConfiguration{
+			Encryption: api.S3EncryptionConfiguration{
+				Mode:    d.Get("aws_attributes.0.bucket.0.encryption.0.mode").(string),
+				KMSType: d.Get("aws_attributes.0.bucket.0.encryption.0.kms_type").(string),
+			},
+		}
+
+		if _, ok := d.GetOk("aws_attributes.0.bucket.0.encryption.0.user_key_arn"); ok {
+			req.BucketConfiguration.Encryption.UserKeyArn = d.Get("aws_attributes.0.bucket.0.encryption.0.user_key_arn").(string)
+		}
+
+		if _, ok := d.GetOk("aws_attributes.0.bucket.0.encryption.0.bucket_key"); ok {
+			req.BucketConfiguration.Encryption.BucketKey = d.Get("aws_attributes.0.bucket.0.encryption.0.bucket_key").(bool)
+		}
 	} else {
-		suffix := time.Now().UnixNano() / 1e6
-		containerName = fmt.Sprintf("hopsworksai-%d", suffix)
+		req.BucketConfiguration = &api.S3BucketConfiguration{
+			Encryption: api.S3EncryptionConfiguration{
+				Mode:    "None",
+				KMSType: "Managed",
+			},
+		}
 	}
 
+	if _, ok := d.GetOk("aws_attributes.0.bucket.0.acl.0.bucket_owner_full_control"); ok {
+		req.BucketConfiguration.ACL = &api.S3ACLConfiguration{
+			BucketOwnerFullControl: d.Get("aws_attributes.0.bucket.0.acl.0.bucket_owner_full_control").(bool),
+		}
+	}
+
+	return &req, nil
+}
+
+func createAzureCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) (*api.CreateAzureCluster, error) {
+	setAzureDefaults(baseRequest)
 	req := api.CreateAzureCluster{
 		CreateCluster: *baseRequest,
 		AzureCluster: api.AzureCluster{
-			Location:          d.Get("azure_attributes.0.location").(string),
-			ResourceGroup:     d.Get("azure_attributes.0.resource_group").(string),
-			StorageAccount:    d.Get("azure_attributes.0.storage_account").(string),
-			BlobContainerName: containerName,
-			ManagedIdentity:   d.Get("azure_attributes.0.user_assigned_managed_identity").(string),
+			Location:        d.Get("azure_attributes.0.location").(string),
+			ResourceGroup:   d.Get("azure_attributes.0.resource_group").(string),
+			ManagedIdentity: d.Get("azure_attributes.0.user_assigned_managed_identity").(string),
 		},
+	}
+
+	// deprecated, to be removed in next major version
+	if v, ok := d.GetOk("azure_attributes.0.storage_container_name"); ok {
+		req.BlobContainerName = v.(string)
+	} else if v, ok := d.GetOk("azure_attributes.0.container.0.name"); ok {
+		req.BlobContainerName = v.(string)
+	} else {
+		suffix := time.Now().UnixNano() / 1e6
+		req.BlobContainerName = fmt.Sprintf("hopsworksai-%d", suffix)
+	}
+
+	// deprecated, to be removed in next major version
+	if v, ok := d.GetOk("azure_attributes.0.storage_account"); ok {
+		req.StorageAccount = v.(string)
+	} else if v, ok := d.GetOk("azure_attributes.0.container.0.storage_account"); ok {
+		req.StorageAccount = v.(string)
+	} else {
+		return nil, fmt.Errorf("storage account is not set")
 	}
 
 	// deprecated, to be removed in next major version
@@ -1007,7 +1199,17 @@ func createAzureCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) 
 			req.AcrRegistryName = registry.(string)
 		}
 	}
-	return &req
+
+	var encryptionMode = "None"
+	if v, ok := d.GetOk("azure_attributes.0.container.0.encryption.0.mode"); ok {
+		encryptionMode = v.(string)
+	}
+	req.ContainerConfiguration = &api.AzureContainerConfiguration{
+		Encryption: api.AzureEncryptionConfiguration{
+			Mode: encryptionMode,
+		},
+	}
+	return &req, nil
 }
 
 func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error) {

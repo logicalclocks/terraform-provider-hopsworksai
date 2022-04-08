@@ -110,10 +110,39 @@ func flattenAWSAttributes(cluster *api.Cluster) []interface{} {
 		},
 		"eks_cluster_name":        cluster.AWS.EksClusterName,
 		"ecr_registry_account_id": cluster.AWS.EcrRegistryAccountId,
+		"bucket":                  flattenS3BucketConfiguration(cluster.AWS.BucketName, cluster.AWS.BucketConfiguration),
 	}
 	return awsAttributes
 }
 
+func flattenS3BucketConfiguration(bucketName string, bucketConfiguration *api.S3BucketConfiguration) []map[string]interface{} {
+	config := []map[string]interface{}{
+		{
+			"name": bucketName,
+		},
+	}
+
+	if bucketConfiguration != nil {
+		config[0]["encryption"] = []map[string]interface{}{
+			{
+				"mode":         bucketConfiguration.Encryption.Mode,
+				"kms_type":     bucketConfiguration.Encryption.KMSType,
+				"user_key_arn": bucketConfiguration.Encryption.UserKeyArn,
+				"bucket_key":   bucketConfiguration.Encryption.BucketKey,
+			},
+		}
+
+		if bucketConfiguration.ACL != nil {
+			config[0]["acl"] = []map[string]interface{}{
+				{
+					"bucket_owner_full_control": bucketConfiguration.ACL.BucketOwnerFullControl,
+				},
+			}
+		}
+	}
+
+	return config
+}
 func flattenAzureAttributes(cluster *api.Cluster) []interface{} {
 	if !cluster.IsAzureCluster() {
 		return nil
@@ -138,8 +167,27 @@ func flattenAzureAttributes(cluster *api.Cluster) []interface{} {
 		"aks_cluster_name":  cluster.Azure.AksClusterName,
 		"acr_registry_name": cluster.Azure.AcrRegistryName,
 		"search_domain":     cluster.Azure.SearchDomain,
+		"container":         flattenAzureContainerConfiguration(cluster.Azure.StorageAccount, cluster.Azure.BlobContainerName, cluster.Azure.ContainerConfiguration),
 	}
 	return azureAttributes
+}
+
+func flattenAzureContainerConfiguration(storageAccount string, containerName string, containerConfiguration *api.AzureContainerConfiguration) []map[string]interface{} {
+	config := []map[string]interface{}{
+		{
+			"name":            containerName,
+			"storage_account": storageAccount,
+		},
+	}
+
+	if containerConfiguration != nil {
+		config[0]["encryption"] = []map[string]interface{}{
+			{
+				"mode": containerConfiguration.Encryption.Mode,
+			},
+		}
+	}
+	return config
 }
 
 func flattenPorts(ports *api.ServiceOpenPorts) []map[string]interface{} {

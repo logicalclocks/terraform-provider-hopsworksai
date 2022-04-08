@@ -1,12 +1,20 @@
 ## 0.10.0 (Unreleased)
 
 NOTES:
+* resource/hopsworksai_cluster: Deprecate `aws_attributes/bucket_name` attribute to use `aws_attributes/bucket/name` instead
+* resource/hopsworksai_cluster: Deprecate `azure_attributes/storage_account` attribute to use `azure_attributes/container/storage_account` instead
+* resource/hopsworksai_cluster: Deprecate `azure_attributes/storage_container_name` attribute to use `azure_attributes/container/name` instead
 
 BREAKING CHANGES:
 
 BUG FIXES:
 
 ENHANCEMENTS:
+* resource/hopsworksai_cluster: Add `aws_attributes/bucket` block to contain all bucket related configuraitons
+* resource/hopsworksai_cluster: Add `aws_attributes/bucket/encryption` and `aws_attributes/bucket/acl` attributes to configure the bucket encryption and ACL properties
+* resource/hopsworksai_cluster: Add `azure_attributes/container` block to contain all container related configuraitons
+* resource/hopsworksai_cluster: Add `azure_attributes/container/encryption` attributes to configure the container encryption
+
 
 FEATURES:
 

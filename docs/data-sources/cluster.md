@@ -119,12 +119,42 @@ Read-Only:
 
 Read-Only:
 
+- `bucket` (List of Object) (see [below for nested schema](#nestedobjatt--aws_attributes--bucket))
 - `bucket_name` (String)
 - `ecr_registry_account_id` (String)
 - `eks_cluster_name` (String)
 - `instance_profile_arn` (String)
 - `network` (List of Object) (see [below for nested schema](#nestedobjatt--aws_attributes--network))
 - `region` (String)
+
+<a id="nestedobjatt--aws_attributes--bucket"></a>
+### Nested Schema for `aws_attributes.bucket`
+
+Read-Only:
+
+- `acl` (List of Object) (see [below for nested schema](#nestedobjatt--aws_attributes--bucket--acl))
+- `encryption` (List of Object) (see [below for nested schema](#nestedobjatt--aws_attributes--bucket--encryption))
+- `name` (String)
+
+<a id="nestedobjatt--aws_attributes--bucket--acl"></a>
+### Nested Schema for `aws_attributes.bucket.acl`
+
+Read-Only:
+
+- `bucket_owner_full_control` (Boolean)
+
+
+<a id="nestedobjatt--aws_attributes--bucket--encryption"></a>
+### Nested Schema for `aws_attributes.bucket.encryption`
+
+Read-Only:
+
+- `bucket_key` (Boolean)
+- `kms_type` (String)
+- `mode` (String)
+- `user_key_arn` (String)
+
+
 
 <a id="nestedobjatt--aws_attributes--network"></a>
 ### Nested Schema for `aws_attributes.network`
@@ -144,6 +174,7 @@ Read-Only:
 
 - `acr_registry_name` (String)
 - `aks_cluster_name` (String)
+- `container` (List of Object) (see [below for nested schema](#nestedobjatt--azure_attributes--container))
 - `location` (String)
 - `network` (List of Object) (see [below for nested schema](#nestedobjatt--azure_attributes--network))
 - `resource_group` (String)
@@ -151,6 +182,24 @@ Read-Only:
 - `storage_account` (String)
 - `storage_container_name` (String)
 - `user_assigned_managed_identity` (String)
+
+<a id="nestedobjatt--azure_attributes--container"></a>
+### Nested Schema for `azure_attributes.container`
+
+Read-Only:
+
+- `encryption` (List of Object) (see [below for nested schema](#nestedobjatt--azure_attributes--container--encryption))
+- `name` (String)
+- `storage_account` (String)
+
+<a id="nestedobjatt--azure_attributes--container--encryption"></a>
+### Nested Schema for `azure_attributes.container.encryption`
+
+Read-Only:
+
+- `mode` (String)
+
+
 
 <a id="nestedobjatt--azure_attributes--network"></a>
 ### Nested Schema for `azure_attributes.network`
