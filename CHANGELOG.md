@@ -10,7 +10,7 @@ BREAKING CHANGES:
 BUG FIXES:
 
 ENHANCEMENTS:
-* resource/hopsworksai_cluster: Add `aws_attributes/bucket` block to contain all bucket related configuraitons
+* resource/hopsworksai_cluster: Add `aws_attributes/bucket` block to contain all bucket related configurations
 * resource/hopsworksai_cluster: Add `aws_attributes/bucket/encryption` and `aws_attributes/bucket/acl` attributes to configure the bucket encryption and ACL properties
 * resource/hopsworksai_cluster: Add `azure_attributes/container` block to contain all container related configuraitons
 * resource/hopsworksai_cluster: Add `azure_attributes/container/encryption` attributes to configure the container encryption
