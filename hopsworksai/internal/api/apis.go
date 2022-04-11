@@ -26,13 +26,13 @@ func NewCluster(ctx context.Context, apiClient APIHandler, createRequest interfa
 	var cloudProvider CloudProvider
 	switch createRequest.(type) {
 	case CreateAzureCluster, *CreateAzureCluster:
-		tflog.Debug(ctx, fmt.Sprintf("new azure cluster: #%v", createRequest))
+		tflog.Debug(ctx, fmt.Sprintf("new azure cluster: %#v", createRequest))
 		cloudProvider = AZURE
 	case CreateAWSCluster, *CreateAWSCluster:
-		tflog.Debug(ctx, fmt.Sprintf("new aws cluster: #%v", createRequest))
+		tflog.Debug(ctx, fmt.Sprintf("new aws cluster: %#v", createRequest))
 		cloudProvider = AWS
 	default:
-		return "", fmt.Errorf("unknown cloud provider #%v", createRequest)
+		return "", fmt.Errorf("unknown cloud provider %#v", createRequest)
 	}
 	req := NewClusterRequest{
 		CreateRequest: createRequest,

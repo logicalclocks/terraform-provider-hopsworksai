@@ -878,7 +878,7 @@ func TestNewClusterInvalidCloud(t *testing.T) {
 	if err == nil {
 		t.Fatal("new cluster should throw an error if unknown request")
 	}
-	if err.Error() != "unknown cloud provider #{}" {
+	if err.Error() != "unknown cloud provider struct {}{}" {
 		t.Fatalf("new cluster should throw an unknown cloud provider error, but got %s", err)
 	}
 	if clusterId != "" {

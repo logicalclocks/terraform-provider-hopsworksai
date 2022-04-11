@@ -183,30 +183,56 @@ func (c *Cluster) IsAzureCluster() bool {
 	return c.Provider == AZURE
 }
 
+type AzureEncryptionConfiguration struct {
+	Mode string `json:"mode"`
+}
+
+type AzureContainerConfiguration struct {
+	Encryption AzureEncryptionConfiguration `json:"encryption"`
+}
+
 type AzureCluster struct {
-	Location             string `json:"location"`
-	ManagedIdentity      string `json:"managedIdentity"`
-	ResourceGroup        string `json:"resourceGroup"`
-	BlobContainerName    string `json:"blobContainerName"`
-	StorageAccount       string `json:"storageAccount"`
-	NetworkResourceGroup string `json:"networkResourceGroup"`
-	VirtualNetworkName   string `json:"virtualNetworkName"`
-	SubnetName           string `json:"subnetName"`
-	SecurityGroupName    string `json:"securityGroupName"`
-	AksClusterName       string `json:"aksClusterName"`
-	AcrRegistryName      string `json:"acrRegistryName"`
-	SearchDomain         string `json:"searchDomain"`
+	Location               string                       `json:"location"`
+	ManagedIdentity        string                       `json:"managedIdentity"`
+	ResourceGroup          string                       `json:"resourceGroup"`
+	BlobContainerName      string                       `json:"blobContainerName"`
+	StorageAccount         string                       `json:"storageAccount"`
+	NetworkResourceGroup   string                       `json:"networkResourceGroup"`
+	VirtualNetworkName     string                       `json:"virtualNetworkName"`
+	SubnetName             string                       `json:"subnetName"`
+	SecurityGroupName      string                       `json:"securityGroupName"`
+	AksClusterName         string                       `json:"aksClusterName"`
+	AcrRegistryName        string                       `json:"acrRegistryName"`
+	SearchDomain           string                       `json:"searchDomain"`
+	ContainerConfiguration *AzureContainerConfiguration `json:"containerConfiguration,omitempty"`
+}
+
+type S3EncryptionConfiguration struct {
+	Mode       string `json:"mode"`
+	KMSType    string `json:"kmsType"`
+	UserKeyArn string `json:"userKeyArn"`
+	BucketKey  bool   `json:"bucketKey"`
+}
+
+type S3ACLConfiguration struct {
+	BucketOwnerFullControl bool `json:"bucketOwnerFullControl"`
+}
+
+type S3BucketConfiguration struct {
+	Encryption S3EncryptionConfiguration `json:"encryption"`
+	ACL        *S3ACLConfiguration       `json:"acl,omitempty"`
 }
 
 type AWSCluster struct {
-	Region               string `json:"region"`
-	BucketName           string `json:"bucketName"`
-	InstanceProfileArn   string `json:"instanceProfileArn"`
-	VpcId                string `json:"vpcId"`
-	SubnetId             string `json:"subnetId"`
-	SecurityGroupId      string `json:"securityGroupId"`
-	EksClusterName       string `json:"eksClusterName"`
-	EcrRegistryAccountId string `json:"ecrRegistryAccountId"`
+	Region               string                 `json:"region"`
+	BucketName           string                 `json:"bucketName"`
+	InstanceProfileArn   string                 `json:"instanceProfileArn"`
+	VpcId                string                 `json:"vpcId"`
+	SubnetId             string                 `json:"subnetId"`
+	SecurityGroupId      string                 `json:"securityGroupId"`
+	EksClusterName       string                 `json:"eksClusterName"`
+	EcrRegistryAccountId string                 `json:"ecrRegistryAccountId"`
+	BucketConfiguration  *S3BucketConfiguration `json:"bucketConfiguration,omitempty"`
 }
 
 type NodeConfiguration struct {

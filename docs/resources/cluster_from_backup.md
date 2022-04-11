@@ -135,6 +135,7 @@ Optional:
 
 Read-Only:
 
+- `bucket` (List of Object) The bucket configurations. (see [below for nested schema](#nestedatt--aws_attributes--bucket))
 - `bucket_name` (String) The name of the S3 bucket that the cluster will use to store data in.
 - `ecr_registry_account_id` (String) The account id used for ECR. Defaults to the user's account id, inferred from the instance profille ARN.
 - `eks_cluster_name` (String) The name of the AWS EKS cluster.
@@ -153,6 +154,35 @@ Optional:
 - `security_group_id` (String) The security group id.
 
 
+<a id="nestedatt--aws_attributes--bucket"></a>
+### Nested Schema for `aws_attributes.bucket`
+
+Read-Only:
+
+- `acl` (List of Object) (see [below for nested schema](#nestedobjatt--aws_attributes--bucket--acl))
+- `encryption` (List of Object) (see [below for nested schema](#nestedobjatt--aws_attributes--bucket--encryption))
+- `name` (String)
+
+<a id="nestedobjatt--aws_attributes--bucket--acl"></a>
+### Nested Schema for `aws_attributes.bucket.acl`
+
+Read-Only:
+
+- `bucket_owner_full_control` (Boolean)
+
+
+<a id="nestedobjatt--aws_attributes--bucket--encryption"></a>
+### Nested Schema for `aws_attributes.bucket.encryption`
+
+Read-Only:
+
+- `bucket_key` (Boolean)
+- `kms_type` (String)
+- `mode` (String)
+- `user_key_arn` (String)
+
+
+
 
 <a id="nestedblock--azure_attributes"></a>
 ### Nested Schema for `azure_attributes`
@@ -165,6 +195,7 @@ Read-Only:
 
 - `acr_registry_name` (String) The name of the ACR registry.
 - `aks_cluster_name` (String) The name of the AKS cluster.
+- `container` (List of Object) The container configurations. (see [below for nested schema](#nestedatt--azure_attributes--container))
 - `location` (String) The location where the cluster will be created.
 - `resource_group` (String) The resource group where the cluster will be created.
 - `search_domain` (String) The search domain to use for node address resolution. If not specified it will use the Azure default one (internal.cloudapp.net).
@@ -185,6 +216,24 @@ Optional:
 - `resource_group` (String) The resource group where the network resources reside. If not specified, the azure_attributes/resource_group will be used.
 - `search_domain` (String) The search domain to use for node address resolution. If not specified it will use the Azure default one (internal.cloudapp.net).
 - `security_group_name` (String) The security group name.
+
+
+<a id="nestedatt--azure_attributes--container"></a>
+### Nested Schema for `azure_attributes.container`
+
+Read-Only:
+
+- `encryption` (List of Object) (see [below for nested schema](#nestedobjatt--azure_attributes--container--encryption))
+- `name` (String)
+- `storage_account` (String)
+
+<a id="nestedobjatt--azure_attributes--container--encryption"></a>
+### Nested Schema for `azure_attributes.container.encryption`
+
+Read-Only:
+
+- `mode` (String)
+
 
 
 

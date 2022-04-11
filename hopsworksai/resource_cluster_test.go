@@ -1785,6 +1785,13 @@ func TestClusterRead_AWS(t *testing.T) {
 					},
 					"eks_cluster_name":        "",
 					"ecr_registry_account_id": "",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name":       "bucket-1",
+							"encryption": []interface{}{},
+							"acl":        []interface{}{},
+						},
+					},
 				},
 			},
 			"azure_attributes": []interface{}{},
@@ -1910,6 +1917,13 @@ func TestClusterRead_AZURE(t *testing.T) {
 					"aks_cluster_name":  "",
 					"acr_registry_name": "",
 					"search_domain":     "internal.cloudapp.net",
+					"container": []interface{}{
+						map[string]interface{}{
+							"name":            "container-1",
+							"storage_account": "account-1",
+							"encryption":      []interface{}{},
+						},
+					},
 				},
 			},
 			"aws_attributes": []interface{}{},
@@ -4159,4 +4173,423 @@ func TestSuppressDiff_HeadDiskSize_on_upgrade_failure(t *testing.T) {
 	if diffFunc("disk_size", "100", "512", d) {
 		t.Fatalf("should not return true since the old disk value is not 0")
 	}
+}
+
+func TestClusterCreate_AWS_useNewBucketName(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "error",
+					"code": 400,
+					"message": "skip"
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					var req api.NewAWSClusterRequest
+					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+						return err
+					}
+					if !reflect.DeepEqual(req.CreateRequest.AWSCluster.BucketName, "bucket-1") {
+						return fmt.Errorf("expected %#v but got %#v", "bucket-1", req.CreateRequest.AWSCluster.BucketName)
+					}
+					return nil
+				},
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name": "cluster",
+			"head": []interface{}{
+				map[string]interface{}{
+					"disk_size": 512,
+				},
+			},
+			"aws_attributes": []interface{}{
+				map[string]interface{}{
+					"region":               "region-1",
+					"instance_profile_arn": "profile-1",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
+				},
+			},
+		},
+		ExpectError: "failed to create cluster, error: skip",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_AWS_error_noBucketConfigured(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name": "cluster",
+			"head": []interface{}{
+				map[string]interface{}{
+					"disk_size": 512,
+				},
+			},
+			"aws_attributes": []interface{}{
+				map[string]interface{}{
+					"region":               "region-1",
+					"instance_profile_arn": "profile-1",
+					"bucket": []interface{}{
+						map[string]interface{}{},
+					},
+				},
+			},
+		},
+		ExpectError: "bucket name is not set",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_AWS_setEncryption(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "error",
+					"code": 400,
+					"message": "skip"
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					var req api.NewAWSClusterRequest
+					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+						return err
+					}
+
+					expected := api.S3BucketConfiguration{
+						Encryption: api.S3EncryptionConfiguration{
+							Mode:       "SSE-KMS",
+							KMSType:    "User",
+							UserKeyArn: "key-arn",
+							BucketKey:  true,
+						},
+						ACL: &api.S3ACLConfiguration{
+							BucketOwnerFullControl: true,
+						},
+					}
+					if !reflect.DeepEqual(*req.CreateRequest.AWSCluster.BucketConfiguration, expected) {
+						return fmt.Errorf("expected %#v but got %#v", expected, *req.CreateRequest.AWSCluster.BucketConfiguration)
+					}
+					return nil
+				},
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name": "cluster",
+			"head": []interface{}{
+				map[string]interface{}{
+					"disk_size": 512,
+				},
+			},
+			"aws_attributes": []interface{}{
+				map[string]interface{}{
+					"region":               "region-1",
+					"bucket_name":          "bucket-1",
+					"instance_profile_arn": "profile-1",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+							"encryption": []interface{}{
+								map[string]interface{}{
+									"mode":         "SSE-KMS",
+									"kms_type":     "User",
+									"user_key_arn": "key-arn",
+									"bucket_key":   true,
+								},
+							},
+							"acl": []interface{}{
+								map[string]interface{}{
+									"bucket_owner_full_control": true,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		ExpectError: "failed to create cluster, error: skip",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_AWS_setEncryption_default(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "error",
+					"code": 400,
+					"message": "skip"
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					var req api.NewAWSClusterRequest
+					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+						return err
+					}
+
+					expected := api.S3BucketConfiguration{
+						Encryption: api.S3EncryptionConfiguration{
+							Mode:       "None",
+							KMSType:    "Managed",
+							UserKeyArn: "",
+							BucketKey:  false,
+						},
+					}
+					if !reflect.DeepEqual(*req.CreateRequest.AWSCluster.BucketConfiguration, expected) {
+						return fmt.Errorf("expected %#v but got %#v", expected, *req.CreateRequest.AWSCluster.BucketConfiguration)
+					}
+					return nil
+				},
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name": "cluster",
+			"head": []interface{}{
+				map[string]interface{}{
+					"disk_size": 512,
+				},
+			},
+			"aws_attributes": []interface{}{
+				map[string]interface{}{
+					"region":               "region-1",
+					"bucket_name":          "bucket-1",
+					"instance_profile_arn": "profile-1",
+				},
+			},
+		},
+		ExpectError: "failed to create cluster, error: skip",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_AZURE_setEncryption(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "error",
+					"code": 400,
+					"message": "skip"
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					var req api.NewAzureClusterRequest
+					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+						return err
+					}
+
+					expected := api.AzureContainerConfiguration{
+						Encryption: api.AzureEncryptionConfiguration{
+							Mode: "None",
+						},
+					}
+					if !reflect.DeepEqual(*req.CreateRequest.AzureCluster.ContainerConfiguration, expected) {
+						return fmt.Errorf("expected %#v but got %#v", expected, *req.CreateRequest.AzureCluster.ContainerConfiguration)
+					}
+					return nil
+				},
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name": "cluster",
+			"head": []interface{}{
+				map[string]interface{}{
+					"instance_type": "node-type-1",
+					"disk_size":     512,
+				},
+			},
+			"azure_attributes": []interface{}{
+				map[string]interface{}{
+					"location":                       "location-1",
+					"resource_group":                 "resource-group-1",
+					"storage_account":                "storage-account-1",
+					"user_assigned_managed_identity": "user-identity-1",
+					"container": []interface{}{
+						map[string]interface{}{
+							"encryption": []interface{}{
+								map[string]interface{}{
+									"mode": "None",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		ExpectError: "failed to create cluster, error: skip",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_AZURE_setEncryption_default(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "error",
+					"code": 400,
+					"message": "skip"
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					var req api.NewAzureClusterRequest
+					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+						return err
+					}
+
+					expected := api.AzureContainerConfiguration{
+						Encryption: api.AzureEncryptionConfiguration{
+							Mode: "None",
+						},
+					}
+					if !reflect.DeepEqual(*req.CreateRequest.AzureCluster.ContainerConfiguration, expected) {
+						return fmt.Errorf("expected %#v but got %#v", expected, *req.CreateRequest.AzureCluster.ContainerConfiguration)
+					}
+					return nil
+				},
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name": "cluster",
+			"head": []interface{}{
+				map[string]interface{}{
+					"instance_type": "node-type-1",
+					"disk_size":     512,
+				},
+			},
+			"azure_attributes": []interface{}{
+				map[string]interface{}{
+					"location":                       "location-1",
+					"resource_group":                 "resource-group-1",
+					"storage_account":                "storage-account-1",
+					"user_assigned_managed_identity": "user-identity-1",
+				},
+			},
+		},
+		ExpectError: "failed to create cluster, error: skip",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_AZURE_newContainerConfiguration(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "error",
+					"code": 400,
+					"message": "skip"
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					var req api.NewAzureClusterRequest
+					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+						return err
+					}
+
+					if !reflect.DeepEqual(req.CreateRequest.AzureCluster.StorageAccount, "storage-account-1") {
+						return fmt.Errorf("expected %#v but got %#v", "storage-account-1", req.CreateRequest.AzureCluster.StorageAccount)
+					}
+					if !reflect.DeepEqual(req.CreateRequest.AzureCluster.BlobContainerName, "container-name-1") {
+						return fmt.Errorf("expected %#v but got %#v", "container-name-1", req.CreateRequest.AzureCluster.BlobContainerName)
+					}
+					return nil
+				},
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name": "cluster",
+			"head": []interface{}{
+				map[string]interface{}{
+					"instance_type": "node-type-1",
+					"disk_size":     512,
+				},
+			},
+			"azure_attributes": []interface{}{
+				map[string]interface{}{
+					"location":                       "location-1",
+					"resource_group":                 "resource-group-1",
+					"user_assigned_managed_identity": "user-identity-1",
+					"container": []interface{}{
+						map[string]interface{}{
+							"storage_account": "storage-account-1",
+							"name":            "container-name-1",
+						},
+					},
+				},
+			},
+		},
+		ExpectError: "failed to create cluster, error: skip",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_AZURE_error_noStorageAccountConfigured(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name": "cluster",
+			"head": []interface{}{
+				map[string]interface{}{
+					"instance_type": "node-type-1",
+					"disk_size":     512,
+				},
+			},
+			"azure_attributes": []interface{}{
+				map[string]interface{}{
+					"location":                       "location-1",
+					"resource_group":                 "resource-group-1",
+					"user_assigned_managed_identity": "user-identity-1",
+					"container": []interface{}{
+						map[string]interface{}{
+							"name": "container-name-1",
+						},
+					},
+				},
+			},
+		},
+		ExpectError: "storage account is not set",
+	}
+	r.Apply(t, context.TODO())
 }

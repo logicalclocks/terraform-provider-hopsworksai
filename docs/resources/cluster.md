@@ -187,15 +187,45 @@ Optional:
 
 Required:
 
-- `bucket_name` (String) The name of the S3 bucket that the cluster will use to store data in.
 - `instance_profile_arn` (String) The ARN of the AWS instance profile that the cluster will be started with.
 - `region` (String) The AWS region where the cluster will be created.
 
 Optional:
 
+- `bucket` (Block List, Max: 1) The bucket configurations. (see [below for nested schema](#nestedblock--aws_attributes--bucket))
+- `bucket_name` (String, Deprecated) The name of the S3 bucket that the cluster will use to store data in. use aws_attributes/bucket/name instead
 - `ecr_registry_account_id` (String) The account id used for ECR. Defaults to the user's account id, inferred from the instance profille ARN.
 - `eks_cluster_name` (String) The name of the AWS EKS cluster.
 - `network` (Block List, Max: 1) The network configurations. (see [below for nested schema](#nestedblock--aws_attributes--network))
+
+<a id="nestedblock--aws_attributes--bucket"></a>
+### Nested Schema for `aws_attributes.bucket`
+
+Optional:
+
+- `acl` (Block List, Max: 1) The ACL configurations. (see [below for nested schema](#nestedblock--aws_attributes--bucket--acl))
+- `encryption` (Block List, Max: 1) The server-side encryption configurations. (see [below for nested schema](#nestedblock--aws_attributes--bucket--encryption))
+- `name` (String) The name of the S3 bucket that the cluster will use to store data in.
+
+<a id="nestedblock--aws_attributes--bucket--acl"></a>
+### Nested Schema for `aws_attributes.bucket.acl`
+
+Optional:
+
+- `bucket_owner_full_control` (Boolean) If ACL is enabled, allow the bucket owner to have full access control on new objects in the bucket.
+
+
+<a id="nestedblock--aws_attributes--bucket--encryption"></a>
+### Nested Schema for `aws_attributes.bucket.encryption`
+
+Optional:
+
+- `bucket_key` (Boolean) Enable or disable the usage of bucket key. Enabling this option (in case of SSE-KMS) would reduce the cost of SSE-KMS.
+- `kms_type` (String) The Key Management Service (KMS) type. This option is required for the encryption mode SSE-KMS.
+- `mode` (String) The encryption type.
+- `user_key_arn` (String) The ARN of the user encryption key in KMS.
+
+
 
 <a id="nestedblock--aws_attributes--network"></a>
 ### Nested Schema for `aws_attributes.network`
@@ -218,16 +248,35 @@ Required:
 
 - `location` (String) The location where the cluster will be created.
 - `resource_group` (String) The resource group where the cluster will be created.
-- `storage_account` (String) The azure storage account that the cluster will use to store data in.
 - `user_assigned_managed_identity` (String) The azure user assigned managed identity that the cluster will be started with.
 
 Optional:
 
 - `acr_registry_name` (String) The name of the ACR registry.
 - `aks_cluster_name` (String) The name of the AKS cluster.
+- `container` (Block List, Max: 1) The container configurations. (see [below for nested schema](#nestedblock--azure_attributes--container))
 - `network` (Block List, Max: 1) The network configurations. (see [below for nested schema](#nestedblock--azure_attributes--network))
 - `search_domain` (String, Deprecated) The search domain to use for node address resolution. If not specified it will use the Azure default one (internal.cloudapp.net).  Use azure_attributes/network/search_domain instead.
-- `storage_container_name` (String) The name of the azure storage container that the cluster will use to store data in. If not specified, it will be automatically generated.
+- `storage_account` (String, Deprecated) The azure storage account that the cluster will use to store data in. use azure_attributes/container/storage_account instead
+- `storage_container_name` (String, Deprecated) The name of the azure storage container that the cluster will use to store data in. If not specified, it will be automatically generated. use azure_attributes/container/name instead
+
+<a id="nestedblock--azure_attributes--container"></a>
+### Nested Schema for `azure_attributes.container`
+
+Optional:
+
+- `encryption` (Block List, Max: 1) The server-side encryption configurations. (see [below for nested schema](#nestedblock--azure_attributes--container--encryption))
+- `name` (String) The name of the azure storage container that the cluster will use to store data in. If not specified, it will be automatically generated.
+- `storage_account` (String) The azure storage account that the cluster will use to store data in.
+
+<a id="nestedblock--azure_attributes--container--encryption"></a>
+### Nested Schema for `azure_attributes.container.encryption`
+
+Optional:
+
+- `mode` (String) The encryption type.
+
+
 
 <a id="nestedblock--azure_attributes--network"></a>
 ### Nested Schema for `azure_attributes.network`

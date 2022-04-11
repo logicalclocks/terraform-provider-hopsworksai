@@ -183,6 +183,11 @@ func TestFlattenAWSAttributes(t *testing.T) {
 			},
 			"eks_cluster_name":        input.AWS.EksClusterName,
 			"ecr_registry_account_id": input.AWS.EcrRegistryAccountId,
+			"bucket": []map[string]interface{}{
+				{
+					"name": input.AWS.BucketName,
+				},
+			},
 		},
 	}
 
@@ -245,6 +250,12 @@ func TestFlattenAzureAttributes(t *testing.T) {
 			"aks_cluster_name":  input.Azure.AksClusterName,
 			"acr_registry_name": input.Azure.AcrRegistryName,
 			"search_domain":     input.Azure.SearchDomain,
+			"container": []map[string]interface{}{
+				{
+					"name":            input.Azure.BlobContainerName,
+					"storage_account": input.Azure.StorageAccount,
+				},
+			},
 		},
 	}
 
@@ -1528,6 +1539,275 @@ func TestFlattenUpgradeInProgress(t *testing.T) {
 
 	for i := range input {
 		output := flattenUpgradeInProgress(input[i])
+		if !reflect.DeepEqual(expected[i], output) {
+			t.Fatalf("error while matching[%d]:\nexpected %#v \nbut got %#v", i, expected[i], output)
+		}
+	}
+}
+
+func TestFlattenAWSAttributes_bucketConfiguration(t *testing.T) {
+	input := &api.Cluster{
+		Provider: api.AWS,
+		AWS: api.AWSCluster{
+			Region:               "region-1",
+			InstanceProfileArn:   "instance-profile-1",
+			BucketName:           "bucket-name-1",
+			VpcId:                "vpc-id-1",
+			SubnetId:             "subnet-id-1",
+			SecurityGroupId:      "security-group-1",
+			EksClusterName:       "eks-cluster-name-1",
+			EcrRegistryAccountId: "ecr-registry-account-1",
+			BucketConfiguration: &api.S3BucketConfiguration{
+				Encryption: api.S3EncryptionConfiguration{
+					Mode:       "SSE-KMS",
+					KMSType:    "User",
+					UserKeyArn: "arn-key",
+					BucketKey:  true,
+				},
+				ACL: &api.S3ACLConfiguration{
+					BucketOwnerFullControl: true,
+				},
+			},
+		},
+	}
+
+	expected := []interface{}{
+		map[string]interface{}{
+			"region":               input.AWS.Region,
+			"instance_profile_arn": input.AWS.InstanceProfileArn,
+			"bucket_name":          input.AWS.BucketName,
+			"network": []map[string]interface{}{
+				{
+					"vpc_id":            input.AWS.VpcId,
+					"subnet_id":         input.AWS.SubnetId,
+					"security_group_id": input.AWS.SecurityGroupId,
+				},
+			},
+			"eks_cluster_name":        input.AWS.EksClusterName,
+			"ecr_registry_account_id": input.AWS.EcrRegistryAccountId,
+			"bucket": []map[string]interface{}{
+				{
+					"name": input.AWS.BucketName,
+					"encryption": []map[string]interface{}{
+						{
+							"mode":         "SSE-KMS",
+							"kms_type":     "User",
+							"user_key_arn": "arn-key",
+							"bucket_key":   true,
+						},
+					},
+					"acl": []map[string]interface{}{
+						{
+							"bucket_owner_full_control": true,
+						},
+					},
+				},
+			},
+		},
+	}
+
+	output := flattenAWSAttributes(input)
+	if !reflect.DeepEqual(expected, output) {
+		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
+	}
+
+	input.Provider = ""
+	if flattenAWSAttributes(input) != nil {
+		t.Fatalf("should return nil if the provider is not %s", api.AWS)
+	}
+
+	input.Provider = api.AZURE
+	if flattenAWSAttributes(input) != nil {
+		t.Fatalf("should return nil if the provider is not %s", api.AWS)
+	}
+
+	input.Provider = "aws"
+	if flattenAWSAttributes(input) != nil {
+		t.Fatal("cloud provider should be always capital")
+	}
+}
+
+func TestFlattenAzureAttributes_containerConfiguration(t *testing.T) {
+	input := &api.Cluster{
+		Provider: api.AZURE,
+		Azure: api.AzureCluster{
+			Location:             "location-1",
+			ResourceGroup:        "resource-group-1",
+			ManagedIdentity:      "managed-identity-1",
+			BlobContainerName:    "blob-container-name-1",
+			StorageAccount:       "storage-account-1",
+			VirtualNetworkName:   "virtual-network-name-1",
+			SubnetName:           "subnet-name-1",
+			SecurityGroupName:    "security-group-name-1",
+			AksClusterName:       "aks-cluster-name-1",
+			AcrRegistryName:      "acr-registry-name-1",
+			NetworkResourceGroup: "network-resource-group-1",
+			SearchDomain:         "internal.cloudapp.net",
+			ContainerConfiguration: &api.AzureContainerConfiguration{
+				Encryption: api.AzureEncryptionConfiguration{
+					Mode: "None",
+				},
+			},
+		},
+	}
+
+	expected := []interface{}{
+		map[string]interface{}{
+			"location":                       input.Azure.Location,
+			"resource_group":                 input.Azure.ResourceGroup,
+			"storage_account":                input.Azure.StorageAccount,
+			"storage_container_name":         input.Azure.BlobContainerName,
+			"user_assigned_managed_identity": input.Azure.ManagedIdentity,
+			"network": []map[string]interface{}{
+				{
+					"resource_group":       input.Azure.NetworkResourceGroup,
+					"virtual_network_name": input.Azure.VirtualNetworkName,
+					"subnet_name":          input.Azure.SubnetName,
+					"security_group_name":  input.Azure.SecurityGroupName,
+					"search_domain":        input.Azure.SearchDomain,
+				},
+			},
+			"aks_cluster_name":  input.Azure.AksClusterName,
+			"acr_registry_name": input.Azure.AcrRegistryName,
+			"search_domain":     input.Azure.SearchDomain,
+			"container": []map[string]interface{}{
+				{
+					"name":            input.Azure.BlobContainerName,
+					"storage_account": input.Azure.StorageAccount,
+					"encryption": []map[string]interface{}{
+						{
+							"mode": "None",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	output := flattenAzureAttributes(input)
+	if !reflect.DeepEqual(expected, output) {
+		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
+	}
+
+	input.Provider = ""
+	if flattenAzureAttributes(input) != nil {
+		t.Fatalf("should return nil if the provider is not %s", api.AZURE)
+	}
+
+	input.Provider = api.AWS
+	if flattenAzureAttributes(input) != nil {
+		t.Fatalf("should return nil if the provider is not %s", api.AZURE)
+	}
+
+	input.Provider = "azure"
+	if flattenAzureAttributes(input) != nil {
+		t.Fatal("cloud provider should be always capital")
+	}
+}
+
+func TestFlattenS3BucketConfiguration(t *testing.T) {
+	bucketName := "bucket-name"
+	input := []*api.S3BucketConfiguration{
+		{
+			Encryption: api.S3EncryptionConfiguration{
+				Mode:       "SSE-KMS",
+				KMSType:    "User",
+				UserKeyArn: "arn-key",
+				BucketKey:  true,
+			},
+			ACL: &api.S3ACLConfiguration{
+				BucketOwnerFullControl: true,
+			},
+		},
+		{
+			Encryption: api.S3EncryptionConfiguration{
+				Mode: "SSE-S3",
+			},
+		},
+		nil,
+	}
+
+	expected := [][]map[string]interface{}{
+		{
+			map[string]interface{}{
+				"name": bucketName,
+				"encryption": []map[string]interface{}{
+					{
+						"mode":         "SSE-KMS",
+						"kms_type":     "User",
+						"user_key_arn": "arn-key",
+						"bucket_key":   true,
+					},
+				},
+				"acl": []map[string]interface{}{
+					{
+						"bucket_owner_full_control": true,
+					},
+				},
+			},
+		},
+		{
+			map[string]interface{}{
+				"name": bucketName,
+				"encryption": []map[string]interface{}{
+					{
+						"mode":         "SSE-S3",
+						"kms_type":     "",
+						"user_key_arn": "",
+						"bucket_key":   false,
+					},
+				},
+			},
+		},
+		{
+			map[string]interface{}{
+				"name": bucketName,
+			},
+		},
+	}
+
+	for i := range input {
+		output := flattenS3BucketConfiguration(bucketName, input[i])
+		if !reflect.DeepEqual(expected[i], output) {
+			t.Fatalf("error while matching[%d]:\nexpected %#v \nbut got %#v", i, expected[i], output)
+		}
+	}
+}
+
+func TestFlattenAzureContainerConfiguration(t *testing.T) {
+	containerName := "container-name"
+	storageAccount := "storage-account"
+	input := []*api.AzureContainerConfiguration{
+		{
+			Encryption: api.AzureEncryptionConfiguration{
+				Mode: "None",
+			},
+		},
+		nil,
+	}
+
+	expected := [][]map[string]interface{}{
+		{
+			map[string]interface{}{
+				"name":            containerName,
+				"storage_account": storageAccount,
+				"encryption": []map[string]interface{}{
+					{
+						"mode": "None",
+					},
+				},
+			},
+		},
+		{
+			map[string]interface{}{
+				"name":            containerName,
+				"storage_account": storageAccount,
+			},
+		},
+	}
+
+	for i := range input {
+		output := flattenAzureContainerConfiguration(storageAccount, containerName, input[i])
 		if !reflect.DeepEqual(expected[i], output) {
 			t.Fatalf("error while matching[%d]:\nexpected %#v \nbut got %#v", i, expected[i], output)
 		}
