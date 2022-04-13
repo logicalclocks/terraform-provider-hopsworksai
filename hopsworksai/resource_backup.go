@@ -84,7 +84,7 @@ func resourceBackupCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.FromErr(err)
 	}
 	d.SetId(backupId)
-	if err := resourceBackupWaitForCompletion(ctx, client, d.Timeout(schema.TimeoutCreate), backupId); err != nil {
+	if err := resourceBackupWaitForCompletion(ctx, client, d.Timeout(schema.TimeoutCreate), backupId, clusterId); err != nil {
 		return diag.FromErr(err)
 	}
 	return resourceBackupRead(ctx, d, meta)
@@ -133,7 +133,7 @@ func resourceBackupDelete(ctx context.Context, d *schema.ResourceData, meta inte
 	return nil
 }
 
-func resourceBackupWaitForCompletion(ctx context.Context, client *api.HopsworksAIClient, timeout time.Duration, backupId string) error {
+func resourceBackupWaitForCompletion(ctx context.Context, client *api.HopsworksAIClient, timeout time.Duration, backupId string, clusterId string) error {
 	waitUntilRunning := helpers.BackupStateChange(
 		[]api.BackupState{
 			api.PendingBackup,
@@ -151,6 +151,16 @@ func resourceBackupWaitForCompletion(ctx context.Context, client *api.HopsworksA
 				return nil, "", err
 			}
 			if backup == nil {
+				cluster, err := api.GetCluster(ctx, client, clusterId)
+				if err != nil {
+					return nil, "", err
+				}
+				if cluster == nil {
+					return nil, "", fmt.Errorf("cluster not found for cluster id %s", clusterId)
+				}
+				if cluster.BackupPipelineInProgress {
+					return nil, api.PendingBackup.String(), nil
+				}
 				return nil, "", fmt.Errorf("backup not found for backup id %s", backupId)
 			}
 			tflog.Debug(ctx, fmt.Sprintf("polled backup state: %s", backup.State))
