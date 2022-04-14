@@ -6,6 +6,7 @@ NOTES:
 
 BUG FIXES:
 * resource/hopsworksai_backup: Handle get backup if backup not found and backupPipeline is InProgress
+* resource/hopsworksai_backup: Wait for cluster start during backup pipeline
 
 ENHANCEMENTS:
 
