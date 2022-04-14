@@ -7,6 +7,7 @@ NOTES:
 BUG FIXES:
 
 ENHANCEMENTS:
+* provider: Add `api_gateway` optional parameter to set a development API gateway. If not specified it defaults to `https://api.hopsworks.ai`
 
 FEATURES:
 

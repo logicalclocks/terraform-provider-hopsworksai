@@ -1,10 +1,13 @@
 package hopsworksai
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -198,5 +201,76 @@ func testAccResourceDataSourceCheckAllAttributes(resourceName string, dataSource
 			}
 		}
 		return nil
+	}
+}
+
+func TestProviderAPIGateway(t *testing.T) {
+	testCases := []struct {
+		config             *terraform.ResourceConfig
+		expectedGateway    string
+		expectedDiagnostic *diag.Diagnostic
+	}{
+		{
+			config: terraform.NewResourceConfigRaw(map[string]interface{}{
+				"api_gateway": "https://api.gateway.ai",
+			}),
+			expectedGateway: "https://api.gateway.ai",
+		},
+		{
+			config:          terraform.NewResourceConfigRaw(map[string]interface{}{}),
+			expectedGateway: api.DEFAULT_API_GATEWAY,
+		},
+		{
+			config: terraform.NewResourceConfigRaw(map[string]interface{}{
+				"api_gateway": "api.gateway.ai",
+			}),
+			expectedDiagnostic: &diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "API Gateway URL is missing scheme http/https",
+			},
+		},
+		{
+			config: terraform.NewResourceConfigRaw(map[string]interface{}{
+				"api_gateway": ":foo",
+			}),
+			expectedDiagnostic: &diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "Could not parse API Gateway URL",
+			},
+		},
+	}
+
+	var provider *schema.Provider
+	for _, test := range testCases {
+		provider = Provider("dev")()
+		diagnostics := provider.Validate(test.config)
+		if test.expectedDiagnostic != nil {
+			if !diagnostics.HasError() {
+				t.Fatalf("Expected Validate to return Diagnostic error %s but it did not return any error",
+					test.expectedDiagnostic.Summary)
+			}
+			var diagnosticFound bool
+			var diagnosticsSummary []string
+			for _, d := range diagnostics {
+				if d.Summary == test.expectedDiagnostic.Summary {
+					diagnosticFound = true
+					break
+				}
+				diagnosticsSummary = append(diagnosticsSummary, d.Summary)
+			}
+			if !diagnosticFound {
+				t.Fatalf("Expected to find Diagnostic summary \"%s\" in Validatation but gotten %s",
+					test.expectedDiagnostic.Summary, strings.Join(diagnosticsSummary, " - "))
+			}
+		} else {
+			provider.Configure(context.Background(), test.config)
+			c, ok := provider.Meta().(*api.HopsworksAIClient)
+			if !ok {
+				t.Error("client is not HopsworksAIClient")
+			}
+			if c.ApiGateway != test.expectedGateway {
+				t.Errorf("Expected API Gateway to be %s but it is %s", test.expectedGateway, c.ApiGateway)
+			}
+		}
 	}
 }
