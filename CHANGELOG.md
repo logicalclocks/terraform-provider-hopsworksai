@@ -8,6 +8,7 @@ BUG FIXES:
 * resource/hopsworksai_backup: Handle get backup if backup not found and backupPipeline is InProgress
 * resource/hopsworksai_backup: Wait for cluster start during backup pipeline
 * resource/hopsworksai_backup: Fix interface conversion error 
+* resource/hopsworksai_backup: Return empty backup object when pending to avoid not found checks 
 
 ENHANCEMENTS:
 
