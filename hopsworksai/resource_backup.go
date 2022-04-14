@@ -201,7 +201,7 @@ func resourceBackupWaitForDeleting(ctx context.Context, client *api.HopsworksAIC
 			}
 			if backup == nil {
 				tflog.Debug(ctx, fmt.Sprintf("backup (id: %s) is not found", backupId))
-				return api.Backup{Id: ""}, api.BackupDeleted.String(), nil
+				return &api.Backup{Id: ""}, api.BackupDeleted.String(), nil
 			}
 			tflog.Debug(ctx, fmt.Sprintf("polled backup state: %s", backup.State))
 			return backup, backup.State.String(), nil
@@ -213,7 +213,7 @@ func resourceBackupWaitForDeleting(ctx context.Context, client *api.HopsworksAIC
 		return err
 	}
 
-	if resp != nil && resp.(api.Backup).Id != "" {
+	if resp != nil && resp.(*api.Backup).Id != "" {
 		return fmt.Errorf("failed to delete backup, error: %s", resp.(*api.Backup).StateMessage)
 	}
 	return nil
