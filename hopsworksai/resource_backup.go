@@ -155,7 +155,7 @@ func resourceBackupWaitForCompletion(ctx context.Context, client *api.HopsworksA
 			}
 
 			if cluster.BackupPipelineInProgress {
-				return nil, api.PendingBackup.String(), nil
+				return &api.Backup{Id: ""}, api.PendingBackup.String(), nil
 			}
 
 			backup, err := api.GetBackup(ctx, client, backupId)
@@ -163,7 +163,7 @@ func resourceBackupWaitForCompletion(ctx context.Context, client *api.HopsworksA
 				return nil, "", err
 			}
 			if backup == nil {
-				return nil, "", fmt.Errorf("backup not found for backup id %s", backupId)
+				return &api.Backup{Id: ""}, "", fmt.Errorf("backup not found for backup id %s", backupId)
 			}
 
 			tflog.Debug(ctx, fmt.Sprintf("polled backup state: %s", backup.State))
