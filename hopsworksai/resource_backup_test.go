@@ -189,6 +189,20 @@ func TestBackupCreate(t *testing.T) {
 			},
 			{
 				Method: http.MethodGet,
+				Path:   "/api/clusters/cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"cluster": {
+							"id": "cluster-id-1"
+						}
+					}
+				}`,
+			},
+			{
+				Method: http.MethodGet,
 				Path:   "/api/backups/new-backup-id-1",
 				Response: `{
 					"apiVersion": "v1",
@@ -420,11 +434,17 @@ func TestBackupCreate_pipelineInProgress(t *testing.T) {
 			},
 			{
 				Method: http.MethodGet,
-				Path:   "/api/backups/new-backup-id-1",
+				Path:   "/api/clusters/cluster-id-1",
 				Response: `{
 					"apiVersion": "v1",
-					"status": "error",
-					"code": 404
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"cluster": {
+							"id": "cluster-id-1",
+							"backupPipelineInProgress": true
+						}
+					}
 				}`,
 				RunOnlyOnce: true,
 			},
@@ -437,8 +457,7 @@ func TestBackupCreate_pipelineInProgress(t *testing.T) {
 					"code": 200,
 					"payload":{
 						"cluster": {
-							"id": "cluster-id-1",
-							"backupPipelineInProgress": true
+							"id": "cluster-id-1"
 						}
 					}
 				}`,
@@ -508,15 +527,6 @@ func TestBackupCreate_noCluster(t *testing.T) {
 			},
 			{
 				Method: http.MethodGet,
-				Path:   "/api/backups/new-backup-id-1",
-				Response: `{
-					"apiVersion": "v1",
-					"status": "error",
-					"code": 404
-				}`,
-			},
-			{
-				Method: http.MethodGet,
 				Path:   "/api/clusters/cluster-id-1",
 				Response: `{
 					"apiVersion": "v1",
@@ -554,15 +564,6 @@ func TestBackupCreate_getCluster_error(t *testing.T) {
 			},
 			{
 				Method: http.MethodGet,
-				Path:   "/api/backups/new-backup-id-1",
-				Response: `{
-					"apiVersion": "v1",
-					"status": "error",
-					"code": 404
-				}`,
-			},
-			{
-				Method: http.MethodGet,
 				Path:   "/api/clusters/cluster-id-1",
 				Response: `{
 					"apiVersion": "v1",
@@ -579,6 +580,57 @@ func TestBackupCreate_getCluster_error(t *testing.T) {
 			"backup_name": "backup-1",
 		},
 		ExpectError: "failed to get cluster info",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestBackupCreate_backup_nofound(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/backups",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"backupId" : "new-backup-id-1"
+					}
+				}`,
+			},
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"cluster": {
+							"id": "cluster-id-1"
+						}
+					}
+				}`,
+			},
+			{
+				Method: http.MethodGet,
+				Path:   "/api/backups/new-backup-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 404
+				}`,
+			},
+		},
+		Resource:             backupResource(),
+		OperationContextFunc: backupResource().CreateContext,
+		State: map[string]interface{}{
+			"cluster_id":  "cluster-id-1",
+			"backup_name": "backup-1",
+		},
+		ExpectError: "backup not found for backup id new-backup-id-1",
 	}
 	r.Apply(t, context.TODO())
 }

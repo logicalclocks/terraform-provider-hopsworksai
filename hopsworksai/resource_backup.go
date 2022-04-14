@@ -146,23 +146,26 @@ func resourceBackupWaitForCompletion(ctx context.Context, client *api.HopsworksA
 		},
 		timeout,
 		func() (result interface{}, state string, err error) {
+			cluster, err := api.GetCluster(ctx, client, clusterId)
+			if err != nil {
+				return nil, "", err
+			}
+			if cluster == nil {
+				return nil, "", fmt.Errorf("cluster not found for cluster id %s", clusterId)
+			}
+
+			if cluster.BackupPipelineInProgress {
+				return nil, api.PendingBackup.String(), nil
+			}
+
 			backup, err := api.GetBackup(ctx, client, backupId)
 			if err != nil {
 				return nil, "", err
 			}
 			if backup == nil {
-				cluster, err := api.GetCluster(ctx, client, clusterId)
-				if err != nil {
-					return nil, "", err
-				}
-				if cluster == nil {
-					return nil, "", fmt.Errorf("cluster not found for cluster id %s", clusterId)
-				}
-				if cluster.BackupPipelineInProgress {
-					return nil, api.PendingBackup.String(), nil
-				}
 				return nil, "", fmt.Errorf("backup not found for backup id %s", backupId)
 			}
+
 			tflog.Debug(ctx, fmt.Sprintf("polled backup state: %s", backup.State))
 			return backup, backup.State.String(), nil
 		},
