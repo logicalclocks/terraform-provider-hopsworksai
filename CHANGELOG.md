@@ -8,6 +8,7 @@ BUG FIXES:
 
 ENHANCEMENTS:
 * Bump minimum Go version to 1.17
+* Bump golangci-lint version to 1.45.2
 
 FEATURES:
 
