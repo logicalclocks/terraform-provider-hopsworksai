@@ -206,36 +206,48 @@ func testAccResourceDataSourceCheckAllAttributes(resourceName string, dataSource
 
 func TestProviderAPIGateway(t *testing.T) {
 	testCases := []struct {
-		config             *terraform.ResourceConfig
-		expectedGateway    string
-		expectedDiagnostic *diag.Diagnostic
+		config              *terraform.ResourceConfig
+		expectedGateway     string
+		expectedDiagnostics diag.Diagnostics
 	}{
 		{
 			config: terraform.NewResourceConfigRaw(map[string]interface{}{
 				"api_gateway": "https://api.gateway.ai",
 			}),
 			expectedGateway: "https://api.gateway.ai",
+			expectedDiagnostics: diag.Diagnostics{
+				ApiGatewayDevDiagnostic,
+			},
 		},
+
 		{
 			config:          terraform.NewResourceConfigRaw(map[string]interface{}{}),
 			expectedGateway: api.DEFAULT_API_GATEWAY,
 		},
+
 		{
 			config: terraform.NewResourceConfigRaw(map[string]interface{}{
 				"api_gateway": "api.gateway.ai",
 			}),
-			expectedDiagnostic: &diag.Diagnostic{
-				Severity: diag.Error,
-				Summary:  "API Gateway URL is missing scheme http/https",
+			expectedDiagnostics: diag.Diagnostics{
+				ApiGatewayDevDiagnostic,
+				{
+					Severity: diag.Error,
+					Summary:  "API Gateway URL is missing scheme http/https",
+				},
 			},
 		},
+
 		{
 			config: terraform.NewResourceConfigRaw(map[string]interface{}{
 				"api_gateway": ":foo",
 			}),
-			expectedDiagnostic: &diag.Diagnostic{
-				Severity: diag.Error,
-				Summary:  "Could not parse API Gateway URL",
+			expectedDiagnostics: diag.Diagnostics{
+				ApiGatewayDevDiagnostic,
+				{
+					Severity: diag.Error,
+					Summary:  "Could not parse API Gateway URL",
+				},
 			},
 		},
 	}
@@ -244,23 +256,19 @@ func TestProviderAPIGateway(t *testing.T) {
 	for _, test := range testCases {
 		provider = Provider("dev")()
 		diagnostics := provider.Validate(test.config)
-		if test.expectedDiagnostic != nil {
-			if !diagnostics.HasError() {
-				t.Fatalf("Expected Validate to return Diagnostic error %s but it did not return any error",
-					test.expectedDiagnostic.Summary)
+		apiGatewayInTest, found := test.config.Get("api_gateway")
+		if !found {
+			apiGatewayInTest = api.DEFAULT_API_GATEWAY
+		}
+		t.Log(fmt.Sprintf("Testing case api_gateway: %s", apiGatewayInTest))
+		if len(test.expectedDiagnostics) > 0 {
+			if test.expectedDiagnostics.HasError() && !diagnostics.HasError() {
+				t.Fatalf("Expected Validate to return Diagnostic error %s but it did not",
+					diagnosticsSummary(test.expectedDiagnostics))
 			}
-			var diagnosticFound bool
-			var diagnosticsSummary []string
-			for _, d := range diagnostics {
-				if d.Summary == test.expectedDiagnostic.Summary {
-					diagnosticFound = true
-					break
-				}
-				diagnosticsSummary = append(diagnosticsSummary, d.Summary)
-			}
-			if !diagnosticFound {
-				t.Fatalf("Expected to find Diagnostic summary \"%s\" in Validatation but gotten %s",
-					test.expectedDiagnostic.Summary, strings.Join(diagnosticsSummary, " - "))
+			if !validateDiagnosticErrors(test.expectedDiagnostics, diagnostics) {
+				t.Fatalf("Expected to find Diagnostics summary \"%s\" in Validation but found \"%s\"",
+					diagnosticsSummary(test.expectedDiagnostics), diagnosticsSummary(diagnostics))
 			}
 		} else {
 			provider.Configure(context.Background(), test.config)
@@ -273,4 +281,34 @@ func TestProviderAPIGateway(t *testing.T) {
 			}
 		}
 	}
+}
+
+func diagnosticsSummary(diagnostics diag.Diagnostics) string {
+	var summary strings.Builder
+	for i, d := range diagnostics {
+		summary.WriteString(d.Summary)
+		if i < len(diagnostics)-1 {
+			summary.WriteString(" - ")
+		}
+	}
+	return summary.String()
+}
+
+func validateDiagnosticErrors(expected, actual diag.Diagnostics) bool {
+	if len(expected) != len(actual) {
+		return false
+	}
+	for _, expectedDiag := range expected {
+		var diagnosticFound bool
+		for _, actualDiag := range actual {
+			if expectedDiag.Summary == actualDiag.Summary {
+				diagnosticFound = true
+				break
+			}
+		}
+		if !diagnosticFound {
+			return false
+		}
+	}
+	return true
 }

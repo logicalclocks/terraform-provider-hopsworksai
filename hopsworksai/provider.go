@@ -31,6 +31,11 @@ func init() {
 	}
 }
 
+var ApiGatewayDevDiagnostic = diag.Diagnostic{
+	Severity: diag.Warning,
+	Summary:  "API Gateway URL is intended for development purposes only",
+}
+
 func Provider(version string) func() *schema.Provider {
 	return func() *schema.Provider {
 		p := &schema.Provider{
@@ -51,11 +56,7 @@ func Provider(version string) func() *schema.Provider {
 						value := v.(string)
 						var diagnostics diag.Diagnostics
 						if value != api.DEFAULT_API_GATEWAY {
-							warn := diag.Diagnostic{
-								Severity: diag.Warning,
-								Summary:  "API Gateway URL is intended for development purposes only",
-							}
-							diagnostics = append(diagnostics, warn)
+							diagnostics = append(diagnostics, ApiGatewayDevDiagnostic)
 						}
 						u, err := url.Parse(value)
 						if err != nil {
