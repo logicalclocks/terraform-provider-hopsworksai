@@ -1,8 +1,4 @@
-## 0.11.0 (Unreleased)
-
-BREAKING CHANGES:
-
-NOTES:
+## 0.10.1 (April 19, 2022)
 
 BUG FIXES:
 * resource/hopsworksai_backup: Handle get backup if backup not found and backupPipeline is InProgress
@@ -12,8 +8,6 @@ BUG FIXES:
 
 ENHANCEMENTS:
 * provider: Add `api_gateway` optional parameter to set a development API gateway. If not specified it defaults to `https://api.hopsworks.ai`
-
-FEATURES:
 
 ## 0.10.0 (April 11, 2022)
 
