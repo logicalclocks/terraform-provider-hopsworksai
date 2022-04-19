@@ -7,6 +7,7 @@ BREAKING CHANGES:
 BUG FIXES:
 
 ENHANCEMENTS:
+* Bump minimum Go version to 1.17
 
 FEATURES:
 
