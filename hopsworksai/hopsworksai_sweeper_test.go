@@ -19,6 +19,7 @@ func hopsworksClient() *api.HopsworksAIClient {
 		UserAgent:  "Terraform Acceptance Tests",
 		ApiKey:     os.Getenv(env_API_KEY),
 		ApiVersion: Default_API_VERSION,
+		ApiGateway: api.DEFAULT_API_GATEWAY,
 		Client: &http.Client{
 			Timeout: time.Minute * 3,
 		},
