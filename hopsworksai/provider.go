@@ -43,7 +43,7 @@ func Provider(version string) func() *schema.Provider {
 					DefaultFunc: schema.EnvDefaultFunc("HOPSWORKSAI_API_KEY", ""),
 				},
 				"api_gateway": {
-					Description: "URL of the API Gateway to use.",
+					Description: "URL of the API Gateway to use. It is intended for development purposes only.",
 					Type:        schema.TypeString,
 					Optional:    true,
 					Default:     api.DEFAULT_API_GATEWAY,
