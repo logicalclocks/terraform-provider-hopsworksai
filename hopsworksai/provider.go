@@ -49,8 +49,15 @@ func Provider(version string) func() *schema.Provider {
 					Default:     api.DEFAULT_API_GATEWAY,
 					ValidateDiagFunc: func(v interface{}, path cty.Path) diag.Diagnostics {
 						value := v.(string)
-						u, err := url.Parse(value)
 						var diagnostics diag.Diagnostics
+						if value != api.DEFAULT_API_GATEWAY {
+							warn := diag.Diagnostic{
+								Severity: diag.Warning,
+								Summary:  "API Gateway URL is intended for development purposes only",
+							}
+							diagnostics = append(diagnostics, warn)
+						}
+						u, err := url.Parse(value)
 						if err != nil {
 							diagnostic := diag.Diagnostic{
 								Severity: diag.Error,
