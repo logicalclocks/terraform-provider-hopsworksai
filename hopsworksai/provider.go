@@ -4,8 +4,11 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
+
+	"github.com/hashicorp/go-cty/cty"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -28,6 +31,11 @@ func init() {
 	}
 }
 
+var ApiGatewayDevDiagnostic = diag.Diagnostic{
+	Severity: diag.Warning,
+	Summary:  "API Gateway URL is intended for development purposes only",
+}
+
 func Provider(version string) func() *schema.Provider {
 	return func() *schema.Provider {
 		p := &schema.Provider{
@@ -38,6 +46,35 @@ func Provider(version string) func() *schema.Provider {
 					Optional:    true,
 					Sensitive:   true,
 					DefaultFunc: schema.EnvDefaultFunc("HOPSWORKSAI_API_KEY", ""),
+				},
+				"api_gateway": {
+					Description: "URL of the API Gateway to use. It is intended for development purposes only.",
+					Type:        schema.TypeString,
+					Optional:    true,
+					Default:     api.DEFAULT_API_GATEWAY,
+					ValidateDiagFunc: func(v interface{}, path cty.Path) diag.Diagnostics {
+						value := v.(string)
+						var diagnostics diag.Diagnostics
+						if value != api.DEFAULT_API_GATEWAY {
+							diagnostics = append(diagnostics, ApiGatewayDevDiagnostic)
+						}
+						u, err := url.Parse(value)
+						if err != nil {
+							diagnostic := diag.Diagnostic{
+								Severity: diag.Error,
+								Summary:  "Could not parse API Gateway URL",
+								Detail:   fmt.Sprintf("Failed to parse URL: %s", err),
+							}
+							diagnostics = append(diagnostics, diagnostic)
+						} else if u.Scheme == "" {
+							diagnostic := diag.Diagnostic{
+								Severity: diag.Error,
+								Summary:  "API Gateway URL is missing scheme http/https",
+							}
+							diagnostics = append(diagnostics, diagnostic)
+						}
+						return diagnostics
+					},
 				},
 			},
 			DataSourcesMap: map[string]*schema.Resource{
@@ -73,6 +110,7 @@ func configure(version string, p *schema.Provider) func(context.Context, *schema
 			Client: &http.Client{
 				Timeout: 3 * time.Minute,
 			},
+			ApiGateway: d.Get("api_gateway").(string),
 		}, nil
 	}
 }

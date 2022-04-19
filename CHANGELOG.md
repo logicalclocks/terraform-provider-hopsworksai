@@ -11,6 +11,7 @@ BUG FIXES:
 * resource/hopsworksai_backup: Return empty backup object when pending to avoid not found checks 
 
 ENHANCEMENTS:
+* provider: Add `api_gateway` optional parameter to set a development API gateway. If not specified it defaults to `https://api.hopsworks.ai`
 
 FEATURES:
 

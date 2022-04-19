@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-const host = "https://api.hopsworks.ai"
+const DEFAULT_API_GATEWAY = "https://api.hopsworks.ai"
 
 type ResponseWithValidator interface {
 	validate() error
@@ -30,10 +30,11 @@ type HopsworksAIClient struct {
 	UserAgent  string
 	ApiKey     string
 	ApiVersion string
+	ApiGateway string
 }
 
 func (a *HopsworksAIClient) doRequest(ctx context.Context, method string, endpoint string, body io.Reader, response ResponseWithValidator) error {
-	url := host + endpoint
+	url := a.ApiGateway + endpoint
 	tflog.Debug(ctx, method+" "+url)
 
 	req, err := http.NewRequestWithContext(ctx, method, url, body)
