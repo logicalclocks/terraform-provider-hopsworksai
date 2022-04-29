@@ -28,7 +28,7 @@ func defaultRonDBConfiguration(cloud api.CloudProvider) api.RonDBConfiguration {
 	ronDB := api.RonDBConfiguration{
 		Configuration: api.RonDBBaseConfiguration{
 			NdbdDefault: api.RonDBNdbdDefaultConfiguration{
-				ReplicationFactor: 2,
+				ReplicationFactor: 1,
 			},
 			General: api.RonDBGeneralConfiguration{
 				Benchmark: api.RonDBBenchmarkConfiguration{
@@ -46,7 +46,7 @@ func defaultRonDBConfiguration(cloud api.CloudProvider) api.RonDBConfiguration {
 			NodeConfiguration: api.NodeConfiguration{
 				DiskSize: 512,
 			},
-			Count: 2,
+			Count: 1,
 		},
 		MYSQLNodes: api.WorkerConfiguration{
 			NodeConfiguration: api.NodeConfiguration{

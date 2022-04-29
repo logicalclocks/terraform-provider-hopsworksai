@@ -355,7 +355,7 @@ Optional:
 
 Optional:
 
-- `replication_factor` (Number) The number of replicas created by RonDB for high availability. Defaults to `2`.
+- `replication_factor` (Number) The number of replicas created by RonDB for high availability. Defaults to `1`.
 
 
 
@@ -364,7 +364,7 @@ Optional:
 
 Optional:
 
-- `count` (Number) The number of data nodes. Notice that the number of RonDB data nodes have to be multiples of the replication_factor. Defaults to `2`.
+- `count` (Number) The number of data nodes. Notice that the number of RonDB data nodes have to be multiples of the replication_factor. Defaults to `1`.
 - `disk_size` (Number) The disk size of data nodes in units of GB Defaults to `512`.
 - `instance_type` (String) The instance type of the RonDB data node. Defaults to t3a.xlarge for AWS and Standard_D4s_v4 for Azure.
 
