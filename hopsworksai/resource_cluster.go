@@ -456,7 +456,7 @@ func ronDBSchema() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"replication_factor": {
-										Description: "The number of replicas created by RonDB for high availability.",
+										Description: "The number of replicas created by RonDB. Set > 1 for high availability.",
 										Type:        schema.TypeInt,
 										Optional:    true,
 										ForceNew:    true,

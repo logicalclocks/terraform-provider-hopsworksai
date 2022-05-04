@@ -355,7 +355,7 @@ Optional:
 
 Optional:
 
-- `replication_factor` (Number) The number of replicas created by RonDB for high availability. Defaults to `1`.
+- `replication_factor` (Number) The number of replicas created by RonDB. Set > 1 for high availability. Defaults to `1`.
 
 
 
