@@ -4,7 +4,7 @@ NOTES:
 * resource/hopsworksai_cluster: Change default values for RonDB cluster. New default number of replicas is `1` and new default number of Datanodes is `1`
 
 BREAKING CHANGES:
-
+* Default values for RonDB cluster changed. New default number of replicas is `1` and new default number of Datanodes is `1`
 BUG FIXES:
 
 ENHANCEMENTS:
