@@ -10,7 +10,7 @@ ENHANCEMENTS:
 * Bump minimum Go version to 1.17
 * Bump golangci-lint version to 1.45.2
 * dependencies: Bump hashicorp/terraform-plugin-sdk/v2 from 2.13.0 to 2.15.0
-* dependencies: Bump hashicorp/terraform-plugin-docs from 0.7.0 to 0.8.0
+* dependencies: Bump hashicorp/terraform-plugin-docs from 0.7.0 to 0.8.1
 * dependencies: Bump hashicorp/terraform-plugin-log from 0.3.0 to 0.4.0
 
 FEATURES:
