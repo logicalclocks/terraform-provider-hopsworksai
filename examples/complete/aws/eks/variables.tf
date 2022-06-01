@@ -10,5 +10,5 @@ variable "profile" {
 
 variable "eks_cluster_name" {
   type    = string
-  default = "tf-hopsworks-eks-cluster-gautier"
+  default = "tf-hopsworks-eks-cluster"
 }

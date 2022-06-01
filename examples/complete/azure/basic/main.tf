@@ -10,6 +10,7 @@ provider "hopsworksai" {
 module "azure" {
   source         = "logicalclocks/helpers/hopsworksai//modules/azure"
   resource_group = var.resource_group
+  version        = "2.0.0"
 }
 
 # Create a simple cluster with two workers with two different configuration
@@ -50,8 +51,14 @@ resource "hopsworksai_cluster" "cluster" {
   azure_attributes {
     location                       = module.azure.location
     resource_group                 = module.azure.resource_group
-    storage_account                = module.azure.storage_account_name
     user_assigned_managed_identity = module.azure.user_assigned_identity_name
+    container {
+      storage_account = module.azure.storage_account_name
+    }
+  }
+
+  rondb {
+
   }
 
   open_ports {

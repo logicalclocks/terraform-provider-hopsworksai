@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "3.42.0"
+      version = "4.16.0"
     }
     hopsworksai = {
       source = "logicalclocks/hopsworksai"
@@ -26,8 +26,9 @@ provider "hopsworksai" {
 
 # Step 1: create the required aws resources, an ssh key, an s3 bucket, and an instance profile with the required hopsworks permissions
 module "aws" {
-  source = "logicalclocks/helpers/hopsworksai//modules/aws"
-  region = var.region
+  source  = "logicalclocks/helpers/hopsworksai//modules/aws"
+  region  = var.region
+  version = "2.0.0"
 }
 
 # Step 2: create a cluster with 1 worker
@@ -50,8 +51,14 @@ resource "hopsworksai_cluster" "cluster" {
 
   aws_attributes {
     region               = var.region
-    bucket_name          = module.aws.bucket_name
     instance_profile_arn = module.aws.instance_profile_arn
+    bucket {
+      name = module.aws.bucket_name
+    }
+  }
+
+  rondb {
+
   }
 
   open_ports {

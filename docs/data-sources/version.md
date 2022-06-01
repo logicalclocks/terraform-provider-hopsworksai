@@ -43,13 +43,13 @@ data "hopsworksai_version" "latest" {
 
 - `default` (Boolean) The version is the default version.
 - `experimental` (Boolean) The version is an experimental version.
-- `id` (String) The ID of this resource.
 - `os` (String) Filter based on the supported os.
 - `region` (String) Filter based on the region.
 - `upgradeable_from_version` (String) The version which is upgradeable to this version.
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `release_notes_url` (String) The release notes url for this version.
 - `supported_regions` (List of Object) The list of supported operating systems per regions. (see [below for nested schema](#nestedatt--supported_regions))
 

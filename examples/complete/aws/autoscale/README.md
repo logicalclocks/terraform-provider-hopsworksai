@@ -2,6 +2,31 @@
 
 In this example, we create a Hopsworks cluster with autoscale support. We configure autoscale to use an instance type with at least 4 vCPUs and 16 GB of memory, a min number of workers set to 0, a max number of workers set to 10, at least 50% of workers should be running as standby, and only remove workers after 300 seconds of inactivity.
 
+## Configure RonDB
+
+You can configure RonDB nodes instead of relying on the default configurations, for instance in the following example, we increased the number of data nodes to 4 and we used an instance type with at least 8 CPUs and 16 GB of memory.
+
+```hcl
+data "hopsworksai_instance_type" "smallest_rondb_datanode" {
+  cloud_provider = "AWS"
+  node_type      = "rondb_data"
+  min_memory_gb  = 16
+  min_cpus       = 8
+}
+
+resource "hopsworksai_cluster" "cluster" {
+  # all the other configurations are omitted for clarity 
+
+  rondb {
+    data_nodes {
+      instance_type = data.hopsworksai_instance_type.smallest_rondb_datanode.id
+      disk_size     = 512
+      count         = 4
+    }
+  }
+}
+```
+
 ## How to run the example 
 First ensure that your aws credentials are setup correctly by running the following command 
 

@@ -38,9 +38,12 @@ data "hopsworksai_instance_type" "supported_type" {
 
 ### Optional
 
-- `id` (String) The ID of this resource.
 - `min_cpus` (Number) Filter based on the minimum number of CPU cores. Defaults to `0`.
 - `min_gpus` (Number) Filter based on the minimum number of GPUs. Defaults to `0`.
 - `min_memory_gb` (Number) Filter based on the minimum memory in gigabytes. Defaults to `0`.
+
+### Read-Only
+
+- `id` (String) The ID of this resource.
 
 

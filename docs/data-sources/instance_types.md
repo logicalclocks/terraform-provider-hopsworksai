@@ -28,12 +28,9 @@ data "hopsworksai_instance_types" "supported_worker_types" {
 - `cloud_provider` (String) The cloud provider where you plan to create your cluster.
 - `node_type` (String) The node type that you want to get its supported instance types.
 
-### Optional
-
-- `id` (String) The ID of this resource.
-
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `supported_types` (List of Object) The list of supported instance types. (see [below for nested schema](#nestedatt--supported_types))
 
 <a id="nestedatt--supported_types"></a>

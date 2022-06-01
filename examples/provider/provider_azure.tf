@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "2.60.0"
+      version = "3.8.0"
     }
     hopsworksai = {
       source = "logicalclocks/hopsworksai"
@@ -33,6 +33,7 @@ data "azurerm_resource_group" "rg" {
 module "azure" {
   source         = "logicalclocks/helpers/hopsworksai//modules/azure"
   resource_group = var.resource_group
+  version        = "2.0.0"
 }
 
 # Step 2: create a cluster with no workers
@@ -56,8 +57,14 @@ resource "hopsworksai_cluster" "cluster" {
   azure_attributes {
     location                       = module.azure.location
     resource_group                 = module.azure.resource_group
-    storage_account                = module.azure.storage_account_name
     user_assigned_managed_identity = module.azure.user_assigned_identity_name
+    container {
+      storage_account = module.azure.storage_account_name
+    }
+  }
+
+  rondb {
+
   }
 
   open_ports {

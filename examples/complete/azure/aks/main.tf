@@ -14,6 +14,7 @@ data "azurerm_resource_group" "rg" {
 module "azure" {
   source         = "logicalclocks/helpers/hopsworksai//modules/azure"
   resource_group = var.resource_group
+  version        = "2.0.0"
 }
 
 # Step 2: create virtual network and two subnets, one for AKS and one for Hopsworks
@@ -47,21 +48,19 @@ resource "azurerm_kubernetes_cluster" "aks" {
   dns_prefix          = "hopsworksai-aks-dns"
 
   default_node_pool {
-    name               = "default"
-    node_count         = 2
-    vm_size            = "Standard_DS2_v2"
-    os_disk_size_gb    = 100
-    vnet_subnet_id     = azurerm_subnet.aks_subnet.id
-    availability_zones = [1, 2, 3]
+    name            = "default"
+    node_count      = 2
+    vm_size         = "Standard_DS2_v2"
+    os_disk_size_gb = 100
+    vnet_subnet_id  = azurerm_subnet.aks_subnet.id
+    zones           = [1, 2, 3]
   }
 
   identity {
     type = "SystemAssigned"
   }
 
-  role_based_access_control {
-    enabled = true
-  }
+  role_based_access_control_enabled = true
 
   network_profile {
     network_plugin = "azure"
@@ -103,6 +102,7 @@ resource "azurerm_ssh_public_key" "key" {
 data "hopsworksai_instance_type" "smallest_worker" {
   cloud_provider = "AZURE"
   node_type      = "worker"
+  min_cpus       = 8
 }
 
 resource "hopsworksai_cluster" "cluster" {
@@ -121,14 +121,20 @@ resource "hopsworksai_cluster" "cluster" {
   azure_attributes {
     location                       = data.azurerm_resource_group.rg.location
     resource_group                 = data.azurerm_resource_group.rg.name
-    storage_account                = module.azure.storage_account_name
     user_assigned_managed_identity = module.azure.user_assigned_identity_name
+    container {
+      storage_account = module.azure.storage_account_name
+    }
     network {
       virtual_network_name = azurerm_virtual_network.vnet.name
       subnet_name          = azurerm_subnet.hopsworksai_subnet.name
     }
     aks_cluster_name  = azurerm_kubernetes_cluster.aks.name
     acr_registry_name = azurerm_container_registry.acr.name
+  }
+
+  rondb {
+
   }
 
   open_ports {

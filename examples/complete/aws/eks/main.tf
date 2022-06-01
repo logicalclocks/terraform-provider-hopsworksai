@@ -8,8 +8,9 @@ provider "hopsworksai" {
 
 # Step 1: Create required aws resources, an ssh key, an s3 bucket, and an instance profile with the required hopsworks permissions
 module "aws" {
-  source = "logicalclocks/helpers/hopsworksai//modules/aws"
-  region = var.region
+  source  = "logicalclocks/helpers/hopsworksai//modules/aws"
+  region  = var.region
+  version = "2.0.0"
 }
 
 # Step 2: create vpc 
@@ -125,6 +126,7 @@ provider "kubernetes" {
 data "hopsworksai_instance_type" "smallest_worker" {
   cloud_provider = "AWS"
   node_type      = "worker"
+  min_cpus       = 8
 }
 
 resource "hopsworksai_cluster" "cluster" {
@@ -140,8 +142,10 @@ resource "hopsworksai_cluster" "cluster" {
   }
 
   aws_attributes {
-    region               = var.region
-    bucket_name          = module.aws.bucket_name
+    region = var.region
+    bucket {
+      name = module.aws.bucket_name
+    }
     instance_profile_arn = module.aws.instance_profile_arn
     network {
       vpc_id            = module.vpc.vpc_id
@@ -149,6 +153,10 @@ resource "hopsworksai_cluster" "cluster" {
       security_group_id = module.eks.cluster_primary_security_group_id
     }
     eks_cluster_name = module.eks.cluster_id
+  }
+
+  rondb {
+
   }
 
   open_ports {

@@ -25,10 +25,6 @@ data "hopsworksai_clusters" "cluster" {
 
 - `cluster_id` (String) The Id of the cluster.
 
-### Optional
-
-- `id` (String) The ID of this resource.
-
 ### Read-Only
 
 - `activation_state` (String) The current activation state of the cluster.
@@ -41,6 +37,7 @@ data "hopsworksai_clusters" "cluster" {
 - `creation_date` (String) The creation date of the cluster. The date is represented in RFC3339 format.
 - `deactivate_hopsworksai_log_collection` (Boolean) Allow Hopsworks.ai to collect services logs to help diagnose issues with the cluster. By deactivating this option, you will not be able to get full support from our teams.
 - `head` (List of Object) The configurations of the head node of the cluster. (see [below for nested schema](#nestedatt--head))
+- `id` (String) The ID of this resource.
 - `init_script` (String) A bash script that will run on all nodes during their initialization (must start with #!/usr/bin/env bash)
 - `issue_lets_encrypt_certificate` (Boolean) Enable or disable issuing let's encrypt certificates. This can be used to disable issuing certificates if port 80 can not be open.
 - `managed_users` (Boolean) Enable or disable Hopsworks.ai to manage your users.
