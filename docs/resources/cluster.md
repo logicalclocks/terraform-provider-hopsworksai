@@ -23,7 +23,13 @@ resource "hopsworksai_cluster" "cluster" {
   aws_attributes {
     region               = "us-east-2"
     instance_profile_arn = "arn:aws:iam::0000000000:instance-profile/my-instance-profile"
-    bucket_name          = "my-bucket"
+    bucket {
+      name = "my-bucket"
+    }
+  }
+
+  rondb {
+
   }
 
   open_ports {
@@ -49,8 +55,14 @@ resource "hopsworksai_cluster" "cluster" {
   azure_attributes {
     location                       = "northeurope"
     resource_group                 = "mygroup"
-    storage_account                = "mystorage"
     user_assigned_managed_identity = "my-identity"
+    container {
+      storage_account = "mystorage"
+    }
+  }
+
+  rondb {
+
   }
 
   open_ports {
@@ -81,7 +93,6 @@ resource "hopsworksai_cluster" "cluster" {
 - `backup_retention_period` (Number) The validity of cluster backups in days. If set to 0 cluster backups are disabled. Defaults to `0`.
 - `collect_logs` (Boolean) Push services' logs to AWS cloud watch. Defaults to `false`.
 - `deactivate_hopsworksai_log_collection` (Boolean) Allow Hopsworks.ai to collect services logs to help diagnose issues with the cluster. By deactivating this option, you will not be able to get full support from our teams. Defaults to `false`.
-- `id` (String) The ID of this resource.
 - `init_script` (String) A bash script that will run on all nodes during their initialization (must start with #!/usr/bin/env bash)
 - `issue_lets_encrypt_certificate` (Boolean) Enable or disable issuing let's encrypt certificates. This can be used to disable issuing certificates if port 80 can not be open. Defaults to `true`.
 - `managed_users` (Boolean) Enable or disable Hopsworks.ai to manage your users. Defaults to `true`.
@@ -100,6 +111,7 @@ resource "hopsworksai_cluster" "cluster" {
 - `activation_state` (String) The current activation state of the cluster.
 - `cluster_id` (String) The Id of the cluster.
 - `creation_date` (String) The creation date of the cluster. The date is represented in RFC3339 format.
+- `id` (String) The ID of this resource.
 - `start_date` (String) The starting date of the cluster. The date is represented in RFC3339 format.
 - `state` (String) The current state of the cluster.
 - `upgrade_in_progress` (List of Object) Information about ongoing cluster upgrade if any. (see [below for nested schema](#nestedatt--upgrade_in_progress))

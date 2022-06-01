@@ -1,5 +1,6 @@
 provider "aws" {
-  region = var.region
+  region  = var.region
+  profile = var.profile
 }
 
 provider "hopsworksai" {
@@ -7,8 +8,9 @@ provider "hopsworksai" {
 
 # Create required aws resources, an ssh key, an s3 bucket, and an instance profile with the required hopsworks permissions
 module "aws" {
-  source = "logicalclocks/helpers/hopsworksai//modules/aws"
-  region = var.region
+  source  = "/Volumes/Code/terraform-hopsworksai-helpers/modules/aws"
+  region  = var.region
+  version = "2.0.0"
 }
 
 # Create a simple cluster with two workers with two different configuration
@@ -47,9 +49,14 @@ resource "hopsworksai_cluster" "cluster" {
   }
 
   aws_attributes {
-    region               = var.region
-    bucket_name          = module.aws.bucket_name
+    region = var.region
+    bucket {
+      name = module.aws.bucket_name
+    }
     instance_profile_arn = module.aws.instance_profile_arn
+  }
+
+  rondb {
   }
 
   open_ports {

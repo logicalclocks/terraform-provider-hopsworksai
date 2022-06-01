@@ -29,7 +29,6 @@ resource "hopsworksai_backup" "backup" {
 
 ### Optional
 
-- `id` (String) The ID of this resource.
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 
 ### Read-Only
@@ -37,6 +36,7 @@ resource "hopsworksai_backup" "backup" {
 - `backup_id` (String) The backup id.
 - `cloud_provider` (String) The backup cloud provider.
 - `creation_date` (String) The creation date of the backup. The date is represented in RFC3339 format.
+- `id` (String) The ID of this resource.
 - `state` (String) The backup state.
 - `state_message` (String) The backup state message.
 

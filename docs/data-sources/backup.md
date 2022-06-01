@@ -25,16 +25,13 @@ data "hopsworksai_backup" "backup" {
 
 - `backup_id` (String) The backup id.
 
-### Optional
-
-- `id` (String) The ID of this resource.
-
 ### Read-Only
 
 - `backup_name` (String) The name to attach to this backup.
 - `cloud_provider` (String) The backup cloud provider.
 - `cluster_id` (String) The id of the cluster for which you want to create a backup.
 - `creation_date` (String) The creation date of the backup. The date is represented in RFC3339 format.
+- `id` (String) The ID of this resource.
 - `state` (String) The backup state.
 - `state_message` (String) The backup state message.
 

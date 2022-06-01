@@ -8,7 +8,13 @@ resource "hopsworksai_cluster" "cluster" {
   aws_attributes {
     region               = "us-east-2"
     instance_profile_arn = "arn:aws:iam::0000000000:instance-profile/my-instance-profile"
-    bucket_name          = "my-bucket"
+    bucket {
+      name = "my-bucket"
+    }
+  }
+
+  rondb {
+
   }
 
   open_ports {

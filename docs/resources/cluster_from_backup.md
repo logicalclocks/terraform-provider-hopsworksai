@@ -30,7 +30,6 @@ resource "hopsworksai_cluster_from_backup" "cluster" {
 - `autoscale` (Block List, Max: 1) Setup auto scaling. (see [below for nested schema](#nestedblock--autoscale))
 - `aws_attributes` (Block List, Max: 1) The configurations required to run the cluster on Amazon AWS. (see [below for nested schema](#nestedblock--aws_attributes))
 - `azure_attributes` (Block List, Max: 1) The configurations required to run the cluster on Microsoft Azure. (see [below for nested schema](#nestedblock--azure_attributes))
-- `id` (String) The ID of this resource.
 - `name` (String) The name of the cluster, must be unique.
 - `open_ports` (Block List, Max: 1) Open the required ports to communicate with one of the Hopsworks services. (see [below for nested schema](#nestedblock--open_ports))
 - `ssh_key` (String) The ssh key name that will be attached to this cluster.
@@ -49,6 +48,7 @@ resource "hopsworksai_cluster_from_backup" "cluster" {
 - `creation_date` (String) The creation date of the cluster. The date is represented in RFC3339 format.
 - `deactivate_hopsworksai_log_collection` (Boolean) Allow Hopsworks.ai to collect services logs to help diagnose issues with the cluster. By deactivating this option, you will not be able to get full support from our teams.
 - `head` (List of Object) The configurations of the head node of the cluster. (see [below for nested schema](#nestedatt--head))
+- `id` (String) The ID of this resource.
 - `init_script` (String) A bash script that will run on all nodes during their initialization (must start with #!/usr/bin/env bash)
 - `issue_lets_encrypt_certificate` (Boolean) Enable or disable issuing let's encrypt certificates. This can be used to disable issuing certificates if port 80 can not be open.
 - `managed_users` (Boolean) Enable or disable Hopsworks.ai to manage your users.

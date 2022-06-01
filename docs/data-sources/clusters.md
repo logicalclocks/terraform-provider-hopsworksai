@@ -32,11 +32,11 @@ data "hopsworksai_clusters" "awsClusters" {
 ### Optional
 
 - `filter` (Block List, Max: 1) Filter requested clusters based on cloud provider. (see [below for nested schema](#nestedblock--filter))
-- `id` (String) The ID of this resource.
 
 ### Read-Only
 
 - `clusters` (List of Object) The list of clusters in the user's account. (see [below for nested schema](#nestedatt--clusters))
+- `id` (String) The ID of this resource.
 
 <a id="nestedblock--filter"></a>
 ### Nested Schema for `filter`

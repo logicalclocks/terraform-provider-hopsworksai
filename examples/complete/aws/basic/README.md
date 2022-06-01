@@ -2,6 +2,31 @@
 
 In this example, we create a Hopsworks cluster with 2 workers. We configure one of the workers to use an instance type with at least 4 vCPUs and 16 GB of memory while using at least 32 GB of memory for the other worker.
 
+## Configure RonDB
+
+You can configure RonDB nodes instead of relying on the default configurations, for instance in the following example, we increased the number of data nodes to 4 and we used an instance type with at least 8 CPUs and 16 GB of memory.
+
+```hcl
+data "hopsworksai_instance_type" "smallest_rondb_datanode" {
+  cloud_provider = "AWS"
+  node_type      = "rondb_data"
+  min_memory_gb  = 16
+  min_cpus       = 8
+}
+
+resource "hopsworksai_cluster" "cluster" {
+  # all the other configurations are omitted for clarity 
+
+  rondb {
+    data_nodes {
+      instance_type = data.hopsworksai_instance_type.smallest_rondb_datanode.id
+      disk_size     = 512
+      count         = 4
+    }
+  }
+}
+```
+
 ## How to run the example 
 First ensure that your aws credentials are setup correctly by running the following command 
 

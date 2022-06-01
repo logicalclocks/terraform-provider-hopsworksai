@@ -8,8 +8,14 @@ resource "hopsworksai_cluster" "cluster" {
   azure_attributes {
     location                       = "northeurope"
     resource_group                 = "mygroup"
-    storage_account                = "mystorage"
     user_assigned_managed_identity = "my-identity"
+    container {
+      storage_account = "mystorage"
+    }
+  }
+
+  rondb {
+
   }
 
   open_ports {
