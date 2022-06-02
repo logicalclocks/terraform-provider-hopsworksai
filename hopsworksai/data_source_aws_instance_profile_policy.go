@@ -170,10 +170,16 @@ func awsEKSECRPermissions(allowDescribeEKSResource interface{}, allowPushandPull
 				"arn:aws:ecr:*:*:repository/base",
 			},
 		}, {
-			Sid:    "AllowPushandPullImages",
+			Sid:    "AllowCreateRepository",
 			Effect: "Allow",
 			Action: []string{
 				"ecr:CreateRepository",
+			},
+			Resources: "*",
+		}, {
+			Sid:    "AllowPushandPullImages",
+			Effect: "Allow",
+			Action: []string{
 				"ecr:GetDownloadUrlForLayer",
 				"ecr:BatchGetImage",
 				"ecr:CompleteLayerUpload",

@@ -15,6 +15,9 @@ ENHANCEMENTS:
 * dependencies: Bump hashicorp/terraform-plugin-log from 0.3.0 to 0.4.0
 * examples: Update versions and remove deprecated attributes
 
+BUG FIXES:
+* datasource/aws_instance_profile_policy: The `ecr:CreateRepository` permission has no resource level condition for private registries
+
 FEATURES:
 
 ## 0.10.1 (April 19, 2022)
