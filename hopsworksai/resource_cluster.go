@@ -166,6 +166,13 @@ func clusterSchema() map[string]*schema.Schema {
 						Type:        schema.TypeString,
 						Computed:    true,
 					},
+					"ha_enabled": {
+						Description: "Use multi head node setup for high availability. This is an experimental feature that is not supported for all users and cloud providers.",
+						Type:        schema.TypeBool,
+						Optional:    true,
+						ForceNew:    true,
+						Default:     false,
+					},
 				},
 			},
 		},
@@ -1222,6 +1229,7 @@ func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error
 		ClusterConfiguration: api.ClusterConfiguration{
 			Head: api.HeadConfiguration{
 				NodeConfiguration: structure.ExpandNode(headConfig),
+				HAEnabled:         false,
 			},
 			Workers: []api.WorkerConfiguration{},
 		},
@@ -1326,6 +1334,11 @@ func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error
 	if v, ok := d.GetOk("autoscale"); ok {
 		createCluster.Autoscale = structure.ExpandAutoscaleConfiguration(v.([]interface{}))
 	}
+
+	if v, ok := d.GetOk("head.0.ha_enabled"); ok {
+		createCluster.ClusterConfiguration.Head.HAEnabled = v.(bool)
+	}
+
 	return createCluster, nil
 }
 
@@ -1356,6 +1369,13 @@ func resourceClusterRead(ctx context.Context, d *schema.ResourceData, meta inter
 	}
 	if err := populateClusterStateForResource(cluster, d); err != nil {
 		return diag.FromErr(err)
+	}
+
+	if cluster.ClusterConfiguration.Head.HAEnabled {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Warning,
+			Summary:  "HA is an experimental feature that is not supported for all users and cloud providers.",
+		})
 	}
 	return diags
 }
@@ -1611,6 +1631,7 @@ func resourceClusterWaitForRunningBase(ctx context.Context, client *api.Hopswork
 		api.WorkerDecommissioning,
 		api.RonDBInitializing,
 		api.StartingHopsworks,
+		api.SecondaryInitializing,
 	}
 
 	if isUpgrade {
@@ -1624,6 +1645,7 @@ func resourceClusterWaitForRunningBase(ctx context.Context, client *api.Hopswork
 			api.Error,
 			api.WorkerError,
 			api.CommandFailed,
+			api.SecondaryError,
 		},
 		timeout,
 		func() (result interface{}, state string, err error) {

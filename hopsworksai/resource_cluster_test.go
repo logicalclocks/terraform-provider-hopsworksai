@@ -1757,6 +1757,7 @@ func TestClusterRead_AWS(t *testing.T) {
 					"instance_type": "node-type-1",
 					"disk_size":     512,
 					"node_id":       "head-node-id-1",
+					"ha_enabled":    false,
 				},
 			},
 			"workers": schema.NewSet(helpers.WorkerSetHash, []interface{}{
@@ -1884,6 +1885,7 @@ func TestClusterRead_AZURE(t *testing.T) {
 					"instance_type": "node-type-1",
 					"disk_size":     512,
 					"node_id":       "head-node-id-1",
+					"ha_enabled":    false,
 				},
 			},
 			"workers": schema.NewSet(helpers.WorkerSetHash, []interface{}{
@@ -4590,6 +4592,239 @@ func TestClusterCreate_AZURE_error_noStorageAccountConfigured(t *testing.T) {
 			},
 		},
 		ExpectError: "storage account is not set",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_AWS_setHA(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "error",
+					"code": 400,
+					"message": "skip"
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					var req api.NewAWSClusterRequest
+					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+						return err
+					}
+
+					if !req.CreateRequest.CreateCluster.ClusterConfiguration.Head.HAEnabled {
+						return fmt.Errorf("expected true but got false")
+					}
+					return nil
+				},
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name": "cluster",
+			"head": []interface{}{
+				map[string]interface{}{
+					"disk_size":  512,
+					"ha_enabled": true,
+				},
+			},
+			"aws_attributes": []interface{}{
+				map[string]interface{}{
+					"region":               "region-1",
+					"bucket_name":          "bucket-1",
+					"instance_profile_arn": "profile-1",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
+				},
+			},
+		},
+		ExpectError: "failed to create cluster, error: skip",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_AWS_setHA_default(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "error",
+					"code": 400,
+					"message": "skip"
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					var req api.NewAWSClusterRequest
+					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+						return err
+					}
+
+					if req.CreateRequest.CreateCluster.ClusterConfiguration.Head.HAEnabled {
+						return fmt.Errorf("expected false but got true")
+					}
+					return nil
+				},
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name": "cluster",
+			"head": []interface{}{
+				map[string]interface{}{
+					"disk_size": 512,
+				},
+			},
+			"aws_attributes": []interface{}{
+				map[string]interface{}{
+					"region":               "region-1",
+					"bucket_name":          "bucket-1",
+					"instance_profile_arn": "profile-1",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
+				},
+			},
+		},
+		ExpectError: "failed to create cluster, error: skip",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterRead_AWS_HA(t *testing.T) {
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"statue": "ok",
+					"code": 200,
+					"payload":{
+						"cluster": {
+							"id": "cluster-id-1",
+							"name": "cluster-name-1",
+							"state" : "running", 
+							"activationState": "stoppable", 
+							"initializationStage": "running", 
+							"createdOn": 123, 
+							"startedOn" : 123,
+							"version": "version-1",
+							"url": "https://cluster-url",
+							"provider": "AWS",
+							"tags": [
+								{
+									"name": "tag1",
+									"value": "tag1-value1"
+								}
+							],
+							"sshKeyName": "ssh-key-1",
+							"clusterConfiguration": {
+								"head": {
+									"instanceType": "node-type-1",
+									"diskSize": 512,
+									"nodeId": "head-node-id-1",
+									"haEnabled": true
+								},
+								"workers": [
+									{
+										"instanceType": "node-type-2",
+										"diskSize": 256,
+										"count": 2
+									}
+								]
+							},
+							"publicIPAttached": true,
+							"letsEncryptIssued": true,
+							"managedUsers": true,
+							"backupRetentionPeriod": 10,
+							"aws": {
+								"region": "region-1",
+								"instanceProfileArn": "profile-1",
+								"bucketName": "bucket-1",
+								"vpcId": "vpc-1",
+								"subnetId": "subnet-1",
+								"securityGroupId": "security-group-1"
+							}
+						}
+					}
+				}`,
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().ReadContext,
+		Id:                   "cluster-id-1",
+		ExpectState: map[string]interface{}{
+			"cluster_id":       "cluster-id-1",
+			"state":            "running",
+			"activation_state": "stoppable",
+			"creation_date":    time.Unix(123, 0).Format(time.RFC3339),
+			"start_date":       time.Unix(123, 0).Format(time.RFC3339),
+			"version":          "version-1",
+			"url":              "https://cluster-url",
+			"tags": map[string]interface{}{
+				"tag1": "tag1-value1",
+			},
+			"ssh_key": "ssh-key-1",
+			"head": []interface{}{
+				map[string]interface{}{
+					"instance_type": "node-type-1",
+					"disk_size":     512,
+					"node_id":       "head-node-id-1",
+					"ha_enabled":    true,
+				},
+			},
+			"workers": schema.NewSet(helpers.WorkerSetHash, []interface{}{
+				map[string]interface{}{
+					"instance_type": "node-type-2",
+					"disk_size":     256,
+					"count":         2,
+					"spot_config":   []interface{}{},
+				},
+			}),
+			"attach_public_ip":               true,
+			"issue_lets_encrypt_certificate": true,
+			"managed_users":                  true,
+			"backup_retention_period":        10,
+			"aws_attributes": []interface{}{
+				map[string]interface{}{
+					"region":               "region-1",
+					"bucket_name":          "bucket-1",
+					"instance_profile_arn": "profile-1",
+					"network": []interface{}{
+						map[string]interface{}{
+							"vpc_id":            "vpc-1",
+							"subnet_id":         "subnet-1",
+							"security_group_id": "security-group-1",
+						},
+					},
+					"eks_cluster_name":        "",
+					"ecr_registry_account_id": "",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name":       "bucket-1",
+							"encryption": []interface{}{},
+							"acl":        []interface{}{},
+						},
+					},
+				},
+			},
+			"azure_attributes": []interface{}{},
+		},
+		ExpectWarning: "HA is an experimental feature that is not supported for all users and cloud providers.",
 	}
 	r.Apply(t, context.TODO())
 }

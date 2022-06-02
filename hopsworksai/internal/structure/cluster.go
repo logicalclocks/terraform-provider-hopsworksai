@@ -55,6 +55,7 @@ func flattenHead(head *api.HeadConfigurationStatus) []map[string]interface{} {
 			"instance_type": head.InstanceType,
 			"disk_size":     head.DiskSize,
 			"node_id":       head.NodeId,
+			"ha_enabled":    head.HAEnabled,
 		},
 	}
 }
