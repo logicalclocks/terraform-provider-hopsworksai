@@ -159,6 +159,7 @@ func TestClusterDataSourceRead_AWS(t *testing.T) {
 					"instance_type": "node-type-1",
 					"disk_size":     512,
 					"node_id":       "head-node-id-1",
+					"ha_enabled":    false,
 				},
 			},
 			"workers": schema.NewSet(helpers.WorkerSetHash, []interface{}{
@@ -289,6 +290,7 @@ func TestClusterDataSourceRead_AZURE(t *testing.T) {
 					"instance_type": "node-type-1",
 					"disk_size":     512,
 					"node_id":       "head-node-id-1",
+					"ha_enabled":    false,
 				},
 			},
 			"workers": schema.NewSet(helpers.WorkerSetHash, []interface{}{

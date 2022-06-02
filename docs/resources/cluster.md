@@ -123,6 +123,7 @@ resource "hopsworksai_cluster" "cluster" {
 Optional:
 
 - `disk_size` (Number) The disk size of the head node in units of GB. Defaults to `512`.
+- `ha_enabled` (Boolean) Use multi head node setup for high availability. This is an experimental feature that is not supported for all users and cloud providers. Defaults to `false`.
 - `instance_type` (String) The instance type of the head node. Defaults to m5.2xlarge for AWS and Standard_D8_v3 for Azure.
 
 Read-Only:

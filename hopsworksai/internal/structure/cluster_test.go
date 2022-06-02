@@ -12,9 +12,12 @@ import (
 
 func TestFlattenHeadConfiguration(t *testing.T) {
 	input := &api.HeadConfigurationStatus{
-		NodeConfiguration: api.NodeConfiguration{
-			InstanceType: "head-type-1",
-			DiskSize:     512,
+		HeadConfiguration: api.HeadConfiguration{
+			NodeConfiguration: api.NodeConfiguration{
+				InstanceType: "head-type-1",
+				DiskSize:     512,
+			},
+			HAEnabled: false,
 		},
 		NodeId: "head-node-id-1",
 	}
@@ -24,6 +27,7 @@ func TestFlattenHeadConfiguration(t *testing.T) {
 			"instance_type": input.InstanceType,
 			"disk_size":     input.DiskSize,
 			"node_id":       input.NodeId,
+			"ha_enabled":    false,
 		},
 	}
 
@@ -305,9 +309,12 @@ func TestFlattenCluster(t *testing.T) {
 		BackupRetentionPeriod: 0,
 		ClusterConfiguration: api.ClusterConfigurationStatus{
 			Head: api.HeadConfigurationStatus{
-				NodeConfiguration: api.NodeConfiguration{
-					InstanceType: "head-node-type-1",
-					DiskSize:     512,
+				HeadConfiguration: api.HeadConfiguration{
+					NodeConfiguration: api.NodeConfiguration{
+						InstanceType: "head-node-type-1",
+						DiskSize:     512,
+					},
+					HAEnabled: false,
 				},
 				NodeId: "head-node-id-1",
 			},
@@ -1234,9 +1241,12 @@ func TestFlattenClusters(t *testing.T) {
 			BackupRetentionPeriod: 0,
 			ClusterConfiguration: api.ClusterConfigurationStatus{
 				Head: api.HeadConfigurationStatus{
-					NodeConfiguration: api.NodeConfiguration{
-						InstanceType: "head-node-type-1",
-						DiskSize:     512,
+					HeadConfiguration: api.HeadConfiguration{
+						NodeConfiguration: api.NodeConfiguration{
+							InstanceType: "head-node-type-1",
+							DiskSize:     512,
+						},
+						HAEnabled: false,
 					},
 					NodeId: "head-node-id-1",
 				},
@@ -1350,9 +1360,11 @@ func TestFlattenClusters(t *testing.T) {
 			BackupRetentionPeriod: 0,
 			ClusterConfiguration: api.ClusterConfigurationStatus{
 				Head: api.HeadConfigurationStatus{
-					NodeConfiguration: api.NodeConfiguration{
-						InstanceType: "head-node-type-1",
-						DiskSize:     512,
+					HeadConfiguration: api.HeadConfiguration{
+						NodeConfiguration: api.NodeConfiguration{
+							InstanceType: "head-node-type-1",
+							DiskSize:     512,
+						},
 					},
 					NodeId: "head-node-id-1",
 				},

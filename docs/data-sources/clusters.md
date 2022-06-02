@@ -241,6 +241,7 @@ Read-Only:
 Read-Only:
 
 - `disk_size` (Number)
+- `ha_enabled` (Boolean)
 - `instance_type` (String)
 - `node_id` (String)
 

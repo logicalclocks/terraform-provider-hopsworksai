@@ -14,6 +14,7 @@ ENHANCEMENTS:
 * dependencies: Bump hashicorp/terraform-plugin-docs from 0.7.0 to 0.9.0
 * dependencies: Bump hashicorp/terraform-plugin-log from 0.3.0 to 0.4.0
 * examples: Update versions and remove deprecated attributes
+* resource/hopsworksai_cluster: Add `ha_enabled` experimental attribute to allow using multi head node setup for high availability.
 
 BUG FIXES:
 * datasource/aws_instance_profile_policy: The `ecr:CreateRepository` permission has no resource level condition for private registries

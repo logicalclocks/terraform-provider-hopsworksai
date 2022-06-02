@@ -88,6 +88,7 @@ type ResourceFixture struct {
 	ExpectState               map[string]interface{}
 	ExpandStateCheckOnlyArray string
 	Update                    bool
+	ExpectWarning             string
 }
 
 func getResourceData(ctx context.Context, t *testing.T, r *schema.Resource, currentState *terraform.InstanceState, newState map[string]interface{}, mockClient interface{}) *schema.ResourceData {
@@ -151,17 +152,32 @@ func (r *ResourceFixture) Apply(t *testing.T, ctx context.Context) {
 		data = getResourceData(ctx, t, r.Resource, data.State(), r.State, mockClient)
 	}
 
-	diag := r.OperationContextFunc(ctx, data, mockClient)
+	diags := r.OperationContextFunc(ctx, data, mockClient)
 	if r.ExpectError != "" {
 		var errMessage string = ""
-		if diag.HasError() {
-			errMessage = diag[0].Summary
+		if diags.HasError() {
+			errMessage = diags[0].Summary
 		}
 		if r.ExpectError != errMessage {
-			t.Fatalf("expected error %s but got %#v", r.ExpectError, diag)
+			t.Fatalf("expected error %s but got %#v", r.ExpectError, diags)
 		}
-	} else if diag.HasError() {
-		t.Fatalf("unexpected error %#v", diag)
+	} else if diags.HasError() {
+		t.Fatalf("unexpected error %#v", diags)
+	}
+
+	if r.ExpectWarning != "" {
+		var warningFound = false
+		for _, d := range diags {
+			if d.Severity == diag.Warning {
+				warningFound = true
+				if r.ExpectWarning != d.Summary {
+					t.Fatalf("expected warning %s but got %#v", r.ExpectWarning, diags)
+				}
+			}
+		}
+		if !warningFound {
+			t.Fatalf("warning %s not found in %#v", r.ExpectWarning, diags)
+		}
 	}
 
 	if r.ExpectId != "" && data.Id() != r.ExpectId {

@@ -22,6 +22,7 @@ type ClusterState string
 
 const worker = "worker"
 const externally = "externally"
+const secondary = "secondary"
 
 const (
 	Starting           ClusterState = "starting"
@@ -46,6 +47,9 @@ const (
 	WorkerError           ClusterState = worker + "-" + Error
 	WorkerShuttingdown    ClusterState = worker + "-" + ShuttingDown
 	WorkerDecommissioning ClusterState = worker + "-" + Decommissioning
+	// Secondary states
+	SecondaryInitializing ClusterState = secondary + "-" + Initializing
+	SecondaryError        ClusterState = secondary + "-" + Error
 	// local state not in Hopsworks.ai
 	ClusterDeleted ClusterState = "tf-cluster-deleted"
 )
@@ -243,6 +247,7 @@ type NodeConfiguration struct {
 
 type HeadConfiguration struct {
 	NodeConfiguration
+	HAEnabled bool `json:"haEnabled"`
 }
 
 type WorkerConfiguration struct {
@@ -257,7 +262,7 @@ type ClusterConfiguration struct {
 }
 
 type HeadConfigurationStatus struct {
-	NodeConfiguration
+	HeadConfiguration
 	NodeId string `json:"nodeId"`
 }
 
