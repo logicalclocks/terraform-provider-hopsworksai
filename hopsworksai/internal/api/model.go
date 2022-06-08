@@ -178,6 +178,8 @@ type Cluster struct {
 	DeactivateLogReport      bool                       `json:"deactivateLogReport"`
 	CollectLogs              bool                       `json:"collectLogs"`
 	BackupPipelineInProgress bool                       `json:"backupPipelineInProgress"`
+	ClusterDomainPrefix      string                     `json:"clusterDomainPrefix,omitempty"`
+	CustomHostedZone         string                     `json:"customHostedZone,omitempty"`
 }
 
 func (c *Cluster) IsAWSCluster() bool {
@@ -293,6 +295,8 @@ type CreateCluster struct {
 	OS                    OS                      `json:"os,omitempty"`
 	DeactivateLogReport   bool                    `json:"deactivateLogReport"`
 	CollectLogs           bool                    `json:"collectLogs"`
+	ClusterDomainPrefix   string                  `json:"clusterDomainPrefix,omitempty"`
+	CustomHostedZone      string                  `json:"customHostedZone,omitempty"`
 }
 
 type CreateAzureCluster struct {

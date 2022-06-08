@@ -91,7 +91,9 @@ resource "hopsworksai_cluster" "cluster" {
 - `aws_attributes` (Block List, Max: 1) The configurations required to run the cluster on Amazon AWS. (see [below for nested schema](#nestedblock--aws_attributes))
 - `azure_attributes` (Block List, Max: 1) The configurations required to run the cluster on Microsoft Azure. (see [below for nested schema](#nestedblock--azure_attributes))
 - `backup_retention_period` (Number) The validity of cluster backups in days. If set to 0 cluster backups are disabled. Defaults to `0`.
+- `cluster_domain_prefix` (String) Use a specific prefix in the Cluster's domain name instead of a UUID. This option is available only to users with necessary privileges.
 - `collect_logs` (Boolean) Push services' logs to AWS cloud watch. Defaults to `false`.
+- `custom_hosted_zone` (String) Override the default cloud.hopsworks.ai Hosted Zone. This option is available only to users with necessary privileges.
 - `deactivate_hopsworksai_log_collection` (Boolean) Allow Hopsworks.ai to collect services logs to help diagnose issues with the cluster. By deactivating this option, you will not be able to get full support from our teams. Defaults to `false`.
 - `init_script` (String) A bash script that will run on all nodes during their initialization (must start with #!/usr/bin/env bash)
 - `issue_lets_encrypt_certificate` (Boolean) Enable or disable issuing let's encrypt certificates. This can be used to disable issuing certificates if port 80 can not be open. Defaults to `true`.

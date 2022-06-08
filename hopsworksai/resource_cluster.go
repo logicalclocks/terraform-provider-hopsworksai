@@ -438,6 +438,18 @@ func clusterSchema() map[string]*schema.Schema {
 			Default:       false,
 			ConflictsWith: []string{"azure_attributes"},
 		},
+		"cluster_domain_prefix": {
+			Description: "Use a specific prefix in the Cluster's domain name instead of a UUID. This option is available only to users with necessary privileges.",
+			Type:        schema.TypeString,
+			Optional:    true,
+			ForceNew:    true,
+		},
+		"custom_hosted_zone": {
+			Description: "Override the default cloud.hopsworks.ai Hosted Zone. This option is available only to users with necessary privileges.",
+			Type:        schema.TypeString,
+			Optional:    true,
+			ForceNew:    true,
+		},
 	}
 }
 
@@ -1339,6 +1351,14 @@ func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error
 		createCluster.ClusterConfiguration.Head.HAEnabled = v.(bool)
 	}
 
+	if v, ok := d.GetOk("cluster_domain_prefix"); ok {
+		createCluster.ClusterDomainPrefix = v.(string)
+	}
+
+	if v, ok := d.GetOk("custom_hosted_zone"); ok {
+		createCluster.CustomHostedZone = v.(string)
+	}
+
 	return createCluster, nil
 }
 
@@ -1375,6 +1395,13 @@ func resourceClusterRead(ctx context.Context, d *schema.ResourceData, meta inter
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Warning,
 			Summary:  "HA is an experimental feature that is not supported for all users and cloud providers.",
+		})
+	}
+
+	if cluster.CustomHostedZone != "" {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Warning,
+			Summary:  "Custom Hosted Zone is available only to hopsworks.ai Administrators. Make sure you know what you're doing",
 		})
 	}
 	return diags

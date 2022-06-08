@@ -566,6 +566,8 @@ func TestNewClusterAWS(t *testing.T) {
 					"runInitScriptFirst": false,
 					"deactivateLogReport": false,
 					"collectLogs": false,
+					"clusterDomainPrefix": "my-prefix",
+					"customHostedZone": "custom.zone.ai",
 					"region": "region-1",
 					"bucketName": "bucket-1",
 					"instanceProfileArn": "profile-1",
@@ -621,6 +623,8 @@ func TestNewClusterAWS(t *testing.T) {
 					Value: "tag1-value1",
 				},
 			},
+			ClusterDomainPrefix: "my-prefix",
+			CustomHostedZone:    "custom.zone.ai",
 			RonDB: &RonDBConfiguration{
 				Configuration: RonDBBaseConfiguration{
 					NdbdDefault: RonDBNdbdDefaultConfiguration{
