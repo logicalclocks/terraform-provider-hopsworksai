@@ -433,6 +433,8 @@ func TestFlattenCluster(t *testing.T) {
 		"upgrade_in_progress":                   flattenUpgradeInProgress(input.UpgradeInProgress),
 		"deactivate_hopsworksai_log_collection": input.DeactivateLogReport,
 		"collect_logs":                          input.CollectLogs,
+		"cluster_domain_prefix":                 input.ClusterDomainPrefix,
+		"custom_hosted_zone":                    input.CustomHostedZone,
 	}
 
 	for _, cloud := range []api.CloudProvider{api.AWS, api.AZURE} {

@@ -5,6 +5,7 @@ NOTES:
 
 BREAKING CHANGES:
 * Default values for RonDB cluster changed. New default number of replicas is `1` and new default number of Datanodes is `1`
+
 BUG FIXES:
 
 ENHANCEMENTS:
@@ -15,6 +16,8 @@ ENHANCEMENTS:
 * dependencies: Bump hashicorp/terraform-plugin-log from 0.3.0 to 0.4.1
 * examples: Update versions and remove deprecated attributes
 * resource/hopsworksai_cluster: Add `ha_enabled` experimental attribute to allow using multi head node setup for high availability.
+* resource/hopsworksai_cluster: Add `cluster_domain_prefix` attribute to override the default UUID name of a Cluster. This option is available **only** to users with special privileges.
+* resource/hopsworksai_cluster: Add `custom_hosted_zone` attribute to override the default Hosted Zone of a cluster's public domain name (cloud.hopsworks.ai). This option is available **only** to users with special privileges.
 
 BUG FIXES:
 * datasource/aws_instance_profile_policy: The `ecr:CreateRepository` permission has no resource level condition for private registries
