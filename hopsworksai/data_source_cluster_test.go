@@ -195,6 +195,7 @@ func TestClusterDataSourceRead_AWS(t *testing.T) {
 							"acl":        []interface{}{},
 						},
 					},
+					"ebs_encryption": []interface{}{},
 				},
 			},
 			"azure_attributes": []interface{}{},

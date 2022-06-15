@@ -209,6 +209,7 @@ Optional:
 
 - `bucket` (Block List, Max: 1) The bucket configurations. (see [below for nested schema](#nestedblock--aws_attributes--bucket))
 - `bucket_name` (String, Deprecated) The name of the S3 bucket that the cluster will use to store data in. use aws_attributes/bucket/name instead
+- `ebs_encryption` (Block List, Max: 1) The EBS disk encryption configuration. (see [below for nested schema](#nestedblock--aws_attributes--ebs_encryption))
 - `ecr_registry_account_id` (String) The account id used for ECR. Defaults to the user's account id, inferred from the instance profille ARN.
 - `eks_cluster_name` (String) The name of the AWS EKS cluster.
 - `network` (Block List, Max: 1) The network configurations. (see [below for nested schema](#nestedblock--aws_attributes--network))
@@ -240,6 +241,14 @@ Optional:
 - `mode` (String) The encryption type.
 - `user_key_arn` (String) The ARN of the user encryption key in KMS.
 
+
+
+<a id="nestedblock--aws_attributes--ebs_encryption"></a>
+### Nested Schema for `aws_attributes.ebs_encryption`
+
+Optional:
+
+- `kms_key` (String) The KMS key to be used for encryption can be specified by its alias, ID or ARN. Leaving the KMS key unspecified results in the EC2 default encryption key being used.
 
 
 <a id="nestedblock--aws_attributes--network"></a>

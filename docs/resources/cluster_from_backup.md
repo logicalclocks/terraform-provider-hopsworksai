@@ -139,6 +139,7 @@ Read-Only:
 
 - `bucket` (List of Object) The bucket configurations. (see [below for nested schema](#nestedatt--aws_attributes--bucket))
 - `bucket_name` (String) The name of the S3 bucket that the cluster will use to store data in.
+- `ebs_encryption` (List of Object) The EBS disk encryption configuration. (see [below for nested schema](#nestedatt--aws_attributes--ebs_encryption))
 - `ecr_registry_account_id` (String) The account id used for ECR. Defaults to the user's account id, inferred from the instance profille ARN.
 - `eks_cluster_name` (String) The name of the AWS EKS cluster.
 - `region` (String) The AWS region where the cluster will be created.
@@ -183,6 +184,14 @@ Read-Only:
 - `mode` (String)
 - `user_key_arn` (String)
 
+
+
+<a id="nestedatt--aws_attributes--ebs_encryption"></a>
+### Nested Schema for `aws_attributes.ebs_encryption`
+
+Read-Only:
+
+- `kms_key` (String)
 
 
 

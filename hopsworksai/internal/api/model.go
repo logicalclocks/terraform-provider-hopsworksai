@@ -25,21 +25,23 @@ const externally = "externally"
 const secondary = "secondary"
 
 const (
-	Starting           ClusterState = "starting"
-	Pending            ClusterState = "pending"
-	Initializing       ClusterState = "initializing"
-	Running            ClusterState = "running"
-	Stopping           ClusterState = "stopping"
-	Stopped            ClusterState = "stopped"
-	Error              ClusterState = "error"
-	TerminationWarning ClusterState = "termination-warning"
-	ShuttingDown       ClusterState = "shutting-down"
-	Updating           ClusterState = "updating"
-	Decommissioning    ClusterState = "decommissioning"
-	RonDBInitializing  ClusterState = "rondb-initializing"
-	StartingHopsworks  ClusterState = "starting-hopsworks"
-	CommandFailed      ClusterState = "command-failed"
-	ExternallyStopped  ClusterState = externally + "-" + Stopped
+	Starting               ClusterState = "starting"
+	Pending                ClusterState = "pending"
+	Initializing           ClusterState = "initializing"
+	Running                ClusterState = "running"
+	Stopping               ClusterState = "stopping"
+	Stopped                ClusterState = "stopped"
+	Error                  ClusterState = "error"
+	TerminationWarning     ClusterState = "termination-warning"
+	ShuttingDown           ClusterState = "shutting-down"
+	Updating               ClusterState = "updating"
+	Decommissioning        ClusterState = "decommissioning"
+	RonDBInitializing      ClusterState = "rondb-initializing"
+	StartingHopsworks      ClusterState = "starting-hopsworks"
+	CommandFailed          ClusterState = "command-failed"
+	ExternallyStopped      ClusterState = externally + "-" + Stopped
+	ExternallyShuttingDown ClusterState = externally + "-" + ShuttingDown
+	ExternallyTerminated   ClusterState = externally + "-" + "terminated"
 	// Worker states
 	WorkerPending         ClusterState = worker + "-" + Pending
 	WorkerInitializing    ClusterState = worker + "-" + Initializing
@@ -230,6 +232,10 @@ type S3BucketConfiguration struct {
 	ACL        *S3ACLConfiguration       `json:"acl,omitempty"`
 }
 
+type EBSEncryption struct {
+	KmsKey string `json:"kmsKey"`
+}
+
 type AWSCluster struct {
 	Region               string                 `json:"region"`
 	BucketName           string                 `json:"bucketName"`
@@ -240,6 +246,7 @@ type AWSCluster struct {
 	EksClusterName       string                 `json:"eksClusterName"`
 	EcrRegistryAccountId string                 `json:"ecrRegistryAccountId"`
 	BucketConfiguration  *S3BucketConfiguration `json:"bucketConfiguration,omitempty"`
+	EBSEncryption        *EBSEncryption         `json:"ebsEncryption,omitempty"`
 }
 
 type NodeConfiguration struct {

@@ -192,6 +192,7 @@ func TestFlattenAWSAttributes(t *testing.T) {
 					"name": input.AWS.BucketName,
 				},
 			},
+			"ebs_encryption": []map[string]interface{}{},
 		},
 	}
 
@@ -1617,6 +1618,7 @@ func TestFlattenAWSAttributes_bucketConfiguration(t *testing.T) {
 					},
 				},
 			},
+			"ebs_encryption": []map[string]interface{}{},
 		},
 	}
 
@@ -1822,6 +1824,88 @@ func TestFlattenAzureContainerConfiguration(t *testing.T) {
 
 	for i := range input {
 		output := flattenAzureContainerConfiguration(storageAccount, containerName, input[i])
+		if !reflect.DeepEqual(expected[i], output) {
+			t.Fatalf("error while matching[%d]:\nexpected %#v \nbut got %#v", i, expected[i], output)
+		}
+	}
+}
+
+func TestFlattenAWSAttributes_ebsEncryption(t *testing.T) {
+	input := &api.Cluster{
+		Provider: api.AWS,
+		AWS: api.AWSCluster{
+			Region:               "region-1",
+			InstanceProfileArn:   "instance-profile-1",
+			BucketName:           "bucket-name-1",
+			VpcId:                "vpc-id-1",
+			SubnetId:             "subnet-id-1",
+			SecurityGroupId:      "security-group-1",
+			EksClusterName:       "eks-cluster-name-1",
+			EcrRegistryAccountId: "ecr-registry-account-1",
+			EBSEncryption: &api.EBSEncryption{
+				KmsKey: "my-key-id",
+			},
+		},
+	}
+
+	expected := []interface{}{
+		map[string]interface{}{
+			"region":               input.AWS.Region,
+			"instance_profile_arn": input.AWS.InstanceProfileArn,
+			"bucket_name":          input.AWS.BucketName,
+			"network": []map[string]interface{}{
+				{
+					"vpc_id":            input.AWS.VpcId,
+					"subnet_id":         input.AWS.SubnetId,
+					"security_group_id": input.AWS.SecurityGroupId,
+				},
+			},
+			"eks_cluster_name":        input.AWS.EksClusterName,
+			"ecr_registry_account_id": input.AWS.EcrRegistryAccountId,
+			"bucket": []map[string]interface{}{
+				{
+					"name": input.AWS.BucketName,
+				},
+			},
+			"ebs_encryption": []map[string]interface{}{
+				{
+					"kms_key": "my-key-id",
+				},
+			},
+		},
+	}
+
+	output := flattenAWSAttributes(input)
+	if !reflect.DeepEqual(expected, output) {
+		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
+	}
+}
+
+func TestFlattenEBSEncryption(t *testing.T) {
+	input := []*api.EBSEncryption{
+		{},
+		{
+			KmsKey: "my-kms-key",
+		},
+		nil,
+	}
+
+	expected := [][]map[string]interface{}{
+		{
+			map[string]interface{}{
+				"kms_key": "",
+			},
+		},
+		{
+			map[string]interface{}{
+				"kms_key": "my-kms-key",
+			},
+		},
+		{},
+	}
+
+	for i := range input {
+		output := flattenEBSEncryption(input[i])
 		if !reflect.DeepEqual(expected[i], output) {
 			t.Fatalf("error while matching[%d]:\nexpected %#v \nbut got %#v", i, expected[i], output)
 		}

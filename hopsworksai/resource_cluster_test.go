@@ -1793,6 +1793,7 @@ func TestClusterRead_AWS(t *testing.T) {
 							"acl":        []interface{}{},
 						},
 					},
+					"ebs_encryption": []interface{}{},
 				},
 			},
 			"azure_attributes": []interface{}{},
@@ -4820,6 +4821,7 @@ func TestClusterRead_AWS_HA(t *testing.T) {
 							"acl":        []interface{}{},
 						},
 					},
+					"ebs_encryption": []interface{}{},
 				},
 			},
 			"azure_attributes": []interface{}{},
@@ -4998,6 +5000,7 @@ func TestClusterRead_NoDomainPrefix(t *testing.T) {
 							"acl":        []interface{}{},
 						},
 					},
+					"ebs_encryption": []interface{}{},
 				},
 			},
 			"azure_attributes": []interface{}{},
@@ -5178,6 +5181,7 @@ func TestClusterRead_WithDomainPrefix(t *testing.T) {
 							"acl":        []interface{}{},
 						},
 					},
+					"ebs_encryption": []interface{}{},
 				},
 			},
 			"azure_attributes":      []interface{}{},
@@ -5411,12 +5415,177 @@ func TestClusterRead_WithCustomHostedZone(t *testing.T) {
 							"acl":        []interface{}{},
 						},
 					},
+					"ebs_encryption": []interface{}{},
 				},
 			},
 			"azure_attributes":   []interface{}{},
 			"custom_hosted_zone": "my.hosted.zone",
 		},
 		ExpectWarning: "Custom Hosted Zone is available only to hopsworks.ai Administrators. Make sure you know what you're doing",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_EBSEncryption(t *testing.T) {
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "error",
+					"code": 400,
+					"message": "skip"
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					var req api.NewAWSClusterRequest
+					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+						return err
+					}
+					if req.CreateRequest.AWSCluster.EBSEncryption == nil {
+						return fmt.Errorf("expected EBSEncryption to be set but it is nil")
+					}
+					return nil
+				},
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name": "cluster",
+			"head": []interface{}{
+				map[string]interface{}{
+					"disk_size": 512,
+				},
+			},
+			"aws_attributes": []interface{}{
+				map[string]interface{}{
+					"region":               "region-1",
+					"bucket_name":          "bucket-1",
+					"instance_profile_arn": "profile-1",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
+					"ebs_encryption": []interface{}{
+						map[string]interface{}{},
+					},
+				},
+			},
+		},
+		ExpectError: "failed to create cluster, error: skip",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_no_EBSEncryption(t *testing.T) {
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "error",
+					"code": 400,
+					"message": "skip"
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					var req api.NewAWSClusterRequest
+					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+						return err
+					}
+					if req.CreateRequest.AWSCluster.EBSEncryption != nil {
+						return fmt.Errorf("expected EBSEncryption to be nil but got %#v", *req.CreateRequest.AWSCluster.EBSEncryption)
+					}
+					return nil
+				},
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name": "cluster",
+			"head": []interface{}{
+				map[string]interface{}{
+					"disk_size": 512,
+				},
+			},
+			"aws_attributes": []interface{}{
+				map[string]interface{}{
+					"region":               "region-1",
+					"bucket_name":          "bucket-1",
+					"instance_profile_arn": "profile-1",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
+				},
+			},
+		},
+		ExpectError: "failed to create cluster, error: skip",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_EBSEncryption_setKMSKey(t *testing.T) {
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "error",
+					"code": 400,
+					"message": "skip"
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					var req api.NewAWSClusterRequest
+					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+						return err
+					}
+					if req.CreateRequest.AWSCluster.EBSEncryption == nil {
+						return fmt.Errorf("expected EBSEncryption to be set but got nil")
+					}
+					if req.CreateRequest.AWSCluster.EBSEncryption.KmsKey != "my-kms-id" {
+						return fmt.Errorf("expected KmsKey to be my-kms-id but got %s", req.CreateRequest.AWSCluster.EBSEncryption.KmsKey)
+					}
+					return nil
+				},
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name": "cluster",
+			"head": []interface{}{
+				map[string]interface{}{
+					"disk_size": 512,
+				},
+			},
+			"aws_attributes": []interface{}{
+				map[string]interface{}{
+					"region":               "region-1",
+					"bucket_name":          "bucket-1",
+					"instance_profile_arn": "profile-1",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
+					"ebs_encryption": []interface{}{
+						map[string]interface{}{
+							"kms_key": "my-kms-id",
+						},
+					},
+				},
+			},
+		},
+		ExpectError: "failed to create cluster, error: skip",
 	}
 	r.Apply(t, context.TODO())
 }

@@ -859,6 +859,24 @@ func awsAttributesSchema() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^\d{12}$`), "Invalid ECR account id"),
 			},
+			"ebs_encryption": {
+				Description: "The EBS disk encryption configuration.",
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"kms_key": {
+							Description: "The KMS key to be used for encryption can be specified by its alias, ID or ARN. Leaving the KMS key unspecified results in the EC2 default encryption key being used.",
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -1160,6 +1178,13 @@ func createAWSCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) (*
 	if _, ok := d.GetOk("aws_attributes.0.bucket.0.acl.0.bucket_owner_full_control"); ok {
 		req.BucketConfiguration.ACL = &api.S3ACLConfiguration{
 			BucketOwnerFullControl: d.Get("aws_attributes.0.bucket.0.acl.0.bucket_owner_full_control").(bool),
+		}
+	}
+
+	if _, oke := d.GetOk("aws_attributes.0.ebs_encryption"); oke {
+		req.AWSCluster.EBSEncryption = &api.EBSEncryption{}
+		if v, ok := d.GetOk("aws_attributes.0.ebs_encryption.0.kms_key"); ok {
+			req.AWSCluster.EBSEncryption.KmsKey = v.(string)
 		}
 	}
 
@@ -1673,6 +1698,8 @@ func resourceClusterWaitForRunningBase(ctx context.Context, client *api.Hopswork
 			api.WorkerError,
 			api.CommandFailed,
 			api.SecondaryError,
+			api.ExternallyShuttingDown,
+			api.ExternallyTerminated,
 		},
 		timeout,
 		func() (result interface{}, state string, err error) {
