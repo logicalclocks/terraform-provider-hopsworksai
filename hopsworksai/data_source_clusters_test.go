@@ -206,6 +206,7 @@ func TestClustersDataSourceRead(t *testing.T) {
 									"acl":        []interface{}{},
 								},
 							},
+							"ebs_encryption": []interface{}{},
 						},
 					},
 					"open_ports": []interface{}{
@@ -264,6 +265,7 @@ func TestClustersDataSourceRead(t *testing.T) {
 									"acl":        []interface{}{},
 								},
 							},
+							"ebs_encryption": []interface{}{},
 						},
 					},
 					"open_ports": []interface{}{

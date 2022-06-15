@@ -114,6 +114,7 @@ func flattenAWSAttributes(cluster *api.Cluster) []interface{} {
 		"eks_cluster_name":        cluster.AWS.EksClusterName,
 		"ecr_registry_account_id": cluster.AWS.EcrRegistryAccountId,
 		"bucket":                  flattenS3BucketConfiguration(cluster.AWS.BucketName, cluster.AWS.BucketConfiguration),
+		"ebs_encryption":          flattenEBSEncryption(cluster.AWS.EBSEncryption),
 	}
 	return awsAttributes
 }
@@ -146,6 +147,19 @@ func flattenS3BucketConfiguration(bucketName string, bucketConfiguration *api.S3
 
 	return config
 }
+
+func flattenEBSEncryption(ebsEncryption *api.EBSEncryption) []map[string]interface{} {
+	if ebsEncryption == nil {
+		return []map[string]interface{}{}
+	}
+
+	return []map[string]interface{}{
+		{
+			"kms_key": ebsEncryption.KmsKey,
+		},
+	}
+}
+
 func flattenAzureAttributes(cluster *api.Cluster) []interface{} {
 	if !cluster.IsAzureCluster() {
 		return nil

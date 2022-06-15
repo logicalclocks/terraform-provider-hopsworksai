@@ -8,7 +8,7 @@ provider "hopsworksai" {
 
 # Create required aws resources, an ssh key, an s3 bucket, and an instance profile with the required hopsworks permissions
 module "aws" {
-  source  = "/Volumes/Code/terraform-hopsworksai-helpers/modules/aws"
+  source  = "logicalclocks/helpers/hopsworksai//modules/aws"
   region  = var.region
   version = "2.0.0"
 }
