@@ -19,6 +19,7 @@ ENHANCEMENTS:
 * resource/hopsworksai_cluster: Add `cluster_domain_prefix` attribute to override the default UUID name of a Cluster. This option is available **only** to users with special privileges.
 * resource/hopsworksai_cluster: Add `custom_hosted_zone` attribute to override the default Hosted Zone of a cluster's public domain name (cloud.hopsworks.ai). This option is available **only** to users with special privileges.
 * resource/hopsworksai_cluster: Add `aws_attributes/ebs_encryption` attribute to configure EBS encryption for disks on AWS clusters.
+* resource/hopsworksai_cluster: Change `ssh_key` attribute to be optional for AWS.
 
 BUG FIXES:
 * datasource/aws_instance_profile_policy: The `ecr:CreateRepository` permission has no resource level condition for private registries

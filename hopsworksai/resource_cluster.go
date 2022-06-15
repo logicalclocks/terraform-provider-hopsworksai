@@ -219,7 +219,7 @@ func clusterSchema() map[string]*schema.Schema {
 		"ssh_key": {
 			Description: "The ssh key name that will be attached to this cluster.",
 			Type:        schema.TypeString,
-			Required:    true,
+			Optional:    true,
 			ForceNew:    true,
 		},
 		"backup_retention_period": {
@@ -1260,9 +1260,8 @@ func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error
 	headConfig := d.Get("head").([]interface{})[0].(map[string]interface{})
 
 	createCluster := &api.CreateCluster{
-		Name:       d.Get("name").(string),
-		Version:    d.Get("version").(string),
-		SshKeyName: d.Get("ssh_key").(string),
+		Name:    d.Get("name").(string),
+		Version: d.Get("version").(string),
 		ClusterConfiguration: api.ClusterConfiguration{
 			Head: api.HeadConfiguration{
 				NodeConfiguration: structure.ExpandNode(headConfig),
@@ -1280,6 +1279,14 @@ func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error
 		OS:                    api.OS(d.Get("os").(string)),
 		DeactivateLogReport:   d.Get("deactivate_hopsworksai_log_collection").(bool),
 		CollectLogs:           d.Get("collect_logs").(bool),
+	}
+
+	if v, ok := d.GetOk("ssh_key"); ok {
+		createCluster.SshKeyName = v.(string)
+	} else {
+		if _, ok := d.GetOk("aws_attributes"); !ok {
+			return nil, fmt.Errorf("SSH key is required")
+		}
 	}
 
 	if v, ok := d.GetOk("workers"); ok {
