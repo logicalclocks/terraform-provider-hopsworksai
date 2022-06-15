@@ -82,7 +82,6 @@ resource "hopsworksai_cluster" "cluster" {
 
 - `head` (Block List, Min: 1, Max: 1) The configurations of the head node of the cluster. (see [below for nested schema](#nestedblock--head))
 - `name` (String) The name of the cluster, must be unique.
-- `ssh_key` (String) The ssh key name that will be attached to this cluster.
 
 ### Optional
 
@@ -102,6 +101,7 @@ resource "hopsworksai_cluster" "cluster" {
 - `os` (String) The operating system to use for the instances. Supported systems are ubuntu in all regions and centos in some specific regions Defaults to `ubuntu`.
 - `rondb` (Block List, Max: 1) Setup a cluster with managed RonDB. (see [below for nested schema](#nestedblock--rondb))
 - `run_init_script_first` (Boolean) Run the init script before any other node initialization. WARNING if your initscript interfere with the following node initialization the cluster may not start properly. Make sure that you know what you are doing.
+- `ssh_key` (String) The ssh key name that will be attached to this cluster.
 - `tags` (Map of String) The list of custom tags to be attached to the cluster.
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 - `update_state` (String) The action you can use to start or stop the cluster. Defaults to `none`.

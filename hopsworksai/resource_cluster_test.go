@@ -1472,6 +1472,7 @@ func TestClusterCreate_error(t *testing.T) {
 					"disk_size": 512,
 				},
 			},
+			"ssh_key": "my-key",
 			"azure_attributes": []interface{}{
 				map[string]interface{}{
 					"location":                       "location-1",
@@ -1567,6 +1568,7 @@ func TestClusterCreate_AzureDefaultInstanceType(t *testing.T) {
 					"disk_size": 512,
 				},
 			},
+			"ssh_key": "my-key",
 			"azure_attributes": []interface{}{
 				map[string]interface{}{
 					"location":                       "location-1",
@@ -2136,6 +2138,7 @@ func testClusterCreate_RonDB(t *testing.T, cloud api.CloudProvider) {
 				"disk_size": 512,
 			},
 		},
+		"ssh_key": "my-key",
 		"workers": []interface{}{
 			map[string]interface{}{
 				"disk_size": 256,
@@ -2306,7 +2309,8 @@ func testGetRonDBConfig(reqBody io.Reader, cloud api.CloudProvider) (*api.RonDBC
 
 func testClusterCreate_RonDB_default(t *testing.T, cloud api.CloudProvider) {
 	state := map[string]interface{}{
-		"name": "cluster",
+		"name":    "cluster",
+		"ssh_key": "my-key",
 		"head": []interface{}{
 			map[string]interface{}{
 				"disk_size": 512,
@@ -2382,6 +2386,7 @@ func testClusterCreate_RonDB_defaultEmptyBlocks(t *testing.T, cloud api.CloudPro
 				"disk_size": 512,
 			},
 		},
+		"ssh_key": "my-key",
 		"workers": []interface{}{
 			map[string]interface{}{
 				"disk_size": 256,
@@ -2479,6 +2484,7 @@ func testClusterCreate_RonDB_invalidReplicationFactor(t *testing.T, cloud api.Cl
 				"disk_size": 512,
 			},
 		},
+		"ssh_key": "my-key",
 		"workers": []interface{}{
 			map[string]interface{}{
 				"disk_size": 256,
@@ -2548,6 +2554,7 @@ func testClusterCreate_Autoscale(t *testing.T, cloud api.CloudProvider, withGpu 
 				"disk_size": 512,
 			},
 		},
+		"ssh_key": "my-key",
 		"autoscale": []interface{}{
 			map[string]interface{}{
 				"non_gpu_workers": []interface{}{
@@ -3162,6 +3169,7 @@ func TestClusterCreate_AZURE_container(t *testing.T) {
 					"disk_size": 512,
 				},
 			},
+			"ssh_key": "my-key",
 			"azure_attributes": []interface{}{
 				map[string]interface{}{
 					"location":                       "location-1",
@@ -3209,6 +3217,7 @@ func TestClusterCreate_AZURE_searchDomain_deprecated(t *testing.T) {
 					"disk_size": 512,
 				},
 			},
+			"ssh_key": "my-key",
 			"azure_attributes": []interface{}{
 				map[string]interface{}{
 					"location":                       "location-1",
@@ -3256,6 +3265,7 @@ func TestClusterCreate_AZURE_searchDomain(t *testing.T) {
 					"disk_size": 512,
 				},
 			},
+			"ssh_key": "my-key",
 			"azure_attributes": []interface{}{
 				map[string]interface{}{
 					"location":                       "location-1",
@@ -3307,6 +3317,7 @@ func TestClusterCreate_AZURE_ASK_cluster(t *testing.T) {
 					"disk_size": 512,
 				},
 			},
+			"ssh_key": "my-key",
 			"azure_attributes": []interface{}{
 				map[string]interface{}{
 					"location":                       "location-1",
@@ -4430,6 +4441,7 @@ func TestClusterCreate_AZURE_setEncryption(t *testing.T) {
 					"disk_size":     512,
 				},
 			},
+			"ssh_key": "my-key",
 			"azure_attributes": []interface{}{
 				map[string]interface{}{
 					"location":                       "location-1",
@@ -4494,6 +4506,7 @@ func TestClusterCreate_AZURE_setEncryption_default(t *testing.T) {
 					"disk_size":     512,
 				},
 			},
+			"ssh_key": "my-key",
 			"azure_attributes": []interface{}{
 				map[string]interface{}{
 					"location":                       "location-1",
@@ -4547,6 +4560,7 @@ func TestClusterCreate_AZURE_newContainerConfiguration(t *testing.T) {
 					"disk_size":     512,
 				},
 			},
+			"ssh_key": "my-key",
 			"azure_attributes": []interface{}{
 				map[string]interface{}{
 					"location":                       "location-1",
@@ -4579,6 +4593,7 @@ func TestClusterCreate_AZURE_error_noStorageAccountConfigured(t *testing.T) {
 					"disk_size":     512,
 				},
 			},
+			"ssh_key": "my-key",
 			"azure_attributes": []interface{}{
 				map[string]interface{}{
 					"location":                       "location-1",
@@ -5586,6 +5601,77 @@ func TestClusterCreate_EBSEncryption_setKMSKey(t *testing.T) {
 			},
 		},
 		ExpectError: "failed to create cluster, error: skip",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_AWS_skipSSHKey(t *testing.T) {
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "error",
+					"code": 400,
+					"message": "skip"
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					var req api.NewAWSClusterRequest
+					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+						return err
+					}
+					if req.CreateRequest.SshKeyName != "" {
+						return fmt.Errorf("expected empty ssh key name but got %s", req.CreateRequest.SshKeyName)
+					}
+					return nil
+				},
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name": "cluster",
+			"head": []interface{}{
+				map[string]interface{}{
+					"disk_size": 512,
+				},
+			},
+			"aws_attributes": []interface{}{
+				map[string]interface{}{
+					"region":               "region-1",
+					"bucket_name":          "bucket-1",
+					"instance_profile_arn": "profile-1",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
+				},
+			},
+		},
+		ExpectError: "failed to create cluster, error: skip",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_AZURE_failSkipSSH(t *testing.T) {
+	r := test.ResourceFixture{
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name": "cluster",
+			"head": []interface{}{
+				map[string]interface{}{
+					"disk_size": 512,
+				},
+			},
+			"azure_attributes": []interface{}{
+				map[string]interface{}{},
+			},
+		},
+		ExpectError: "SSH key is required",
 	}
 	r.Apply(t, context.TODO())
 }
