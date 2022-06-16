@@ -1,4 +1,4 @@
-## 0.11.0 (Unreleased)
+## 0.11.0 (June 16, 2022)
 
 NOTES:
 * resource/hopsworksai_cluster: Change default values for RonDB cluster. New default number of replicas is `1` and new default number of Datanodes is `1`
@@ -23,8 +23,6 @@ ENHANCEMENTS:
 
 BUG FIXES:
 * datasource/aws_instance_profile_policy: The `ecr:CreateRepository` permission has no resource level condition for private registries
-
-FEATURES:
 
 ## 0.10.1 (April 19, 2022)
 
