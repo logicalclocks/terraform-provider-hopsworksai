@@ -5,6 +5,7 @@ NOTES:
 BREAKING CHANGES:
 
 ENHANCEMENTS:
+* dependencies: Bump hashicorp/terraform-plugin-docs from 0.10.1 to 0.12.0
 
 BUG FIXES:
 
