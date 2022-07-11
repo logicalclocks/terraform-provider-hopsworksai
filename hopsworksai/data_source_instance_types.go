@@ -73,7 +73,7 @@ func dataSourceInstanceTypesRead(ctx context.Context, d *schema.ResourceData, me
 	nodeType := d.Get("node_type").(string)
 	instanceTypesArr := supportedTypes.GetByNodeType(api.NodeType(nodeType))
 
-	if instanceTypesArr == nil || len(instanceTypesArr) == 0 {
+	if len(instanceTypesArr) == 0 {
 		return diag.Errorf("no instance types available for %s", nodeType)
 	}
 

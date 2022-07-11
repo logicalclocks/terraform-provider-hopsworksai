@@ -57,11 +57,11 @@ func init() {
 func parallelTest(t *testing.T, cloud api.CloudProvider, test resource.TestCase) {
 	if cloud == api.AWS {
 		if isAWSAccSkipped() {
-			t.Skip(fmt.Sprintf("Skipping %s test as %s is set", t.Name(), env_AWS_SKIP))
+			t.Skipf("Skipping %s test as %s is set", t.Name(), env_AWS_SKIP)
 		}
 	} else if cloud == api.AZURE {
 		if isAzureAccSkipped() {
-			t.Skip(fmt.Sprintf("Skipping %s test as %s is set", t.Name(), env_AZURE_SKIP))
+			t.Skipf("Skipping %s test as %s is set", t.Name(), env_AZURE_SKIP)
 		}
 	}
 	resource.ParallelTest(t, test)
@@ -260,7 +260,7 @@ func TestProviderAPIGateway(t *testing.T) {
 		if !found {
 			apiGatewayInTest = api.DEFAULT_API_GATEWAY
 		}
-		t.Log(fmt.Sprintf("Testing case api_gateway: %s", apiGatewayInTest))
+		t.Logf("Testing case api_gateway: %s", apiGatewayInTest)
 		if len(test.expectedDiagnostics) > 0 {
 			if test.expectedDiagnostics.HasError() && !diagnostics.HasError() {
 				t.Fatalf("Expected Validate to return Diagnostic error %s but it did not",
