@@ -102,6 +102,7 @@ resource "azurerm_ssh_public_key" "key" {
 data "hopsworksai_instance_type" "smallest_worker" {
   cloud_provider = "AZURE"
   node_type      = "worker"
+  region         = data.azurerm_resource_group.rg.location
   min_cpus       = 8
 }
 

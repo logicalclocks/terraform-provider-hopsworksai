@@ -18,6 +18,7 @@ module "aws" {
 data "hopsworksai_instance_type" "small_worker" {
   cloud_provider = "AWS"
   node_type      = "worker"
+  region         = var.region
   min_memory_gb  = 16
   min_cpus       = 4
 }
@@ -25,6 +26,7 @@ data "hopsworksai_instance_type" "small_worker" {
 data "hopsworksai_instance_type" "large_worker" {
   cloud_provider = "AWS"
   node_type      = "worker"
+  region         = var.region
   min_memory_gb  = 32
   min_cpus       = 4
 }

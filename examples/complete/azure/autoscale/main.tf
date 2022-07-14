@@ -18,6 +18,7 @@ module "azure" {
 data "hopsworksai_instance_type" "small_worker" {
   cloud_provider = "AZURE"
   node_type      = "worker"
+  region         = module.azure.location
   min_memory_gb  = 16
   min_cpus       = 4
 }

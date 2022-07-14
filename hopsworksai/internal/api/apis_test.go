@@ -1151,12 +1151,16 @@ func TestUpdatePorts(t *testing.T) {
 	})
 }
 
-func testGetSupportedInstanceTypes(t *testing.T, cloud CloudProvider) {
+func testGetSupportedInstanceTypes(t *testing.T, cloud CloudProvider, region string) {
+	var reqQuery = "cloud=" + cloud.String()
+	if region != "" {
+		reqQuery = reqQuery + "&region=" + region
+	}
 	apiClient := &HopsworksAIClient{
 		Client: &test.HttpClientFixture{
 			ExpectMethod:       http.MethodGet,
 			ExpectPath:         "/api/clusters/nodes/supported-types",
-			ExpectRequestQuery: "cloud=" + cloud.String(),
+			ExpectRequestQuery: reqQuery,
 			ResponseCode:       http.StatusOK,
 			ResponseBody: fmt.Sprintf(`{
 				"apiVersion": "v1",
@@ -1233,7 +1237,7 @@ func testGetSupportedInstanceTypes(t *testing.T, cloud CloudProvider) {
 		},
 	}
 
-	output, err := GetSupportedInstanceTypes(context.TODO(), apiClient, cloud)
+	output, err := GetSupportedInstanceTypes(context.TODO(), apiClient, cloud, region)
 	if err != nil {
 		t.Fatalf("should not throw an error, but got %s", err)
 	}
@@ -1309,8 +1313,10 @@ func testGetSupportedInstanceTypes(t *testing.T, cloud CloudProvider) {
 }
 
 func TestGetSupportedInstanceTypes(t *testing.T) {
-	testGetSupportedInstanceTypes(t, AWS)
-	testGetSupportedInstanceTypes(t, AZURE)
+	testGetSupportedInstanceTypes(t, AWS, "")
+	testGetSupportedInstanceTypes(t, AWS, "region1")
+	testGetSupportedInstanceTypes(t, AZURE, "")
+	testGetSupportedInstanceTypes(t, AZURE, "region1")
 }
 
 func TestGetSupportedInstanceTypes_unknownProvider(t *testing.T) {
@@ -1330,7 +1336,7 @@ func TestGetSupportedInstanceTypes_unknownProvider(t *testing.T) {
 		},
 	}
 
-	output, err := GetSupportedInstanceTypes(context.TODO(), apiClient, "test")
+	output, err := GetSupportedInstanceTypes(context.TODO(), apiClient, "test", "")
 	if err == nil || err.Error() != "unknown cloud provider test" {
 		t.Fatalf("should throw an error, but got %s", err)
 	}

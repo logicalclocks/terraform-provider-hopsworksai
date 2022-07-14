@@ -63,6 +63,7 @@ module "aws" {
 data "hopsworksai_instance_type" "smallest_worker" {
   cloud_provider = "AWS"
   node_type      = "worker"
+  region         = var.region
 }
 
 resource "hopsworksai_cluster" "cluster" {
@@ -152,6 +153,7 @@ module "azure" {
 data "hopsworksai_instance_type" "smallest_worker" {
   cloud_provider = "AZURE"
   node_type      = "worker"
+  region         = module.azure.location
 }
 
 resource "hopsworksai_cluster" "cluster" {
