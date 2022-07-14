@@ -147,9 +147,13 @@ func UpdateOpenPorts(ctx context.Context, apiClient APIHandler, clusterId string
 	return nil
 }
 
-func GetSupportedInstanceTypes(ctx context.Context, apiClient APIHandler, cloud CloudProvider) (*SupportedInstanceTypes, error) {
+func GetSupportedInstanceTypes(ctx context.Context, apiClient APIHandler, cloud CloudProvider, region string) (*SupportedInstanceTypes, error) {
 	var response GetSupportedInstanceTypesResponse
-	if err := apiClient.doRequest(ctx, http.MethodGet, "/api/clusters/nodes/supported-types?cloud="+cloud.String(), nil, &response); err != nil {
+	var url = "/api/clusters/nodes/supported-types?cloud=" + cloud.String()
+	if region != "" {
+		url = url + "&region=" + region
+	}
+	if err := apiClient.doRequest(ctx, http.MethodGet, url, nil, &response); err != nil {
 		return nil, err
 	}
 	if cloud == AWS {

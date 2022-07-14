@@ -17,6 +17,7 @@ Use this data source to get all the supported instance types for head, worker, a
 data "hopsworksai_instance_types" "supported_worker_types" {
   node_type      = "head"
   cloud_provider = "AWS"
+  region         = "us-east-2"
 }
 ```
 
@@ -27,6 +28,7 @@ data "hopsworksai_instance_types" "supported_worker_types" {
 
 - `cloud_provider` (String) The cloud provider where you plan to create your cluster.
 - `node_type` (String) The node type that you want to get its supported instance types.
+- `region` (String) The region/location where you plan to create your cluster.
 
 ### Read-Only
 

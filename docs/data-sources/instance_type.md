@@ -17,12 +17,14 @@ Use this data source to get the smallest instance type for head, worker, and Ron
 data "hopsworksai_instance_type" "supported_type" {
   node_type      = "head"
   cloud_provider = "AWS"
+  region         = "us-east-2"
 }
 
 # retrieve the smallest supported instance type for head node with at least 32 GB memory and 16 vCPUs
 data "hopsworksai_instance_type" "supported_type" {
   node_type      = "head"
   cloud_provider = "AWS"
+  region         = "us-east-2"
   min_memory_gb  = 32
   min_cpus       = 16
 }
@@ -35,6 +37,7 @@ data "hopsworksai_instance_type" "supported_type" {
 
 - `cloud_provider` (String) The cloud provider where you plan to create your cluster.
 - `node_type` (String) The node type that you want to get its smallest instance type. It has to be one of these types (head, worker, rondb_management, rondb_data, rondb_mysql, rondb_api).
+- `region` (String) The region/location where you plan to create your cluster.
 
 ### Optional
 

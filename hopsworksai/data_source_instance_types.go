@@ -27,6 +27,11 @@ func dataSourceInstanceTypes() *schema.Resource {
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{api.AWS.String(), api.AZURE.String()}, false),
 			},
+			"region": {
+				Description: "The region/location where you plan to create your cluster.",
+				Type:        schema.TypeString,
+				Required:    true,
+			},
 			"supported_types": {
 				Description: "The list of supported instance types.",
 				Type:        schema.TypeList,
@@ -65,7 +70,8 @@ func dataSourceInstanceTypesRead(ctx context.Context, d *schema.ResourceData, me
 	client := meta.(*api.HopsworksAIClient)
 
 	cloud := api.CloudProvider(d.Get("cloud_provider").(string))
-	supportedTypes, err := api.GetSupportedInstanceTypes(ctx, client, cloud)
+	region := d.Get("region").(string)
+	supportedTypes, err := api.GetSupportedInstanceTypes(ctx, client, cloud, region)
 	if err != nil {
 		return diag.FromErr(err)
 	}

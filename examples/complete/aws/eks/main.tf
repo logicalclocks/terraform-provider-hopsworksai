@@ -126,6 +126,7 @@ provider "kubernetes" {
 data "hopsworksai_instance_type" "smallest_worker" {
   cloud_provider = "AWS"
   node_type      = "worker"
+  region         = var.region
   min_cpus       = 8
 }
 
