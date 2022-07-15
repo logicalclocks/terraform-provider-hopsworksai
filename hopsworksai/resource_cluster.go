@@ -690,15 +690,6 @@ func awsAttributesSchema() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 			},
-			"bucket_name": {
-				Description:   "The name of the S3 bucket that the cluster will use to store data in.",
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ForceNew:      true,
-				Deprecated:    "use aws_attributes/bucket/name instead",
-				ConflictsWith: []string{"aws_attributes.0.bucket.0.name"},
-			},
 			"bucket": {
 				Description: "The bucket configurations.",
 				Type:        schema.TypeList,
@@ -709,12 +700,11 @@ func awsAttributesSchema() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Description:   "The name of the S3 bucket that the cluster will use to store data in.",
-							Type:          schema.TypeString,
-							Optional:      true,
-							Computed:      true,
-							ForceNew:      true,
-							ConflictsWith: []string{"aws_attributes.0.bucket_name"},
+							Description: "The name of the S3 bucket that the cluster will use to store data in.",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
 						},
 						"encryption": {
 							Description: "The server-side encryption configurations.",
@@ -1098,10 +1088,7 @@ func createAWSCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) (*
 		},
 	}
 
-	// deprecated to be removed in next major version
-	if v, ok := d.GetOk("aws_attributes.0.bucket_name"); ok {
-		req.BucketName = v.(string)
-	} else if v, ok := d.GetOk("aws_attributes.0.bucket.0.name"); ok {
+	if v, ok := d.GetOk("aws_attributes.0.bucket.0.name"); ok {
 		req.BucketName = v.(string)
 	} else {
 		return nil, fmt.Errorf("bucket name is not set")

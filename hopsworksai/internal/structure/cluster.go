@@ -102,7 +102,6 @@ func flattenAWSAttributes(cluster *api.Cluster) []interface{} {
 	awsAttributes := make([]interface{}, 1)
 	awsAttributes[0] = map[string]interface{}{
 		"region":               cluster.AWS.Region,
-		"bucket_name":          cluster.AWS.BucketName,
 		"instance_profile_arn": cluster.AWS.InstanceProfileArn,
 		"network": []map[string]interface{}{
 			{

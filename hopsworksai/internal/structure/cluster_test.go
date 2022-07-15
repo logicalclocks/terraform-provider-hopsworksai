@@ -177,7 +177,6 @@ func TestFlattenAWSAttributes(t *testing.T) {
 		map[string]interface{}{
 			"region":               input.AWS.Region,
 			"instance_profile_arn": input.AWS.InstanceProfileArn,
-			"bucket_name":          input.AWS.BucketName,
 			"network": []map[string]interface{}{
 				{
 					"vpc_id":            input.AWS.VpcId,
@@ -1590,7 +1589,6 @@ func TestFlattenAWSAttributes_bucketConfiguration(t *testing.T) {
 		map[string]interface{}{
 			"region":               input.AWS.Region,
 			"instance_profile_arn": input.AWS.InstanceProfileArn,
-			"bucket_name":          input.AWS.BucketName,
 			"network": []map[string]interface{}{
 				{
 					"vpc_id":            input.AWS.VpcId,
@@ -1852,7 +1850,6 @@ func TestFlattenAWSAttributes_ebsEncryption(t *testing.T) {
 		map[string]interface{}{
 			"region":               input.AWS.Region,
 			"instance_profile_arn": input.AWS.InstanceProfileArn,
-			"bucket_name":          input.AWS.BucketName,
 			"network": []map[string]interface{}{
 				{
 					"vpc_id":            input.AWS.VpcId,

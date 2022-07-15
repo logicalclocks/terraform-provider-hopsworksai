@@ -329,7 +329,6 @@ Required:
 Optional:
 
 - `bucket` (Block List, Max: 1) The bucket configurations. (see [below for nested schema](#nestedblock--aws_attributes--bucket))
-- `bucket_name` (String, Deprecated) The name of the S3 bucket that the cluster will use to store data in. use aws_attributes/bucket/name instead
 - `ebs_encryption` (Block List, Max: 1) The EBS disk encryption configuration. (see [below for nested schema](#nestedblock--aws_attributes--ebs_encryption))
 - `ecr_registry_account_id` (String) The account id used for ECR. Defaults to the user's account id, inferred from the instance profille ARN.
 - `eks_cluster_name` (String) The name of the AWS EKS cluster.

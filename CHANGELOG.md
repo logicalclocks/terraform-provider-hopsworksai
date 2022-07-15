@@ -1,9 +1,11 @@
-## 0.12.0 (Unreleased)
+## 1.0.0 (Unreleased)
 
 NOTES:
 * The `instance_type` attribue(s) are not optional anymore
 
 BREAKING CHANGES:
+* Creating a Hopsworks cluster will require a seperate RonDB node. RonDB attribute is required by default.
+* All deprecated attributes have been removed
 
 ENHANCEMENTS:
 * dependencies: Bump hashicorp/terraform-plugin-docs from 0.10.1 to 0.13.0

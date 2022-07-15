@@ -190,7 +190,6 @@ func TestClustersDataSourceRead(t *testing.T) {
 					"aws_attributes": []interface{}{
 						map[string]interface{}{
 							"region":               "",
-							"bucket_name":          "",
 							"instance_profile_arn": "",
 							"network": []interface{}{
 								map[string]interface{}{
@@ -249,7 +248,6 @@ func TestClustersDataSourceRead(t *testing.T) {
 					"aws_attributes": []interface{}{
 						map[string]interface{}{
 							"region":               "",
-							"bucket_name":          "",
 							"instance_profile_arn": "",
 							"network": []interface{}{
 								map[string]interface{}{

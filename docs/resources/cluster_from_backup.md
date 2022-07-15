@@ -138,7 +138,6 @@ Optional:
 Read-Only:
 
 - `bucket` (List of Object) The bucket configurations. (see [below for nested schema](#nestedatt--aws_attributes--bucket))
-- `bucket_name` (String) The name of the S3 bucket that the cluster will use to store data in.
 - `ebs_encryption` (List of Object) The EBS disk encryption configuration. (see [below for nested schema](#nestedatt--aws_attributes--ebs_encryption))
 - `ecr_registry_account_id` (String) The account id used for ECR. Defaults to the user's account id, inferred from the instance profille ARN.
 - `eks_cluster_name` (String) The name of the AWS EKS cluster.

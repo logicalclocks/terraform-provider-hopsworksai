@@ -143,7 +143,6 @@ Read-Only:
 Read-Only:
 
 - `bucket` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--aws_attributes--bucket))
-- `bucket_name` (String)
 - `ebs_encryption` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--aws_attributes--ebs_encryption))
 - `ecr_registry_account_id` (String)
 - `eks_cluster_name` (String)

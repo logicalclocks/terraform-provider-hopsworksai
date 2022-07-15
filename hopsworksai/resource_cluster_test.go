@@ -1010,8 +1010,12 @@ func TestClusterCreate_AWS(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
 				},
 			},
 			"open_ports": []interface{}{
@@ -1093,8 +1097,12 @@ func TestClusterCreate_AWSSetNetwork(t *testing.T) {
 			},
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
-					"region":               "region-1",
-					"bucket_name":          "bucket-1",
+					"region": "region-1",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
 					"instance_profile_arn": "profile-1",
 					"network": []interface{}{
 						map[string]interface{}{
@@ -1174,8 +1182,12 @@ func TestClusterCreate_AWS_errorOpenPorts(t *testing.T) {
 			},
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
-					"region":               "region-1",
-					"bucket_name":          "bucket-1",
+					"region": "region-1",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
 					"instance_profile_arn": "profile-1",
 				},
 			},
@@ -1233,8 +1245,12 @@ func TestClusterCreate_AWS_errorWaiting(t *testing.T) {
 			},
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
-					"region":               "region-1",
-					"bucket_name":          "bucket-1",
+					"region": "region-1",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
 					"instance_profile_arn": "profile-1",
 				},
 			},
@@ -1448,8 +1464,12 @@ func TestClusterCreate_updateState(t *testing.T) {
 			},
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
-					"region":               "region-1",
-					"bucket_name":          "bucket-1",
+					"region": "region-1",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
 					"instance_profile_arn": "profile-1",
 				},
 			},
@@ -1564,8 +1584,12 @@ func TestClusterCreate_AWS_defaultECRAccountId(t *testing.T) {
 			},
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
-					"region":               "region-1",
-					"bucket_name":          "bucket-1",
+					"region": "region-1",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
 					"instance_profile_arn": "arn:aws:iam::000011111333:instance-profile/my-instance-profile",
 					"eks_cluster_name":     "my-cluster",
 				},
@@ -1612,8 +1636,12 @@ func TestClusterCreate_AWS_setECRAccountId(t *testing.T) {
 			},
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
-					"region":                  "region-1",
-					"bucket_name":             "bucket-1",
+					"region": "region-1",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
 					"instance_profile_arn":    "arn:aws:iam::000011111333:instance-profile/my-instance-profile",
 					"eks_cluster_name":        "my-cluster",
 					"ecr_registry_account_id": "000011111444",
@@ -1722,7 +1750,6 @@ func TestClusterRead_AWS(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"network": []interface{}{
 						map[string]interface{}{
@@ -2151,8 +2178,12 @@ func testClusterCreate_RonDB(t *testing.T, cloud api.CloudProvider) {
 	if cloud == api.AWS {
 		state["aws_attributes"] = []interface{}{
 			map[string]interface{}{
-				"region":               "region-1",
-				"bucket_name":          "bucket-1",
+				"region": "region-1",
+				"bucket": []interface{}{
+					map[string]interface{}{
+						"name": "bucket-1",
+					},
+				},
 				"instance_profile_arn": "profile-1",
 			},
 		}
@@ -2281,8 +2312,12 @@ func testClusterCreate_RonDB_default(t *testing.T, cloud api.CloudProvider) {
 	if cloud == api.AWS {
 		state["aws_attributes"] = []interface{}{
 			map[string]interface{}{
-				"region":               "region-1",
-				"bucket_name":          "bucket-1",
+				"region": "region-1",
+				"bucket": []interface{}{
+					map[string]interface{}{
+						"name": "bucket-1",
+					},
+				},
 				"instance_profile_arn": "profile-1",
 			},
 		}
@@ -2379,8 +2414,12 @@ func testClusterCreate_RonDB_defaultEmptyBlocks(t *testing.T, cloud api.CloudPro
 	if cloud == api.AWS {
 		state["aws_attributes"] = []interface{}{
 			map[string]interface{}{
-				"region":               "region-1",
-				"bucket_name":          "bucket-1",
+				"region": "region-1",
+				"bucket": []interface{}{
+					map[string]interface{}{
+						"name": "bucket-1",
+					},
+				},
 				"instance_profile_arn": "profile-1",
 			},
 		}
@@ -2465,8 +2504,12 @@ func testClusterCreate_RonDB_invalidReplicationFactor(t *testing.T, cloud api.Cl
 	if cloud == api.AWS {
 		state["aws_attributes"] = []interface{}{
 			map[string]interface{}{
-				"region":               "region-1",
-				"bucket_name":          "bucket-1",
+				"region": "region-1",
+				"bucket": []interface{}{
+					map[string]interface{}{
+						"name": "bucket-1",
+					},
+				},
 				"instance_profile_arn": "profile-1",
 			},
 		}
@@ -2542,8 +2585,12 @@ func testClusterCreate_Autoscale(t *testing.T, cloud api.CloudProvider, withGpu 
 	if cloud == api.AWS {
 		state["aws_attributes"] = []interface{}{
 			map[string]interface{}{
-				"region":               "region-1",
-				"bucket_name":          "bucket-1",
+				"region": "region-1",
+				"bucket": []interface{}{
+					map[string]interface{}{
+						"name": "bucket-1",
+					},
+				},
 				"instance_profile_arn": "profile-1",
 			},
 		}
@@ -4267,7 +4314,6 @@ func TestClusterCreate_AWS_setEncryption(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"bucket": []interface{}{
 						map[string]interface{}{
@@ -4340,8 +4386,12 @@ func TestClusterCreate_AWS_setEncryption_default(t *testing.T) {
 			},
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
-					"region":               "region-1",
-					"bucket_name":          "bucket-1",
+					"region": "region-1",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
 					"instance_profile_arn": "profile-1",
 				},
 			},
@@ -4602,7 +4652,6 @@ func TestClusterCreate_AWS_setHA(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"bucket": []interface{}{
 						map[string]interface{}{
@@ -4655,7 +4704,6 @@ func TestClusterCreate_AWS_setHA_default(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"bucket": []interface{}{
 						map[string]interface{}{
@@ -4769,7 +4817,6 @@ func TestClusterRead_AWS_HA(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"network": []interface{}{
 						map[string]interface{}{
@@ -4834,7 +4881,6 @@ func TestClusterCreate_NoDomainPrefix(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"bucket": []interface{}{
 						map[string]interface{}{
@@ -4948,7 +4994,6 @@ func TestClusterRead_NoDomainPrefix(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"network": []interface{}{
 						map[string]interface{}{
@@ -5013,7 +5058,6 @@ func TestClusterCreate_WithDomainPrefix(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"bucket": []interface{}{
 						map[string]interface{}{
@@ -5129,7 +5173,6 @@ func TestClusterRead_WithDomainPrefix(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"network": []interface{}{
 						map[string]interface{}{
@@ -5194,7 +5237,6 @@ func TestClusterCreate_NoCustomHostedZone(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"bucket": []interface{}{
 						map[string]interface{}{
@@ -5247,7 +5289,6 @@ func TestClusterCreate_WithCustomHostedZone(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"bucket": []interface{}{
 						map[string]interface{}{
@@ -5363,7 +5404,6 @@ func TestClusterRead_WithCustomHostedZone(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"network": []interface{}{
 						map[string]interface{}{
@@ -5428,7 +5468,6 @@ func TestClusterCreate_EBSEncryption(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"bucket": []interface{}{
 						map[string]interface{}{
@@ -5482,7 +5521,6 @@ func TestClusterCreate_no_EBSEncryption(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"bucket": []interface{}{
 						map[string]interface{}{
@@ -5536,7 +5574,6 @@ func TestClusterCreate_EBSEncryption_setKMSKey(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"bucket": []interface{}{
 						map[string]interface{}{
@@ -5592,7 +5629,6 @@ func TestClusterCreate_AWS_skipSSHKey(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"bucket": []interface{}{
 						map[string]interface{}{

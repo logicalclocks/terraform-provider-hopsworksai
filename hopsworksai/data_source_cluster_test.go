@@ -179,7 +179,6 @@ func TestClusterDataSourceRead_AWS(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"network": []interface{}{
 						map[string]interface{}{
