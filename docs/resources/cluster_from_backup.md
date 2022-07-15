@@ -35,7 +35,7 @@ resource "hopsworksai_cluster_from_backup" "cluster" {
 - `ssh_key` (String) The ssh key name that will be attached to this cluster.
 - `tags` (Map of String) The list of custom tags to be attached to the cluster.
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
-- `update_state` (String) The action you can use to start or stop the cluster. Defaults to `none`.
+- `update_state` (String) The action you can use to start or stop the cluster. It has to be one of these values [none, start, stop]. Defaults to `none`.
 - `workers` (Block Set) The configurations of worker nodes. You can add as many as you want of this block to create workers with different configurations. (see [below for nested schema](#nestedblock--workers))
 
 ### Read-Only
