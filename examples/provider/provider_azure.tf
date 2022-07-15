@@ -37,6 +37,31 @@ module "azure" {
 }
 
 # Step 2: create a cluster with no workers
+
+data "hopsworksai_instance_type" "head" {
+  cloud_provider = "AZURE"
+  node_type      = "head"
+  region         = module.azure.location
+}
+
+data "hopsworksai_instance_type" "rondb_mgm" {
+  cloud_provider = "AZURE"
+  node_type      = "rondb_management"
+  region         = module.azure.location
+}
+
+data "hopsworksai_instance_type" "rondb_data" {
+  cloud_provider = "AZURE"
+  node_type      = "rondb_data"
+  region         = module.azure.location
+}
+
+data "hopsworksai_instance_type" "rondb_mysql" {
+  cloud_provider = "AZURE"
+  node_type      = "rondb_mysql"
+  region         = module.azure.location
+}
+
 data "hopsworksai_instance_type" "smallest_worker" {
   cloud_provider = "AZURE"
   node_type      = "worker"
@@ -48,6 +73,7 @@ resource "hopsworksai_cluster" "cluster" {
   ssh_key = module.azure.ssh_key_pair_name
 
   head {
+    instance_type = data.hopsworksai_instance_type.head.id
   }
 
   workers {
@@ -65,7 +91,15 @@ resource "hopsworksai_cluster" "cluster" {
   }
 
   rondb {
-
+    management_nodes {
+      instance_type = data.hopsworksai_instance_type.rondb_mgm.id
+    }
+    data_nodes {
+      instance_type = data.hopsworksai_instance_type.rondb_data.id
+    }
+    mysql_nodes {
+      instance_type = data.hopsworksai_instance_type.rondb_mysql.id
+    }
   }
 
   open_ports {

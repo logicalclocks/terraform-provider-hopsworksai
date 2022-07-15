@@ -18,6 +18,7 @@ resource "hopsworksai_cluster" "cluster" {
   ssh_key = "my-ssh-key"
 
   head {
+    instance_type = ""
   }
 
   aws_attributes {
@@ -29,7 +30,15 @@ resource "hopsworksai_cluster" "cluster" {
   }
 
   rondb {
-
+    management_nodes {
+      instance_type = ""
+    }
+    data_nodes {
+      instance_type = ""
+    }
+    mysql_nodes {
+      instance_type = ""
+    }
   }
 
   open_ports {
@@ -50,6 +59,7 @@ resource "hopsworksai_cluster" "cluster" {
   ssh_key = "my-ssh-key"
 
   head {
+    instance_type = ""
   }
 
   azure_attributes {
@@ -62,7 +72,15 @@ resource "hopsworksai_cluster" "cluster" {
   }
 
   rondb {
-
+    management_nodes {
+      instance_type = ""
+    }
+    data_nodes {
+      instance_type = ""
+    }
+    mysql_nodes {
+      instance_type = ""
+    }
   }
 
   open_ports {
@@ -122,11 +140,14 @@ resource "hopsworksai_cluster" "cluster" {
 <a id="nestedblock--head"></a>
 ### Nested Schema for `head`
 
+Required:
+
+- `instance_type` (String) The instance type of the head node.
+
 Optional:
 
 - `disk_size` (Number) The disk size of the head node in units of GB. Defaults to `512`.
 - `ha_enabled` (Boolean) Use multi head node setup for high availability. This is an experimental feature that is not supported for all users and cloud providers. Defaults to `false`.
-- `instance_type` (String) The instance type of the head node. Defaults to m5.2xlarge for AWS and Standard_D8_v3 for Azure.
 
 Read-Only:
 
@@ -332,22 +353,67 @@ Optional:
 <a id="nestedblock--rondb"></a>
 ### Nested Schema for `rondb`
 
+Required:
+
+- `data_nodes` (Block List, Min: 1, Max: 1) The configuration of RonDB data nodes. (see [below for nested schema](#nestedblock--rondb--data_nodes))
+- `management_nodes` (Block List, Min: 1, Max: 1) The configuration of RonDB management nodes. (see [below for nested schema](#nestedblock--rondb--management_nodes))
+- `mysql_nodes` (Block List, Min: 1, Max: 1) The configuration of MySQL nodes. (see [below for nested schema](#nestedblock--rondb--mysql_nodes))
+
 Optional:
 
 - `api_nodes` (Block List, Max: 1) The configuration of API nodes. (see [below for nested schema](#nestedblock--rondb--api_nodes))
 - `configuration` (Block List, Max: 1) The configuration of RonDB. (see [below for nested schema](#nestedblock--rondb--configuration))
-- `data_nodes` (Block List, Max: 1) The configuration of RonDB data nodes. (see [below for nested schema](#nestedblock--rondb--data_nodes))
-- `management_nodes` (Block List, Max: 1) The configuration of RonDB management nodes. (see [below for nested schema](#nestedblock--rondb--management_nodes))
-- `mysql_nodes` (Block List, Max: 1) The configuration of MySQL nodes. (see [below for nested schema](#nestedblock--rondb--mysql_nodes))
+
+<a id="nestedblock--rondb--data_nodes"></a>
+### Nested Schema for `rondb.data_nodes`
+
+Required:
+
+- `instance_type` (String) The instance type of the RonDB data node.
+
+Optional:
+
+- `count` (Number) The number of data nodes. Notice that the number of RonDB data nodes have to be multiples of the replication_factor. Defaults to `1`.
+- `disk_size` (Number) The disk size of data nodes in units of GB Defaults to `512`.
+
+
+<a id="nestedblock--rondb--management_nodes"></a>
+### Nested Schema for `rondb.management_nodes`
+
+Required:
+
+- `instance_type` (String) The instance type of the RonDB management node.
+
+Optional:
+
+- `count` (Number) The number of management nodes. Defaults to `1`.
+- `disk_size` (Number) The disk size of management nodes in units of GB Defaults to `30`.
+
+
+<a id="nestedblock--rondb--mysql_nodes"></a>
+### Nested Schema for `rondb.mysql_nodes`
+
+Required:
+
+- `instance_type` (String) The instance type of the RonDB data node.
+
+Optional:
+
+- `count` (Number) The number of MySQL nodes. Defaults to `1`.
+- `disk_size` (Number) The disk size of MySQL nodes in units of GB Defaults to `128`.
+
 
 <a id="nestedblock--rondb--api_nodes"></a>
 ### Nested Schema for `rondb.api_nodes`
+
+Required:
+
+- `instance_type` (String) The instance type of the RonDB data node.
 
 Optional:
 
 - `count` (Number) The number of API nodes. Defaults to `0`.
 - `disk_size` (Number) The disk size of API nodes in units of GB Defaults to `30`.
-- `instance_type` (String) The instance type of the RonDB data node. Defaults to t3a.medium for AWS and Standard_D2s_v4 for Azure.
 
 
 <a id="nestedblock--rondb--configuration"></a>
@@ -381,36 +447,6 @@ Optional:
 
 - `replication_factor` (Number) The number of replicas created by RonDB. Set > 1 for high availability. Defaults to `1`.
 
-
-
-<a id="nestedblock--rondb--data_nodes"></a>
-### Nested Schema for `rondb.data_nodes`
-
-Optional:
-
-- `count` (Number) The number of data nodes. Notice that the number of RonDB data nodes have to be multiples of the replication_factor. Defaults to `1`.
-- `disk_size` (Number) The disk size of data nodes in units of GB Defaults to `512`.
-- `instance_type` (String) The instance type of the RonDB data node. Defaults to t3a.xlarge for AWS and Standard_D4s_v4 for Azure.
-
-
-<a id="nestedblock--rondb--management_nodes"></a>
-### Nested Schema for `rondb.management_nodes`
-
-Optional:
-
-- `count` (Number) The number of management nodes. Defaults to `1`.
-- `disk_size` (Number) The disk size of management nodes in units of GB Defaults to `30`.
-- `instance_type` (String) The instance type of the RonDB management node. Defaults to t3a.medium for AWS and Standard_D2s_v4 for Azure.
-
-
-<a id="nestedblock--rondb--mysql_nodes"></a>
-### Nested Schema for `rondb.mysql_nodes`
-
-Optional:
-
-- `count` (Number) The number of MySQL nodes. Defaults to `1`.
-- `disk_size` (Number) The disk size of MySQL nodes in units of GB Defaults to `128`.
-- `instance_type` (String) The instance type of the RonDB data node. Defaults to t3a.medium for AWS and Standard_D2s_v4 for Azure.
 
 
 
