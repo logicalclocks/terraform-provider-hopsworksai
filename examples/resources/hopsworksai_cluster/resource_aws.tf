@@ -3,6 +3,7 @@ resource "hopsworksai_cluster" "cluster" {
   ssh_key = "my-ssh-key"
 
   head {
+    instance_type = ""
   }
 
   aws_attributes {
@@ -14,7 +15,15 @@ resource "hopsworksai_cluster" "cluster" {
   }
 
   rondb {
-
+    management_nodes {
+      instance_type = ""
+    }
+    data_nodes {
+      instance_type = ""
+    }
+    mysql_nodes {
+      instance_type = ""
+    }
   }
 
   open_ports {

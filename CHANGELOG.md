@@ -1,6 +1,7 @@
 ## 0.12.0 (Unreleased)
 
 NOTES:
+* The `instance_type` attribue(s) are not optional anymore
 
 BREAKING CHANGES:
 
@@ -11,6 +12,7 @@ ENHANCEMENTS:
 * devtools: Bump golangci-lint from 1.45.2 to 1.46.2
 * datasource/instance_type(s): Add required `region` attribute to filter supported instance types
 * resource/hopsworksai_cluster: Update `update_state` attribute description
+* resource/hopsworksai_cluster: Do not use default `instance_type` values and make the attribute(s) required
 
 BUG FIXES:
 

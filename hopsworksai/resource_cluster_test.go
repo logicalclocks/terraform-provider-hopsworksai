@@ -402,7 +402,17 @@ func testAccCluster_workers(t *testing.T, cloud api.CloudProvider) {
 func testAccCluster_RonDB(t *testing.T, cloud api.CloudProvider) {
 	suffix := acctest.RandString(5)
 	rName := fmt.Sprintf("test_%s", suffix)
-	defaultRonDBConfig := defaultRonDBConfiguration(cloud)
+	defaultRonDBConfig := defaultRonDBConfiguration()
+	switch cloud {
+	case api.AWS:
+		defaultRonDBConfig.ManagementNodes.InstanceType = "t3a.medium"
+		defaultRonDBConfig.DataNodes.InstanceType = "r5.large"
+		defaultRonDBConfig.MYSQLNodes.InstanceType = "c5.large"
+	case api.AZURE:
+		defaultRonDBConfig.ManagementNodes.InstanceType = "Standard_D2s_v4"
+		defaultRonDBConfig.DataNodes.InstanceType = "Standard_D4s_v4"
+		defaultRonDBConfig.MYSQLNodes.InstanceType = "Standard_D2s_v4"
+	}
 	resourceName := fmt.Sprintf("hopsworksai_cluster.%s", rName)
 	parallelTest(t, cloud, resource.TestCase{
 		PreCheck:          testAccPreCheck(t),
@@ -410,11 +420,19 @@ func testAccCluster_RonDB(t *testing.T, cloud api.CloudProvider) {
 		CheckDestroy:      testAccClusterCheckDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccClusterConfig_RonDB(cloud, rName, suffix, `
+				Config: testAccClusterConfig_RonDB(cloud, rName, suffix, fmt.Sprintf(`
 				rondb {
-
+					  management_nodes {
+						instance_type = "%s"
+					  }
+					  data_nodes {
+						instance_type = "%s"
+					  }
+					  mysql_nodes {
+						instance_type = "%s"
+					  }
 				}
-				`),
+				`, defaultRonDBConfig.ManagementNodes.InstanceType, defaultRonDBConfig.DataNodes.InstanceType, defaultRonDBConfig.MYSQLNodes.InstanceType)),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "state", api.Running.String()),
 					resource.TestCheckResourceAttr(resourceName, "activation_state", api.Stoppable.String()),
@@ -663,14 +681,14 @@ func testAccCluster_Head_upscale(t *testing.T, cloud api.CloudProvider, currentI
 }
 
 func TestAccClusterAWS_RonDB_upscale(t *testing.T) {
-	testAccCluster_RonDB_upscale(t, api.AWS, "r5.large", "r5.xlarge", "c5.large", "c5.xlarge", "c5.large", "c5.xlarge")
+	testAccCluster_RonDB_upscale(t, api.AWS, "t3a.medium", "r5.large", "r5.xlarge", "c5.large", "c5.xlarge", "c5.large", "c5.xlarge")
 }
 
 func TestAccClusterAZURE_RonDB_upscale(t *testing.T) {
-	testAccCluster_RonDB_upscale(t, api.AZURE, "Standard_D4s_v4", "Standard_D8s_v4", "Standard_D2s_v4", "Standard_D4s_v4", "Standard_D2s_v4", "Standard_D4s_v4")
+	testAccCluster_RonDB_upscale(t, api.AZURE, "Standard_D2s_v4", "Standard_D4s_v4", "Standard_D8s_v4", "Standard_D2s_v4", "Standard_D4s_v4", "Standard_D2s_v4", "Standard_D4s_v4")
 }
 
-func testAccCluster_RonDB_upscale(t *testing.T, cloud api.CloudProvider, currentDataNodeType string, newDataNodeType string, currentMySQLNodeType string, newMySQLNodeType string, currentAPINodeType string, newAPINodeType string) {
+func testAccCluster_RonDB_upscale(t *testing.T, cloud api.CloudProvider, managementNodeType string, currentDataNodeType string, newDataNodeType string, currentMySQLNodeType string, newMySQLNodeType string, currentAPINodeType string, newAPINodeType string) {
 	suffix := acctest.RandString(5)
 	rName := fmt.Sprintf("test_%s", suffix)
 	resourceName := fmt.Sprintf("hopsworksai_cluster.%s", rName)
@@ -682,6 +700,10 @@ func testAccCluster_RonDB_upscale(t *testing.T, cloud api.CloudProvider, current
 			{
 				Config: testAccClusterConfig_RonDB_upscale(cloud, rName, suffix, fmt.Sprintf(`
 				rondb {
+					management_nodes {
+						instance_type = "%s"
+					}
+
 					data_nodes {
 						instance_type = "%s"
 					}
@@ -695,7 +717,7 @@ func testAccCluster_RonDB_upscale(t *testing.T, cloud api.CloudProvider, current
 						count = 1
 					}
 				}
-				`, currentDataNodeType, currentMySQLNodeType, currentAPINodeType)),
+				`, managementNodeType, currentDataNodeType, currentMySQLNodeType, currentAPINodeType)),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "state", api.Running.String()),
 					resource.TestCheckResourceAttr(resourceName, "activation_state", api.Stoppable.String()),
@@ -714,6 +736,10 @@ func testAccCluster_RonDB_upscale(t *testing.T, cloud api.CloudProvider, current
 			{
 				Config: testAccClusterConfig_RonDB_upscale(cloud, rName, suffix, fmt.Sprintf(`
 				rondb {
+					management_nodes {
+						instance_type = "%s"
+					}
+
 					data_nodes {
 						instance_type = "%s"
 					}
@@ -729,12 +755,16 @@ func testAccCluster_RonDB_upscale(t *testing.T, cloud api.CloudProvider, current
 				}
 
 				update_state = "stop"
-				`, currentDataNodeType, currentMySQLNodeType, currentAPINodeType)),
+				`, managementNodeType, currentDataNodeType, currentMySQLNodeType, currentAPINodeType)),
 				Check: resource.TestCheckResourceAttr(resourceName, "state", api.Stopped.String()),
 			},
 			{
 				Config: testAccClusterConfig_RonDB_upscale(cloud, rName, suffix, fmt.Sprintf(`
 				rondb {
+					management_nodes {
+						instance_type = "%s"
+					}
+
 					data_nodes {
 						instance_type = "%s"
 					}
@@ -748,7 +778,7 @@ func testAccCluster_RonDB_upscale(t *testing.T, cloud api.CloudProvider, current
 						count = 1
 					}
 				}
-				`, newDataNodeType, newMySQLNodeType, newAPINodeType)),
+				`, managementNodeType, newDataNodeType, newMySQLNodeType, newAPINodeType)),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "rondb.0.data_nodes.0.instance_type", newDataNodeType),
 					resource.TestCheckResourceAttr(resourceName, "rondb.0.mysql_nodes.0.instance_type", newMySQLNodeType),
@@ -876,6 +906,7 @@ func testAccClusterConfig(cloud api.CloudProvider, rName string, suffix string, 
 		name    = "%s%s%s"
 		ssh_key = "%s"	  
 		head {
+			instance_type = "%s"
 		}
 		
 		%s
@@ -893,12 +924,22 @@ func testAccClusterConfig(cloud api.CloudProvider, rName string, suffix string, 
 		strings.ToLower(cloud.String()),
 		suffix,
 		testAccClusterCloudSSHKeyAttribute(cloud),
+		testHeadInstanceType(cloud),
 		testAccClusterCloudConfigAttributes(cloud, bucketIndex, false),
 		extraConfig,
 		default_CLUSTER_TAG_KEY,
 		default_CLUSTER_TAG_VALUE,
 		test,
 	)
+}
+
+func testHeadInstanceType(cloud api.CloudProvider) string {
+	if cloud == api.AWS {
+		return "m5.2xlarge"
+	} else if cloud == api.AZURE {
+		return "Standard_D8_v3"
+	}
+	return ""
 }
 
 // Unit tests
@@ -1487,102 +1528,6 @@ func TestClusterCreate_error(t *testing.T) {
 	r.Apply(t, context.TODO())
 }
 
-func TestClusterCreate_AWSDefaultInstanceType(t *testing.T) {
-	r := test.ResourceFixture{
-		HttpOps: []test.Operation{
-			{
-				Method: http.MethodPost,
-				Path:   "/api/clusters",
-				Response: `{
-					"apiVersion": "v1",
-					"status": "ok",
-					"code": 400,
-					"message": "skip"
-				}`,
-				CheckRequestBody: func(reqBody io.Reader) error {
-					var req api.NewAWSClusterRequest
-					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
-						return err
-					}
-					headInstanceType := req.CreateRequest.ClusterConfiguration.Head.InstanceType
-					if headInstanceType != awsDefaultInstanceType {
-						return fmt.Errorf("expected default head instance type %s but got %s", awsDefaultInstanceType, headInstanceType)
-					}
-					return nil
-				},
-			},
-		},
-		Resource:             clusterResource(),
-		OperationContextFunc: clusterResource().CreateContext,
-		State: map[string]interface{}{
-			"name": "cluster",
-			"head": []interface{}{
-				map[string]interface{}{
-					"disk_size": 512,
-				},
-			},
-			"aws_attributes": []interface{}{
-				map[string]interface{}{
-					"region":               "region-1",
-					"bucket_name":          "bucket-1",
-					"instance_profile_arn": "profile-1",
-				},
-			},
-		},
-		ExpectError: "failed to create cluster, error: skip",
-	}
-	r.Apply(t, context.TODO())
-}
-
-func TestClusterCreate_AzureDefaultInstanceType(t *testing.T) {
-	r := test.ResourceFixture{
-		HttpOps: []test.Operation{
-			{
-				Method: http.MethodPost,
-				Path:   "/api/clusters",
-				Response: `{
-					"apiVersion": "v1",
-					"status": "ok",
-					"code": 400,
-					"message": "skip"
-				}`,
-				CheckRequestBody: func(reqBody io.Reader) error {
-					var req api.NewAzureClusterRequest
-					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
-						return err
-					}
-					headInstanceType := req.CreateRequest.ClusterConfiguration.Head.InstanceType
-					if headInstanceType != azureDefaultInstanceType {
-						return fmt.Errorf("expected default head instance type %s but got %s", azureDefaultInstanceType, headInstanceType)
-					}
-					return nil
-				},
-			},
-		},
-		Resource:             clusterResource(),
-		OperationContextFunc: clusterResource().CreateContext,
-		State: map[string]interface{}{
-			"name": "cluster",
-			"head": []interface{}{
-				map[string]interface{}{
-					"disk_size": 512,
-				},
-			},
-			"ssh_key": "my-key",
-			"azure_attributes": []interface{}{
-				map[string]interface{}{
-					"location":                       "location-1",
-					"resource_group":                 "resource-group-1",
-					"storage_account":                "storage-account-1",
-					"user_assigned_managed_identity": "user-identity-1",
-				},
-			},
-		},
-		ExpectError: "failed to create cluster, error: skip",
-	}
-	r.Apply(t, context.TODO())
-}
-
 func TestClusterCreate_AWS_defaultECRAccountId(t *testing.T) {
 	r := test.ResourceFixture{
 		HttpOps: []test.Operation{
@@ -2084,6 +2029,12 @@ func TestClusterUpdate(t *testing.T) {
 		Update:               true,
 		State: map[string]interface{}{
 			"version": "v1",
+			"head": []interface{}{
+				map[string]interface{}{
+					"instance_type": "node-type-1",
+					"disk_size":     512,
+				},
+			},
 			"workers": []interface{}{
 				map[string]interface{}{
 					"instance_type": "node-type-2",
@@ -2362,7 +2313,7 @@ func testClusterCreate_RonDB_default(t *testing.T, cloud api.CloudProvider) {
 					if err != nil {
 						return err
 					}
-					expected := defaultRonDBConfiguration(cloud)
+					expected := defaultRonDBConfiguration()
 					if !reflect.DeepEqual(&expected, output) {
 						return fmt.Errorf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
 					}
@@ -2460,7 +2411,7 @@ func testClusterCreate_RonDB_defaultEmptyBlocks(t *testing.T, cloud api.CloudPro
 					if err != nil {
 						return err
 					}
-					expected := defaultRonDBConfiguration(cloud)
+					expected := defaultRonDBConfiguration()
 					if !reflect.DeepEqual(&expected, output) {
 						return fmt.Errorf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
 					}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"testing"
@@ -103,12 +104,19 @@ func testAccInstanceTypesDataSourceCheckSupportedTypes(dataSourceName string) re
 }
 
 func testAccInstanceTypesDataSourceConfig(cloud api.CloudProvider, rName string, nodeType api.NodeType) string {
+	var region = ""
+	if cloud == api.AWS {
+		region = os.Getenv((env_AWS_REGION))
+	} else if cloud == api.AZURE {
+		region = os.Getenv(env_AZURE_LOCATION)
+	}
 	return fmt.Sprintf(`
 		data "hopsworksai_instance_types" "%s"{
 			cloud_provider = "%s"
 			node_type = "%s"
+			region = "%s"
 		}
-	`, rName, cloud.String(), nodeType.String())
+	`, rName, cloud.String(), nodeType.String(), region)
 }
 
 // Unit test
