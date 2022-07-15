@@ -151,30 +151,6 @@ func TestAccAWSInstanceProfilePolicy_disableEKS(t *testing.T) {
 	})
 }
 
-func TestAccAWSInstanceProfilePolicy_disableEKSAndUpgrade(t *testing.T) {
-	dataSourceName := "data.hopsworksai_aws_instance_profile_policy.test"
-	policy := &awsPolicy{
-		Version: "2012-10-17",
-		Statements: []awsPolicyStatement{
-			awsStoragePermissions("*"),
-			awsBackupPermissions("*"),
-		},
-	}
-	policy.Statements = append(policy.Statements, awsCloudWatchPermissions()...)
-
-	resource.UnitTest(t, resource.TestCase{
-		ProviderFactories: testAccProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccAWSInstanceProfilePolicyConfig_disableEKSAndUpgrade(),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(dataSourceName, "json", testAccAWSPolicyToJSONString(t, policy)),
-				),
-			},
-		},
-	})
-}
-
 func TestAccAWSInstanceProfilePolicy_enableOnlyStorage(t *testing.T) {
 	dataSourceName := "data.hopsworksai_aws_instance_profile_policy.test"
 	policy := &awsPolicy{
@@ -189,31 +165,6 @@ func TestAccAWSInstanceProfilePolicy_enableOnlyStorage(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAWSInstanceProfilePolicyConfig_enableOnlyStorage(),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(dataSourceName, "json", testAccAWSPolicyToJSONString(t, policy)),
-				),
-			},
-		},
-	})
-}
-
-func TestAccAWSInstanceProfilePolicy_enableUpgrade(t *testing.T) {
-	dataSourceName := "data.hopsworksai_aws_instance_profile_policy.test"
-	policy := &awsPolicy{
-		Version: "2012-10-17",
-		Statements: []awsPolicyStatement{
-			awsStoragePermissions("*"),
-			awsBackupPermissions("*"),
-		},
-	}
-	policy.Statements = append(policy.Statements, awsCloudWatchPermissions()...)
-	policy.Statements = append(policy.Statements, awsUpgradePermissions())
-
-	resource.UnitTest(t, resource.TestCase{
-		ProviderFactories: testAccProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccAWSInstanceProfilePolicyConfig_enableUpgrade(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(dataSourceName, "json", testAccAWSPolicyToJSONString(t, policy)),
 				),
@@ -261,31 +212,12 @@ func testAccAWSInstanceProfilePolicyConfig_disableEKS() string {
 	`
 }
 
-func testAccAWSInstanceProfilePolicyConfig_disableEKSAndUpgrade() string {
-	return `
-	data "hopsworksai_aws_instance_profile_policy" "test" {
-		enable_eks_and_ecr = false
-		enable_upgrade = false
-	}
-	`
-}
-
 func testAccAWSInstanceProfilePolicyConfig_enableOnlyStorage() string {
 	return `
 	data "hopsworksai_aws_instance_profile_policy" "test" {
 		enable_eks_and_ecr = false
-		enable_upgrade = false
 		enable_cloud_watch = false
 		enable_backup = false
-	}
-	`
-}
-
-func testAccAWSInstanceProfilePolicyConfig_enableUpgrade() string {
-	return `
-	data "hopsworksai_aws_instance_profile_policy" "test" {
-		enable_upgrade = true
-		enable_eks_and_ecr = false
 	}
 	`
 }

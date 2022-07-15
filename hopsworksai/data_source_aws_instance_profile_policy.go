@@ -49,13 +49,6 @@ func dataSourceAWSInstanceProfilePolicy() *schema.Resource {
 				Optional:    true,
 				Default:     true,
 			},
-			"enable_upgrade": {
-				Description: "Add permissions required to enable upgrade to newer versions of Hopsworks.",
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     false,
-				Deprecated:  "These permissions are not required anymore to upgrade from version 2.4.0 and onwards.",
-			},
 			"enable_eks_and_ecr": {
 				Description: "Add permissions required to enable access to Amazon EKS and ECR from within your Hopsworks cluster.",
 				Type:        schema.TypeBool,
@@ -142,20 +135,6 @@ func awsCloudWatchPermissions() []awsPolicyStatement {
 	}
 }
 
-func awsUpgradePermissions() awsPolicyStatement {
-	return awsPolicyStatement{
-		Sid:    "UpgradePermissions",
-		Effect: "Allow",
-		Action: []string{
-			"ec2:DescribeVolumes",
-			"ec2:DetachVolume",
-			"ec2:AttachVolume",
-			"ec2:ModifyInstanceAttribute",
-		},
-		Resources: "*",
-	}
-}
-
 func awsEKSECRPermissions(allowDescribeEKSResource interface{}, allowPushandPullImagesResource interface{}) []awsPolicyStatement {
 	return []awsPolicyStatement{
 		{
@@ -237,10 +216,6 @@ func dataSourceAWSInstanceProfilePolicyRead(ctx context.Context, d *schema.Resou
 
 	if d.Get("enable_cloud_watch").(bool) {
 		policy.Statements = append(policy.Statements, awsCloudWatchPermissions()...)
-	}
-
-	if d.Get("enable_upgrade").(bool) {
-		policy.Statements = append(policy.Statements, awsUpgradePermissions())
 	}
 
 	if d.Get("enable_eks_and_ecr").(bool) {
