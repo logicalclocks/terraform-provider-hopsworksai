@@ -100,6 +100,7 @@ resource "hopsworksai_cluster" "cluster" {
 
 - `head` (Block List, Min: 1, Max: 1) The configurations of the head node of the cluster. (see [below for nested schema](#nestedblock--head))
 - `name` (String) The name of the cluster, must be unique.
+- `rondb` (Block List, Min: 1, Max: 1) Setup a cluster with managed RonDB. (see [below for nested schema](#nestedblock--rondb))
 
 ### Optional
 
@@ -117,7 +118,6 @@ resource "hopsworksai_cluster" "cluster" {
 - `managed_users` (Boolean) Enable or disable Hopsworks.ai to manage your users. Defaults to `true`.
 - `open_ports` (Block List, Max: 1) Open the required ports to communicate with one of the Hopsworks services. (see [below for nested schema](#nestedblock--open_ports))
 - `os` (String) The operating system to use for the instances. Supported systems are ubuntu in all regions and centos in some specific regions Defaults to `ubuntu`.
-- `rondb` (Block List, Max: 1) Setup a cluster with managed RonDB. (see [below for nested schema](#nestedblock--rondb))
 - `run_init_script_first` (Boolean) Run the init script before any other node initialization. WARNING if your initscript interfere with the following node initialization the cluster may not start properly. Make sure that you know what you are doing.
 - `ssh_key` (String) The ssh key name that will be attached to this cluster.
 - `tags` (Map of String) The list of custom tags to be attached to the cluster.
@@ -152,6 +152,106 @@ Optional:
 Read-Only:
 
 - `node_id` (String) The corresponding aws/azure instance id of the head node.
+
+
+<a id="nestedblock--rondb"></a>
+### Nested Schema for `rondb`
+
+Required:
+
+- `data_nodes` (Block List, Min: 1, Max: 1) The configuration of RonDB data nodes. (see [below for nested schema](#nestedblock--rondb--data_nodes))
+- `management_nodes` (Block List, Min: 1, Max: 1) The configuration of RonDB management nodes. (see [below for nested schema](#nestedblock--rondb--management_nodes))
+- `mysql_nodes` (Block List, Min: 1, Max: 1) The configuration of MySQL nodes. (see [below for nested schema](#nestedblock--rondb--mysql_nodes))
+
+Optional:
+
+- `api_nodes` (Block List, Max: 1) The configuration of API nodes. (see [below for nested schema](#nestedblock--rondb--api_nodes))
+- `configuration` (Block List, Max: 1) The configuration of RonDB. (see [below for nested schema](#nestedblock--rondb--configuration))
+
+<a id="nestedblock--rondb--data_nodes"></a>
+### Nested Schema for `rondb.data_nodes`
+
+Required:
+
+- `instance_type` (String) The instance type of the RonDB data node.
+
+Optional:
+
+- `count` (Number) The number of data nodes. Notice that the number of RonDB data nodes have to be multiples of the replication_factor. Defaults to `1`.
+- `disk_size` (Number) The disk size of data nodes in units of GB Defaults to `512`.
+
+
+<a id="nestedblock--rondb--management_nodes"></a>
+### Nested Schema for `rondb.management_nodes`
+
+Required:
+
+- `instance_type` (String) The instance type of the RonDB management node.
+
+Optional:
+
+- `count` (Number) The number of management nodes. Defaults to `1`.
+- `disk_size` (Number) The disk size of management nodes in units of GB Defaults to `30`.
+
+
+<a id="nestedblock--rondb--mysql_nodes"></a>
+### Nested Schema for `rondb.mysql_nodes`
+
+Required:
+
+- `instance_type` (String) The instance type of the RonDB MySQL node.
+
+Optional:
+
+- `count` (Number) The number of MySQL nodes. Defaults to `1`.
+- `disk_size` (Number) The disk size of MySQL nodes in units of GB Defaults to `128`.
+
+
+<a id="nestedblock--rondb--api_nodes"></a>
+### Nested Schema for `rondb.api_nodes`
+
+Required:
+
+- `instance_type` (String) The instance type of the RonDB API node.
+
+Optional:
+
+- `count` (Number) The number of API nodes. Defaults to `0`.
+- `disk_size` (Number) The disk size of API nodes in units of GB Defaults to `30`.
+
+
+<a id="nestedblock--rondb--configuration"></a>
+### Nested Schema for `rondb.configuration`
+
+Optional:
+
+- `general` (Block List, Max: 1) The general configurations of RonDB. (see [below for nested schema](#nestedblock--rondb--configuration--general))
+- `ndbd_default` (Block List, Max: 1) The configuration of RonDB data nodes. (see [below for nested schema](#nestedblock--rondb--configuration--ndbd_default))
+
+<a id="nestedblock--rondb--configuration--general"></a>
+### Nested Schema for `rondb.configuration.general`
+
+Optional:
+
+- `benchmark` (Block List, Max: 1) The configurations required to benchmark RonDB. (see [below for nested schema](#nestedblock--rondb--configuration--general--benchmark))
+
+<a id="nestedblock--rondb--configuration--general--benchmark"></a>
+### Nested Schema for `rondb.configuration.general.benchmark`
+
+Optional:
+
+- `grant_user_privileges` (Boolean) This allow API nodes to have user privileges access to RonDB. This is needed mainly for benchmarking and for that you need API nodes. Defaults to `false`.
+
+
+
+<a id="nestedblock--rondb--configuration--ndbd_default"></a>
+### Nested Schema for `rondb.configuration.ndbd_default`
+
+Optional:
+
+- `replication_factor` (Number) The number of replicas created by RonDB. Set > 1 for high availability. Defaults to `1`.
+
+
 
 
 <a id="nestedblock--autoscale"></a>
@@ -348,106 +448,6 @@ Optional:
 - `kafka` (Boolean) Open the required ports to access kafka from outside Hopsworks. Defaults to `false`.
 - `online_feature_store` (Boolean) Open the required ports to access the online feature store from outside Hopsworks. Defaults to `false`.
 - `ssh` (Boolean) Open the ssh port (22) to allow ssh access to your cluster. Defaults to `false`.
-
-
-<a id="nestedblock--rondb"></a>
-### Nested Schema for `rondb`
-
-Required:
-
-- `data_nodes` (Block List, Min: 1, Max: 1) The configuration of RonDB data nodes. (see [below for nested schema](#nestedblock--rondb--data_nodes))
-- `management_nodes` (Block List, Min: 1, Max: 1) The configuration of RonDB management nodes. (see [below for nested schema](#nestedblock--rondb--management_nodes))
-- `mysql_nodes` (Block List, Min: 1, Max: 1) The configuration of MySQL nodes. (see [below for nested schema](#nestedblock--rondb--mysql_nodes))
-
-Optional:
-
-- `api_nodes` (Block List, Max: 1) The configuration of API nodes. (see [below for nested schema](#nestedblock--rondb--api_nodes))
-- `configuration` (Block List, Max: 1) The configuration of RonDB. (see [below for nested schema](#nestedblock--rondb--configuration))
-
-<a id="nestedblock--rondb--data_nodes"></a>
-### Nested Schema for `rondb.data_nodes`
-
-Required:
-
-- `instance_type` (String) The instance type of the RonDB data node.
-
-Optional:
-
-- `count` (Number) The number of data nodes. Notice that the number of RonDB data nodes have to be multiples of the replication_factor. Defaults to `1`.
-- `disk_size` (Number) The disk size of data nodes in units of GB Defaults to `512`.
-
-
-<a id="nestedblock--rondb--management_nodes"></a>
-### Nested Schema for `rondb.management_nodes`
-
-Required:
-
-- `instance_type` (String) The instance type of the RonDB management node.
-
-Optional:
-
-- `count` (Number) The number of management nodes. Defaults to `1`.
-- `disk_size` (Number) The disk size of management nodes in units of GB Defaults to `30`.
-
-
-<a id="nestedblock--rondb--mysql_nodes"></a>
-### Nested Schema for `rondb.mysql_nodes`
-
-Required:
-
-- `instance_type` (String) The instance type of the RonDB MySQL node.
-
-Optional:
-
-- `count` (Number) The number of MySQL nodes. Defaults to `1`.
-- `disk_size` (Number) The disk size of MySQL nodes in units of GB Defaults to `128`.
-
-
-<a id="nestedblock--rondb--api_nodes"></a>
-### Nested Schema for `rondb.api_nodes`
-
-Required:
-
-- `instance_type` (String) The instance type of the RonDB API node.
-
-Optional:
-
-- `count` (Number) The number of API nodes. Defaults to `0`.
-- `disk_size` (Number) The disk size of API nodes in units of GB Defaults to `30`.
-
-
-<a id="nestedblock--rondb--configuration"></a>
-### Nested Schema for `rondb.configuration`
-
-Optional:
-
-- `general` (Block List, Max: 1) The general configurations of RonDB. (see [below for nested schema](#nestedblock--rondb--configuration--general))
-- `ndbd_default` (Block List, Max: 1) The configuration of RonDB data nodes. (see [below for nested schema](#nestedblock--rondb--configuration--ndbd_default))
-
-<a id="nestedblock--rondb--configuration--general"></a>
-### Nested Schema for `rondb.configuration.general`
-
-Optional:
-
-- `benchmark` (Block List, Max: 1) The configurations required to benchmark RonDB. (see [below for nested schema](#nestedblock--rondb--configuration--general--benchmark))
-
-<a id="nestedblock--rondb--configuration--general--benchmark"></a>
-### Nested Schema for `rondb.configuration.general.benchmark`
-
-Optional:
-
-- `grant_user_privileges` (Boolean) This allow API nodes to have user privileges access to RonDB. This is needed mainly for benchmarking and for that you need API nodes. Defaults to `false`.
-
-
-
-<a id="nestedblock--rondb--configuration--ndbd_default"></a>
-### Nested Schema for `rondb.configuration.ndbd_default`
-
-Optional:
-
-- `replication_factor` (Number) The number of replicas created by RonDB. Set > 1 for high availability. Defaults to `1`.
-
-
 
 
 <a id="nestedblock--timeouts"></a>

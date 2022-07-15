@@ -336,7 +336,7 @@ func clusterSchema() map[string]*schema.Schema {
 		"rondb": {
 			Description: "Setup a cluster with managed RonDB.",
 			Type:        schema.TypeList,
-			Optional:    true,
+			Required:    true,
 			ForceNew:    true,
 			MaxItems:    1,
 			Elem:        ronDBSchema(),
