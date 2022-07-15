@@ -52,7 +52,7 @@ data "hopsworksai_clusters" "cluster" {
 - `start_date` (String) The starting date of the cluster. The date is represented in RFC3339 format.
 - `state` (String) The current state of the cluster.
 - `tags` (Map of String) The list of custom tags to be attached to the cluster.
-- `update_state` (String) The action you can use to start or stop the cluster.
+- `update_state` (String) The action you can use to start or stop the cluster. It has to be one of these values [none, start, stop].
 - `upgrade_in_progress` (List of Object) Information about ongoing cluster upgrade if any. (see [below for nested schema](#nestedatt--upgrade_in_progress))
 - `url` (String) The url generated to access the cluster.
 - `version` (String) The version of the cluster. For existing clusters, you can change this attribute to upgrade to a newer version of Hopsworks. If the upgrade process ended up in an error state, you can always rollback to the old version by resetting this attribute to the old version.

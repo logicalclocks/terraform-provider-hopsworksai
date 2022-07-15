@@ -10,6 +10,7 @@ ENHANCEMENTS:
 * dependencies: Bump hashicorp/terraform-plugin-log from 0.4.1 to 0.5.0
 * devtools: Bump golangci-lint from 1.45.2 to 1.46.2
 * datasource/instance_type(s): Add required `region` attribute to filter supported instance types
+* resource/hopsworksai_cluster: Update `update_state` attribute description
 
 BUG FIXES:
 

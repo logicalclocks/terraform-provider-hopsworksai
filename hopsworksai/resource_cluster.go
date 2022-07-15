@@ -292,7 +292,7 @@ func clusterSchema() map[string]*schema.Schema {
 			Computed:    true,
 		},
 		"update_state": {
-			Description:  "The action you can use to start or stop the cluster.",
+			Description:  "The action you can use to start or stop the cluster. It has to be one of these values [none, start, stop].",
 			Type:         schema.TypeString,
 			Optional:     true,
 			Default:      "none",
