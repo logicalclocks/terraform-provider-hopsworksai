@@ -395,7 +395,7 @@ Optional:
 
 Required:
 
-- `instance_type` (String) The instance type of the RonDB data node.
+- `instance_type` (String) The instance type of the RonDB MySQL node.
 
 Optional:
 
@@ -408,7 +408,7 @@ Optional:
 
 Required:
 
-- `instance_type` (String) The instance type of the RonDB data node.
+- `instance_type` (String) The instance type of the RonDB API node.
 
 Optional:
 

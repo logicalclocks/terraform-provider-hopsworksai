@@ -571,7 +571,7 @@ func ronDBSchema() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"instance_type": {
-							Description: "The instance type of the RonDB data node.",
+							Description: "The instance type of the RonDB MySQL node.",
 							Type:        schema.TypeString,
 							Required:    true,
 						},
@@ -602,7 +602,7 @@ func ronDBSchema() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"instance_type": {
-							Description: "The instance type of the RonDB data node.",
+							Description: "The instance type of the RonDB API node.",
 							Type:        schema.TypeString,
 							Required:    true,
 						},
