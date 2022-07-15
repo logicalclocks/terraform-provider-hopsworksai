@@ -86,6 +86,7 @@ func testAccClustersDataSourceConfig(cloud api.CloudProvider, rName string, suff
 		name    = "%s%s%s"
 		ssh_key = "%s"
 		head {
+			instance_type = "%s"
 		}
 
 		%s
@@ -109,6 +110,7 @@ func testAccClustersDataSourceConfig(cloud api.CloudProvider, rName string, suff
 		strings.ToLower(cloud.String()),
 		suffix,
 		testAccClusterCloudSSHKeyAttribute(cloud),
+		testHeadInstanceType(cloud),
 		testAccClusterCloudConfigAttributes(cloud, 1, false),
 		cloud.String(),
 		default_CLUSTER_TAG_KEY,

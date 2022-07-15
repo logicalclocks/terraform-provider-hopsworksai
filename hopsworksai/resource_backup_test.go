@@ -142,6 +142,7 @@ func testAccBackupConfig(cloud api.CloudProvider, rName string, suffix string, e
 		ssh_key = "%s"	
 		backup_retention_period = 14
 		head {
+			instance_type = "%s"
 		}
 		
 		%s
@@ -161,6 +162,7 @@ func testAccBackupConfig(cloud api.CloudProvider, rName string, suffix string, e
 		strings.ToLower(cloud.String()),
 		suffix,
 		testAccClusterCloudSSHKeyAttribute(cloud),
+		testHeadInstanceType(cloud),
 		testAccClusterCloudConfigAttributes(cloud, bucketIndex, setNetwork),
 		extraConfig,
 		default_CLUSTER_TAG_KEY,
