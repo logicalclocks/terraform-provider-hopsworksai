@@ -794,7 +794,7 @@ func testWorkerInstanceTypeWithGPU(cloud api.CloudProvider) string {
 	if cloud == api.AWS {
 		return "g3s.xlarge"
 	} else if cloud == api.AZURE {
-		return "Standard_NC6"
+		return "Standard_NC6s_v3"
 	}
 	return ""
 }
