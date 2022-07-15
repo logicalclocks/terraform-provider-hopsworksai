@@ -7,6 +7,7 @@ BREAKING CHANGES:
 ENHANCEMENTS:
 * dependencies: Bump hashicorp/terraform-plugin-docs from 0.10.1 to 0.13.0
 * dependencies: Bump hashicorp/terraform-plugin-sdk/v2 from 2.17.0 to 2.18.0
+* dependencies: Bump hashicorp/terraform-plugin-log from 0.4.1 to 0.5.0
 * devtools: Bump golangci-lint from 1.45.2 to 1.46.2
 * datasource/instance_type(s): Add required `region` attribute to filter supported instance types
 
