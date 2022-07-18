@@ -239,8 +239,6 @@ func TestFlattenAzureAttributes(t *testing.T) {
 		map[string]interface{}{
 			"location":                       input.Azure.Location,
 			"resource_group":                 input.Azure.ResourceGroup,
-			"storage_account":                input.Azure.StorageAccount,
-			"storage_container_name":         input.Azure.BlobContainerName,
 			"user_assigned_managed_identity": input.Azure.ManagedIdentity,
 			"network": []map[string]interface{}{
 				{
@@ -1669,8 +1667,6 @@ func TestFlattenAzureAttributes_containerConfiguration(t *testing.T) {
 		map[string]interface{}{
 			"location":                       input.Azure.Location,
 			"resource_group":                 input.Azure.ResourceGroup,
-			"storage_account":                input.Azure.StorageAccount,
-			"storage_container_name":         input.Azure.BlobContainerName,
 			"user_assigned_managed_identity": input.Azure.ManagedIdentity,
 			"network": []map[string]interface{}{
 				{

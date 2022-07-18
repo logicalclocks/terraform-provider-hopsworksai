@@ -168,8 +168,6 @@ func flattenAzureAttributes(cluster *api.Cluster) []interface{} {
 	azureAttributes[0] = map[string]interface{}{
 		"location":                       cluster.Azure.Location,
 		"resource_group":                 cluster.Azure.ResourceGroup,
-		"storage_account":                cluster.Azure.StorageAccount,
-		"storage_container_name":         cluster.Azure.BlobContainerName,
 		"user_assigned_managed_identity": cluster.Azure.ManagedIdentity,
 		"network": []map[string]interface{}{
 			{

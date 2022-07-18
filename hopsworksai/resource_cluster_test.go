@@ -1327,8 +1327,12 @@ func TestClusterCreate_AZURE(t *testing.T) {
 				map[string]interface{}{
 					"location":                       "location-1",
 					"resource_group":                 "resource-group-1",
-					"storage_account":                "storage-account-1",
 					"user_assigned_managed_identity": "user-identity-1",
+					"container": []interface{}{
+						map[string]interface{}{
+							"storage_account": "storage-account-1",
+						},
+					},
 				},
 			},
 			"open_ports": []interface{}{
@@ -1412,13 +1416,17 @@ func TestClusterCreate_AZURESetNetwork(t *testing.T) {
 				map[string]interface{}{
 					"location":                       "location-1",
 					"resource_group":                 "resource-group-1",
-					"storage_account":                "storage-account-1",
 					"user_assigned_managed_identity": "user-identity-1",
 					"network": []interface{}{
 						map[string]interface{}{
 							"virtual_network_name": "virtual-network-name-1",
 							"subnet_name":          "subnet-name-1",
 							"security_group_name":  "security-group-name-1",
+						},
+					},
+					"container": []interface{}{
+						map[string]interface{}{
+							"storage_account": "storage-account-1",
 						},
 					},
 				},
@@ -1538,8 +1546,12 @@ func TestClusterCreate_error(t *testing.T) {
 				map[string]interface{}{
 					"location":                       "location-1",
 					"resource_group":                 "resource-group-1",
-					"storage_account":                "storage-account-1",
 					"user_assigned_managed_identity": "user-identity-1",
+					"container": []interface{}{
+						map[string]interface{}{
+							"storage_account": "storage-account-1",
+						},
+					},
 				},
 			},
 		},
@@ -1879,9 +1891,7 @@ func TestClusterRead_AZURE(t *testing.T) {
 				map[string]interface{}{
 					"location":                       "location-1",
 					"resource_group":                 "resource-group-1",
-					"storage_account":                "account-1",
 					"user_assigned_managed_identity": "profile-1",
-					"storage_container_name":         "container-1",
 					"network": []interface{}{
 						map[string]interface{}{
 							"resource_group":       "network-resource-group-1",
@@ -2192,8 +2202,12 @@ func testClusterCreate_RonDB(t *testing.T, cloud api.CloudProvider) {
 			map[string]interface{}{
 				"location":                       "location-1",
 				"resource_group":                 "resource-group-1",
-				"storage_account":                "storage-account-1",
 				"user_assigned_managed_identity": "user-identity-1",
+				"container": []interface{}{
+					map[string]interface{}{
+						"storage_account": "storage-account-1",
+					},
+				},
 			},
 		}
 	}
@@ -2326,8 +2340,12 @@ func testClusterCreate_RonDB_default(t *testing.T, cloud api.CloudProvider) {
 			map[string]interface{}{
 				"location":                       "location-1",
 				"resource_group":                 "resource-group-1",
-				"storage_account":                "storage-account-1",
 				"user_assigned_managed_identity": "user-identity-1",
+				"container": []interface{}{
+					map[string]interface{}{
+						"storage_account": "storage-account-1",
+					},
+				},
 			},
 		}
 	}
@@ -2428,8 +2446,12 @@ func testClusterCreate_RonDB_defaultEmptyBlocks(t *testing.T, cloud api.CloudPro
 			map[string]interface{}{
 				"location":                       "location-1",
 				"resource_group":                 "resource-group-1",
-				"storage_account":                "storage-account-1",
 				"user_assigned_managed_identity": "user-identity-1",
+				"container": []interface{}{
+					map[string]interface{}{
+						"storage_account": "storage-account-1",
+					},
+				},
 			},
 		}
 	}
@@ -2518,8 +2540,12 @@ func testClusterCreate_RonDB_invalidReplicationFactor(t *testing.T, cloud api.Cl
 			map[string]interface{}{
 				"location":                       "location-1",
 				"resource_group":                 "resource-group-1",
-				"storage_account":                "storage-account-1",
 				"user_assigned_managed_identity": "user-identity-1",
+				"container": []interface{}{
+					map[string]interface{}{
+						"storage_account": "storage-account-1",
+					},
+				},
 			},
 		}
 	}
@@ -2599,8 +2625,12 @@ func testClusterCreate_Autoscale(t *testing.T, cloud api.CloudProvider, withGpu 
 			map[string]interface{}{
 				"location":                       "location-1",
 				"resource_group":                 "resource-group-1",
-				"storage_account":                "storage-account-1",
 				"user_assigned_managed_identity": "user-identity-1",
+				"container": []interface{}{
+					map[string]interface{}{
+						"storage_account": "storage-account-1",
+					},
+				},
 			},
 		}
 	}
@@ -3172,9 +3202,13 @@ func TestClusterCreate_AZURE_container(t *testing.T) {
 				map[string]interface{}{
 					"location":                       "location-1",
 					"resource_group":                 "resource-group-1",
-					"storage_account":                "storage-account-1",
 					"user_assigned_managed_identity": "user-identity-1",
-					"storage_container_name":         "container-1",
+					"container": []interface{}{
+						map[string]interface{}{
+							"storage_account": "storage-account-1",
+							"name":            "container-1",
+						},
+					},
 				},
 			},
 		},
@@ -3220,9 +3254,13 @@ func TestClusterCreate_AZURE_searchDomain_deprecated(t *testing.T) {
 				map[string]interface{}{
 					"location":                       "location-1",
 					"resource_group":                 "resource-group-1",
-					"storage_account":                "storage-account-1",
 					"user_assigned_managed_identity": "user-identity-1",
 					"search_domain":                  "my-domain.com",
+					"container": []interface{}{
+						map[string]interface{}{
+							"storage_account": "storage-account-1",
+						},
+					},
 				},
 			},
 		},
@@ -3268,11 +3306,15 @@ func TestClusterCreate_AZURE_searchDomain(t *testing.T) {
 				map[string]interface{}{
 					"location":                       "location-1",
 					"resource_group":                 "resource-group-1",
-					"storage_account":                "storage-account-1",
 					"user_assigned_managed_identity": "user-identity-1",
 					"network": []interface{}{
 						map[string]interface{}{
 							"search_domain": "my-domain.com",
+						},
+					},
+					"container": []interface{}{
+						map[string]interface{}{
+							"storage_account": "storage-account-1",
 						},
 					},
 				},
@@ -3320,10 +3362,14 @@ func TestClusterCreate_AZURE_ASK_cluster(t *testing.T) {
 				map[string]interface{}{
 					"location":                       "location-1",
 					"resource_group":                 "resource-group-1",
-					"storage_account":                "storage-account-1",
 					"user_assigned_managed_identity": "user-identity-1",
 					"aks_cluster_name":               "aks-cluster-1",
 					"acr_registry_name":              "acr-registry-1",
+					"container": []interface{}{
+						map[string]interface{}{
+							"storage_account": "storage-account-1",
+						},
+					},
 				},
 			},
 		},
@@ -4420,10 +4466,10 @@ func TestClusterCreate_AZURE_setEncryption(t *testing.T) {
 				map[string]interface{}{
 					"location":                       "location-1",
 					"resource_group":                 "resource-group-1",
-					"storage_account":                "storage-account-1",
 					"user_assigned_managed_identity": "user-identity-1",
 					"container": []interface{}{
 						map[string]interface{}{
+							"storage_account": "storage-account-1",
 							"encryption": []interface{}{
 								map[string]interface{}{
 									"mode": "None",
@@ -4485,8 +4531,12 @@ func TestClusterCreate_AZURE_setEncryption_default(t *testing.T) {
 				map[string]interface{}{
 					"location":                       "location-1",
 					"resource_group":                 "resource-group-1",
-					"storage_account":                "storage-account-1",
 					"user_assigned_managed_identity": "user-identity-1",
+					"container": []interface{}{
+						map[string]interface{}{
+							"storage_account": "storage-account-1",
+						},
+					},
 				},
 			},
 		},
@@ -4550,38 +4600,6 @@ func TestClusterCreate_AZURE_newContainerConfiguration(t *testing.T) {
 			},
 		},
 		ExpectError: "failed to create cluster, error: skip",
-	}
-	r.Apply(t, context.TODO())
-}
-
-func TestClusterCreate_AZURE_error_noStorageAccountConfigured(t *testing.T) {
-	t.Parallel()
-	r := test.ResourceFixture{
-		Resource:             clusterResource(),
-		OperationContextFunc: clusterResource().CreateContext,
-		State: map[string]interface{}{
-			"name": "cluster",
-			"head": []interface{}{
-				map[string]interface{}{
-					"instance_type": "node-type-1",
-					"disk_size":     512,
-				},
-			},
-			"ssh_key": "my-key",
-			"azure_attributes": []interface{}{
-				map[string]interface{}{
-					"location":                       "location-1",
-					"resource_group":                 "resource-group-1",
-					"user_assigned_managed_identity": "user-identity-1",
-					"container": []interface{}{
-						map[string]interface{}{
-							"name": "container-name-1",
-						},
-					},
-				},
-			},
-		},
-		ExpectError: "storage account is not set",
 	}
 	r.Apply(t, context.TODO())
 }

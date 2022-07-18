@@ -404,17 +404,18 @@ Optional:
 - `container` (Block List, Max: 1) The container configurations. (see [below for nested schema](#nestedblock--azure_attributes--container))
 - `network` (Block List, Max: 1) The network configurations. (see [below for nested schema](#nestedblock--azure_attributes--network))
 - `search_domain` (String, Deprecated) The search domain to use for node address resolution. If not specified it will use the Azure default one (internal.cloudapp.net).  Use azure_attributes/network/search_domain instead.
-- `storage_account` (String, Deprecated) The azure storage account that the cluster will use to store data in. use azure_attributes/container/storage_account instead
-- `storage_container_name` (String, Deprecated) The name of the azure storage container that the cluster will use to store data in. If not specified, it will be automatically generated. use azure_attributes/container/name instead
 
 <a id="nestedblock--azure_attributes--container"></a>
 ### Nested Schema for `azure_attributes.container`
+
+Required:
+
+- `storage_account` (String) The azure storage account that the cluster will use to store data in.
 
 Optional:
 
 - `encryption` (Block List, Max: 1) The server-side encryption configurations. (see [below for nested schema](#nestedblock--azure_attributes--container--encryption))
 - `name` (String) The name of the azure storage container that the cluster will use to store data in. If not specified, it will be automatically generated.
-- `storage_account` (String) The azure storage account that the cluster will use to store data in.
 
 <a id="nestedblock--azure_attributes--container--encryption"></a>
 ### Nested Schema for `azure_attributes.container.encryption`

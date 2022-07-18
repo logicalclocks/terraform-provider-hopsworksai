@@ -311,9 +311,7 @@ func TestClusterDataSourceRead_AZURE(t *testing.T) {
 				map[string]interface{}{
 					"location":                       "location-1",
 					"resource_group":                 "resource-group-1",
-					"storage_account":                "account-1",
 					"user_assigned_managed_identity": "profile-1",
-					"storage_container_name":         "container-1",
 					"network": []interface{}{
 						map[string]interface{}{
 							"resource_group":       "network-resource-group-1",

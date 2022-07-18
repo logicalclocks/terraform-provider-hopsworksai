@@ -306,9 +306,7 @@ func TestClustersDataSourceRead(t *testing.T) {
 						map[string]interface{}{
 							"location":                       "",
 							"resource_group":                 "",
-							"storage_account":                "",
 							"user_assigned_managed_identity": "",
-							"storage_container_name":         "",
 							"network": []interface{}{
 								map[string]interface{}{
 									"resource_group":       "",
