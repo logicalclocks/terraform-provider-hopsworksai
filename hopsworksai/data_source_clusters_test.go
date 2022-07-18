@@ -318,7 +318,6 @@ func TestClustersDataSourceRead(t *testing.T) {
 							},
 							"aks_cluster_name":  "",
 							"acr_registry_name": "",
-							"search_domain":     "",
 							"container": []interface{}{
 								map[string]interface{}{
 									"name":            "",

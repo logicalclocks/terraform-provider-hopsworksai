@@ -251,7 +251,6 @@ func TestFlattenAzureAttributes(t *testing.T) {
 			},
 			"aks_cluster_name":  input.Azure.AksClusterName,
 			"acr_registry_name": input.Azure.AcrRegistryName,
-			"search_domain":     input.Azure.SearchDomain,
 			"container": []map[string]interface{}{
 				{
 					"name":            input.Azure.BlobContainerName,
@@ -1679,7 +1678,6 @@ func TestFlattenAzureAttributes_containerConfiguration(t *testing.T) {
 			},
 			"aks_cluster_name":  input.Azure.AksClusterName,
 			"acr_registry_name": input.Azure.AcrRegistryName,
-			"search_domain":     input.Azure.SearchDomain,
 			"container": []map[string]interface{}{
 				{
 					"name":            input.Azure.BlobContainerName,

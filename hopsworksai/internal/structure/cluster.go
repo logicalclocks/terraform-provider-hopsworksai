@@ -180,7 +180,6 @@ func flattenAzureAttributes(cluster *api.Cluster) []interface{} {
 		},
 		"aks_cluster_name":  cluster.Azure.AksClusterName,
 		"acr_registry_name": cluster.Azure.AcrRegistryName,
-		"search_domain":     cluster.Azure.SearchDomain,
 		"container":         flattenAzureContainerConfiguration(cluster.Azure.StorageAccount, cluster.Azure.BlobContainerName, cluster.Azure.ContainerConfiguration),
 	}
 	return azureAttributes

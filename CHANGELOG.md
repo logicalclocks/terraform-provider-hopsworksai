@@ -9,6 +9,7 @@ BREAKING CHANGES:
 * Set `aws_attributes/bucket/name` attribute to be required.
 * Remove deprecated `azure_attributes/storage_account` and `azure_attributes/storage_container_name` attributes.
 * Set `azure_attributes/container/storage_account` attribute to be required.
+* Remove deprecated `azure_attributes/search_domain` attribute.
 
 ENHANCEMENTS:
 * dependencies: Bump hashicorp/terraform-plugin-docs from 0.10.1 to 0.13.0

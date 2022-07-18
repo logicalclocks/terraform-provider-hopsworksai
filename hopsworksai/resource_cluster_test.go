@@ -1903,7 +1903,6 @@ func TestClusterRead_AZURE(t *testing.T) {
 					},
 					"aks_cluster_name":  "",
 					"acr_registry_name": "",
-					"search_domain":     "internal.cloudapp.net",
 					"container": []interface{}{
 						map[string]interface{}{
 							"name":            "container-1",
@@ -3207,58 +3206,6 @@ func TestClusterCreate_AZURE_container(t *testing.T) {
 						map[string]interface{}{
 							"storage_account": "storage-account-1",
 							"name":            "container-1",
-						},
-					},
-				},
-			},
-		},
-		ExpectError: "failed to create cluster, error: skip",
-	}
-	r.Apply(t, context.TODO())
-}
-
-func TestClusterCreate_AZURE_searchDomain_deprecated(t *testing.T) {
-	r := test.ResourceFixture{
-		HttpOps: []test.Operation{
-			{
-				Method: http.MethodPost,
-				Path:   "/api/clusters",
-				Response: `{
-					"apiVersion": "v1",
-					"status": "ok",
-					"code": 400,
-					"message": "skip"
-				}`,
-				CheckRequestBody: func(reqBody io.Reader) error {
-					var req api.NewAzureClusterRequest
-					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
-						return err
-					}
-					if req.CreateRequest.SearchDomain != "my-domain.com" {
-						return fmt.Errorf("error while matching:\nexpected my-domain.com \nbut got %#v", req.CreateRequest.SearchDomain)
-					}
-					return nil
-				},
-			},
-		},
-		Resource:             clusterResource(),
-		OperationContextFunc: clusterResource().CreateContext,
-		State: map[string]interface{}{
-			"head": []interface{}{
-				map[string]interface{}{
-					"disk_size": 512,
-				},
-			},
-			"ssh_key": "my-key",
-			"azure_attributes": []interface{}{
-				map[string]interface{}{
-					"location":                       "location-1",
-					"resource_group":                 "resource-group-1",
-					"user_assigned_managed_identity": "user-identity-1",
-					"search_domain":                  "my-domain.com",
-					"container": []interface{}{
-						map[string]interface{}{
-							"storage_account": "storage-account-1",
 						},
 					},
 				},

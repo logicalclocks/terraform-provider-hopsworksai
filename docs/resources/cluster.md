@@ -403,7 +403,6 @@ Optional:
 - `aks_cluster_name` (String) The name of the AKS cluster.
 - `container` (Block List, Max: 1) The container configurations. (see [below for nested schema](#nestedblock--azure_attributes--container))
 - `network` (Block List, Max: 1) The network configurations. (see [below for nested schema](#nestedblock--azure_attributes--network))
-- `search_domain` (String, Deprecated) The search domain to use for node address resolution. If not specified it will use the Azure default one (internal.cloudapp.net).  Use azure_attributes/network/search_domain instead.
 
 <a id="nestedblock--azure_attributes--container"></a>
 ### Nested Schema for `azure_attributes.container`

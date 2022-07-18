@@ -185,7 +185,6 @@ Read-Only:
 - `location` (String)
 - `network` (List of Object) (see [below for nested schema](#nestedobjatt--azure_attributes--network))
 - `resource_group` (String)
-- `search_domain` (String)
 - `user_assigned_managed_identity` (String)
 
 <a id="nestedobjatt--azure_attributes--container"></a>

@@ -208,7 +208,6 @@ Read-Only:
 - `container` (List of Object) The container configurations. (see [below for nested schema](#nestedatt--azure_attributes--container))
 - `location` (String) The location where the cluster will be created.
 - `resource_group` (String) The resource group where the cluster will be created.
-- `search_domain` (String) The search domain to use for node address resolution. If not specified it will use the Azure default one (internal.cloudapp.net).
 - `user_assigned_managed_identity` (String) The azure user assigned managed identity that the cluster will be started with.
 
 <a id="nestedblock--azure_attributes--network"></a>

@@ -947,12 +947,11 @@ func azureAttributesSchema() *schema.Resource {
 							ForceNew:    true,
 						},
 						"search_domain": {
-							Description:   "The search domain to use for node address resolution. If not specified it will use the Azure default one (internal.cloudapp.net). ",
-							Type:          schema.TypeString,
-							Optional:      true,
-							Computed:      true,
-							ForceNew:      true,
-							ConflictsWith: []string{"azure_attributes.0.search_domain"},
+							Description: "The search domain to use for node address resolution. If not specified it will use the Azure default one (internal.cloudapp.net). ",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
 						},
 					},
 				},
@@ -968,15 +967,6 @@ func azureAttributesSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-			},
-			"search_domain": {
-				Description:   "The search domain to use for node address resolution. If not specified it will use the Azure default one (internal.cloudapp.net). ",
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ForceNew:      true,
-				Deprecated:    "Use azure_attributes/network/search_domain instead.",
-				ConflictsWith: []string{"azure_attributes.0.network.0.search_domain"},
 			},
 		},
 	}
@@ -1137,10 +1127,7 @@ func createAzureCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) 
 		req.BlobContainerName = fmt.Sprintf("hopsworksai-%d", suffix)
 	}
 
-	// deprecated, to be removed in next major version
-	if v, ok := d.GetOk("azure_attributes.0.search_domain"); ok {
-		req.SearchDomain = v.(string)
-	} else if v, ok := d.GetOk("azure_attributes.0.network.0.search_domain"); ok {
+	if v, ok := d.GetOk("azure_attributes.0.network.0.search_domain"); ok {
 		req.SearchDomain = v.(string)
 	} else {
 		req.SearchDomain = "internal.cloudapp.net"

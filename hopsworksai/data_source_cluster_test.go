@@ -323,7 +323,6 @@ func TestClusterDataSourceRead_AZURE(t *testing.T) {
 					},
 					"aks_cluster_name":  "",
 					"acr_registry_name": "",
-					"search_domain":     "internal.cloudapp.net",
 					"container": []interface{}{
 						map[string]interface{}{
 							"name":            "container-1",
