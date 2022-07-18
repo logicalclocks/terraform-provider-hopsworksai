@@ -4238,33 +4238,6 @@ func TestClusterCreate_AWS_useNewBucketName(t *testing.T) {
 	r.Apply(t, context.TODO())
 }
 
-func TestClusterCreate_AWS_error_noBucketConfigured(t *testing.T) {
-	t.Parallel()
-	r := test.ResourceFixture{
-		Resource:             clusterResource(),
-		OperationContextFunc: clusterResource().CreateContext,
-		State: map[string]interface{}{
-			"name": "cluster",
-			"head": []interface{}{
-				map[string]interface{}{
-					"disk_size": 512,
-				},
-			},
-			"aws_attributes": []interface{}{
-				map[string]interface{}{
-					"region":               "region-1",
-					"instance_profile_arn": "profile-1",
-					"bucket": []interface{}{
-						map[string]interface{}{},
-					},
-				},
-			},
-		},
-		ExpectError: "bucket name is not set",
-	}
-	r.Apply(t, context.TODO())
-}
-
 func TestClusterCreate_AWS_setEncryption(t *testing.T) {
 	t.Parallel()
 	r := test.ResourceFixture{

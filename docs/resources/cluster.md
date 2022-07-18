@@ -337,11 +337,14 @@ Optional:
 <a id="nestedblock--aws_attributes--bucket"></a>
 ### Nested Schema for `aws_attributes.bucket`
 
+Required:
+
+- `name` (String) The name of the S3 bucket that the cluster will use to store data in.
+
 Optional:
 
 - `acl` (Block List, Max: 1) The ACL configurations. (see [below for nested schema](#nestedblock--aws_attributes--bucket--acl))
 - `encryption` (Block List, Max: 1) The server-side encryption configurations. (see [below for nested schema](#nestedblock--aws_attributes--bucket--encryption))
-- `name` (String) The name of the S3 bucket that the cluster will use to store data in.
 
 <a id="nestedblock--aws_attributes--bucket--acl"></a>
 ### Nested Schema for `aws_attributes.bucket.acl`

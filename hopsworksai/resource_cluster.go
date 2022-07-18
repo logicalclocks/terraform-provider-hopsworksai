@@ -702,8 +702,7 @@ func awsAttributesSchema() *schema.Resource {
 						"name": {
 							Description: "The name of the S3 bucket that the cluster will use to store data in.",
 							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
+							Required:    true,
 							ForceNew:    true,
 						},
 						"encryption": {
@@ -1039,10 +1038,7 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 	if aws, ok := d.GetOk("aws_attributes"); ok {
 		awsAttributes := aws.([]interface{})
 		if len(awsAttributes) > 0 {
-			createRequest, err = createAWSCluster(d, baseRequest)
-			if err != nil {
-				return diag.FromErr(err)
-			}
+			createRequest = createAWSCluster(d, baseRequest)
 		}
 	}
 
@@ -1079,19 +1075,14 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourceClusterRead(ctx, d, meta)
 }
 
-func createAWSCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) (*api.CreateAWSCluster, error) {
+func createAWSCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) *api.CreateAWSCluster {
 	req := api.CreateAWSCluster{
 		CreateCluster: *baseRequest,
 		AWSCluster: api.AWSCluster{
+			BucketName:         d.Get("aws_attributes.0.bucket.0.name").(string),
 			Region:             d.Get("aws_attributes.0.region").(string),
 			InstanceProfileArn: d.Get("aws_attributes.0.instance_profile_arn").(string),
 		},
-	}
-
-	if v, ok := d.GetOk("aws_attributes.0.bucket.0.name"); ok {
-		req.BucketName = v.(string)
-	} else {
-		return nil, fmt.Errorf("bucket name is not set")
 	}
 
 	if _, ok := d.GetOk("aws_attributes.0.network"); ok {
@@ -1149,7 +1140,7 @@ func createAWSCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) (*
 		}
 	}
 
-	return &req, nil
+	return &req
 }
 
 func createAzureCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) (*api.CreateAzureCluster, error) {

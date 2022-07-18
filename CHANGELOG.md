@@ -5,7 +5,7 @@ NOTES:
 
 BREAKING CHANGES:
 * Creating a Hopsworks cluster will require a seperate RonDB node. RonDB attribute is required by default.
-* All deprecated attributes have been removed
+* Remove deprecated `aws_attributes/bucket_name` attribute and force `aws_attributes/bucket/name` attribute to be required.
 
 ENHANCEMENTS:
 * dependencies: Bump hashicorp/terraform-plugin-docs from 0.10.1 to 0.13.0
