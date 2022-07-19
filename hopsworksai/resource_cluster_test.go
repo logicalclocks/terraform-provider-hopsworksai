@@ -399,6 +399,30 @@ func testAccCluster_workers(t *testing.T, cloud api.CloudProvider) {
 	})
 }
 
+func testRonDBConfig(cloud api.CloudProvider) string {
+	var mgmInstanceType = "t3a.medium"
+	var dataInstanceType = "r5.large"
+	var mysqlInstanceType = "c5.large"
+	if cloud == api.AZURE {
+		mgmInstanceType = "t3a.medium"
+		dataInstanceType = "r5.large"
+		mysqlInstanceType = "c5.large"
+	}
+	return fmt.Sprintf(`
+				rondb {
+					  management_nodes {
+						instance_type = "%s"
+					  }
+					  data_nodes {
+						instance_type = "%s"
+					  }
+					  mysql_nodes {
+						instance_type = "%s"
+					  }
+				}
+				`, mgmInstanceType, dataInstanceType, mysqlInstanceType)
+}
+
 func testAccCluster_RonDB(t *testing.T, cloud api.CloudProvider) {
 	suffix := acctest.RandString(5)
 	rName := fmt.Sprintf("test_%s", suffix)
@@ -845,11 +869,11 @@ func testAccClusterCheckDestroy() func(s *terraform.State) error {
 }
 
 func testAccClusterConfig_basic(cloud api.CloudProvider, rName string, suffix string, extraConfig string) string {
-	return testAccClusterConfig(cloud, rName, suffix, extraConfig, 2, "TestAccCluster_basic")
+	return testAccClusterConfig(cloud, rName, suffix, testRonDBConfig(cloud)+"\n"+extraConfig, 2, "TestAccCluster_basic")
 }
 
 func testAccClusterConfig_workers(cloud api.CloudProvider, rName string, suffix string, extraConfig string) string {
-	return testAccClusterConfig(cloud, rName, suffix, extraConfig, 3, "TestAccCluster_workers")
+	return testAccClusterConfig(cloud, rName, suffix, testRonDBConfig(cloud)+"\n"+extraConfig, 3, "TestAccCluster_workers")
 }
 
 func testAccClusterConfig_RonDB(cloud api.CloudProvider, rName string, suffix string, extraConfig string) string {
@@ -857,11 +881,11 @@ func testAccClusterConfig_RonDB(cloud api.CloudProvider, rName string, suffix st
 }
 
 func testAccClusterConfig_Autoscale(cloud api.CloudProvider, rName string, suffix string, extraConfig string) string {
-	return testAccClusterConfig(cloud, rName, suffix, extraConfig, 5, "TestAccCluster_Autoscale")
+	return testAccClusterConfig(cloud, rName, suffix, testRonDBConfig(cloud)+"\n"+extraConfig, 5, "TestAccCluster_Autoscale")
 }
 
 func testAccClusterConfig_Autoscale_Update(cloud api.CloudProvider, rName string, suffix string, extraConfig string) string {
-	return testAccClusterConfig(cloud, rName, suffix, extraConfig, 6, "TestAccCluster_Autoscale_update")
+	return testAccClusterConfig(cloud, rName, suffix, testRonDBConfig(cloud)+"\n"+extraConfig, 6, "TestAccCluster_Autoscale_update")
 }
 
 func testAccClusterConfig_Head_upscale(cloud api.CloudProvider, rName string, suffix string, instanceType string, extraConfig string) string {

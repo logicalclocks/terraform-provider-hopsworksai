@@ -145,6 +145,8 @@ func testAccBackupConfig(cloud api.CloudProvider, rName string, suffix string, e
 			instance_type = "%s"
 		}
 		
+		%s 
+		
 		%s
 		
 		%s 
@@ -163,6 +165,7 @@ func testAccBackupConfig(cloud api.CloudProvider, rName string, suffix string, e
 		suffix,
 		testAccClusterCloudSSHKeyAttribute(cloud),
 		testHeadInstanceType(cloud),
+		testRonDBConfig(cloud),
 		testAccClusterCloudConfigAttributes(cloud, bucketIndex, setNetwork),
 		extraConfig,
 		default_CLUSTER_TAG_KEY,
