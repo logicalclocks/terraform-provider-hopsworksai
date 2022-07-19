@@ -102,7 +102,6 @@ func flattenAWSAttributes(cluster *api.Cluster) []interface{} {
 	awsAttributes := make([]interface{}, 1)
 	awsAttributes[0] = map[string]interface{}{
 		"region":               cluster.AWS.Region,
-		"bucket_name":          cluster.AWS.BucketName,
 		"instance_profile_arn": cluster.AWS.InstanceProfileArn,
 		"network": []map[string]interface{}{
 			{
@@ -169,8 +168,6 @@ func flattenAzureAttributes(cluster *api.Cluster) []interface{} {
 	azureAttributes[0] = map[string]interface{}{
 		"location":                       cluster.Azure.Location,
 		"resource_group":                 cluster.Azure.ResourceGroup,
-		"storage_account":                cluster.Azure.StorageAccount,
-		"storage_container_name":         cluster.Azure.BlobContainerName,
 		"user_assigned_managed_identity": cluster.Azure.ManagedIdentity,
 		"network": []map[string]interface{}{
 			{
@@ -183,7 +180,6 @@ func flattenAzureAttributes(cluster *api.Cluster) []interface{} {
 		},
 		"aks_cluster_name":  cluster.Azure.AksClusterName,
 		"acr_registry_name": cluster.Azure.AcrRegistryName,
-		"search_domain":     cluster.Azure.SearchDomain,
 		"container":         flattenAzureContainerConfiguration(cluster.Azure.StorageAccount, cluster.Azure.BlobContainerName, cluster.Azure.ContainerConfiguration),
 	}
 	return azureAttributes

@@ -138,7 +138,6 @@ Optional:
 Read-Only:
 
 - `bucket` (List of Object) The bucket configurations. (see [below for nested schema](#nestedatt--aws_attributes--bucket))
-- `bucket_name` (String) The name of the S3 bucket that the cluster will use to store data in.
 - `ebs_encryption` (List of Object) The EBS disk encryption configuration. (see [below for nested schema](#nestedatt--aws_attributes--ebs_encryption))
 - `ecr_registry_account_id` (String) The account id used for ECR. Defaults to the user's account id, inferred from the instance profille ARN.
 - `eks_cluster_name` (String) The name of the AWS EKS cluster.
@@ -209,9 +208,6 @@ Read-Only:
 - `container` (List of Object) The container configurations. (see [below for nested schema](#nestedatt--azure_attributes--container))
 - `location` (String) The location where the cluster will be created.
 - `resource_group` (String) The resource group where the cluster will be created.
-- `search_domain` (String) The search domain to use for node address resolution. If not specified it will use the Azure default one (internal.cloudapp.net).
-- `storage_account` (String) The azure storage account that the cluster will use to store data in.
-- `storage_container_name` (String) The name of the azure storage container that the cluster will use to store data in. If not specified, it will be automatically generated.
 - `user_assigned_managed_identity` (String) The azure user assigned managed identity that the cluster will be started with.
 
 <a id="nestedblock--azure_attributes--network"></a>

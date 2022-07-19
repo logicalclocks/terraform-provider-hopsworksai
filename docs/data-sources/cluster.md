@@ -119,7 +119,6 @@ Read-Only:
 Read-Only:
 
 - `bucket` (List of Object) (see [below for nested schema](#nestedobjatt--aws_attributes--bucket))
-- `bucket_name` (String)
 - `ebs_encryption` (List of Object) (see [below for nested schema](#nestedobjatt--aws_attributes--ebs_encryption))
 - `ecr_registry_account_id` (String)
 - `eks_cluster_name` (String)
@@ -186,9 +185,6 @@ Read-Only:
 - `location` (String)
 - `network` (List of Object) (see [below for nested schema](#nestedobjatt--azure_attributes--network))
 - `resource_group` (String)
-- `search_domain` (String)
-- `storage_account` (String)
-- `storage_container_name` (String)
 - `user_assigned_managed_identity` (String)
 
 <a id="nestedobjatt--azure_attributes--container"></a>

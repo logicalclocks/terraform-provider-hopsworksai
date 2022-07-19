@@ -1,6 +1,5 @@
 data "hopsworksai_aws_instance_profile_policy" "policy" {
   enable_eks_and_ecr = false
-  enable_upgrade     = false
 }
 
 resource "aws_iam_role" "role" {

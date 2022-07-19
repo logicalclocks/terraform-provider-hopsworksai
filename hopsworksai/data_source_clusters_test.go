@@ -190,7 +190,6 @@ func TestClustersDataSourceRead(t *testing.T) {
 					"aws_attributes": []interface{}{
 						map[string]interface{}{
 							"region":               "",
-							"bucket_name":          "",
 							"instance_profile_arn": "",
 							"network": []interface{}{
 								map[string]interface{}{
@@ -249,7 +248,6 @@ func TestClustersDataSourceRead(t *testing.T) {
 					"aws_attributes": []interface{}{
 						map[string]interface{}{
 							"region":               "",
-							"bucket_name":          "",
 							"instance_profile_arn": "",
 							"network": []interface{}{
 								map[string]interface{}{
@@ -308,9 +306,7 @@ func TestClustersDataSourceRead(t *testing.T) {
 						map[string]interface{}{
 							"location":                       "",
 							"resource_group":                 "",
-							"storage_account":                "",
 							"user_assigned_managed_identity": "",
-							"storage_container_name":         "",
 							"network": []interface{}{
 								map[string]interface{}{
 									"resource_group":       "",
@@ -322,7 +318,6 @@ func TestClustersDataSourceRead(t *testing.T) {
 							},
 							"aks_cluster_name":  "",
 							"acr_registry_name": "",
-							"search_domain":     "",
 							"container": []interface{}{
 								map[string]interface{}{
 									"name":            "",

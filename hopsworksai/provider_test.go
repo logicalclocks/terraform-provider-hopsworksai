@@ -140,7 +140,9 @@ func testAccClusterCloudConfigAttributes(cloud api.CloudProvider, bucketIndex in
 		baseConfig := fmt.Sprintf(`
 			region               = "%s"
 			instance_profile_arn = "%s"
-			bucket_name          = "%s"
+			bucket {
+				name = "%s"
+			}
 		`, os.Getenv(env_AWS_REGION), os.Getenv(env_AWS_INSTANCE_PROFILE_ARN), bucketName)
 
 		var networkConfig = ""

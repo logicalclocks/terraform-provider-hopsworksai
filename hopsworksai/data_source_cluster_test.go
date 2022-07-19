@@ -179,7 +179,6 @@ func TestClusterDataSourceRead_AWS(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"network": []interface{}{
 						map[string]interface{}{
@@ -312,9 +311,7 @@ func TestClusterDataSourceRead_AZURE(t *testing.T) {
 				map[string]interface{}{
 					"location":                       "location-1",
 					"resource_group":                 "resource-group-1",
-					"storage_account":                "account-1",
 					"user_assigned_managed_identity": "profile-1",
-					"storage_container_name":         "container-1",
 					"network": []interface{}{
 						map[string]interface{}{
 							"resource_group":       "network-resource-group-1",
@@ -326,7 +323,6 @@ func TestClusterDataSourceRead_AZURE(t *testing.T) {
 					},
 					"aks_cluster_name":  "",
 					"acr_registry_name": "",
-					"search_domain":     "internal.cloudapp.net",
 					"container": []interface{}{
 						map[string]interface{}{
 							"name":            "container-1",

@@ -25,13 +25,6 @@ func dataSourceAzureUserAssignedIdentityPermissions() *schema.Resource {
 				Optional:    true,
 				Default:     true,
 			},
-			"enable_upgrade": {
-				Description: "Add permissions required to enable upgrade to newer versions of Hopsworks.",
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     false,
-				Deprecated:  "These permissions are not required anymore to upgrade from version 2.4.0 and onwards.",
-			},
 			"enable_aks_and_acr": {
 				Description: "Add permissions required to enable access to Azure AKS and ACR from within your Hopsworks cluster.",
 				Type:        schema.TypeBool,
@@ -96,13 +89,6 @@ func dataSourceAzureUserAssignedIdentityPermissionsRead(ctx context.Context, d *
 
 	if d.Get("enable_backup").(bool) {
 		actions = append(actions, "Microsoft.Storage/storageAccounts/blobServices/write")
-	}
-
-	if d.Get("enable_upgrade").(bool) {
-		actions = append(actions, "Microsoft.Compute/virtualMachines/read",
-			"Microsoft.Compute/virtualMachines/write",
-			"Microsoft.Compute/disks/read",
-			"Microsoft.Compute/disks/write")
 	}
 
 	if d.Get("enable_aks_and_acr").(bool) {

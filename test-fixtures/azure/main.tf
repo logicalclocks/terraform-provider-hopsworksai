@@ -1,5 +1,4 @@
 data "hopsworksai_azure_user_assigned_identity_permissions" "policy" {
-  enable_upgrade = false
 }
 
 data "azurerm_resource_group" "rg" {

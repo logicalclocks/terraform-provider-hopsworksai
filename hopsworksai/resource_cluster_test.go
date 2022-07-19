@@ -1010,8 +1010,12 @@ func TestClusterCreate_AWS(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
 				},
 			},
 			"open_ports": []interface{}{
@@ -1093,8 +1097,12 @@ func TestClusterCreate_AWSSetNetwork(t *testing.T) {
 			},
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
-					"region":               "region-1",
-					"bucket_name":          "bucket-1",
+					"region": "region-1",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
 					"instance_profile_arn": "profile-1",
 					"network": []interface{}{
 						map[string]interface{}{
@@ -1174,8 +1182,12 @@ func TestClusterCreate_AWS_errorOpenPorts(t *testing.T) {
 			},
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
-					"region":               "region-1",
-					"bucket_name":          "bucket-1",
+					"region": "region-1",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
 					"instance_profile_arn": "profile-1",
 				},
 			},
@@ -1233,8 +1245,12 @@ func TestClusterCreate_AWS_errorWaiting(t *testing.T) {
 			},
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
-					"region":               "region-1",
-					"bucket_name":          "bucket-1",
+					"region": "region-1",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
 					"instance_profile_arn": "profile-1",
 				},
 			},
@@ -1311,8 +1327,12 @@ func TestClusterCreate_AZURE(t *testing.T) {
 				map[string]interface{}{
 					"location":                       "location-1",
 					"resource_group":                 "resource-group-1",
-					"storage_account":                "storage-account-1",
 					"user_assigned_managed_identity": "user-identity-1",
+					"container": []interface{}{
+						map[string]interface{}{
+							"storage_account": "storage-account-1",
+						},
+					},
 				},
 			},
 			"open_ports": []interface{}{
@@ -1396,13 +1416,17 @@ func TestClusterCreate_AZURESetNetwork(t *testing.T) {
 				map[string]interface{}{
 					"location":                       "location-1",
 					"resource_group":                 "resource-group-1",
-					"storage_account":                "storage-account-1",
 					"user_assigned_managed_identity": "user-identity-1",
 					"network": []interface{}{
 						map[string]interface{}{
 							"virtual_network_name": "virtual-network-name-1",
 							"subnet_name":          "subnet-name-1",
 							"security_group_name":  "security-group-name-1",
+						},
+					},
+					"container": []interface{}{
+						map[string]interface{}{
+							"storage_account": "storage-account-1",
 						},
 					},
 				},
@@ -1448,8 +1472,12 @@ func TestClusterCreate_updateState(t *testing.T) {
 			},
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
-					"region":               "region-1",
-					"bucket_name":          "bucket-1",
+					"region": "region-1",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
 					"instance_profile_arn": "profile-1",
 				},
 			},
@@ -1518,8 +1546,12 @@ func TestClusterCreate_error(t *testing.T) {
 				map[string]interface{}{
 					"location":                       "location-1",
 					"resource_group":                 "resource-group-1",
-					"storage_account":                "storage-account-1",
 					"user_assigned_managed_identity": "user-identity-1",
+					"container": []interface{}{
+						map[string]interface{}{
+							"storage_account": "storage-account-1",
+						},
+					},
 				},
 			},
 		},
@@ -1564,8 +1596,12 @@ func TestClusterCreate_AWS_defaultECRAccountId(t *testing.T) {
 			},
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
-					"region":               "region-1",
-					"bucket_name":          "bucket-1",
+					"region": "region-1",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
 					"instance_profile_arn": "arn:aws:iam::000011111333:instance-profile/my-instance-profile",
 					"eks_cluster_name":     "my-cluster",
 				},
@@ -1612,8 +1648,12 @@ func TestClusterCreate_AWS_setECRAccountId(t *testing.T) {
 			},
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
-					"region":                  "region-1",
-					"bucket_name":             "bucket-1",
+					"region": "region-1",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
 					"instance_profile_arn":    "arn:aws:iam::000011111333:instance-profile/my-instance-profile",
 					"eks_cluster_name":        "my-cluster",
 					"ecr_registry_account_id": "000011111444",
@@ -1722,7 +1762,6 @@ func TestClusterRead_AWS(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"network": []interface{}{
 						map[string]interface{}{
@@ -1852,9 +1891,7 @@ func TestClusterRead_AZURE(t *testing.T) {
 				map[string]interface{}{
 					"location":                       "location-1",
 					"resource_group":                 "resource-group-1",
-					"storage_account":                "account-1",
 					"user_assigned_managed_identity": "profile-1",
-					"storage_container_name":         "container-1",
 					"network": []interface{}{
 						map[string]interface{}{
 							"resource_group":       "network-resource-group-1",
@@ -1866,7 +1903,6 @@ func TestClusterRead_AZURE(t *testing.T) {
 					},
 					"aks_cluster_name":  "",
 					"acr_registry_name": "",
-					"search_domain":     "internal.cloudapp.net",
 					"container": []interface{}{
 						map[string]interface{}{
 							"name":            "container-1",
@@ -2151,8 +2187,12 @@ func testClusterCreate_RonDB(t *testing.T, cloud api.CloudProvider) {
 	if cloud == api.AWS {
 		state["aws_attributes"] = []interface{}{
 			map[string]interface{}{
-				"region":               "region-1",
-				"bucket_name":          "bucket-1",
+				"region": "region-1",
+				"bucket": []interface{}{
+					map[string]interface{}{
+						"name": "bucket-1",
+					},
+				},
 				"instance_profile_arn": "profile-1",
 			},
 		}
@@ -2161,8 +2201,12 @@ func testClusterCreate_RonDB(t *testing.T, cloud api.CloudProvider) {
 			map[string]interface{}{
 				"location":                       "location-1",
 				"resource_group":                 "resource-group-1",
-				"storage_account":                "storage-account-1",
 				"user_assigned_managed_identity": "user-identity-1",
+				"container": []interface{}{
+					map[string]interface{}{
+						"storage_account": "storage-account-1",
+					},
+				},
 			},
 		}
 	}
@@ -2281,8 +2325,12 @@ func testClusterCreate_RonDB_default(t *testing.T, cloud api.CloudProvider) {
 	if cloud == api.AWS {
 		state["aws_attributes"] = []interface{}{
 			map[string]interface{}{
-				"region":               "region-1",
-				"bucket_name":          "bucket-1",
+				"region": "region-1",
+				"bucket": []interface{}{
+					map[string]interface{}{
+						"name": "bucket-1",
+					},
+				},
 				"instance_profile_arn": "profile-1",
 			},
 		}
@@ -2291,8 +2339,12 @@ func testClusterCreate_RonDB_default(t *testing.T, cloud api.CloudProvider) {
 			map[string]interface{}{
 				"location":                       "location-1",
 				"resource_group":                 "resource-group-1",
-				"storage_account":                "storage-account-1",
 				"user_assigned_managed_identity": "user-identity-1",
+				"container": []interface{}{
+					map[string]interface{}{
+						"storage_account": "storage-account-1",
+					},
+				},
 			},
 		}
 	}
@@ -2379,8 +2431,12 @@ func testClusterCreate_RonDB_defaultEmptyBlocks(t *testing.T, cloud api.CloudPro
 	if cloud == api.AWS {
 		state["aws_attributes"] = []interface{}{
 			map[string]interface{}{
-				"region":               "region-1",
-				"bucket_name":          "bucket-1",
+				"region": "region-1",
+				"bucket": []interface{}{
+					map[string]interface{}{
+						"name": "bucket-1",
+					},
+				},
 				"instance_profile_arn": "profile-1",
 			},
 		}
@@ -2389,8 +2445,12 @@ func testClusterCreate_RonDB_defaultEmptyBlocks(t *testing.T, cloud api.CloudPro
 			map[string]interface{}{
 				"location":                       "location-1",
 				"resource_group":                 "resource-group-1",
-				"storage_account":                "storage-account-1",
 				"user_assigned_managed_identity": "user-identity-1",
+				"container": []interface{}{
+					map[string]interface{}{
+						"storage_account": "storage-account-1",
+					},
+				},
 			},
 		}
 	}
@@ -2465,8 +2525,12 @@ func testClusterCreate_RonDB_invalidReplicationFactor(t *testing.T, cloud api.Cl
 	if cloud == api.AWS {
 		state["aws_attributes"] = []interface{}{
 			map[string]interface{}{
-				"region":               "region-1",
-				"bucket_name":          "bucket-1",
+				"region": "region-1",
+				"bucket": []interface{}{
+					map[string]interface{}{
+						"name": "bucket-1",
+					},
+				},
 				"instance_profile_arn": "profile-1",
 			},
 		}
@@ -2475,8 +2539,12 @@ func testClusterCreate_RonDB_invalidReplicationFactor(t *testing.T, cloud api.Cl
 			map[string]interface{}{
 				"location":                       "location-1",
 				"resource_group":                 "resource-group-1",
-				"storage_account":                "storage-account-1",
 				"user_assigned_managed_identity": "user-identity-1",
+				"container": []interface{}{
+					map[string]interface{}{
+						"storage_account": "storage-account-1",
+					},
+				},
 			},
 		}
 	}
@@ -2542,8 +2610,12 @@ func testClusterCreate_Autoscale(t *testing.T, cloud api.CloudProvider, withGpu 
 	if cloud == api.AWS {
 		state["aws_attributes"] = []interface{}{
 			map[string]interface{}{
-				"region":               "region-1",
-				"bucket_name":          "bucket-1",
+				"region": "region-1",
+				"bucket": []interface{}{
+					map[string]interface{}{
+						"name": "bucket-1",
+					},
+				},
 				"instance_profile_arn": "profile-1",
 			},
 		}
@@ -2552,8 +2624,12 @@ func testClusterCreate_Autoscale(t *testing.T, cloud api.CloudProvider, withGpu 
 			map[string]interface{}{
 				"location":                       "location-1",
 				"resource_group":                 "resource-group-1",
-				"storage_account":                "storage-account-1",
 				"user_assigned_managed_identity": "user-identity-1",
+				"container": []interface{}{
+					map[string]interface{}{
+						"storage_account": "storage-account-1",
+					},
+				},
 			},
 		}
 	}
@@ -3125,57 +3201,13 @@ func TestClusterCreate_AZURE_container(t *testing.T) {
 				map[string]interface{}{
 					"location":                       "location-1",
 					"resource_group":                 "resource-group-1",
-					"storage_account":                "storage-account-1",
 					"user_assigned_managed_identity": "user-identity-1",
-					"storage_container_name":         "container-1",
-				},
-			},
-		},
-		ExpectError: "failed to create cluster, error: skip",
-	}
-	r.Apply(t, context.TODO())
-}
-
-func TestClusterCreate_AZURE_searchDomain_deprecated(t *testing.T) {
-	r := test.ResourceFixture{
-		HttpOps: []test.Operation{
-			{
-				Method: http.MethodPost,
-				Path:   "/api/clusters",
-				Response: `{
-					"apiVersion": "v1",
-					"status": "ok",
-					"code": 400,
-					"message": "skip"
-				}`,
-				CheckRequestBody: func(reqBody io.Reader) error {
-					var req api.NewAzureClusterRequest
-					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
-						return err
-					}
-					if req.CreateRequest.SearchDomain != "my-domain.com" {
-						return fmt.Errorf("error while matching:\nexpected my-domain.com \nbut got %#v", req.CreateRequest.SearchDomain)
-					}
-					return nil
-				},
-			},
-		},
-		Resource:             clusterResource(),
-		OperationContextFunc: clusterResource().CreateContext,
-		State: map[string]interface{}{
-			"head": []interface{}{
-				map[string]interface{}{
-					"disk_size": 512,
-				},
-			},
-			"ssh_key": "my-key",
-			"azure_attributes": []interface{}{
-				map[string]interface{}{
-					"location":                       "location-1",
-					"resource_group":                 "resource-group-1",
-					"storage_account":                "storage-account-1",
-					"user_assigned_managed_identity": "user-identity-1",
-					"search_domain":                  "my-domain.com",
+					"container": []interface{}{
+						map[string]interface{}{
+							"storage_account": "storage-account-1",
+							"name":            "container-1",
+						},
+					},
 				},
 			},
 		},
@@ -3221,11 +3253,15 @@ func TestClusterCreate_AZURE_searchDomain(t *testing.T) {
 				map[string]interface{}{
 					"location":                       "location-1",
 					"resource_group":                 "resource-group-1",
-					"storage_account":                "storage-account-1",
 					"user_assigned_managed_identity": "user-identity-1",
 					"network": []interface{}{
 						map[string]interface{}{
 							"search_domain": "my-domain.com",
+						},
+					},
+					"container": []interface{}{
+						map[string]interface{}{
+							"storage_account": "storage-account-1",
 						},
 					},
 				},
@@ -3273,10 +3309,14 @@ func TestClusterCreate_AZURE_ASK_cluster(t *testing.T) {
 				map[string]interface{}{
 					"location":                       "location-1",
 					"resource_group":                 "resource-group-1",
-					"storage_account":                "storage-account-1",
 					"user_assigned_managed_identity": "user-identity-1",
 					"aks_cluster_name":               "aks-cluster-1",
 					"acr_registry_name":              "acr-registry-1",
+					"container": []interface{}{
+						map[string]interface{}{
+							"storage_account": "storage-account-1",
+						},
+					},
 				},
 			},
 		},
@@ -4191,33 +4231,6 @@ func TestClusterCreate_AWS_useNewBucketName(t *testing.T) {
 	r.Apply(t, context.TODO())
 }
 
-func TestClusterCreate_AWS_error_noBucketConfigured(t *testing.T) {
-	t.Parallel()
-	r := test.ResourceFixture{
-		Resource:             clusterResource(),
-		OperationContextFunc: clusterResource().CreateContext,
-		State: map[string]interface{}{
-			"name": "cluster",
-			"head": []interface{}{
-				map[string]interface{}{
-					"disk_size": 512,
-				},
-			},
-			"aws_attributes": []interface{}{
-				map[string]interface{}{
-					"region":               "region-1",
-					"instance_profile_arn": "profile-1",
-					"bucket": []interface{}{
-						map[string]interface{}{},
-					},
-				},
-			},
-		},
-		ExpectError: "bucket name is not set",
-	}
-	r.Apply(t, context.TODO())
-}
-
 func TestClusterCreate_AWS_setEncryption(t *testing.T) {
 	t.Parallel()
 	r := test.ResourceFixture{
@@ -4267,7 +4280,6 @@ func TestClusterCreate_AWS_setEncryption(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"bucket": []interface{}{
 						map[string]interface{}{
@@ -4340,8 +4352,12 @@ func TestClusterCreate_AWS_setEncryption_default(t *testing.T) {
 			},
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
-					"region":               "region-1",
-					"bucket_name":          "bucket-1",
+					"region": "region-1",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
 					"instance_profile_arn": "profile-1",
 				},
 			},
@@ -4397,10 +4413,10 @@ func TestClusterCreate_AZURE_setEncryption(t *testing.T) {
 				map[string]interface{}{
 					"location":                       "location-1",
 					"resource_group":                 "resource-group-1",
-					"storage_account":                "storage-account-1",
 					"user_assigned_managed_identity": "user-identity-1",
 					"container": []interface{}{
 						map[string]interface{}{
+							"storage_account": "storage-account-1",
 							"encryption": []interface{}{
 								map[string]interface{}{
 									"mode": "None",
@@ -4462,8 +4478,12 @@ func TestClusterCreate_AZURE_setEncryption_default(t *testing.T) {
 				map[string]interface{}{
 					"location":                       "location-1",
 					"resource_group":                 "resource-group-1",
-					"storage_account":                "storage-account-1",
 					"user_assigned_managed_identity": "user-identity-1",
+					"container": []interface{}{
+						map[string]interface{}{
+							"storage_account": "storage-account-1",
+						},
+					},
 				},
 			},
 		},
@@ -4531,38 +4551,6 @@ func TestClusterCreate_AZURE_newContainerConfiguration(t *testing.T) {
 	r.Apply(t, context.TODO())
 }
 
-func TestClusterCreate_AZURE_error_noStorageAccountConfigured(t *testing.T) {
-	t.Parallel()
-	r := test.ResourceFixture{
-		Resource:             clusterResource(),
-		OperationContextFunc: clusterResource().CreateContext,
-		State: map[string]interface{}{
-			"name": "cluster",
-			"head": []interface{}{
-				map[string]interface{}{
-					"instance_type": "node-type-1",
-					"disk_size":     512,
-				},
-			},
-			"ssh_key": "my-key",
-			"azure_attributes": []interface{}{
-				map[string]interface{}{
-					"location":                       "location-1",
-					"resource_group":                 "resource-group-1",
-					"user_assigned_managed_identity": "user-identity-1",
-					"container": []interface{}{
-						map[string]interface{}{
-							"name": "container-name-1",
-						},
-					},
-				},
-			},
-		},
-		ExpectError: "storage account is not set",
-	}
-	r.Apply(t, context.TODO())
-}
-
 func TestClusterCreate_AWS_setHA(t *testing.T) {
 	t.Parallel()
 	r := test.ResourceFixture{
@@ -4602,7 +4590,6 @@ func TestClusterCreate_AWS_setHA(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"bucket": []interface{}{
 						map[string]interface{}{
@@ -4655,7 +4642,6 @@ func TestClusterCreate_AWS_setHA_default(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"bucket": []interface{}{
 						map[string]interface{}{
@@ -4769,7 +4755,6 @@ func TestClusterRead_AWS_HA(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"network": []interface{}{
 						map[string]interface{}{
@@ -4834,7 +4819,6 @@ func TestClusterCreate_NoDomainPrefix(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"bucket": []interface{}{
 						map[string]interface{}{
@@ -4948,7 +4932,6 @@ func TestClusterRead_NoDomainPrefix(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"network": []interface{}{
 						map[string]interface{}{
@@ -5013,7 +4996,6 @@ func TestClusterCreate_WithDomainPrefix(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"bucket": []interface{}{
 						map[string]interface{}{
@@ -5129,7 +5111,6 @@ func TestClusterRead_WithDomainPrefix(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"network": []interface{}{
 						map[string]interface{}{
@@ -5194,7 +5175,6 @@ func TestClusterCreate_NoCustomHostedZone(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"bucket": []interface{}{
 						map[string]interface{}{
@@ -5247,7 +5227,6 @@ func TestClusterCreate_WithCustomHostedZone(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"bucket": []interface{}{
 						map[string]interface{}{
@@ -5363,7 +5342,6 @@ func TestClusterRead_WithCustomHostedZone(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"network": []interface{}{
 						map[string]interface{}{
@@ -5428,7 +5406,6 @@ func TestClusterCreate_EBSEncryption(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"bucket": []interface{}{
 						map[string]interface{}{
@@ -5482,7 +5459,6 @@ func TestClusterCreate_no_EBSEncryption(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"bucket": []interface{}{
 						map[string]interface{}{
@@ -5536,7 +5512,6 @@ func TestClusterCreate_EBSEncryption_setKMSKey(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"bucket": []interface{}{
 						map[string]interface{}{
@@ -5592,7 +5567,6 @@ func TestClusterCreate_AWS_skipSSHKey(t *testing.T) {
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
 					"region":               "region-1",
-					"bucket_name":          "bucket-1",
 					"instance_profile_arn": "profile-1",
 					"bucket": []interface{}{
 						map[string]interface{}{

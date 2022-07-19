@@ -177,7 +177,6 @@ func TestFlattenAWSAttributes(t *testing.T) {
 		map[string]interface{}{
 			"region":               input.AWS.Region,
 			"instance_profile_arn": input.AWS.InstanceProfileArn,
-			"bucket_name":          input.AWS.BucketName,
 			"network": []map[string]interface{}{
 				{
 					"vpc_id":            input.AWS.VpcId,
@@ -240,8 +239,6 @@ func TestFlattenAzureAttributes(t *testing.T) {
 		map[string]interface{}{
 			"location":                       input.Azure.Location,
 			"resource_group":                 input.Azure.ResourceGroup,
-			"storage_account":                input.Azure.StorageAccount,
-			"storage_container_name":         input.Azure.BlobContainerName,
 			"user_assigned_managed_identity": input.Azure.ManagedIdentity,
 			"network": []map[string]interface{}{
 				{
@@ -254,7 +251,6 @@ func TestFlattenAzureAttributes(t *testing.T) {
 			},
 			"aks_cluster_name":  input.Azure.AksClusterName,
 			"acr_registry_name": input.Azure.AcrRegistryName,
-			"search_domain":     input.Azure.SearchDomain,
 			"container": []map[string]interface{}{
 				{
 					"name":            input.Azure.BlobContainerName,
@@ -1590,7 +1586,6 @@ func TestFlattenAWSAttributes_bucketConfiguration(t *testing.T) {
 		map[string]interface{}{
 			"region":               input.AWS.Region,
 			"instance_profile_arn": input.AWS.InstanceProfileArn,
-			"bucket_name":          input.AWS.BucketName,
 			"network": []map[string]interface{}{
 				{
 					"vpc_id":            input.AWS.VpcId,
@@ -1671,8 +1666,6 @@ func TestFlattenAzureAttributes_containerConfiguration(t *testing.T) {
 		map[string]interface{}{
 			"location":                       input.Azure.Location,
 			"resource_group":                 input.Azure.ResourceGroup,
-			"storage_account":                input.Azure.StorageAccount,
-			"storage_container_name":         input.Azure.BlobContainerName,
 			"user_assigned_managed_identity": input.Azure.ManagedIdentity,
 			"network": []map[string]interface{}{
 				{
@@ -1685,7 +1678,6 @@ func TestFlattenAzureAttributes_containerConfiguration(t *testing.T) {
 			},
 			"aks_cluster_name":  input.Azure.AksClusterName,
 			"acr_registry_name": input.Azure.AcrRegistryName,
-			"search_domain":     input.Azure.SearchDomain,
 			"container": []map[string]interface{}{
 				{
 					"name":            input.Azure.BlobContainerName,
@@ -1852,7 +1844,6 @@ func TestFlattenAWSAttributes_ebsEncryption(t *testing.T) {
 		map[string]interface{}{
 			"region":               input.AWS.Region,
 			"instance_profile_arn": input.AWS.InstanceProfileArn,
-			"bucket_name":          input.AWS.BucketName,
 			"network": []map[string]interface{}{
 				{
 					"vpc_id":            input.AWS.VpcId,

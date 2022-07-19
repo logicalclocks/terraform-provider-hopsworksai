@@ -32,28 +32,6 @@ func TestAccAzureUserAssignedIdentity_basic(t *testing.T) {
 	})
 }
 
-func TestAccAzureUserAssignedIdentity_enableUpgradeOnly(t *testing.T) {
-	dataSourceName := "data.hopsworksai_azure_user_assigned_identity_permissions.test"
-	resource.UnitTest(t, resource.TestCase{
-		ProviderFactories: testAccProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccAzureUserAssignedIdentityConfig_enableUpgradeOnly(),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(dataSourceName, "actions.#", "4"),
-					resource.TestCheckResourceAttr(dataSourceName, "actions.0", "Microsoft.Compute/virtualMachines/read"),
-					resource.TestCheckResourceAttr(dataSourceName, "actions.1", "Microsoft.Compute/virtualMachines/write"),
-					resource.TestCheckResourceAttr(dataSourceName, "actions.2", "Microsoft.Compute/disks/read"),
-					resource.TestCheckResourceAttr(dataSourceName, "actions.3", "Microsoft.Compute/disks/write"),
-					resource.TestCheckResourceAttr(dataSourceName, "not_actions.#", "0"),
-					resource.TestCheckResourceAttr(dataSourceName, "data_actions.#", "0"),
-					resource.TestCheckResourceAttr(dataSourceName, "not_data_actions.#", "0"),
-				),
-			},
-		},
-	})
-}
-
 func TestAccAzureUserAssignedIdentity_enableAKSandACROnly(t *testing.T) {
 	dataSourceName := "data.hopsworksai_azure_user_assigned_identity_permissions.test"
 	resource.UnitTest(t, resource.TestCase{
@@ -122,20 +100,9 @@ func testAccAzureUserAssignedIdentityConfig_basic() string {
 	`
 }
 
-func testAccAzureUserAssignedIdentityConfig_enableUpgradeOnly() string {
-	return `
-	data "hopsworksai_azure_user_assigned_identity_permissions" "test" {
-		enable_upgrade = true
-		enable_backup = false
-		enable_storage = false
-	}
-	`
-}
-
 func testAccAzureUserAssignedIdentityConfig_enableAKSandACROnly() string {
 	return `
 	data "hopsworksai_azure_user_assigned_identity_permissions" "test" {
-		enable_upgrade = false
 		enable_backup = false
 		enable_storage = false
 		enable_aks_and_acr = true
@@ -154,7 +121,6 @@ func testAccAzureUserAssignedIdentityConfig_disableBackup() string {
 func testAccAzureUserAssignedIdentityConfig_disableAll() string {
 	return `
 	data "hopsworksai_azure_user_assigned_identity_permissions" "test" {
-		enable_upgrade = false
 		enable_backup = false
 		enable_storage = false
 		enable_aks_and_acr = false

@@ -100,6 +100,7 @@ resource "hopsworksai_cluster" "cluster" {
 
 - `head` (Block List, Min: 1, Max: 1) The configurations of the head node of the cluster. (see [below for nested schema](#nestedblock--head))
 - `name` (String) The name of the cluster, must be unique.
+- `rondb` (Block List, Min: 1, Max: 1) Setup a cluster with managed RonDB. (see [below for nested schema](#nestedblock--rondb))
 
 ### Optional
 
@@ -117,7 +118,6 @@ resource "hopsworksai_cluster" "cluster" {
 - `managed_users` (Boolean) Enable or disable Hopsworks.ai to manage your users. Defaults to `true`.
 - `open_ports` (Block List, Max: 1) Open the required ports to communicate with one of the Hopsworks services. (see [below for nested schema](#nestedblock--open_ports))
 - `os` (String) The operating system to use for the instances. Supported systems are ubuntu in all regions and centos in some specific regions Defaults to `ubuntu`.
-- `rondb` (Block List, Max: 1) Setup a cluster with managed RonDB. (see [below for nested schema](#nestedblock--rondb))
 - `run_init_script_first` (Boolean) Run the init script before any other node initialization. WARNING if your initscript interfere with the following node initialization the cluster may not start properly. Make sure that you know what you are doing.
 - `ssh_key` (String) The ssh key name that will be attached to this cluster.
 - `tags` (Map of String) The list of custom tags to be attached to the cluster.
@@ -152,202 +152,6 @@ Optional:
 Read-Only:
 
 - `node_id` (String) The corresponding aws/azure instance id of the head node.
-
-
-<a id="nestedblock--autoscale"></a>
-### Nested Schema for `autoscale`
-
-Required:
-
-- `non_gpu_workers` (Block List, Min: 1, Max: 1) Setup auto scaling for non gpu nodes. (see [below for nested schema](#nestedblock--autoscale--non_gpu_workers))
-
-Optional:
-
-- `gpu_workers` (Block List, Max: 1) Setup auto scaling for gpu nodes. (see [below for nested schema](#nestedblock--autoscale--gpu_workers))
-
-<a id="nestedblock--autoscale--non_gpu_workers"></a>
-### Nested Schema for `autoscale.non_gpu_workers`
-
-Required:
-
-- `instance_type` (String) The instance type to use while auto scaling.
-
-Optional:
-
-- `disk_size` (Number) The disk size to use while auto scaling Defaults to `512`.
-- `downscale_wait_time` (Number) The time to wait before removing unused resources. Defaults to `300`.
-- `max_workers` (Number) The maximum number of workers created by auto scaling. Defaults to `10`.
-- `min_workers` (Number) The minimum number of workers created by auto scaling. Defaults to `0`.
-- `spot_config` (Block List, Max: 1) The configuration to use spot instances (see [below for nested schema](#nestedblock--autoscale--non_gpu_workers--spot_config))
-- `standby_workers` (Number) The percentage of workers to be always available during auto scaling. If you set this value to 0 new workers will only be added when a job or a notebook requests the resources. This attribute will not be taken into account if you set the minimum number of workers to 0 and no resources are used in the cluster, instead, it will start to take effect as soon as you start using resources. Defaults to `0.5`.
-
-<a id="nestedblock--autoscale--non_gpu_workers--spot_config"></a>
-### Nested Schema for `autoscale.non_gpu_workers.spot_config`
-
-Optional:
-
-- `fall_back_on_demand` (Boolean) Fall back to on demand instance if unable to allocate a spot instance Defaults to `true`.
-- `max_price_percent` (Number) The maximum spot instance price in percentage of the on-demand price. Defaults to `100`.
-
-
-
-<a id="nestedblock--autoscale--gpu_workers"></a>
-### Nested Schema for `autoscale.gpu_workers`
-
-Required:
-
-- `instance_type` (String) The instance type to use while auto scaling.
-
-Optional:
-
-- `disk_size` (Number) The disk size to use while auto scaling Defaults to `512`.
-- `downscale_wait_time` (Number) The time to wait before removing unused resources. Defaults to `300`.
-- `max_workers` (Number) The maximum number of workers created by auto scaling. Defaults to `10`.
-- `min_workers` (Number) The minimum number of workers created by auto scaling. Defaults to `0`.
-- `spot_config` (Block List, Max: 1) The configuration to use spot instances (see [below for nested schema](#nestedblock--autoscale--gpu_workers--spot_config))
-- `standby_workers` (Number) The percentage of workers to be always available during auto scaling. If you set this value to 0 new workers will only be added when a job or a notebook requests the resources. This attribute will not be taken into account if you set the minimum number of workers to 0 and no resources are used in the cluster, instead, it will start to take effect as soon as you start using resources. Defaults to `0.5`.
-
-<a id="nestedblock--autoscale--gpu_workers--spot_config"></a>
-### Nested Schema for `autoscale.gpu_workers.spot_config`
-
-Optional:
-
-- `fall_back_on_demand` (Boolean) Fall back to on demand instance if unable to allocate a spot instance Defaults to `true`.
-- `max_price_percent` (Number) The maximum spot instance price in percentage of the on-demand price. Defaults to `100`.
-
-
-
-
-<a id="nestedblock--aws_attributes"></a>
-### Nested Schema for `aws_attributes`
-
-Required:
-
-- `instance_profile_arn` (String) The ARN of the AWS instance profile that the cluster will be started with.
-- `region` (String) The AWS region where the cluster will be created.
-
-Optional:
-
-- `bucket` (Block List, Max: 1) The bucket configurations. (see [below for nested schema](#nestedblock--aws_attributes--bucket))
-- `bucket_name` (String, Deprecated) The name of the S3 bucket that the cluster will use to store data in. use aws_attributes/bucket/name instead
-- `ebs_encryption` (Block List, Max: 1) The EBS disk encryption configuration. (see [below for nested schema](#nestedblock--aws_attributes--ebs_encryption))
-- `ecr_registry_account_id` (String) The account id used for ECR. Defaults to the user's account id, inferred from the instance profille ARN.
-- `eks_cluster_name` (String) The name of the AWS EKS cluster.
-- `network` (Block List, Max: 1) The network configurations. (see [below for nested schema](#nestedblock--aws_attributes--network))
-
-<a id="nestedblock--aws_attributes--bucket"></a>
-### Nested Schema for `aws_attributes.bucket`
-
-Optional:
-
-- `acl` (Block List, Max: 1) The ACL configurations. (see [below for nested schema](#nestedblock--aws_attributes--bucket--acl))
-- `encryption` (Block List, Max: 1) The server-side encryption configurations. (see [below for nested schema](#nestedblock--aws_attributes--bucket--encryption))
-- `name` (String) The name of the S3 bucket that the cluster will use to store data in.
-
-<a id="nestedblock--aws_attributes--bucket--acl"></a>
-### Nested Schema for `aws_attributes.bucket.acl`
-
-Optional:
-
-- `bucket_owner_full_control` (Boolean) If ACL is enabled, allow the bucket owner to have full access control on new objects in the bucket.
-
-
-<a id="nestedblock--aws_attributes--bucket--encryption"></a>
-### Nested Schema for `aws_attributes.bucket.encryption`
-
-Optional:
-
-- `bucket_key` (Boolean) Enable or disable the usage of bucket key. Enabling this option (in case of SSE-KMS) would reduce the cost of SSE-KMS.
-- `kms_type` (String) The Key Management Service (KMS) type. This option is required for the encryption mode SSE-KMS.
-- `mode` (String) The encryption type.
-- `user_key_arn` (String) The ARN of the user encryption key in KMS.
-
-
-
-<a id="nestedblock--aws_attributes--ebs_encryption"></a>
-### Nested Schema for `aws_attributes.ebs_encryption`
-
-Optional:
-
-- `kms_key` (String) The KMS key to be used for encryption can be specified by its alias, ID or ARN. Leaving the KMS key unspecified results in the EC2 default encryption key being used.
-
-
-<a id="nestedblock--aws_attributes--network"></a>
-### Nested Schema for `aws_attributes.network`
-
-Required:
-
-- `subnet_id` (String) The subnet id.
-- `vpc_id` (String) The VPC id.
-
-Optional:
-
-- `security_group_id` (String) The security group id.
-
-
-
-<a id="nestedblock--azure_attributes"></a>
-### Nested Schema for `azure_attributes`
-
-Required:
-
-- `location` (String) The location where the cluster will be created.
-- `resource_group` (String) The resource group where the cluster will be created.
-- `user_assigned_managed_identity` (String) The azure user assigned managed identity that the cluster will be started with.
-
-Optional:
-
-- `acr_registry_name` (String) The name of the ACR registry.
-- `aks_cluster_name` (String) The name of the AKS cluster.
-- `container` (Block List, Max: 1) The container configurations. (see [below for nested schema](#nestedblock--azure_attributes--container))
-- `network` (Block List, Max: 1) The network configurations. (see [below for nested schema](#nestedblock--azure_attributes--network))
-- `search_domain` (String, Deprecated) The search domain to use for node address resolution. If not specified it will use the Azure default one (internal.cloudapp.net).  Use azure_attributes/network/search_domain instead.
-- `storage_account` (String, Deprecated) The azure storage account that the cluster will use to store data in. use azure_attributes/container/storage_account instead
-- `storage_container_name` (String, Deprecated) The name of the azure storage container that the cluster will use to store data in. If not specified, it will be automatically generated. use azure_attributes/container/name instead
-
-<a id="nestedblock--azure_attributes--container"></a>
-### Nested Schema for `azure_attributes.container`
-
-Optional:
-
-- `encryption` (Block List, Max: 1) The server-side encryption configurations. (see [below for nested schema](#nestedblock--azure_attributes--container--encryption))
-- `name` (String) The name of the azure storage container that the cluster will use to store data in. If not specified, it will be automatically generated.
-- `storage_account` (String) The azure storage account that the cluster will use to store data in.
-
-<a id="nestedblock--azure_attributes--container--encryption"></a>
-### Nested Schema for `azure_attributes.container.encryption`
-
-Optional:
-
-- `mode` (String) The encryption type.
-
-
-
-<a id="nestedblock--azure_attributes--network"></a>
-### Nested Schema for `azure_attributes.network`
-
-Required:
-
-- `subnet_name` (String) The subnet name.
-- `virtual_network_name` (String) The virtual network name.
-
-Optional:
-
-- `resource_group` (String) The resource group where the network resources reside. If not specified, the azure_attributes/resource_group will be used.
-- `search_domain` (String) The search domain to use for node address resolution. If not specified it will use the Azure default one (internal.cloudapp.net).
-- `security_group_name` (String) The security group name.
-
-
-
-<a id="nestedblock--open_ports"></a>
-### Nested Schema for `open_ports`
-
-Optional:
-
-- `feature_store` (Boolean) Open the required ports to access the feature store from outside Hopsworks. Defaults to `false`.
-- `kafka` (Boolean) Open the required ports to access kafka from outside Hopsworks. Defaults to `false`.
-- `online_feature_store` (Boolean) Open the required ports to access the online feature store from outside Hopsworks. Defaults to `false`.
-- `ssh` (Boolean) Open the ssh port (22) to allow ssh access to your cluster. Defaults to `false`.
 
 
 <a id="nestedblock--rondb"></a>
@@ -448,6 +252,204 @@ Optional:
 - `replication_factor` (Number) The number of replicas created by RonDB. Set > 1 for high availability. Defaults to `1`.
 
 
+
+
+<a id="nestedblock--autoscale"></a>
+### Nested Schema for `autoscale`
+
+Required:
+
+- `non_gpu_workers` (Block List, Min: 1, Max: 1) Setup auto scaling for non gpu nodes. (see [below for nested schema](#nestedblock--autoscale--non_gpu_workers))
+
+Optional:
+
+- `gpu_workers` (Block List, Max: 1) Setup auto scaling for gpu nodes. (see [below for nested schema](#nestedblock--autoscale--gpu_workers))
+
+<a id="nestedblock--autoscale--non_gpu_workers"></a>
+### Nested Schema for `autoscale.non_gpu_workers`
+
+Required:
+
+- `instance_type` (String) The instance type to use while auto scaling.
+
+Optional:
+
+- `disk_size` (Number) The disk size to use while auto scaling Defaults to `512`.
+- `downscale_wait_time` (Number) The time to wait before removing unused resources. Defaults to `300`.
+- `max_workers` (Number) The maximum number of workers created by auto scaling. Defaults to `10`.
+- `min_workers` (Number) The minimum number of workers created by auto scaling. Defaults to `0`.
+- `spot_config` (Block List, Max: 1) The configuration to use spot instances (see [below for nested schema](#nestedblock--autoscale--non_gpu_workers--spot_config))
+- `standby_workers` (Number) The percentage of workers to be always available during auto scaling. If you set this value to 0 new workers will only be added when a job or a notebook requests the resources. This attribute will not be taken into account if you set the minimum number of workers to 0 and no resources are used in the cluster, instead, it will start to take effect as soon as you start using resources. Defaults to `0.5`.
+
+<a id="nestedblock--autoscale--non_gpu_workers--spot_config"></a>
+### Nested Schema for `autoscale.non_gpu_workers.spot_config`
+
+Optional:
+
+- `fall_back_on_demand` (Boolean) Fall back to on demand instance if unable to allocate a spot instance Defaults to `true`.
+- `max_price_percent` (Number) The maximum spot instance price in percentage of the on-demand price. Defaults to `100`.
+
+
+
+<a id="nestedblock--autoscale--gpu_workers"></a>
+### Nested Schema for `autoscale.gpu_workers`
+
+Required:
+
+- `instance_type` (String) The instance type to use while auto scaling.
+
+Optional:
+
+- `disk_size` (Number) The disk size to use while auto scaling Defaults to `512`.
+- `downscale_wait_time` (Number) The time to wait before removing unused resources. Defaults to `300`.
+- `max_workers` (Number) The maximum number of workers created by auto scaling. Defaults to `10`.
+- `min_workers` (Number) The minimum number of workers created by auto scaling. Defaults to `0`.
+- `spot_config` (Block List, Max: 1) The configuration to use spot instances (see [below for nested schema](#nestedblock--autoscale--gpu_workers--spot_config))
+- `standby_workers` (Number) The percentage of workers to be always available during auto scaling. If you set this value to 0 new workers will only be added when a job or a notebook requests the resources. This attribute will not be taken into account if you set the minimum number of workers to 0 and no resources are used in the cluster, instead, it will start to take effect as soon as you start using resources. Defaults to `0.5`.
+
+<a id="nestedblock--autoscale--gpu_workers--spot_config"></a>
+### Nested Schema for `autoscale.gpu_workers.spot_config`
+
+Optional:
+
+- `fall_back_on_demand` (Boolean) Fall back to on demand instance if unable to allocate a spot instance Defaults to `true`.
+- `max_price_percent` (Number) The maximum spot instance price in percentage of the on-demand price. Defaults to `100`.
+
+
+
+
+<a id="nestedblock--aws_attributes"></a>
+### Nested Schema for `aws_attributes`
+
+Required:
+
+- `instance_profile_arn` (String) The ARN of the AWS instance profile that the cluster will be started with.
+- `region` (String) The AWS region where the cluster will be created.
+
+Optional:
+
+- `bucket` (Block List, Max: 1) The bucket configurations. (see [below for nested schema](#nestedblock--aws_attributes--bucket))
+- `ebs_encryption` (Block List, Max: 1) The EBS disk encryption configuration. (see [below for nested schema](#nestedblock--aws_attributes--ebs_encryption))
+- `ecr_registry_account_id` (String) The account id used for ECR. Defaults to the user's account id, inferred from the instance profille ARN.
+- `eks_cluster_name` (String) The name of the AWS EKS cluster.
+- `network` (Block List, Max: 1) The network configurations. (see [below for nested schema](#nestedblock--aws_attributes--network))
+
+<a id="nestedblock--aws_attributes--bucket"></a>
+### Nested Schema for `aws_attributes.bucket`
+
+Required:
+
+- `name` (String) The name of the S3 bucket that the cluster will use to store data in.
+
+Optional:
+
+- `acl` (Block List, Max: 1) The ACL configurations. (see [below for nested schema](#nestedblock--aws_attributes--bucket--acl))
+- `encryption` (Block List, Max: 1) The server-side encryption configurations. (see [below for nested schema](#nestedblock--aws_attributes--bucket--encryption))
+
+<a id="nestedblock--aws_attributes--bucket--acl"></a>
+### Nested Schema for `aws_attributes.bucket.acl`
+
+Optional:
+
+- `bucket_owner_full_control` (Boolean) If ACL is enabled, allow the bucket owner to have full access control on new objects in the bucket.
+
+
+<a id="nestedblock--aws_attributes--bucket--encryption"></a>
+### Nested Schema for `aws_attributes.bucket.encryption`
+
+Optional:
+
+- `bucket_key` (Boolean) Enable or disable the usage of bucket key. Enabling this option (in case of SSE-KMS) would reduce the cost of SSE-KMS.
+- `kms_type` (String) The Key Management Service (KMS) type. This option is required for the encryption mode SSE-KMS.
+- `mode` (String) The encryption type.
+- `user_key_arn` (String) The ARN of the user encryption key in KMS.
+
+
+
+<a id="nestedblock--aws_attributes--ebs_encryption"></a>
+### Nested Schema for `aws_attributes.ebs_encryption`
+
+Optional:
+
+- `kms_key` (String) The KMS key to be used for encryption can be specified by its alias, ID or ARN. Leaving the KMS key unspecified results in the EC2 default encryption key being used.
+
+
+<a id="nestedblock--aws_attributes--network"></a>
+### Nested Schema for `aws_attributes.network`
+
+Required:
+
+- `subnet_id` (String) The subnet id.
+- `vpc_id` (String) The VPC id.
+
+Optional:
+
+- `security_group_id` (String) The security group id.
+
+
+
+<a id="nestedblock--azure_attributes"></a>
+### Nested Schema for `azure_attributes`
+
+Required:
+
+- `location` (String) The location where the cluster will be created.
+- `resource_group` (String) The resource group where the cluster will be created.
+- `user_assigned_managed_identity` (String) The azure user assigned managed identity that the cluster will be started with.
+
+Optional:
+
+- `acr_registry_name` (String) The name of the ACR registry.
+- `aks_cluster_name` (String) The name of the AKS cluster.
+- `container` (Block List, Max: 1) The container configurations. (see [below for nested schema](#nestedblock--azure_attributes--container))
+- `network` (Block List, Max: 1) The network configurations. (see [below for nested schema](#nestedblock--azure_attributes--network))
+
+<a id="nestedblock--azure_attributes--container"></a>
+### Nested Schema for `azure_attributes.container`
+
+Required:
+
+- `storage_account` (String) The azure storage account that the cluster will use to store data in.
+
+Optional:
+
+- `encryption` (Block List, Max: 1) The server-side encryption configurations. (see [below for nested schema](#nestedblock--azure_attributes--container--encryption))
+- `name` (String) The name of the azure storage container that the cluster will use to store data in. If not specified, it will be automatically generated.
+
+<a id="nestedblock--azure_attributes--container--encryption"></a>
+### Nested Schema for `azure_attributes.container.encryption`
+
+Optional:
+
+- `mode` (String) The encryption type.
+
+
+
+<a id="nestedblock--azure_attributes--network"></a>
+### Nested Schema for `azure_attributes.network`
+
+Required:
+
+- `subnet_name` (String) The subnet name.
+- `virtual_network_name` (String) The virtual network name.
+
+Optional:
+
+- `resource_group` (String) The resource group where the network resources reside. If not specified, the azure_attributes/resource_group will be used.
+- `search_domain` (String) The search domain to use for node address resolution. If not specified it will use the Azure default one (internal.cloudapp.net).
+- `security_group_name` (String) The security group name.
+
+
+
+<a id="nestedblock--open_ports"></a>
+### Nested Schema for `open_ports`
+
+Optional:
+
+- `feature_store` (Boolean) Open the required ports to access the feature store from outside Hopsworks. Defaults to `false`.
+- `kafka` (Boolean) Open the required ports to access kafka from outside Hopsworks. Defaults to `false`.
+- `online_feature_store` (Boolean) Open the required ports to access the online feature store from outside Hopsworks. Defaults to `false`.
+- `ssh` (Boolean) Open the ssh port (22) to allow ssh access to your cluster. Defaults to `false`.
 
 
 <a id="nestedblock--timeouts"></a>

@@ -336,7 +336,7 @@ func clusterSchema() map[string]*schema.Schema {
 		"rondb": {
 			Description: "Setup a cluster with managed RonDB.",
 			Type:        schema.TypeList,
-			Optional:    true,
+			Required:    true,
 			ForceNew:    true,
 			MaxItems:    1,
 			Elem:        ronDBSchema(),
@@ -690,15 +690,6 @@ func awsAttributesSchema() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 			},
-			"bucket_name": {
-				Description:   "The name of the S3 bucket that the cluster will use to store data in.",
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ForceNew:      true,
-				Deprecated:    "use aws_attributes/bucket/name instead",
-				ConflictsWith: []string{"aws_attributes.0.bucket.0.name"},
-			},
 			"bucket": {
 				Description: "The bucket configurations.",
 				Type:        schema.TypeList,
@@ -709,12 +700,10 @@ func awsAttributesSchema() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Description:   "The name of the S3 bucket that the cluster will use to store data in.",
-							Type:          schema.TypeString,
-							Optional:      true,
-							Computed:      true,
-							ForceNew:      true,
-							ConflictsWith: []string{"aws_attributes.0.bucket_name"},
+							Description: "The name of the S3 bucket that the cluster will use to store data in.",
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
 						},
 						"encryption": {
 							Description: "The server-side encryption configurations.",
@@ -871,24 +860,6 @@ func azureAttributesSchema() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 			},
-			"storage_account": {
-				Description:   "The azure storage account that the cluster will use to store data in.",
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ForceNew:      true,
-				Deprecated:    "use azure_attributes/container/storage_account instead",
-				ConflictsWith: []string{"azure_attributes.0.container.0.storage_account"},
-			},
-			"storage_container_name": {
-				Description:   "The name of the azure storage container that the cluster will use to store data in. If not specified, it will be automatically generated.",
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ForceNew:      true,
-				Deprecated:    "use azure_attributes/container/name instead",
-				ConflictsWith: []string{"azure_attributes.0.container.0.name"},
-			},
 			"container": {
 				Description: "The container configurations.",
 				Type:        schema.TypeList,
@@ -899,20 +870,17 @@ func azureAttributesSchema() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"storage_account": {
-							Description:   "The azure storage account that the cluster will use to store data in.",
-							Type:          schema.TypeString,
-							Optional:      true,
-							Computed:      true,
-							ForceNew:      true,
-							ConflictsWith: []string{"azure_attributes.0.storage_account"},
+							Description: "The azure storage account that the cluster will use to store data in.",
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
 						},
 						"name": {
-							Description:   "The name of the azure storage container that the cluster will use to store data in. If not specified, it will be automatically generated.",
-							Type:          schema.TypeString,
-							Optional:      true,
-							Computed:      true,
-							ForceNew:      true,
-							ConflictsWith: []string{"azure_attributes.0.storage_container_name"},
+							Description: "The name of the azure storage container that the cluster will use to store data in. If not specified, it will be automatically generated.",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
 						},
 						"encryption": {
 							Description: "The server-side encryption configurations.",
@@ -979,12 +947,11 @@ func azureAttributesSchema() *schema.Resource {
 							ForceNew:    true,
 						},
 						"search_domain": {
-							Description:   "The search domain to use for node address resolution. If not specified it will use the Azure default one (internal.cloudapp.net). ",
-							Type:          schema.TypeString,
-							Optional:      true,
-							Computed:      true,
-							ForceNew:      true,
-							ConflictsWith: []string{"azure_attributes.0.search_domain"},
+							Description: "The search domain to use for node address resolution. If not specified it will use the Azure default one (internal.cloudapp.net). ",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
 						},
 					},
 				},
@@ -1000,15 +967,6 @@ func azureAttributesSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-			},
-			"search_domain": {
-				Description:   "The search domain to use for node address resolution. If not specified it will use the Azure default one (internal.cloudapp.net). ",
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ForceNew:      true,
-				Deprecated:    "Use azure_attributes/network/search_domain instead.",
-				ConflictsWith: []string{"azure_attributes.0.network.0.search_domain"},
 			},
 		},
 	}
@@ -1049,20 +1007,14 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 	if aws, ok := d.GetOk("aws_attributes"); ok {
 		awsAttributes := aws.([]interface{})
 		if len(awsAttributes) > 0 {
-			createRequest, err = createAWSCluster(d, baseRequest)
-			if err != nil {
-				return diag.FromErr(err)
-			}
+			createRequest = createAWSCluster(d, baseRequest)
 		}
 	}
 
 	if azure, ok := d.GetOk("azure_attributes"); ok {
 		azureAttributes := azure.([]interface{})
 		if len(azureAttributes) > 0 {
-			createRequest, err = createAzureCluster(d, baseRequest)
-			if err != nil {
-				return diag.FromErr(err)
-			}
+			createRequest = createAzureCluster(d, baseRequest)
 		}
 	}
 
@@ -1089,22 +1041,14 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourceClusterRead(ctx, d, meta)
 }
 
-func createAWSCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) (*api.CreateAWSCluster, error) {
+func createAWSCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) *api.CreateAWSCluster {
 	req := api.CreateAWSCluster{
 		CreateCluster: *baseRequest,
 		AWSCluster: api.AWSCluster{
+			BucketName:         d.Get("aws_attributes.0.bucket.0.name").(string),
 			Region:             d.Get("aws_attributes.0.region").(string),
 			InstanceProfileArn: d.Get("aws_attributes.0.instance_profile_arn").(string),
 		},
-	}
-
-	// deprecated to be removed in next major version
-	if v, ok := d.GetOk("aws_attributes.0.bucket_name"); ok {
-		req.BucketName = v.(string)
-	} else if v, ok := d.GetOk("aws_attributes.0.bucket.0.name"); ok {
-		req.BucketName = v.(string)
-	} else {
-		return nil, fmt.Errorf("bucket name is not set")
 	}
 
 	if _, ok := d.GetOk("aws_attributes.0.network"); ok {
@@ -1162,42 +1106,28 @@ func createAWSCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) (*
 		}
 	}
 
-	return &req, nil
+	return &req
 }
 
-func createAzureCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) (*api.CreateAzureCluster, error) {
+func createAzureCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) *api.CreateAzureCluster {
 	req := api.CreateAzureCluster{
 		CreateCluster: *baseRequest,
 		AzureCluster: api.AzureCluster{
 			Location:        d.Get("azure_attributes.0.location").(string),
 			ResourceGroup:   d.Get("azure_attributes.0.resource_group").(string),
 			ManagedIdentity: d.Get("azure_attributes.0.user_assigned_managed_identity").(string),
+			StorageAccount:  d.Get("azure_attributes.0.container.0.storage_account").(string),
 		},
 	}
 
-	// deprecated, to be removed in next major version
-	if v, ok := d.GetOk("azure_attributes.0.storage_container_name"); ok {
-		req.BlobContainerName = v.(string)
-	} else if v, ok := d.GetOk("azure_attributes.0.container.0.name"); ok {
+	if v, ok := d.GetOk("azure_attributes.0.container.0.name"); ok {
 		req.BlobContainerName = v.(string)
 	} else {
 		suffix := time.Now().UnixNano() / 1e6
 		req.BlobContainerName = fmt.Sprintf("hopsworksai-%d", suffix)
 	}
 
-	// deprecated, to be removed in next major version
-	if v, ok := d.GetOk("azure_attributes.0.storage_account"); ok {
-		req.StorageAccount = v.(string)
-	} else if v, ok := d.GetOk("azure_attributes.0.container.0.storage_account"); ok {
-		req.StorageAccount = v.(string)
-	} else {
-		return nil, fmt.Errorf("storage account is not set")
-	}
-
-	// deprecated, to be removed in next major version
-	if v, ok := d.GetOk("azure_attributes.0.search_domain"); ok {
-		req.SearchDomain = v.(string)
-	} else if v, ok := d.GetOk("azure_attributes.0.network.0.search_domain"); ok {
+	if v, ok := d.GetOk("azure_attributes.0.network.0.search_domain"); ok {
 		req.SearchDomain = v.(string)
 	} else {
 		req.SearchDomain = "internal.cloudapp.net"
@@ -1226,7 +1156,7 @@ func createAzureCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) 
 			Mode: encryptionMode,
 		},
 	}
-	return &req, nil
+	return &req
 }
 
 func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error) {
