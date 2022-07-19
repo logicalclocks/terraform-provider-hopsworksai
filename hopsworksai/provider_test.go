@@ -165,7 +165,9 @@ func testAccClusterCloudConfigAttributes(cloud api.CloudProvider, bucketIndex in
 		baseConfig := fmt.Sprintf(`
 			location                       = "%s"
 			resource_group                 = "%s"
-			storage_account                = "%s"
+			container {
+				storage_account            = "%s"
+			}
 			user_assigned_managed_identity = "%s"
 		`, os.Getenv(env_AZURE_LOCATION), os.Getenv(env_AZURE_RESOURCE_GROUP), os.Getenv(env_AZURE_STORAGE_ACCOUNT), os.Getenv(env_AZURE_USER_ASSIGNED_IDENTITY_NAME))
 		var networkConfig = ""
