@@ -404,9 +404,9 @@ func testRonDBConfig(cloud api.CloudProvider) string {
 	var dataInstanceType = "r5.large"
 	var mysqlInstanceType = "c5.large"
 	if cloud == api.AZURE {
-		mgmInstanceType = "t3a.medium"
-		dataInstanceType = "r5.large"
-		mysqlInstanceType = "c5.large"
+		mgmInstanceType = "Standard_D2s_v4"
+		dataInstanceType = "Standard_D4s_v4"
+		mysqlInstanceType = "Standard_D2s_v4"
 	}
 	return fmt.Sprintf(`
 				rondb {
