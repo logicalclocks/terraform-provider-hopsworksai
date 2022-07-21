@@ -19,6 +19,7 @@ ENHANCEMENTS:
 * datasource/instance_type(s): Add required `region` attribute to filter supported instance types
 * resource/hopsworksai_cluster: Update `update_state` attribute description
 * resource/hopsworksai_cluster: Do not use default `instance_type` values and make the attribute(s) required
+* resource/hopsworksai_cluster: Set Default `version` to 3.0.0
 
 BUG FIXES:
 
