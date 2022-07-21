@@ -66,7 +66,7 @@ func backupResource() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(60 * time.Minute),
+			Create: schema.DefaultTimeout(180 * time.Minute),
 			Read:   schema.DefaultTimeout(5 * time.Minute),
 			Delete: schema.DefaultTimeout(60 * time.Minute),
 		},

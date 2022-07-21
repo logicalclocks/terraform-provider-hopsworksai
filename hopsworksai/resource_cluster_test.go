@@ -897,6 +897,8 @@ func testAccClusterConfig_Head_upscale(cloud api.CloudProvider, rName string, su
 			instance_type = "%s"
 		}
 		
+		%s 
+
 		%s
 		
 		%s 
@@ -913,6 +915,7 @@ func testAccClusterConfig_Head_upscale(cloud api.CloudProvider, rName string, su
 		suffix,
 		testAccClusterCloudSSHKeyAttribute(cloud),
 		instanceType,
+		testRonDBConfig(cloud),
 		testAccClusterCloudConfigAttributes(cloud, 11, false),
 		extraConfig,
 		default_CLUSTER_TAG_KEY,
