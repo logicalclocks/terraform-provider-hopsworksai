@@ -22,6 +22,8 @@ ENHANCEMENTS:
 * resource/hopsworksai_cluster: Set Default `version` to 3.0.0
 
 BUG FIXES:
+* resource/hopsworksai_backup: Update acceptance tests to not stop cluster before taking backups
+* resource/hopsworksai_cluster_from_backup: Update acceptance tests to not stop cluster before taking backups
 
 FEATURES:
 

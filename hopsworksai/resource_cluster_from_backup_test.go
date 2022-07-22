@@ -44,15 +44,6 @@ func testAccClusterFromBackup_basic(t *testing.T, cloud api.CloudProvider) {
 				),
 			},
 			{
-				Config: testAccClusterFromBackupConfig_basic(cloud, rName, suffix, `update_state = "stop"`, ""),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet(clusterResourceName, "url"),
-					resource.TestCheckResourceAttr(clusterResourceName, "state", api.Stopped.String()),
-					resource.TestCheckResourceAttr(clusterResourceName, "activation_state", api.Startable.String()),
-					resource.TestCheckResourceAttr(clusterResourceName, "update_state", "stop"),
-				),
-			},
-			{
 				Config: testAccClusterFromBackupConfig_basic(cloud, rName, suffix, `update_state = "stop"`, fmt.Sprintf(`
 				resource "hopsworksai_backup" "%s"{
 					cluster_id = %s.id
