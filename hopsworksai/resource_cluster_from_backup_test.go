@@ -44,7 +44,7 @@ func testAccClusterFromBackup_basic(t *testing.T, cloud api.CloudProvider) {
 				),
 			},
 			{
-				Config: testAccClusterFromBackupConfig_basic(cloud, rName, suffix, `update_state = "stop"`, fmt.Sprintf(`
+				Config: testAccClusterFromBackupConfig_basic(cloud, rName, suffix, "", fmt.Sprintf(`
 				resource "hopsworksai_backup" "%s"{
 					cluster_id = %s.id
 					backup_name = "%s"
