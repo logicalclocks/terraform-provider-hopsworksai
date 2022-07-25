@@ -14,11 +14,12 @@ func TestAccAzureUserAssignedIdentity_basic(t *testing.T) {
 			{
 				Config: testAccAzureUserAssignedIdentityConfig_basic(),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(dataSourceName, "actions.#", "4"),
+					resource.TestCheckResourceAttr(dataSourceName, "actions.#", "5"),
 					resource.TestCheckResourceAttr(dataSourceName, "actions.0", "Microsoft.Storage/storageAccounts/blobServices/containers/write"),
 					resource.TestCheckResourceAttr(dataSourceName, "actions.1", "Microsoft.Storage/storageAccounts/blobServices/containers/read"),
 					resource.TestCheckResourceAttr(dataSourceName, "actions.2", "Microsoft.Storage/storageAccounts/blobServices/read"),
 					resource.TestCheckResourceAttr(dataSourceName, "actions.3", "Microsoft.Storage/storageAccounts/blobServices/write"),
+					resource.TestCheckResourceAttr(dataSourceName, "actions.4", "Microsoft.Storage/storageAccounts/listKeys/action"),
 					resource.TestCheckResourceAttr(dataSourceName, "not_actions.#", "0"),
 					resource.TestCheckResourceAttr(dataSourceName, "data_actions.#", "4"),
 					resource.TestCheckTypeSetElemAttr(dataSourceName, "data_actions.*", "Microsoft.Storage/storageAccounts/blobServices/containers/blobs/delete"),
