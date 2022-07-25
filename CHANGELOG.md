@@ -24,6 +24,7 @@ ENHANCEMENTS:
 BUG FIXES:
 * resource/hopsworksai_backup: Update acceptance tests to not stop cluster before taking backups
 * resource/hopsworksai_cluster_from_backup: Update acceptance tests to not stop cluster before taking backups
+* datasource/hopsworksai_azure_user_assigned_identity_permissions: Add the missing listkeys action permission for backup
 
 FEATURES:
 

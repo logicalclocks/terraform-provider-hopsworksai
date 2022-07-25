@@ -88,7 +88,8 @@ func dataSourceAzureUserAssignedIdentityPermissionsRead(ctx context.Context, d *
 	}
 
 	if d.Get("enable_backup").(bool) {
-		actions = append(actions, "Microsoft.Storage/storageAccounts/blobServices/write")
+		actions = append(actions, "Microsoft.Storage/storageAccounts/blobServices/write",
+			"Microsoft.Storage/storageAccounts/listKeys/action")
 	}
 
 	if d.Get("enable_aks_and_acr").(bool) {
