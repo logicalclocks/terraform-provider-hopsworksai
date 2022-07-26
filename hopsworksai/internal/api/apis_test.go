@@ -636,28 +636,28 @@ func TestNewClusterAWS(t *testing.T) {
 						},
 					},
 				},
-				ManagementNodes: WorkerConfiguration{
+				ManagementNodes: RonDBNodeConfiguration{
 					NodeConfiguration: NodeConfiguration{
 						InstanceType: "mgm-node-1",
 						DiskSize:     30,
 					},
 					Count: 1,
 				},
-				DataNodes: WorkerConfiguration{
+				DataNodes: RonDBNodeConfiguration{
 					NodeConfiguration: NodeConfiguration{
 						InstanceType: "data-node-1",
 						DiskSize:     512,
 					},
 					Count: 2,
 				},
-				MYSQLNodes: WorkerConfiguration{
+				MYSQLNodes: RonDBNodeConfiguration{
 					NodeConfiguration: NodeConfiguration{
 						InstanceType: "mysqld-node-1",
 						DiskSize:     100,
 					},
 					Count: 1,
 				},
-				APINodes: WorkerConfiguration{
+				APINodes: RonDBNodeConfiguration{
 					NodeConfiguration: NodeConfiguration{
 						InstanceType: "api-node-1",
 						DiskSize:     50,
@@ -829,28 +829,28 @@ func TestNewClusterAZURE(t *testing.T) {
 						},
 					},
 				},
-				ManagementNodes: WorkerConfiguration{
+				ManagementNodes: RonDBNodeConfiguration{
 					NodeConfiguration: NodeConfiguration{
 						InstanceType: "mgm-node-1",
 						DiskSize:     30,
 					},
 					Count: 1,
 				},
-				DataNodes: WorkerConfiguration{
+				DataNodes: RonDBNodeConfiguration{
 					NodeConfiguration: NodeConfiguration{
 						InstanceType: "data-node-1",
 						DiskSize:     512,
 					},
 					Count: 2,
 				},
-				MYSQLNodes: WorkerConfiguration{
+				MYSQLNodes: RonDBNodeConfiguration{
 					NodeConfiguration: NodeConfiguration{
 						InstanceType: "mysqld-node-1",
 						DiskSize:     100,
 					},
 					Count: 1,
 				},
-				APINodes: WorkerConfiguration{
+				APINodes: RonDBNodeConfiguration{
 					NodeConfiguration: NodeConfiguration{
 						InstanceType: "api-node-1",
 						DiskSize:     50,
@@ -2543,28 +2543,28 @@ func TestNewClusterAWS_HA(t *testing.T) {
 						},
 					},
 				},
-				ManagementNodes: WorkerConfiguration{
+				ManagementNodes: RonDBNodeConfiguration{
 					NodeConfiguration: NodeConfiguration{
 						InstanceType: "mgm-node-1",
 						DiskSize:     30,
 					},
 					Count: 1,
 				},
-				DataNodes: WorkerConfiguration{
+				DataNodes: RonDBNodeConfiguration{
 					NodeConfiguration: NodeConfiguration{
 						InstanceType: "data-node-1",
 						DiskSize:     512,
 					},
 					Count: 2,
 				},
-				MYSQLNodes: WorkerConfiguration{
+				MYSQLNodes: RonDBNodeConfiguration{
 					NodeConfiguration: NodeConfiguration{
 						InstanceType: "mysqld-node-1",
 						DiskSize:     100,
 					},
 					Count: 1,
 				},
-				APINodes: WorkerConfiguration{
+				APINodes: RonDBNodeConfiguration{
 					NodeConfiguration: NodeConfiguration{
 						InstanceType: "api-node-1",
 						DiskSize:     50,

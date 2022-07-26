@@ -2123,25 +2123,25 @@ func TestClusterCreate_AZURE_RonDB(t *testing.T) {
 	testClusterCreate_RonDB(t, api.AZURE)
 }
 
-func TestClusterCreate_AWS_RonDB_default(t *testing.T) {
-	testClusterCreate_RonDB_default(t, api.AWS)
+func TestClusterCreate_AWS_RonDB_single_node(t *testing.T) {
+	testClusterCreate_RonDB_single_node(t, api.AWS)
 }
 
-func TestClusterCreate_AZURE_RonDB_default(t *testing.T) {
-	testClusterCreate_RonDB_default(t, api.AZURE)
-}
-
-func TestClusterCreate_AWS_RonDB_default2(t *testing.T) {
-	testClusterCreate_RonDB_defaultEmptyBlocks(t, api.AWS)
-}
-
-func TestClusterCreate_AZURE_RonDB_default2(t *testing.T) {
-	testClusterCreate_RonDB_defaultEmptyBlocks(t, api.AZURE)
+func TestClusterCreate_AZURE_RonDB_single_node(t *testing.T) {
+	testClusterCreate_RonDB_single_node(t, api.AZURE)
 }
 
 func TestClusterCreate_RonDB_invalidReplicationFactor(t *testing.T) {
 	testClusterCreate_RonDB_invalidReplicationFactor(t, api.AWS)
 	testClusterCreate_RonDB_invalidReplicationFactor(t, api.AZURE)
+}
+
+func TestClusterCreate_AWS_RonDB_cluster_with_single_node_config(t *testing.T) {
+	testClusterCreate_RonDB_cluster_with_single_node_config(t, api.AWS)
+}
+
+func TestClusterCreate_AZURE_RonDB_cluster_with_single_node_config(t *testing.T) {
+	testClusterCreate_RonDB_cluster_with_single_node_config(t, api.AZURE)
 }
 
 func testClusterCreate_RonDB(t *testing.T, cloud api.CloudProvider) {
@@ -2266,28 +2266,28 @@ func testClusterCreate_RonDB(t *testing.T, cloud api.CloudProvider) {
 								},
 							},
 						},
-						ManagementNodes: api.WorkerConfiguration{
+						ManagementNodes: api.RonDBNodeConfiguration{
 							NodeConfiguration: api.NodeConfiguration{
 								InstanceType: "mgm-node-1",
 								DiskSize:     30,
 							},
 							Count: 1,
 						},
-						DataNodes: api.WorkerConfiguration{
+						DataNodes: api.RonDBNodeConfiguration{
 							NodeConfiguration: api.NodeConfiguration{
 								InstanceType: "data-node-1",
 								DiskSize:     512,
 							},
 							Count: 2,
 						},
-						MYSQLNodes: api.WorkerConfiguration{
+						MYSQLNodes: api.RonDBNodeConfiguration{
 							NodeConfiguration: api.NodeConfiguration{
 								InstanceType: "mysqld-node-1",
 								DiskSize:     100,
 							},
 							Count: 1,
 						},
-						APINodes: api.WorkerConfiguration{
+						APINodes: api.RonDBNodeConfiguration{
 							NodeConfiguration: api.NodeConfiguration{
 								InstanceType: "api-node-1",
 								DiskSize:     50,
@@ -2311,104 +2311,7 @@ func testClusterCreate_RonDB(t *testing.T, cloud api.CloudProvider) {
 	r.Apply(t, context.TODO())
 }
 
-func testGetRonDBConfig(reqBody io.Reader, cloud api.CloudProvider) (*api.RonDBConfiguration, error) {
-	var output *api.RonDBConfiguration
-	if cloud == api.AZURE {
-		var req api.NewAzureClusterRequest
-		if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
-			return nil, err
-		}
-		output = req.CreateRequest.RonDB
-	} else if cloud == api.AWS {
-		var req api.NewAWSClusterRequest
-		if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
-			return nil, err
-		}
-		output = req.CreateRequest.RonDB
-	}
-	return output, nil
-}
-
-func testClusterCreate_RonDB_default(t *testing.T, cloud api.CloudProvider) {
-	state := map[string]interface{}{
-		"name":    "cluster",
-		"ssh_key": "my-key",
-		"head": []interface{}{
-			map[string]interface{}{
-				"disk_size": 512,
-			},
-		},
-		"workers": []interface{}{
-			map[string]interface{}{
-				"disk_size": 256,
-				"count":     2,
-			},
-		},
-		"rondb": []interface{}{
-			map[string]interface{}{},
-		},
-	}
-
-	if cloud == api.AWS {
-		state["aws_attributes"] = []interface{}{
-			map[string]interface{}{
-				"region": "region-1",
-				"bucket": []interface{}{
-					map[string]interface{}{
-						"name": "bucket-1",
-					},
-				},
-				"instance_profile_arn": "profile-1",
-			},
-		}
-	} else if cloud == api.AZURE {
-		state["azure_attributes"] = []interface{}{
-			map[string]interface{}{
-				"location":                       "location-1",
-				"resource_group":                 "resource-group-1",
-				"user_assigned_managed_identity": "user-identity-1",
-				"container": []interface{}{
-					map[string]interface{}{
-						"storage_account": "storage-account-1",
-					},
-				},
-			},
-		}
-	}
-
-	r := test.ResourceFixture{
-		HttpOps: []test.Operation{
-			{
-				Method: http.MethodPost,
-				Path:   "/api/clusters",
-				Response: `{
-					"apiVersion": "v1",
-					"status": "ok",
-					"code": 400,
-					"message": "skip"
-				}`,
-				CheckRequestBody: func(reqBody io.Reader) error {
-					output, err := testGetRonDBConfig(reqBody, cloud)
-					if err != nil {
-						return err
-					}
-					expected := defaultRonDBConfiguration()
-					if !reflect.DeepEqual(&expected, output) {
-						return fmt.Errorf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
-					}
-					return nil
-				},
-			},
-		},
-		Resource:             clusterResource(),
-		OperationContextFunc: clusterResource().CreateContext,
-		State:                state,
-		ExpectError:          "failed to create cluster, error: skip",
-	}
-	r.Apply(t, context.TODO())
-}
-
-func testClusterCreate_RonDB_defaultEmptyBlocks(t *testing.T, cloud api.CloudProvider) {
+func testClusterCreate_RonDB_cluster_with_single_node_config(t *testing.T, cloud api.CloudProvider) {
 	state := map[string]interface{}{
 		"name": "cluster",
 		"head": []interface{}{
@@ -2428,28 +2331,122 @@ func testClusterCreate_RonDB_defaultEmptyBlocks(t *testing.T, cloud api.CloudPro
 				"configuration": []interface{}{
 					map[string]interface{}{
 						"ndbd_default": []interface{}{
-							map[string]interface{}{},
+							map[string]interface{}{
+								"replication_factor": 1,
+							},
 						},
 						"general": []interface{}{
 							map[string]interface{}{
 								"benchmark": []interface{}{
-									map[string]interface{}{},
+									map[string]interface{}{
+										"grant_user_privileges": false,
+									},
 								},
 							},
 						},
 					},
 				},
 				"management_nodes": []interface{}{
-					map[string]interface{}{},
+					map[string]interface{}{
+						"instance_type": "mgm-node-1",
+						"disk_size":     30,
+						"count":         1,
+					},
 				},
 				"data_nodes": []interface{}{
-					map[string]interface{}{},
+					map[string]interface{}{
+						"instance_type": "data-node-1",
+						"disk_size":     512,
+						"count":         1,
+					},
 				},
 				"mysql_nodes": []interface{}{
-					map[string]interface{}{},
+					map[string]interface{}{
+						"instance_type": "mysqld-node-1",
+						"disk_size":     100,
+						"count":         1,
+					},
 				},
-				"api_nodes": []interface{}{
-					map[string]interface{}{},
+			},
+		},
+	}
+
+	if cloud == api.AWS {
+		state["aws_attributes"] = []interface{}{
+			map[string]interface{}{
+				"region": "region-1",
+				"bucket": []interface{}{
+					map[string]interface{}{
+						"name": "bucket-1",
+					},
+				},
+				"instance_profile_arn": "profile-1",
+			},
+		}
+	} else if cloud == api.AZURE {
+		state["azure_attributes"] = []interface{}{
+			map[string]interface{}{
+				"location":                       "location-1",
+				"resource_group":                 "resource-group-1",
+				"user_assigned_managed_identity": "user-identity-1",
+				"container": []interface{}{
+					map[string]interface{}{
+						"storage_account": "storage-account-1",
+					},
+				},
+			},
+		}
+	}
+
+	r := test.ResourceFixture{
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State:                state,
+		ExpectError:          "your configuration creates a single rondb node, you should use singe_node configuration block instead or modifiy the configuration to run RonDB in a cluster mode",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func testGetRonDBConfig(reqBody io.Reader, cloud api.CloudProvider) (*api.RonDBConfiguration, error) {
+	var output *api.RonDBConfiguration
+	if cloud == api.AZURE {
+		var req api.NewAzureClusterRequest
+		if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+			return nil, err
+		}
+		output = req.CreateRequest.RonDB
+	} else if cloud == api.AWS {
+		var req api.NewAWSClusterRequest
+		if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+			return nil, err
+		}
+		output = req.CreateRequest.RonDB
+	}
+	return output, nil
+}
+
+func testClusterCreate_RonDB_single_node(t *testing.T, cloud api.CloudProvider) {
+	state := map[string]interface{}{
+		"name":    "cluster",
+		"ssh_key": "my-key",
+		"head": []interface{}{
+			map[string]interface{}{
+				"disk_size": 512,
+			},
+		},
+		"workers": []interface{}{
+			map[string]interface{}{
+				"disk_size": 256,
+				"count":     2,
+			},
+		},
+		"rondb": []interface{}{
+			map[string]interface{}{
+				"single_node": []interface{}{
+					map[string]interface{}{
+						"instance_type": "single-node-1",
+						"disk_size":     512,
+					},
 				},
 			},
 		},
@@ -2498,7 +2495,33 @@ func testClusterCreate_RonDB_defaultEmptyBlocks(t *testing.T, cloud api.CloudPro
 					if err != nil {
 						return err
 					}
-					expected := defaultRonDBConfiguration()
+					defaultRonDB := defaultRonDBConfiguration()
+					expected := api.RonDBConfiguration{
+						Configuration: api.RonDBBaseConfiguration{
+							NdbdDefault: api.RonDBNdbdDefaultConfiguration{
+								ReplicationFactor: 1,
+							},
+						},
+						ManagementNodes: api.RonDBNodeConfiguration{
+							NodeConfiguration: api.NodeConfiguration{
+								DiskSize: defaultRonDB.ManagementNodes.DiskSize,
+							},
+							Count: 1,
+						},
+						MYSQLNodes: api.RonDBNodeConfiguration{
+							NodeConfiguration: api.NodeConfiguration{
+								DiskSize: defaultRonDB.MYSQLNodes.DiskSize,
+							},
+							Count: 1,
+						},
+						DataNodes: api.RonDBNodeConfiguration{
+							NodeConfiguration: api.NodeConfiguration{
+								InstanceType: "single-node-1",
+								DiskSize:     512,
+							},
+							Count: 1,
+						},
+					}
 					if !reflect.DeepEqual(&expected, output) {
 						return fmt.Errorf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
 					}
@@ -2540,9 +2563,25 @@ func testClusterCreate_RonDB_invalidReplicationFactor(t *testing.T, cloud api.Cl
 						},
 					},
 				},
+				"management_nodes": []interface{}{
+					map[string]interface{}{
+						"instance_type": "mgm-node-1",
+						"disk_size":     30,
+						"count":         1,
+					},
+				},
 				"data_nodes": []interface{}{
 					map[string]interface{}{
-						"count": 3,
+						"instance_type": "data-node-1",
+						"disk_size":     512,
+						"count":         3,
+					},
+				},
+				"mysql_nodes": []interface{}{
+					map[string]interface{}{
+						"instance_type": "mysqld-node-1",
+						"disk_size":     100,
+						"count":         1,
 					},
 				},
 			},
@@ -5624,6 +5663,112 @@ func TestClusterCreate_AZURE_failSkipSSH(t *testing.T) {
 			},
 		},
 		ExpectError: "SSH key is required",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterUpdate_modifyInstancetype_rondb_single_node(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"cluster": {
+							"id": "cluster-id-1",
+							"name": "cluster-name-1",
+							"state" : "running",
+							"provider": "AZURE",
+							"version": "v1",
+							"ronDB": {
+								"configuration": {
+									"ndbdDefault": {
+										"replicationFactor": 1
+									},
+									"general": {
+										"benchmark": {
+											"grantUserPrivileges": false
+										}
+									}
+								},
+								"mgmd": {
+									"instanceType": "",
+									"diskSize": 30,
+									"count": 1
+								},
+								"ndbd": {
+									"instanceType": "data-node-1",
+									"diskSize": 512,
+									"count": 1
+								},
+								"mysqld": {
+									"instanceType": "",
+									"diskSize": 100,
+									"count": 1
+								},
+								"api": {
+									"instanceType": "",
+									"diskSize": 50,
+									"count": 0
+								}
+							},
+							"ports":{
+								"featureStore": false,
+								"onlineFeatureStore": false,
+								"kafka": false,
+								"ssh": false
+							}
+						}
+					}
+				}`,
+			},
+			{
+				Method: http.MethodPut,
+				Path:   "/api/clusters/cluster-id-1/nodes/modify-instance-type",
+				ExpectRequestBody: `{
+					"nodeInfo": {
+						"nodeType": "rondb_aio",
+						"instanceType": "new-data-node-1"
+					}
+				}`,
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200
+				}`,
+				RunOnlyOnce: true,
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().UpdateContext,
+		Id:                   "cluster-id-1",
+		Update:               true,
+		State: map[string]interface{}{
+			"version": "v1",
+			"rondb": []interface{}{
+				map[string]interface{}{
+					"single_node": []interface{}{
+						map[string]interface{}{
+							"instance_type": "new-data-node-1",
+							"disk_size":     512,
+						},
+					},
+				},
+			},
+			"open_ports": []interface{}{
+				map[string]interface{}{
+					"ssh":                  false,
+					"kafka":                false,
+					"feature_store":        false,
+					"online_feature_store": false,
+				},
+			},
+		},
 	}
 	r.Apply(t, context.TODO())
 }

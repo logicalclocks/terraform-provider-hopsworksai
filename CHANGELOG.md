@@ -2,6 +2,7 @@
 
 NOTES:
 * The `instance_type` attribue(s) are not optional anymore
+* resource/hopsworksai_cluster: Change default values for RonDB cluster. New default number of replicas is `2` and new default number of Datanodes is `2`
 
 BREAKING CHANGES:
 * Creating a Hopsworks cluster will require a seperate RonDB node. RonDB attribute is required by default.
@@ -20,6 +21,7 @@ ENHANCEMENTS:
 * resource/hopsworksai_cluster: Update `update_state` attribute description
 * resource/hopsworksai_cluster: Do not use default `instance_type` values and make the attribute(s) required
 * resource/hopsworksai_cluster: Set Default `version` to 3.0.0
+* resource/hopsworksai_cluster: Add attribute `rondb/single_node` to use a RonDB single node cluster.
 
 BUG FIXES:
 * resource/hopsworksai_backup: Update acceptance tests to not stop cluster before taking backups

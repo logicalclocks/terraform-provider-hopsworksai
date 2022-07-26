@@ -39,21 +39,9 @@ data "hopsworksai_instance_type" "head" {
   region         = var.region
 }
 
-data "hopsworksai_instance_type" "rondb_mgm" {
-  cloud_provider = "AWS"
-  node_type      = "rondb_management"
-  region         = var.region
-}
-
 data "hopsworksai_instance_type" "rondb_data" {
   cloud_provider = "AWS"
   node_type      = "rondb_data"
-  region         = var.region
-}
-
-data "hopsworksai_instance_type" "rondb_mysql" {
-  cloud_provider = "AWS"
-  node_type      = "rondb_mysql"
   region         = var.region
 }
 
@@ -85,14 +73,8 @@ resource "hopsworksai_cluster" "cluster" {
   }
 
   rondb {
-    management_nodes {
-      instance_type = data.hopsworksai_instance_type.rondb_mgm.id
-    }
-    data_nodes {
+    single_node {
       instance_type = data.hopsworksai_instance_type.rondb_data.id
-    }
-    mysql_nodes {
-      instance_type = data.hopsworksai_instance_type.rondb_mysql.id
     }
   }
 

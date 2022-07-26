@@ -23,7 +23,7 @@ func defaultRonDBConfiguration() api.RonDBConfiguration {
 	ronDB := api.RonDBConfiguration{
 		Configuration: api.RonDBBaseConfiguration{
 			NdbdDefault: api.RonDBNdbdDefaultConfiguration{
-				ReplicationFactor: 1,
+				ReplicationFactor: 2,
 			},
 			General: api.RonDBGeneralConfiguration{
 				Benchmark: api.RonDBBenchmarkConfiguration{
@@ -31,25 +31,25 @@ func defaultRonDBConfiguration() api.RonDBConfiguration {
 				},
 			},
 		},
-		ManagementNodes: api.WorkerConfiguration{
+		ManagementNodes: api.RonDBNodeConfiguration{
 			NodeConfiguration: api.NodeConfiguration{
 				DiskSize: 30,
 			},
 			Count: 1,
 		},
-		DataNodes: api.WorkerConfiguration{
+		DataNodes: api.RonDBNodeConfiguration{
 			NodeConfiguration: api.NodeConfiguration{
 				DiskSize: 512,
 			},
-			Count: 1,
+			Count: 2,
 		},
-		MYSQLNodes: api.WorkerConfiguration{
+		MYSQLNodes: api.RonDBNodeConfiguration{
 			NodeConfiguration: api.NodeConfiguration{
 				DiskSize: 128,
 			},
 			Count: 1,
 		},
-		APINodes: api.WorkerConfiguration{
+		APINodes: api.RonDBNodeConfiguration{
 			NodeConfiguration: api.NodeConfiguration{
 				DiskSize: 30,
 			},
@@ -499,11 +499,12 @@ func ronDBSchema() *schema.Resource {
 						},
 					},
 				},
+				ConflictsWith: []string{"rondb.0.single_node"},
 			},
 			"management_nodes": {
 				Description: "The configuration of RonDB management nodes.",
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				ForceNew:    true,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -531,11 +532,14 @@ func ronDBSchema() *schema.Resource {
 						},
 					},
 				},
+				ConflictsWith: []string{"rondb.0.single_node"},
+				RequiredWith:  []string{"rondb.0.data_nodes", "rondb.0.mysql_nodes"},
+				ExactlyOneOf:  []string{"rondb.0.single_node"},
 			},
 			"data_nodes": {
 				Description: "The configuration of RonDB data nodes.",
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				ForceNew:    true,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -561,11 +565,13 @@ func ronDBSchema() *schema.Resource {
 						},
 					},
 				},
+				ConflictsWith: []string{"rondb.0.single_node"},
+				RequiredWith:  []string{"rondb.0.management_nodes", "rondb.0.mysql_nodes"},
 			},
 			"mysql_nodes": {
 				Description: "The configuration of MySQL nodes.",
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				ForceNew:    true,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -591,6 +597,8 @@ func ronDBSchema() *schema.Resource {
 						},
 					},
 				},
+				ConflictsWith: []string{"rondb.0.single_node"},
+				RequiredWith:  []string{"rondb.0.management_nodes", "rondb.0.data_nodes"},
 			},
 			"api_nodes": {
 				Description: "The configuration of API nodes.",
@@ -622,6 +630,32 @@ func ronDBSchema() *schema.Resource {
 						},
 					},
 				},
+				ConflictsWith: []string{"rondb.0.single_node"},
+			},
+			"single_node": {
+				Description: "The configuration of All in one RonDB where the management node, the data node, and the mysqld services are colocated in a single node.",
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"instance_type": {
+							Description: "The instance type of the All in one RonDB node. You should use one of the supported instance types for RonDB data node.",
+							Type:        schema.TypeString,
+							Required:    true,
+						},
+						"disk_size": {
+							Description: "The disk size of data nodes in units of GB",
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Default:     defaultRonDBConfiguration().DataNodes.DiskSize,
+						},
+					},
+				},
+				ConflictsWith: []string{"rondb.0.configuration", "rondb.0.management_nodes", "rondb.0.data_nodes", "rondb.0.mysql_nodes", "rondb.0.api_nodes"},
+				ExactlyOneOf:  []string{"rondb.0.management_nodes"},
 			},
 		},
 	}
@@ -1204,68 +1238,68 @@ func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error
 
 	if _, ok := d.GetOk("rondb"); ok {
 		defaultRonDB := defaultRonDBConfiguration()
-
-		var replicationFactor = defaultRonDB.Configuration.NdbdDefault.ReplicationFactor
-		if v, ok := d.GetOk("rondb.0.configuration.0.ndbd_default.0.replication_factor"); ok {
-			replicationFactor = v.(int)
-		}
-
-		var grantUserPrivileges = defaultRonDB.Configuration.General.Benchmark.GrantUserPrivileges
-		if v, ok := d.GetOk("rondb.0.configuration.0.general.0.benchmark.0.grant_user_privileges"); ok {
-			grantUserPrivileges = v.(bool)
-		}
-
-		createCluster.RonDB = &api.RonDBConfiguration{
-			Configuration: api.RonDBBaseConfiguration{
-				NdbdDefault: api.RonDBNdbdDefaultConfiguration{
-					ReplicationFactor: replicationFactor,
-				},
-				General: api.RonDBGeneralConfiguration{
-					Benchmark: api.RonDBBenchmarkConfiguration{
-						GrantUserPrivileges: grantUserPrivileges,
+		if singleRonDB, ok := d.GetOk("rondb.0.single_node"); ok {
+			createCluster.RonDB = &api.RonDBConfiguration{
+				Configuration: api.RonDBBaseConfiguration{
+					NdbdDefault: api.RonDBNdbdDefaultConfiguration{
+						ReplicationFactor: 1,
 					},
 				},
-			},
-		}
-
-		if n, ok := d.GetOk("rondb.0.management_nodes"); ok && len(n.([]interface{})) > 0 {
-			createCluster.RonDB.ManagementNodes = structure.ExpandWorker(n.([]interface{})[0].(map[string]interface{}))
-			if createCluster.RonDB.ManagementNodes.InstanceType == "" {
-				createCluster.RonDB.ManagementNodes.InstanceType = defaultRonDB.ManagementNodes.InstanceType
+				ManagementNodes: api.RonDBNodeConfiguration{
+					NodeConfiguration: api.NodeConfiguration{
+						DiskSize: defaultRonDB.ManagementNodes.DiskSize,
+					},
+					Count: 1,
+				},
+				MYSQLNodes: api.RonDBNodeConfiguration{
+					NodeConfiguration: api.NodeConfiguration{
+						DiskSize: defaultRonDB.MYSQLNodes.DiskSize,
+					},
+					Count: 1,
+				},
+				DataNodes: api.RonDBNodeConfiguration{
+					NodeConfiguration: structure.ExpandNode(singleRonDB.([]interface{})[0].(map[string]interface{})),
+					Count:             1,
+				},
 			}
 		} else {
-			createCluster.RonDB.ManagementNodes = defaultRonDB.ManagementNodes
-		}
-
-		if n, ok := d.GetOk("rondb.0.data_nodes"); ok && len(n.([]interface{})) > 0 {
-			createCluster.RonDB.DataNodes = structure.ExpandWorker(n.([]interface{})[0].(map[string]interface{}))
-			if createCluster.RonDB.DataNodes.InstanceType == "" {
-				createCluster.RonDB.DataNodes.InstanceType = defaultRonDB.DataNodes.InstanceType
+			var replicationFactor = defaultRonDB.Configuration.NdbdDefault.ReplicationFactor
+			if v, ok := d.GetOk("rondb.0.configuration.0.ndbd_default.0.replication_factor"); ok {
+				replicationFactor = v.(int)
 			}
-		} else {
-			createCluster.RonDB.DataNodes = defaultRonDB.DataNodes
-		}
 
-		if n, ok := d.GetOk("rondb.0.mysql_nodes"); ok && len(n.([]interface{})) > 0 {
-			createCluster.RonDB.MYSQLNodes = structure.ExpandWorker(n.([]interface{})[0].(map[string]interface{}))
-			if createCluster.RonDB.MYSQLNodes.InstanceType == "" {
-				createCluster.RonDB.MYSQLNodes.InstanceType = defaultRonDB.MYSQLNodes.InstanceType
+			var grantUserPrivileges = defaultRonDB.Configuration.General.Benchmark.GrantUserPrivileges
+			if v, ok := d.GetOk("rondb.0.configuration.0.general.0.benchmark.0.grant_user_privileges"); ok {
+				grantUserPrivileges = v.(bool)
 			}
-		} else {
-			createCluster.RonDB.MYSQLNodes = defaultRonDB.MYSQLNodes
-		}
 
-		if n, ok := d.GetOk("rondb.0.api_nodes"); ok && len(n.([]interface{})) > 0 {
-			createCluster.RonDB.APINodes = structure.ExpandWorker(n.([]interface{})[0].(map[string]interface{}))
-			if createCluster.RonDB.APINodes.InstanceType == "" {
-				createCluster.RonDB.APINodes.InstanceType = defaultRonDB.APINodes.InstanceType
+			createCluster.RonDB = &api.RonDBConfiguration{
+				Configuration: api.RonDBBaseConfiguration{
+					NdbdDefault: api.RonDBNdbdDefaultConfiguration{
+						ReplicationFactor: replicationFactor,
+					},
+					General: api.RonDBGeneralConfiguration{
+						Benchmark: api.RonDBBenchmarkConfiguration{
+							GrantUserPrivileges: grantUserPrivileges,
+						},
+					},
+				},
+				ManagementNodes: structure.ExpandRonDBNodeConfiguration(d.Get("rondb.0.management_nodes").([]interface{})[0].(map[string]interface{})),
+				DataNodes:       structure.ExpandRonDBNodeConfiguration(d.Get("rondb.0.data_nodes").([]interface{})[0].(map[string]interface{})),
+				MYSQLNodes:      structure.ExpandRonDBNodeConfiguration(d.Get("rondb.0.mysql_nodes").([]interface{})[0].(map[string]interface{})),
 			}
-		} else {
-			createCluster.RonDB.APINodes = defaultRonDB.APINodes
-		}
 
-		if createCluster.RonDB.DataNodes.Count%createCluster.RonDB.Configuration.NdbdDefault.ReplicationFactor != 0 {
-			return nil, fmt.Errorf("number of RonDB data nodes must be multiples of RonDB replication factor")
+			if n, ok := d.GetOk("rondb.0.api_nodes"); ok {
+				createCluster.RonDB.APINodes = structure.ExpandRonDBNodeConfiguration(n.([]interface{})[0].(map[string]interface{}))
+			}
+
+			if createCluster.RonDB.DataNodes.Count%createCluster.RonDB.Configuration.NdbdDefault.ReplicationFactor != 0 {
+				return nil, fmt.Errorf("number of RonDB data nodes must be multiples of RonDB replication factor")
+			}
+
+			if createCluster.RonDB.IsSingleNodeSetup() {
+				return nil, fmt.Errorf("your configuration creates a single rondb node, you should use singe_node configuration block instead or modifiy the configuration to run RonDB in a cluster mode")
+			}
 		}
 	}
 
@@ -1386,6 +1420,15 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		toInstanceType := n.(string)
 
 		if err := api.ModifyInstanceType(ctx, client, clusterId, api.RonDBAPINode, toInstanceType); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("rondb.0.single_node.0.instance_type") {
+		_, n := d.GetChange("rondb.0.single_node.0.instance_type")
+		toInstanceType := n.(string)
+
+		if err := api.ModifyInstanceType(ctx, client, clusterId, api.RonDBAllInOneNode, toInstanceType); err != nil {
 			return diag.FromErr(err)
 		}
 	}

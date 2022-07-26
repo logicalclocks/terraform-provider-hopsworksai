@@ -157,55 +157,14 @@ Read-Only:
 <a id="nestedblock--rondb"></a>
 ### Nested Schema for `rondb`
 
-Required:
-
-- `data_nodes` (Block List, Min: 1, Max: 1) The configuration of RonDB data nodes. (see [below for nested schema](#nestedblock--rondb--data_nodes))
-- `management_nodes` (Block List, Min: 1, Max: 1) The configuration of RonDB management nodes. (see [below for nested schema](#nestedblock--rondb--management_nodes))
-- `mysql_nodes` (Block List, Min: 1, Max: 1) The configuration of MySQL nodes. (see [below for nested schema](#nestedblock--rondb--mysql_nodes))
-
 Optional:
 
 - `api_nodes` (Block List, Max: 1) The configuration of API nodes. (see [below for nested schema](#nestedblock--rondb--api_nodes))
 - `configuration` (Block List, Max: 1) The configuration of RonDB. (see [below for nested schema](#nestedblock--rondb--configuration))
-
-<a id="nestedblock--rondb--data_nodes"></a>
-### Nested Schema for `rondb.data_nodes`
-
-Required:
-
-- `instance_type` (String) The instance type of the RonDB data node.
-
-Optional:
-
-- `count` (Number) The number of data nodes. Notice that the number of RonDB data nodes have to be multiples of the replication_factor. Defaults to `1`.
-- `disk_size` (Number) The disk size of data nodes in units of GB Defaults to `512`.
-
-
-<a id="nestedblock--rondb--management_nodes"></a>
-### Nested Schema for `rondb.management_nodes`
-
-Required:
-
-- `instance_type` (String) The instance type of the RonDB management node.
-
-Optional:
-
-- `count` (Number) The number of management nodes. Defaults to `1`.
-- `disk_size` (Number) The disk size of management nodes in units of GB Defaults to `30`.
-
-
-<a id="nestedblock--rondb--mysql_nodes"></a>
-### Nested Schema for `rondb.mysql_nodes`
-
-Required:
-
-- `instance_type` (String) The instance type of the RonDB MySQL node.
-
-Optional:
-
-- `count` (Number) The number of MySQL nodes. Defaults to `1`.
-- `disk_size` (Number) The disk size of MySQL nodes in units of GB Defaults to `128`.
-
+- `data_nodes` (Block List, Max: 1) The configuration of RonDB data nodes. (see [below for nested schema](#nestedblock--rondb--data_nodes))
+- `management_nodes` (Block List, Max: 1) The configuration of RonDB management nodes. (see [below for nested schema](#nestedblock--rondb--management_nodes))
+- `mysql_nodes` (Block List, Max: 1) The configuration of MySQL nodes. (see [below for nested schema](#nestedblock--rondb--mysql_nodes))
+- `single_node` (Block List, Max: 1) The configuration of All in one RonDB where the management node, the data node, and the mysqld services are colocated in a single node. (see [below for nested schema](#nestedblock--rondb--single_node))
 
 <a id="nestedblock--rondb--api_nodes"></a>
 ### Nested Schema for `rondb.api_nodes`
@@ -249,8 +208,59 @@ Optional:
 
 Optional:
 
-- `replication_factor` (Number) The number of replicas created by RonDB. Set > 1 for high availability. Defaults to `1`.
+- `replication_factor` (Number) The number of replicas created by RonDB. Set > 1 for high availability. Defaults to `2`.
 
+
+
+<a id="nestedblock--rondb--data_nodes"></a>
+### Nested Schema for `rondb.data_nodes`
+
+Required:
+
+- `instance_type` (String) The instance type of the RonDB data node.
+
+Optional:
+
+- `count` (Number) The number of data nodes. Notice that the number of RonDB data nodes have to be multiples of the replication_factor. Defaults to `2`.
+- `disk_size` (Number) The disk size of data nodes in units of GB Defaults to `512`.
+
+
+<a id="nestedblock--rondb--management_nodes"></a>
+### Nested Schema for `rondb.management_nodes`
+
+Required:
+
+- `instance_type` (String) The instance type of the RonDB management node.
+
+Optional:
+
+- `count` (Number) The number of management nodes. Defaults to `1`.
+- `disk_size` (Number) The disk size of management nodes in units of GB Defaults to `30`.
+
+
+<a id="nestedblock--rondb--mysql_nodes"></a>
+### Nested Schema for `rondb.mysql_nodes`
+
+Required:
+
+- `instance_type` (String) The instance type of the RonDB MySQL node.
+
+Optional:
+
+- `count` (Number) The number of MySQL nodes. Defaults to `1`.
+- `disk_size` (Number) The disk size of MySQL nodes in units of GB Defaults to `128`.
+
+
+<a id="nestedblock--rondb--single_node"></a>
+### Nested Schema for `rondb.single_node`
+
+Required:
+
+- `instance_type` (String) The instance type of the All in one RonDB node. You should use one of the supported instance types for RonDB data node.
+
+Optional:
+
+- `disk_size` (Number) The disk size of data nodes in units of GB Defaults to `512`.
 
 
 

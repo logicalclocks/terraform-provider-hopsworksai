@@ -274,6 +274,7 @@ Read-Only:
 - `data_nodes` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--rondb--data_nodes))
 - `management_nodes` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--rondb--management_nodes))
 - `mysql_nodes` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--rondb--mysql_nodes))
+- `single_node` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--rondb--single_node))
 
 <a id="nestedobjatt--clusters--rondb--api_nodes"></a>
 ### Nested Schema for `clusters.rondb.api_nodes`
@@ -344,6 +345,15 @@ Read-Only:
 Read-Only:
 
 - `count` (Number)
+- `disk_size` (Number)
+- `instance_type` (String)
+
+
+<a id="nestedobjatt--clusters--rondb--single_node"></a>
+### Nested Schema for `clusters.rondb.single_node`
+
+Read-Only:
+
 - `disk_size` (Number)
 - `instance_type` (String)
 
