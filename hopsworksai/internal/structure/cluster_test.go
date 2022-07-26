@@ -342,28 +342,28 @@ func TestFlattenCluster(t *testing.T) {
 					},
 				},
 			},
-			ManagementNodes: api.WorkerConfiguration{
+			ManagementNodes: api.RonDBNodeConfiguration{
 				NodeConfiguration: api.NodeConfiguration{
 					InstanceType: "mgm-node-1",
 					DiskSize:     30,
 				},
 				Count: 1,
 			},
-			DataNodes: api.WorkerConfiguration{
+			DataNodes: api.RonDBNodeConfiguration{
 				NodeConfiguration: api.NodeConfiguration{
 					InstanceType: "data-node-1",
 					DiskSize:     512,
 				},
 				Count: 2,
 			},
-			MYSQLNodes: api.WorkerConfiguration{
+			MYSQLNodes: api.RonDBNodeConfiguration{
 				NodeConfiguration: api.NodeConfiguration{
 					InstanceType: "mysqld-node-1",
 					DiskSize:     100,
 				},
 				Count: 1,
 			},
-			APINodes: api.WorkerConfiguration{
+			APINodes: api.RonDBNodeConfiguration{
 				NodeConfiguration: api.NodeConfiguration{
 					InstanceType: "api-node-1",
 					DiskSize:     50,
@@ -779,28 +779,28 @@ func TestFlattenRonDB(t *testing.T) {
 				},
 			},
 		},
-		ManagementNodes: api.WorkerConfiguration{
+		ManagementNodes: api.RonDBNodeConfiguration{
 			NodeConfiguration: api.NodeConfiguration{
 				InstanceType: "mgm-node-1",
 				DiskSize:     30,
 			},
 			Count: 1,
 		},
-		DataNodes: api.WorkerConfiguration{
+		DataNodes: api.RonDBNodeConfiguration{
 			NodeConfiguration: api.NodeConfiguration{
 				InstanceType: "data-node-1",
 				DiskSize:     512,
 			},
 			Count: 2,
 		},
-		MYSQLNodes: api.WorkerConfiguration{
+		MYSQLNodes: api.RonDBNodeConfiguration{
 			NodeConfiguration: api.NodeConfiguration{
 				InstanceType: "mysqld-node-1",
 				DiskSize:     100,
 			},
 			Count: 1,
 		},
-		APINodes: api.WorkerConfiguration{
+		APINodes: api.RonDBNodeConfiguration{
 			NodeConfiguration: api.NodeConfiguration{
 				InstanceType: "api-node-1",
 				DiskSize:     50,
@@ -857,6 +857,7 @@ func TestFlattenRonDB(t *testing.T) {
 					"count":         1,
 				},
 			},
+			"single_node": nil,
 		},
 	}
 
@@ -1276,28 +1277,28 @@ func TestFlattenClusters(t *testing.T) {
 						},
 					},
 				},
-				ManagementNodes: api.WorkerConfiguration{
+				ManagementNodes: api.RonDBNodeConfiguration{
 					NodeConfiguration: api.NodeConfiguration{
 						InstanceType: "mgm-node-1",
 						DiskSize:     30,
 					},
 					Count: 1,
 				},
-				DataNodes: api.WorkerConfiguration{
+				DataNodes: api.RonDBNodeConfiguration{
 					NodeConfiguration: api.NodeConfiguration{
 						InstanceType: "data-node-1",
 						DiskSize:     512,
 					},
 					Count: 2,
 				},
-				MYSQLNodes: api.WorkerConfiguration{
+				MYSQLNodes: api.RonDBNodeConfiguration{
 					NodeConfiguration: api.NodeConfiguration{
 						InstanceType: "mysqld-node-1",
 						DiskSize:     100,
 					},
 					Count: 1,
 				},
-				APINodes: api.WorkerConfiguration{
+				APINodes: api.RonDBNodeConfiguration{
 					NodeConfiguration: api.NodeConfiguration{
 						InstanceType: "api-node-1",
 						DiskSize:     50,
@@ -1394,28 +1395,28 @@ func TestFlattenClusters(t *testing.T) {
 						},
 					},
 				},
-				ManagementNodes: api.WorkerConfiguration{
+				ManagementNodes: api.RonDBNodeConfiguration{
 					NodeConfiguration: api.NodeConfiguration{
 						InstanceType: "mgm-node-1",
 						DiskSize:     30,
 					},
 					Count: 1,
 				},
-				DataNodes: api.WorkerConfiguration{
+				DataNodes: api.RonDBNodeConfiguration{
 					NodeConfiguration: api.NodeConfiguration{
 						InstanceType: "data-node-1",
 						DiskSize:     512,
 					},
 					Count: 2,
 				},
-				MYSQLNodes: api.WorkerConfiguration{
+				MYSQLNodes: api.RonDBNodeConfiguration{
 					NodeConfiguration: api.NodeConfiguration{
 						InstanceType: "mysqld-node-1",
 						DiskSize:     100,
 					},
 					Count: 1,
 				},
-				APINodes: api.WorkerConfiguration{
+				APINodes: api.RonDBNodeConfiguration{
 					NodeConfiguration: api.NodeConfiguration{
 						InstanceType: "api-node-1",
 						DiskSize:     50,
@@ -1900,5 +1901,84 @@ func TestFlattenEBSEncryption(t *testing.T) {
 		if !reflect.DeepEqual(expected[i], output) {
 			t.Fatalf("error while matching[%d]:\nexpected %#v \nbut got %#v", i, expected[i], output)
 		}
+	}
+}
+
+func TestFlattenRonDBNodeConfiguration(t *testing.T) {
+	input := api.RonDBNodeConfiguration{
+		NodeConfiguration: api.NodeConfiguration{
+			InstanceType: "node-1",
+			DiskSize:     128,
+		},
+		Count: 2,
+	}
+
+	expected := map[string]interface{}{
+		"instance_type": "node-1",
+		"disk_size":     128,
+		"count":         2,
+	}
+
+	output := flattenRonDBNode(input)
+	if !reflect.DeepEqual(expected, output) {
+		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
+	}
+
+	config := ExpandRonDBNodeConfiguration(output)
+
+	if !reflect.DeepEqual(input, config) {
+		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", input, config)
+	}
+}
+
+func TestFlattenRonDB_single_node(t *testing.T) {
+	input := &api.RonDBConfiguration{
+		Configuration: api.RonDBBaseConfiguration{
+			NdbdDefault: api.RonDBNdbdDefaultConfiguration{
+				ReplicationFactor: 1,
+			},
+		},
+		ManagementNodes: api.RonDBNodeConfiguration{
+			NodeConfiguration: api.NodeConfiguration{
+				InstanceType: "mgm-node-1",
+				DiskSize:     30,
+			},
+			Count: 1,
+		},
+		DataNodes: api.RonDBNodeConfiguration{
+			NodeConfiguration: api.NodeConfiguration{
+				InstanceType: "data-node-1",
+				DiskSize:     512,
+			},
+			Count: 1,
+		},
+		MYSQLNodes: api.RonDBNodeConfiguration{
+			NodeConfiguration: api.NodeConfiguration{
+				InstanceType: "mysqld-node-1",
+				DiskSize:     100,
+			},
+			Count: 1,
+		},
+	}
+
+	expected := []map[string]interface{}{
+		{
+			"configuration":    nil,
+			"management_nodes": nil,
+			"data_nodes":       nil,
+			"mysql_nodes":      nil,
+			"api_nodes":        nil,
+			"single_node": []interface{}{
+				map[string]interface{}{
+					"instance_type": "data-node-1",
+					"disk_size":     512,
+				},
+			},
+		},
+	}
+
+	output := flattenRonDB(input)
+	if !reflect.DeepEqual(expected, output) {
+		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
 	}
 }

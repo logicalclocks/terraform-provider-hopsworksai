@@ -85,6 +85,15 @@ func flattenWorker(worker api.WorkerConfiguration) map[string]interface{} {
 	return workerConf
 }
 
+func flattenRonDBNode(node api.RonDBNodeConfiguration) map[string]interface{} {
+	rondbNodeConf := map[string]interface{}{
+		"instance_type": node.InstanceType,
+		"disk_size":     node.DiskSize,
+		"count":         node.Count,
+	}
+	return rondbNodeConf
+}
+
 func flattenSpotInfo(spotInfo *api.SpotConfiguration) []interface{} {
 	return []interface{}{
 		map[string]interface{}{
@@ -226,39 +235,59 @@ func flattenRonDB(ronDB *api.RonDBConfiguration) []map[string]interface{} {
 	if ronDB == nil {
 		return nil
 	}
-	return []map[string]interface{}{
-		{
-			"configuration": []interface{}{
-				map[string]interface{}{
-					"ndbd_default": []interface{}{
-						map[string]interface{}{
-							"replication_factor": ronDB.Configuration.NdbdDefault.ReplicationFactor,
-						},
+
+	if ronDB.IsSingleNodeSetup() {
+		return []map[string]interface{}{
+			{
+				"configuration":    nil,
+				"management_nodes": nil,
+				"data_nodes":       nil,
+				"mysql_nodes":      nil,
+				"api_nodes":        nil,
+				"single_node": []interface{}{
+					map[string]interface{}{
+						"instance_type": ronDB.DataNodes.InstanceType,
+						"disk_size":     ronDB.DataNodes.DiskSize,
 					},
-					"general": []interface{}{
-						map[string]interface{}{
-							"benchmark": []interface{}{
-								map[string]interface{}{
-									"grant_user_privileges": ronDB.Configuration.General.Benchmark.GrantUserPrivileges,
+				},
+			},
+		}
+	} else {
+		return []map[string]interface{}{
+			{
+				"configuration": []interface{}{
+					map[string]interface{}{
+						"ndbd_default": []interface{}{
+							map[string]interface{}{
+								"replication_factor": ronDB.Configuration.NdbdDefault.ReplicationFactor,
+							},
+						},
+						"general": []interface{}{
+							map[string]interface{}{
+								"benchmark": []interface{}{
+									map[string]interface{}{
+										"grant_user_privileges": ronDB.Configuration.General.Benchmark.GrantUserPrivileges,
+									},
 								},
 							},
 						},
 					},
 				},
+				"management_nodes": []interface{}{
+					flattenRonDBNode(ronDB.ManagementNodes),
+				},
+				"data_nodes": []interface{}{
+					flattenRonDBNode(ronDB.DataNodes),
+				},
+				"mysql_nodes": []interface{}{
+					flattenRonDBNode(ronDB.MYSQLNodes),
+				},
+				"api_nodes": []interface{}{
+					flattenRonDBNode(ronDB.APINodes),
+				},
+				"single_node": nil,
 			},
-			"management_nodes": []interface{}{
-				flattenWorker(ronDB.ManagementNodes),
-			},
-			"data_nodes": []interface{}{
-				flattenWorker(ronDB.DataNodes),
-			},
-			"mysql_nodes": []interface{}{
-				flattenWorker(ronDB.MYSQLNodes),
-			},
-			"api_nodes": []interface{}{
-				flattenWorker(ronDB.APINodes),
-			},
-		},
+		}
 	}
 }
 
@@ -366,6 +395,14 @@ func ExpandWorker(workerConfig map[string]interface{}) api.WorkerConfiguration {
 		}
 	}
 	return workerConf
+}
+
+func ExpandRonDBNodeConfiguration(node map[string]interface{}) api.RonDBNodeConfiguration {
+	nodeConf := api.RonDBNodeConfiguration{
+		NodeConfiguration: ExpandNode(node),
+		Count:             node["count"].(int),
+	}
+	return nodeConf
 }
 
 func ExpandNode(config map[string]interface{}) api.NodeConfiguration {

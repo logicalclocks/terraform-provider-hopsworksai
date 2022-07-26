@@ -410,3 +410,58 @@ func TestBackupStateString(t *testing.T) {
 		}
 	}
 }
+
+func TestIsSingleRonDBSetup(t *testing.T) {
+	input := &RonDBConfiguration{
+		Configuration: RonDBBaseConfiguration{
+			NdbdDefault: RonDBNdbdDefaultConfiguration{
+				ReplicationFactor: 1,
+			},
+		},
+		ManagementNodes: RonDBNodeConfiguration{
+			NodeConfiguration: NodeConfiguration{
+				InstanceType: "mgm-node-1",
+				DiskSize:     30,
+			},
+			Count: 1,
+		},
+		DataNodes: RonDBNodeConfiguration{
+			NodeConfiguration: NodeConfiguration{
+				InstanceType: "data-node-1",
+				DiskSize:     512,
+			},
+			Count: 1,
+		},
+		MYSQLNodes: RonDBNodeConfiguration{
+			NodeConfiguration: NodeConfiguration{
+				InstanceType: "mysqld-node-1",
+				DiskSize:     100,
+			},
+			Count: 1,
+		},
+	}
+
+	if !input.IsSingleNodeSetup() {
+		t.Fatalf("expected RonDB %#v to be single node setup but got false", *input)
+	}
+
+	input.Configuration.NdbdDefault.ReplicationFactor = 2
+
+	if input.IsSingleNodeSetup() {
+		t.Fatalf("expected RonDB %#v to be a cluster setup but got false", *input)
+	}
+
+	input.Configuration.NdbdDefault.ReplicationFactor = 1
+	input.MYSQLNodes.Count = 2
+
+	if input.IsSingleNodeSetup() {
+		t.Fatalf("expected RonDB %#v to be a cluster setup but got false", *input)
+	}
+
+	input.Configuration.NdbdDefault.ReplicationFactor = 2
+	input.DataNodes.Count = 2
+
+	if input.IsSingleNodeSetup() {
+		t.Fatalf("expected RonDB %#v to be a cluster setup but got false", *input)
+	}
+}

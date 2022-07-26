@@ -116,12 +116,21 @@ type RonDBBaseConfiguration struct {
 	General     RonDBGeneralConfiguration     `json:"general"`
 }
 
+type RonDBNodeConfiguration struct {
+	NodeConfiguration
+	Count int `json:"count"`
+}
+
 type RonDBConfiguration struct {
 	Configuration   RonDBBaseConfiguration `json:"configuration"`
-	ManagementNodes WorkerConfiguration    `json:"mgmd"`
-	DataNodes       WorkerConfiguration    `json:"ndbd"`
-	MYSQLNodes      WorkerConfiguration    `json:"mysqld"`
-	APINodes        WorkerConfiguration    `json:"api"`
+	ManagementNodes RonDBNodeConfiguration `json:"mgmd"`
+	DataNodes       RonDBNodeConfiguration `json:"ndbd"`
+	MYSQLNodes      RonDBNodeConfiguration `json:"mysqld"`
+	APINodes        RonDBNodeConfiguration `json:"api"`
+}
+
+func (rondb *RonDBConfiguration) IsSingleNodeSetup() bool {
+	return rondb.Configuration.NdbdDefault.ReplicationFactor == 1 && rondb.DataNodes.Count == 1 && rondb.MYSQLNodes.Count == 1
 }
 
 type SpotConfiguration struct {
@@ -325,6 +334,7 @@ const (
 	RonDBDataNode       NodeType = "rondb_data"
 	RonDBMySQLNode      NodeType = "rondb_mysql"
 	RonDBAPINode        NodeType = "rondb_api"
+	RonDBAllInOneNode   NodeType = "rondb_aio"
 )
 
 func (n NodeType) String() string {
