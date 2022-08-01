@@ -1,3 +1,8 @@
+## 1.0.1 (August 1, 2022)
+
+BUG FIXES:
+docs: Update documentation links 
+
 ## 1.0.0 (August 1, 2022)
 
 NOTES:

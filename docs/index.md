@@ -10,18 +10,18 @@ description: |-
 
 The Hopsworksai terraform provider is used to interact with [Hopsworks.ai](https://managed.hopsworks.ai) to manage Hopsworks clusters and Hopsworks Feature Store in the cloud.
 If you are new to Hopsworks, then first you need to create an account on [Hopsworks.ai](https://managed.hopsworks.ai), and then you can follow one of the getting started guides to connect either your AWS account or Azure account to create your own Hopsworks clusters. 
-  * [Getting Started with AWS](https://docs.hopsworks.ai/latest/hopsworksai/aws/getting_started/)
-  * [Getting Started with Azure](https://docs.hopsworks.ai/latest/hopsworksai/azure/getting_started/)
+  * [Getting Started with AWS](https://docs.hopsworks.ai/latest/setup_installation/aws/getting_started/)
+  * [Getting Started with Azure](https://docs.hopsworks.ai/latest/setup_installation/azure/getting_started/)
 
 
--> A Hopsworks API Key is required to allow the provider to manage clusters on Hopsworks.ai on your behalf. To create an API Key, follow [this guide](https://docs.hopsworks.ai/latest/hopsworksai/api_key).
+-> A Hopsworks API Key is required to allow the provider to manage clusters on Hopsworks.ai on your behalf. To create an API Key, follow [this guide](https://docs.hopsworks.ai/latest/setup_installation/common/api_key).
 
 In the following sections, we show two usage examples to create Hopsworks clusters on AWS and Azure, for more detailed examples check the [examples/complete](https://github.com/logicalclocks/terraform-provider-hopsworksai/tree/main/examples/complete) directory in the git repository.
 
 ## AWS Example Usage 
 
-Hopsworks.ai deploys Hopsworks clusters to your AWS account using the permissions provided during [account setup](https://docs.hopsworks.ai/latest/hopsworksai/aws/getting_started/#step-1-connecting-your-aws-account). 
-To create a Hopsworks cluster, you will need to create an empty S3 bucket, an ssh key, and an instance profile with the required [Hopsworks permissions](https://docs.hopsworks.ai/latest/hopsworksai/aws/getting_started/#step-2-creating-instance-profile). 
+Hopsworks.ai deploys Hopsworks clusters to your AWS account using the permissions provided during [account setup](https://docs.hopsworks.ai/latest/setup_installation/aws/getting_started/#step-1-connecting-your-aws-account). 
+To create a Hopsworks cluster, you will need to create an empty S3 bucket, an ssh key, and an instance profile with the required [Hopsworks permissions](https://docs.hopsworks.ai/latest/setup_installation/aws/getting_started/#step-2-creating-instance-profile). 
 If you have already created these 3 resources, you can skip the first step in the following terraform example and instead fill the corresponding attributes in Step 2 (*bucket_name*, *ssh_key*, *instance_profile_arn*) with your configuration.
 Otherwise, you need to setup the credentials for your AWS account locally as described [here](https://registry.terraform.io/providers/hashicorp/aws/latest/docs), then you can run the following terraform example which creates the required AWS resources and a Hopsworks cluster. 
 
@@ -119,8 +119,8 @@ output "hopsworks_cluster_url" {
 
 ## Azure Example Usage 
 
-Similar to AWS, Hopsworks.ai deploys Hopsworks clusters to your Azure account using the permissions provided during [account setup](https://docs.hopsworks.ai/latest/hopsworksai/azure/getting_started/#step-1-connecting-your-azure-account). 
-To create a Hopsworks cluster, you will need to create a storage account, an ssh key, and a user assigned managed identity with the required [Hopsworks permissions](https://docs.hopsworks.ai/latest/hopsworksai/azure/getting_started/#step-21-creating-a-restrictive-role-for-accessing-storage)
+Similar to AWS, Hopsworks.ai deploys Hopsworks clusters to your Azure account using the permissions provided during [account setup](https://docs.hopsworks.ai/latest/setup_installation/azure/getting_started/#step-1-connecting-your-azure-account). 
+To create a Hopsworks cluster, you will need to create a storage account, an ssh key, and a user assigned managed identity with the required [Hopsworks permissions](https://docs.hopsworks.ai/latest/setup_installation/azure/getting_started/#step-21-creating-a-restrictive-role-for-accessing-storage)
 If you have already created these 3 resources, you can skip the first step in the following terraform example and instead fill the corresponding attributes in Step 2 (*storage_account*, *ssh_key*, *user_assigned_managed_identity*) with your configuration.
 Otherwise, you need to setup the credentials for your Azure account locally as described [here](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs), then you can run the following terraform example which creates the required Azure resources and a Hopsworks cluster. 
 Notice that you need to replace "*YOUR AZURE RESOURCE GROUP*" with the resource group that you want to use for this cluster.
