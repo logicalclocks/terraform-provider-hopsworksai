@@ -1,4 +1,4 @@
-## 1.0.0 (Unreleased)
+## 1.0.0 (August 1, 2022)
 
 NOTES:
 * The `instance_type` attribue(s) are not optional anymore
@@ -28,7 +28,6 @@ BUG FIXES:
 * resource/hopsworksai_cluster_from_backup: Update acceptance tests to not stop cluster before taking backups
 * datasource/hopsworksai_azure_user_assigned_identity_permissions: Add the missing listkeys action permission for backup
 
-FEATURES:
 
 ## 0.11.0 (June 16, 2022)
 
