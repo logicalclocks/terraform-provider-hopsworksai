@@ -152,6 +152,7 @@ Optional:
 Read-Only:
 
 - `node_id` (String) The corresponding aws/azure instance id of the head node.
+- `private_ip` (String) Use multi head node setup for high availability. This is an experimental feature that is not supported for all users and cloud providers.
 
 
 <a id="nestedblock--rondb"></a>
@@ -177,6 +178,10 @@ Optional:
 
 - `count` (Number) The number of API nodes. Defaults to `0`.
 - `disk_size` (Number) The disk size of API nodes in units of GB Defaults to `30`.
+
+Read-Only:
+
+- `private_ips` (List of String) Array containing the private IPs of the nodes
 
 
 <a id="nestedblock--rondb--configuration"></a>
@@ -224,6 +229,10 @@ Optional:
 - `count` (Number) The number of data nodes. Notice that the number of RonDB data nodes have to be multiples of the replication_factor. Defaults to `2`.
 - `disk_size` (Number) The disk size of data nodes in units of GB Defaults to `512`.
 
+Read-Only:
+
+- `private_ips` (List of String) Array containing the private IPs of the nodes
+
 
 <a id="nestedblock--rondb--management_nodes"></a>
 ### Nested Schema for `rondb.management_nodes`
@@ -236,6 +245,10 @@ Optional:
 
 - `count` (Number) The number of management nodes. Defaults to `1`.
 - `disk_size` (Number) The disk size of management nodes in units of GB Defaults to `30`.
+
+Read-Only:
+
+- `private_ips` (List of String) Array containing the private IPs of the nodes
 
 
 <a id="nestedblock--rondb--mysql_nodes"></a>
@@ -250,6 +263,10 @@ Optional:
 - `count` (Number) The number of MySQL nodes. Defaults to `1`.
 - `disk_size` (Number) The disk size of MySQL nodes in units of GB Defaults to `128`.
 
+Read-Only:
+
+- `private_ips` (List of String) Array containing the private IPs of the nodes
+
 
 <a id="nestedblock--rondb--single_node"></a>
 ### Nested Schema for `rondb.single_node`
@@ -261,6 +278,10 @@ Required:
 Optional:
 
 - `disk_size` (Number) The disk size of data nodes in units of GB Defaults to `512`.
+
+Read-Only:
+
+- `private_ips` (List of String) Array containing the private IPs of the nodes
 
 
 
@@ -485,6 +506,10 @@ Optional:
 - `count` (Number) The number of worker nodes. Defaults to `1`.
 - `disk_size` (Number) The disk size of worker nodes in units of GB Defaults to `512`.
 - `spot_config` (Block List, Max: 1) The configuration to use spot instances (see [below for nested schema](#nestedblock--workers--spot_config))
+
+Read-Only:
+
+- `private_ips` (List of String) Array containing the private IPs of the nodes
 
 <a id="nestedblock--workers--spot_config"></a>
 ### Nested Schema for `workers.spot_config`

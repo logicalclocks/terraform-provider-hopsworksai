@@ -155,6 +155,11 @@ func clusterSchema() map[string]*schema.Schema {
 						ForceNew:    true,
 						Default:     false,
 					},
+					"private_ip": {
+						Description: "Use multi head node setup for high availability. This is an experimental feature that is not supported for all users and cloud providers.",
+						Type:        schema.TypeString,
+						Computed:    true,
+					},
 				},
 			},
 		},
@@ -193,6 +198,14 @@ func clusterSchema() map[string]*schema.Schema {
 						MinItems:    1,
 						Elem: &schema.Resource{
 							Schema: spotSchema(),
+						},
+					},
+					"private_ips": {
+						Description: "Array containing the private IPs of the nodes",
+						Type:        schema.TypeList,
+						Computed:    true,
+						Elem: &schema.Schema{
+							Type: schema.TypeString,
 						},
 					},
 				},
@@ -530,6 +543,14 @@ func ronDBSchema() *schema.Resource {
 							Default:      defaultRonDBConfiguration().ManagementNodes.Count,
 							ValidateFunc: validation.IntInSlice([]int{1}),
 						},
+						"private_ips": {
+							Description: "Array containing the private IPs of the nodes",
+							Type:        schema.TypeList,
+							Computed:    true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
 					},
 				},
 				ConflictsWith: []string{"rondb.0.single_node"},
@@ -563,6 +584,14 @@ func ronDBSchema() *schema.Resource {
 							ForceNew:    true,
 							Default:     defaultRonDBConfiguration().DataNodes.Count,
 						},
+						"private_ips": {
+							Description: "Array containing the private IPs of the nodes",
+							Type:        schema.TypeList,
+							Computed:    true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
 					},
 				},
 				ConflictsWith: []string{"rondb.0.single_node"},
@@ -594,6 +623,14 @@ func ronDBSchema() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 							Default:     defaultRonDBConfiguration().MYSQLNodes.Count,
+						},
+						"private_ips": {
+							Description: "Array containing the private IPs of the nodes",
+							Type:        schema.TypeList,
+							Computed:    true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
 						},
 					},
 				},
@@ -628,6 +665,14 @@ func ronDBSchema() *schema.Resource {
 							ForceNew:    true,
 							Default:     defaultRonDBConfiguration().APINodes.Count,
 						},
+						"private_ips": {
+							Description: "Array containing the private IPs of the nodes",
+							Type:        schema.TypeList,
+							Computed:    true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
 					},
 				},
 				ConflictsWith: []string{"rondb.0.single_node"},
@@ -651,6 +696,14 @@ func ronDBSchema() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 							Default:     defaultRonDBConfiguration().DataNodes.DiskSize,
+						},
+						"private_ips": {
+							Description: "Array containing the private IPs of the nodes",
+							Type:        schema.TypeList,
+							Computed:    true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
 						},
 					},
 				},

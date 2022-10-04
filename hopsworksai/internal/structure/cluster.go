@@ -58,6 +58,7 @@ func flattenHead(head *api.HeadConfigurationStatus) []map[string]interface{} {
 			"disk_size":     head.DiskSize,
 			"node_id":       head.NodeId,
 			"ha_enabled":    head.HAEnabled,
+			"private_ip":    head.PrivateIp,
 		},
 	}
 }
@@ -79,6 +80,9 @@ func flattenWorker(worker api.WorkerConfiguration) map[string]interface{} {
 		"disk_size":     worker.DiskSize,
 		"count":         worker.Count,
 	}
+	if worker.PrivateIps != nil {
+		workerConf["private_ips"] = worker.PrivateIps
+	}
 	if worker.SpotInfo != nil {
 		workerConf["spot_config"] = flattenSpotInfo(worker.SpotInfo)
 	}
@@ -91,7 +95,18 @@ func flattenRonDBNode(node api.RonDBNodeConfiguration) map[string]interface{} {
 		"disk_size":     node.DiskSize,
 		"count":         node.Count,
 	}
+	if node.PrivateIps != nil {
+		rondbNodeConf["private_ips"] = flattenPrivateIps(node.PrivateIps)
+	}
 	return rondbNodeConf
+}
+
+func flattenPrivateIps(privateIps []string) []interface{} {
+	var ips = make([]interface{}, len(privateIps))
+	for i, v := range privateIps {
+		ips[i] = v
+	}
+	return ips
 }
 
 func flattenSpotInfo(spotInfo *api.SpotConfiguration) []interface{} {
@@ -237,6 +252,14 @@ func flattenRonDB(ronDB *api.RonDBConfiguration) []map[string]interface{} {
 	}
 
 	if ronDB.IsSingleNodeSetup() {
+		singleNode :=
+			map[string]interface{}{
+				"instance_type": ronDB.DataNodes.InstanceType,
+				"disk_size":     ronDB.DataNodes.DiskSize,
+			}
+		if ronDB.DataNodes.PrivateIps != nil {
+			singleNode["private_ips"] = ronDB.DataNodes.PrivateIps
+		}
 		return []map[string]interface{}{
 			{
 				"configuration":    nil,
@@ -244,12 +267,7 @@ func flattenRonDB(ronDB *api.RonDBConfiguration) []map[string]interface{} {
 				"data_nodes":       nil,
 				"mysql_nodes":      nil,
 				"api_nodes":        nil,
-				"single_node": []interface{}{
-					map[string]interface{}{
-						"instance_type": ronDB.DataNodes.InstanceType,
-						"disk_size":     ronDB.DataNodes.DiskSize,
-					},
-				},
+				"single_node":      []interface{}{singleNode},
 			},
 		}
 	} else {
@@ -401,8 +419,17 @@ func ExpandRonDBNodeConfiguration(node map[string]interface{}) api.RonDBNodeConf
 	nodeConf := api.RonDBNodeConfiguration{
 		NodeConfiguration: ExpandNode(node),
 		Count:             node["count"].(int),
+		PrivateIps:        expandPrivateIps(node["private_ips"].([]interface{})),
 	}
 	return nodeConf
+}
+
+func expandPrivateIps(privateIps []interface{}) []string {
+	var ips = make([]string, len(privateIps))
+	for i, v := range privateIps {
+		ips[i] = v.(string)
+	}
+	return ips
 }
 
 func ExpandNode(config map[string]interface{}) api.NodeConfiguration {

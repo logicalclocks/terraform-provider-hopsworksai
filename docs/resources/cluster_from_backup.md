@@ -14,7 +14,7 @@ Use this resource to create a cluster from an existing backup.
 
 ```terraform
 resource "hopsworksai_cluster_from_backup" "cluster" {
-  backup_id = "<BACKUP ID>"
+  source_backup_id = "<BACKUP ID>"
 }
 ```
 
@@ -279,6 +279,10 @@ Optional:
 - `disk_size` (Number) The disk size of worker nodes in units of GB Defaults to `512`.
 - `spot_config` (Block List, Max: 1) The configuration to use spot instances (see [below for nested schema](#nestedblock--workers--spot_config))
 
+Read-Only:
+
+- `private_ips` (List of String) Array containing the private IPs of the nodes
+
 <a id="nestedblock--workers--spot_config"></a>
 ### Nested Schema for `workers.spot_config`
 
@@ -298,6 +302,7 @@ Read-Only:
 - `ha_enabled` (Boolean)
 - `instance_type` (String)
 - `node_id` (String)
+- `private_ip` (String)
 
 
 <a id="nestedatt--rondb"></a>
@@ -320,6 +325,7 @@ Read-Only:
 - `count` (Number)
 - `disk_size` (Number)
 - `instance_type` (String)
+- `private_ips` (List of String)
 
 
 <a id="nestedobjatt--rondb--configuration"></a>
@@ -363,6 +369,7 @@ Read-Only:
 - `count` (Number)
 - `disk_size` (Number)
 - `instance_type` (String)
+- `private_ips` (List of String)
 
 
 <a id="nestedobjatt--rondb--management_nodes"></a>
@@ -373,6 +380,7 @@ Read-Only:
 - `count` (Number)
 - `disk_size` (Number)
 - `instance_type` (String)
+- `private_ips` (List of String)
 
 
 <a id="nestedobjatt--rondb--mysql_nodes"></a>
@@ -383,6 +391,7 @@ Read-Only:
 - `count` (Number)
 - `disk_size` (Number)
 - `instance_type` (String)
+- `private_ips` (List of String)
 
 
 <a id="nestedobjatt--rondb--single_node"></a>
@@ -392,6 +401,7 @@ Read-Only:
 
 - `disk_size` (Number)
 - `instance_type` (String)
+- `private_ips` (List of String)
 
 
 

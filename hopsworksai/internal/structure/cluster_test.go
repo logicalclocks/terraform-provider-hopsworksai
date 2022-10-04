@@ -19,7 +19,8 @@ func TestFlattenHeadConfiguration(t *testing.T) {
 			},
 			HAEnabled: false,
 		},
-		NodeId: "head-node-id-1",
+		NodeId:    "head-node-id-1",
+		PrivateIp: "ip",
 	}
 
 	expected := []map[string]interface{}{
@@ -28,6 +29,7 @@ func TestFlattenHeadConfiguration(t *testing.T) {
 			"disk_size":     input.DiskSize,
 			"node_id":       input.NodeId,
 			"ha_enabled":    false,
+			"private_ip":    input.PrivateIp,
 		},
 	}
 
@@ -113,21 +115,24 @@ func TestFlattenWorkersConfiguration(t *testing.T) {
 						InstanceType: "node-type-1",
 						DiskSize:     512,
 					},
-					Count: 2,
+					Count:      2,
+					PrivateIps: []string{"ip1", "ip2"},
 				},
 				{
 					NodeConfiguration: api.NodeConfiguration{
 						InstanceType: "node-type-1",
 						DiskSize:     256,
 					},
-					Count: 3,
+					Count:      3,
+					PrivateIps: []string{"ip1", "ip2", "ip3"},
 				},
 				{
 					NodeConfiguration: api.NodeConfiguration{
 						InstanceType: "node-type-3",
 						DiskSize:     1024,
 					},
-					Count: 1,
+					Count:      1,
+					PrivateIps: []string{"ip1"},
 				},
 			},
 			expected: schema.NewSet(helpers.WorkerSetHash, []interface{}{
@@ -135,16 +140,19 @@ func TestFlattenWorkersConfiguration(t *testing.T) {
 					"instance_type": "node-type-1",
 					"disk_size":     512,
 					"count":         2,
+					"private_ips":   []string{"ip1", "ip2"},
 				},
 				map[string]interface{}{
 					"instance_type": "node-type-1",
 					"disk_size":     256,
 					"count":         3,
+					"private_ips":   []string{"ip1", "ip2", "ip3"},
 				},
 				map[string]interface{}{
 					"instance_type": "node-type-3",
 					"disk_size":     1024,
 					"count":         1,
+					"private_ips":   []string{"ip1"},
 				},
 			}),
 		},
@@ -1910,13 +1918,15 @@ func TestFlattenRonDBNodeConfiguration(t *testing.T) {
 			InstanceType: "node-1",
 			DiskSize:     128,
 		},
-		Count: 2,
+		Count:      2,
+		PrivateIps: []string{"ip1", "ip2"},
 	}
 
 	expected := map[string]interface{}{
 		"instance_type": "node-1",
 		"disk_size":     128,
 		"count":         2,
+		"private_ips":   []interface{}{"ip1", "ip2"},
 	}
 
 	output := flattenRonDBNode(input)
@@ -1950,7 +1960,8 @@ func TestFlattenRonDB_single_node(t *testing.T) {
 				InstanceType: "data-node-1",
 				DiskSize:     512,
 			},
-			Count: 1,
+			Count:      1,
+			PrivateIps: []string{"ip1"},
 		},
 		MYSQLNodes: api.RonDBNodeConfiguration{
 			NodeConfiguration: api.NodeConfiguration{
@@ -1972,6 +1983,7 @@ func TestFlattenRonDB_single_node(t *testing.T) {
 				map[string]interface{}{
 					"instance_type": "data-node-1",
 					"disk_size":     512,
+					"private_ips":   []string{"ip1"},
 				},
 			},
 		},

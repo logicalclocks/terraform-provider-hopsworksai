@@ -5,6 +5,7 @@ NOTES:
 BREAKING CHANGES:
 
 ENHANCEMENTS:
+* return nodes private ips
 
 BUG FIXES:
 

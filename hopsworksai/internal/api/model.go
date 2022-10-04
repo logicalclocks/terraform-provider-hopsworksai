@@ -118,7 +118,8 @@ type RonDBBaseConfiguration struct {
 
 type RonDBNodeConfiguration struct {
 	NodeConfiguration
-	Count int `json:"count"`
+	Count      int      `json:"count"`
+	PrivateIps []string `json:"privateIps,omitempty"`
 }
 
 type RonDBConfiguration struct {
@@ -270,8 +271,9 @@ type HeadConfiguration struct {
 
 type WorkerConfiguration struct {
 	NodeConfiguration
-	Count    int                `json:"count"`
-	SpotInfo *SpotConfiguration `json:"spotInfo,omitempty"`
+	Count      int                `json:"count"`
+	SpotInfo   *SpotConfiguration `json:"spotInfo,omitempty"`
+	PrivateIps []string           `json:"privateIps,omitempty"`
 }
 
 type ClusterConfiguration struct {
@@ -281,7 +283,8 @@ type ClusterConfiguration struct {
 
 type HeadConfigurationStatus struct {
 	HeadConfiguration
-	NodeId string `json:"nodeId"`
+	NodeId    string `json:"nodeId"`
+	PrivateIp string `json:"privateIp,omitempty"`
 }
 
 type ClusterConfigurationStatus struct {

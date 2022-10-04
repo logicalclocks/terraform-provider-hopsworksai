@@ -229,5 +229,5 @@ output "hopsworks_cluster_url" {
 
 ### Optional
 
-- `api_gateway` (String) URL of the API Gateway to use. It is intended for development purposes only. Defaults to `https://api.hopsworks.ai`.
+- `api_gateway` (String) URL of the API Gateway to use. It is intended for development purposes only. Defaults to `https://qaicacl203.execute-api.us-east-2.amazonaws.com/gautier`.
 - `api_key` (String, Sensitive) The API Key to use to connect to your account on Hopsworka.ai. Can be specified using the HOPSWORKSAI_API_KEY environment variable.
