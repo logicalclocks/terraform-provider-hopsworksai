@@ -1983,7 +1983,7 @@ func TestFlattenRonDB_single_node(t *testing.T) {
 				map[string]interface{}{
 					"instance_type": "data-node-1",
 					"disk_size":     512,
-					"private_ips":   []string{"ip1"},
+					"private_ips":   []interface{}{"ip1"},
 				},
 			},
 		},
