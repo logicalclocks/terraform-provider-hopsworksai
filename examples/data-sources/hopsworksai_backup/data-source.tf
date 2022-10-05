@@ -1,4 +1,4 @@
 
 data "hopsworksai_backup" "backup" {
-  backup_id = "<BACKUP ID>"
+  source_backup_id = "<BACKUP ID>"
 }
