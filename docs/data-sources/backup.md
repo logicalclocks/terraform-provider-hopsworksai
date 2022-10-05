@@ -14,7 +14,7 @@ Use this data source to retrieve backup information using its id.
 
 ```terraform
 data "hopsworksai_backup" "backup" {
-  backup_id = "<BACKUP ID>"
+  source_backup_id = "<BACKUP ID>"
 }
 ```
 
