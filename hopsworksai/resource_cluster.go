@@ -156,7 +156,7 @@ func clusterSchema() map[string]*schema.Schema {
 						Default:     false,
 					},
 					"private_ip": {
-						Description: "Use multi head node setup for high availability. This is an experimental feature that is not supported for all users and cloud providers.",
+						Description: "Private IP of the head node.",
 						Type:        schema.TypeString,
 						Computed:    true,
 					},

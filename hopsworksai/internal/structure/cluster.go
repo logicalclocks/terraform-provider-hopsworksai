@@ -81,7 +81,7 @@ func flattenWorker(worker api.WorkerConfiguration) map[string]interface{} {
 		"count":         worker.Count,
 	}
 	if worker.PrivateIps != nil {
-		workerConf["private_ips"] = worker.PrivateIps
+		workerConf["private_ips"] = flattenPrivateIps(worker.PrivateIps)
 	}
 	if worker.SpotInfo != nil {
 		workerConf["spot_config"] = flattenSpotInfo(worker.SpotInfo)
@@ -258,7 +258,7 @@ func flattenRonDB(ronDB *api.RonDBConfiguration) []map[string]interface{} {
 				"disk_size":     ronDB.DataNodes.DiskSize,
 			}
 		if ronDB.DataNodes.PrivateIps != nil {
-			singleNode["private_ips"] = ronDB.DataNodes.PrivateIps
+			singleNode["private_ips"] = flattenPrivateIps(ronDB.DataNodes.PrivateIps)
 		}
 		return []map[string]interface{}{
 			{

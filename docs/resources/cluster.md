@@ -152,7 +152,7 @@ Optional:
 Read-Only:
 
 - `node_id` (String) The corresponding aws/azure instance id of the head node.
-- `private_ip` (String) Use multi head node setup for high availability. This is an experimental feature that is not supported for all users and cloud providers.
+- `private_ip` (String) Private IP of the head node.
 
 
 <a id="nestedblock--rondb"></a>
