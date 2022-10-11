@@ -1043,9 +1043,7 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 		if len(awsAttributes) > 0 {
 			createRequest = createAWSCluster(d, baseRequest)
 		}
-	}
-
-	if azure, ok := d.GetOk("azure_attributes"); ok {
+	} else if azure, ok := d.GetOk("azure_attributes"); ok {
 		azureAttributes := azure.([]interface{})
 		if len(azureAttributes) > 0 {
 			createRequest = createAzureCluster(d, baseRequest)
@@ -1397,38 +1395,45 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		}
 	}
 
-	if d.HasChange("rondb.0.data_nodes.0.instance_type") {
-		_, n := d.GetChange("rondb.0.data_nodes.0.instance_type")
-		toInstanceType := n.(string)
+	/*
+		RonDB validation
+	*/
 
-		if err := api.ModifyInstanceType(ctx, client, clusterId, api.RonDBDataNode, toInstanceType); err != nil {
-			return diag.FromErr(err)
+	cannotModifyRoDBTypeErr := "cannot modify instance of node type %s"
+	if d.HasChange("rondb.0.data_nodes.0.instance_type") {
+		if !api.IsNodeTypeModifyable(api.RonDBDataNode) {
+			return diag.FromErr(fmt.Errorf(cannotModifyRoDBTypeErr, api.RonDBDataNode))
 		}
 	}
 
 	if d.HasChange("rondb.0.mysql_nodes.0.instance_type") {
-		_, n := d.GetChange("rondb.0.mysql_nodes.0.instance_type")
-		toInstanceType := n.(string)
-
-		if err := api.ModifyInstanceType(ctx, client, clusterId, api.RonDBMySQLNode, toInstanceType); err != nil {
-			return diag.FromErr(err)
+		if !api.IsNodeTypeModifyable(api.RonDBMySQLNode) {
+			return diag.FromErr(fmt.Errorf(cannotModifyRoDBTypeErr, api.RonDBMySQLNode))
 		}
 	}
 
 	if d.HasChange("rondb.0.api_nodes.0.instance_type") {
-		_, n := d.GetChange("rondb.0.api_nodes.0.instance_type")
-		toInstanceType := n.(string)
-
-		if err := api.ModifyInstanceType(ctx, client, clusterId, api.RonDBAPINode, toInstanceType); err != nil {
-			return diag.FromErr(err)
+		if !api.IsNodeTypeModifyable(api.RonDBAPINode) {
+			return diag.FromErr(fmt.Errorf(cannotModifyRoDBTypeErr, api.RonDBAPINode))
 		}
 	}
 
 	if d.HasChange("rondb.0.single_node.0.instance_type") {
-		_, n := d.GetChange("rondb.0.single_node.0.instance_type")
-		toInstanceType := n.(string)
+		if !api.IsNodeTypeModifyable(api.RonDBAllInOneNode) {
+			return diag.FromErr(fmt.Errorf(cannotModifyRoDBTypeErr, api.RonDBAllInOneNode))
+		}
+	}
 
-		if err := api.ModifyInstanceType(ctx, client, clusterId, api.RonDBAllInOneNode, toInstanceType); err != nil {
+	/*
+		RonDB run change
+	*/
+
+	if d.HasChange("rondb") {
+		_, n := d.GetChange("rondb")
+		ronDBConfiguration := n.(api.RonDBConfiguration)
+
+		err := api.ReconfigureRonDB(ctx, client, clusterId, ronDBConfiguration)
+		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
