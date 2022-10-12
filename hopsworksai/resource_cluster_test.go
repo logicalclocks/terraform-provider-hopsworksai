@@ -1724,13 +1724,15 @@ func TestClusterRead_AWS(t *testing.T) {
 								"head": {
 									"instanceType": "node-type-1",
 									"diskSize": 512,
-									"nodeId": "head-node-id-1"
+									"nodeId": "head-node-id-1",
+									"privateIp": "ip1"
 								},
 								"workers": [
 									{
 										"instanceType": "node-type-2",
 										"diskSize": 256,
-										"count": 2
+										"count": 2,
+										"privateIps": ["ip2","ip3"]
 									}
 								]
 							},
@@ -1772,6 +1774,7 @@ func TestClusterRead_AWS(t *testing.T) {
 					"disk_size":     512,
 					"node_id":       "head-node-id-1",
 					"ha_enabled":    false,
+					"private_ip":    "ip1",
 				},
 			},
 			"workers": schema.NewSet(helpers.WorkerSetHash, []interface{}{
@@ -1780,6 +1783,7 @@ func TestClusterRead_AWS(t *testing.T) {
 					"disk_size":     256,
 					"count":         2,
 					"spot_config":   []interface{}{},
+					"private_ips":   []interface{}{"ip2", "ip3"},
 				},
 			}),
 			"attach_public_ip":               true,
@@ -1848,13 +1852,15 @@ func TestClusterRead_AZURE(t *testing.T) {
 								"head": {
 									"instanceType": "node-type-1",
 									"diskSize": 512,
-									"nodeId": "head-node-id-1"
+									"nodeId": "head-node-id-1",
+									"privateIp": "ip1"
 								},
 								"workers": [
 									{
 										"instanceType": "node-type-2",
 										"diskSize": 256,
-										"count": 2
+										"count": 2,
+										"privateIps": ["ip2","ip3"]
 									}
 								]
 							},
@@ -1900,6 +1906,7 @@ func TestClusterRead_AZURE(t *testing.T) {
 					"disk_size":     512,
 					"node_id":       "head-node-id-1",
 					"ha_enabled":    false,
+					"private_ip":    "ip1",
 				},
 			},
 			"workers": schema.NewSet(helpers.WorkerSetHash, []interface{}{
@@ -1908,6 +1915,7 @@ func TestClusterRead_AZURE(t *testing.T) {
 					"disk_size":     256,
 					"count":         2,
 					"spot_config":   []interface{}{},
+					"private_ips":   []interface{}{"ip2", "ip3"},
 				},
 			}),
 			"attach_public_ip":               true,
@@ -4756,13 +4764,15 @@ func TestClusterRead_AWS_HA(t *testing.T) {
 									"instanceType": "node-type-1",
 									"diskSize": 512,
 									"nodeId": "head-node-id-1",
-									"haEnabled": true
+									"haEnabled": true,
+									"privateIp": "ip1"
 								},
 								"workers": [
 									{
 										"instanceType": "node-type-2",
 										"diskSize": 256,
-										"count": 2
+										"count": 2,
+										"privateIps": ["ip2", "ip3"]
 									}
 								]
 							},
@@ -4804,6 +4814,7 @@ func TestClusterRead_AWS_HA(t *testing.T) {
 					"disk_size":     512,
 					"node_id":       "head-node-id-1",
 					"ha_enabled":    true,
+					"private_ip":    "ip1",
 				},
 			},
 			"workers": schema.NewSet(helpers.WorkerSetHash, []interface{}{
@@ -4812,6 +4823,7 @@ func TestClusterRead_AWS_HA(t *testing.T) {
 					"disk_size":     256,
 					"count":         2,
 					"spot_config":   []interface{}{},
+					"private_ips":   []interface{}{"ip2", "ip3"},
 				},
 			}),
 			"attach_public_ip":               true,
@@ -4933,13 +4945,15 @@ func TestClusterRead_NoDomainPrefix(t *testing.T) {
 									"instanceType": "node-type-1",
 									"diskSize": 512,
 									"nodeId": "head-node-id-1",
-									"haEnabled": false
+									"haEnabled": false,
+									"privateIp": "ip1"
 								},
 								"workers": [
 									{
 										"instanceType": "node-type-2",
 										"diskSize": 256,
-										"count": 2
+										"count": 2,
+										"privateIps": ["ip2", "ip3"]
 									}
 								]
 							},
@@ -4981,6 +4995,7 @@ func TestClusterRead_NoDomainPrefix(t *testing.T) {
 					"disk_size":     512,
 					"node_id":       "head-node-id-1",
 					"ha_enabled":    false,
+					"private_ip":    "ip1",
 				},
 			},
 			"workers": schema.NewSet(helpers.WorkerSetHash, []interface{}{
@@ -4989,6 +5004,7 @@ func TestClusterRead_NoDomainPrefix(t *testing.T) {
 					"disk_size":     256,
 					"count":         2,
 					"spot_config":   []interface{}{},
+					"private_ips":   []interface{}{"ip2", "ip3"},
 				},
 			}),
 			"attach_public_ip":               true,
@@ -5111,13 +5127,15 @@ func TestClusterRead_WithDomainPrefix(t *testing.T) {
 									"instanceType": "node-type-1",
 									"diskSize": 512,
 									"nodeId": "head-node-id-1",
-									"haEnabled": false
+									"haEnabled": false,
+									"privateIp": "ip1"
 								},
 								"workers": [
 									{
 										"instanceType": "node-type-2",
 										"diskSize": 256,
-										"count": 2
+										"count": 2,
+										"privateIps": ["ip2", "ip3"]
 									}
 								]
 							},
@@ -5160,6 +5178,7 @@ func TestClusterRead_WithDomainPrefix(t *testing.T) {
 					"disk_size":     512,
 					"node_id":       "head-node-id-1",
 					"ha_enabled":    false,
+					"private_ip":    "ip1",
 				},
 			},
 			"workers": schema.NewSet(helpers.WorkerSetHash, []interface{}{
@@ -5168,6 +5187,7 @@ func TestClusterRead_WithDomainPrefix(t *testing.T) {
 					"disk_size":     256,
 					"count":         2,
 					"spot_config":   []interface{}{},
+					"private_ips":   []interface{}{"ip2", "ip3"},
 				},
 			}),
 			"attach_public_ip":               true,
@@ -5342,13 +5362,15 @@ func TestClusterRead_WithCustomHostedZone(t *testing.T) {
 									"instanceType": "node-type-1",
 									"diskSize": 512,
 									"nodeId": "head-node-id-1",
-									"haEnabled": false
+									"haEnabled": false,
+									"privateIp": "ip1"
 								},
 								"workers": [
 									{
 										"instanceType": "node-type-2",
 										"diskSize": 256,
-										"count": 2
+										"count": 2,
+										"privateIps": ["ip2", "ip3"]
 									}
 								]
 							},
@@ -5391,6 +5413,7 @@ func TestClusterRead_WithCustomHostedZone(t *testing.T) {
 					"disk_size":     512,
 					"node_id":       "head-node-id-1",
 					"ha_enabled":    false,
+					"private_ip":    "ip1",
 				},
 			},
 			"workers": schema.NewSet(helpers.WorkerSetHash, []interface{}{
@@ -5399,6 +5422,7 @@ func TestClusterRead_WithCustomHostedZone(t *testing.T) {
 					"disk_size":     256,
 					"count":         2,
 					"spot_config":   []interface{}{},
+					"private_ips":   []interface{}{"ip2", "ip3"},
 				},
 			}),
 			"attach_public_ip":               true,

@@ -113,13 +113,15 @@ func TestClusterDataSourceRead_AWS(t *testing.T) {
 								"head": {
 									"instanceType": "node-type-1",
 									"diskSize": 512,
-									"nodeId": "head-node-id-1"
+									"nodeId": "head-node-id-1",
+									"privateIp": "headIp"
 								},
 								"workers": [
 									{
 										"instanceType": "node-type-2",
 										"diskSize": 256,
-										"count": 2
+										"count": 2,
+										"privateIps": ["ip1", "ip2"]
 									}
 								]
 							},
@@ -164,6 +166,7 @@ func TestClusterDataSourceRead_AWS(t *testing.T) {
 					"disk_size":     512,
 					"node_id":       "head-node-id-1",
 					"ha_enabled":    false,
+					"private_ip":    "headIp",
 				},
 			},
 			"workers": schema.NewSet(helpers.WorkerSetHash, []interface{}{
@@ -172,6 +175,7 @@ func TestClusterDataSourceRead_AWS(t *testing.T) {
 					"disk_size":     256,
 					"count":         2,
 					"spot_config":   []interface{}{},
+					"private_ips":   []interface{}{"ip1", "ip2"},
 				},
 			}),
 			"attach_public_ip":               true,
@@ -240,13 +244,15 @@ func TestClusterDataSourceRead_AZURE(t *testing.T) {
 								"head": {
 									"instanceType": "node-type-1",
 									"diskSize": 512,
-									"nodeId": "head-node-id-1"
+									"nodeId": "head-node-id-1",
+									"privateIp": "headIp"
 								},
 								"workers": [
 									{
 										"instanceType": "node-type-2",
 										"diskSize": 256,
-										"count": 2
+										"count": 2,
+										"privateIps": ["ip1", "ip2"]
 									}
 								]
 							},
@@ -295,6 +301,7 @@ func TestClusterDataSourceRead_AZURE(t *testing.T) {
 					"disk_size":     512,
 					"node_id":       "head-node-id-1",
 					"ha_enabled":    false,
+					"private_ip":    "headIp",
 				},
 			},
 			"workers": schema.NewSet(helpers.WorkerSetHash, []interface{}{
@@ -303,6 +310,7 @@ func TestClusterDataSourceRead_AZURE(t *testing.T) {
 					"disk_size":     256,
 					"count":         2,
 					"spot_config":   []interface{}{},
+					"private_ips":   []interface{}{"ip1", "ip2"},
 				},
 			}),
 			"attach_public_ip":               true,

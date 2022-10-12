@@ -227,6 +227,7 @@ Read-Only:
 - `ha_enabled` (Boolean)
 - `instance_type` (String)
 - `node_id` (String)
+- `private_ip` (String)
 
 
 <a id="nestedatt--open_ports"></a>
@@ -260,6 +261,7 @@ Read-Only:
 - `count` (Number)
 - `disk_size` (Number)
 - `instance_type` (String)
+- `private_ips` (List of String)
 
 
 <a id="nestedobjatt--rondb--configuration"></a>
@@ -303,6 +305,7 @@ Read-Only:
 - `count` (Number)
 - `disk_size` (Number)
 - `instance_type` (String)
+- `private_ips` (List of String)
 
 
 <a id="nestedobjatt--rondb--management_nodes"></a>
@@ -313,6 +316,7 @@ Read-Only:
 - `count` (Number)
 - `disk_size` (Number)
 - `instance_type` (String)
+- `private_ips` (List of String)
 
 
 <a id="nestedobjatt--rondb--mysql_nodes"></a>
@@ -323,6 +327,7 @@ Read-Only:
 - `count` (Number)
 - `disk_size` (Number)
 - `instance_type` (String)
+- `private_ips` (List of String)
 
 
 <a id="nestedobjatt--rondb--single_node"></a>
@@ -332,6 +337,7 @@ Read-Only:
 
 - `disk_size` (Number)
 - `instance_type` (String)
+- `private_ips` (List of String)
 
 
 
@@ -352,6 +358,7 @@ Read-Only:
 - `count` (Number)
 - `disk_size` (Number)
 - `instance_type` (String)
+- `private_ips` (List of String)
 - `spot_config` (List of Object) (see [below for nested schema](#nestedobjatt--workers--spot_config))
 
 <a id="nestedobjatt--workers--spot_config"></a>
