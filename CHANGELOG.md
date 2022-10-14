@@ -1,15 +1,7 @@
-## 1.1.0 (Unreleased)
-
-NOTES:
-
-BREAKING CHANGES:
+## 1.1.0 (October 14, 2022)
 
 ENHANCEMENTS:
 * return nodes private ips
-
-BUG FIXES:
-
-FEATURES:
 
 ## 1.0.1 (August 1, 2022)
 
