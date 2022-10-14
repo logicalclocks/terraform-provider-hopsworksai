@@ -1,3 +1,16 @@
+## 1.2.0 (Unreleased)
+
+NOTES:
+
+BREAKING CHANGES:
+
+ENHANCEMENTS:
+
+BUG FIXES:
+
+FEATURES:
+
+
 ## 1.1.0 (October 14, 2022)
 
 ENHANCEMENTS:
