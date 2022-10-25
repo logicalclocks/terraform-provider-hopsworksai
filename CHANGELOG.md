@@ -5,6 +5,9 @@ NOTES:
 BREAKING CHANGES:
 
 ENHANCEMENTS:
+* Bump minimum Go version to 1.18
+* Bump golangci-lint version to 1.50.1
+* dependencies: Bump hashicorp/terraform-plugin-sdk/v2 from 2.20.0 to 2.24.0
 
 BUG FIXES:
 
