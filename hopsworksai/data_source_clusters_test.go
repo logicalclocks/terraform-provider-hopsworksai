@@ -193,8 +193,9 @@ func TestClustersDataSourceRead(t *testing.T) {
 					"azure_attributes":               []interface{}{},
 					"aws_attributes": []interface{}{
 						map[string]interface{}{
-							"region":               "",
-							"instance_profile_arn": "",
+							"region":                    "",
+							"instance_profile_arn":      "",
+							"head_instance_profile_arn": "",
 							"network": []interface{}{
 								map[string]interface{}{
 									"vpc_id":            "",
@@ -252,8 +253,9 @@ func TestClustersDataSourceRead(t *testing.T) {
 					"azure_attributes":               []interface{}{},
 					"aws_attributes": []interface{}{
 						map[string]interface{}{
-							"region":               "",
-							"instance_profile_arn": "",
+							"region":                    "",
+							"instance_profile_arn":      "",
+							"head_instance_profile_arn": "",
 							"network": []interface{}{
 								map[string]interface{}{
 									"vpc_id":            "",

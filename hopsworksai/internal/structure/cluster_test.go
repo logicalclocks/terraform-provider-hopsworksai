@@ -170,21 +170,23 @@ func TestFlattenAWSAttributes(t *testing.T) {
 	input := &api.Cluster{
 		Provider: api.AWS,
 		AWS: api.AWSCluster{
-			Region:               "region-1",
-			InstanceProfileArn:   "instance-profile-1",
-			BucketName:           "bucket-name-1",
-			VpcId:                "vpc-id-1",
-			SubnetId:             "subnet-id-1",
-			SecurityGroupId:      "security-group-1",
-			EksClusterName:       "eks-cluster-name-1",
-			EcrRegistryAccountId: "ecr-registry-account-1",
+			Region:                 "region-1",
+			InstanceProfileArn:     "instance-profile-1",
+			HeadInstanceProfileArn: "instance-profile-2",
+			BucketName:             "bucket-name-1",
+			VpcId:                  "vpc-id-1",
+			SubnetId:               "subnet-id-1",
+			SecurityGroupId:        "security-group-1",
+			EksClusterName:         "eks-cluster-name-1",
+			EcrRegistryAccountId:   "ecr-registry-account-1",
 		},
 	}
 
 	expected := []interface{}{
 		map[string]interface{}{
-			"region":               input.AWS.Region,
-			"instance_profile_arn": input.AWS.InstanceProfileArn,
+			"region":                    input.AWS.Region,
+			"instance_profile_arn":      input.AWS.InstanceProfileArn,
+			"head_instance_profile_arn": input.AWS.HeadInstanceProfileArn,
 			"network": []map[string]interface{}{
 				{
 					"vpc_id":            input.AWS.VpcId,
@@ -1593,8 +1595,9 @@ func TestFlattenAWSAttributes_bucketConfiguration(t *testing.T) {
 
 	expected := []interface{}{
 		map[string]interface{}{
-			"region":               input.AWS.Region,
-			"instance_profile_arn": input.AWS.InstanceProfileArn,
+			"region":                    input.AWS.Region,
+			"instance_profile_arn":      input.AWS.InstanceProfileArn,
+			"head_instance_profile_arn": "",
 			"network": []map[string]interface{}{
 				{
 					"vpc_id":            input.AWS.VpcId,
@@ -1851,8 +1854,9 @@ func TestFlattenAWSAttributes_ebsEncryption(t *testing.T) {
 
 	expected := []interface{}{
 		map[string]interface{}{
-			"region":               input.AWS.Region,
-			"instance_profile_arn": input.AWS.InstanceProfileArn,
+			"region":                    input.AWS.Region,
+			"instance_profile_arn":      input.AWS.InstanceProfileArn,
+			"head_instance_profile_arn": "",
 			"network": []map[string]interface{}{
 				{
 					"vpc_id":            input.AWS.VpcId,

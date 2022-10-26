@@ -864,6 +864,13 @@ func awsAttributesSchema() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validation.StringMatch(instanceProfileRegex(), "You should use the Instance Profile ARNs"),
 			},
+			"head_instance_profile_arn": {
+				Description:  "The ARN of the AWS instance profile that the head node will be started with.",
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringMatch(instanceProfileRegex(), "You should use the Instance Profile ARNs"),
+			},
 			"network": {
 				Description: "The network configurations.",
 				Type:        schema.TypeList,
@@ -1132,9 +1139,10 @@ func createAWSCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) *a
 	req := api.CreateAWSCluster{
 		CreateCluster: *baseRequest,
 		AWSCluster: api.AWSCluster{
-			BucketName:         d.Get("aws_attributes.0.bucket.0.name").(string),
-			Region:             d.Get("aws_attributes.0.region").(string),
-			InstanceProfileArn: d.Get("aws_attributes.0.instance_profile_arn").(string),
+			BucketName:             d.Get("aws_attributes.0.bucket.0.name").(string),
+			Region:                 d.Get("aws_attributes.0.region").(string),
+			InstanceProfileArn:     d.Get("aws_attributes.0.instance_profile_arn").(string),
+			HeadInstanceProfileArn: d.Get("aws_attributes.0.head_instance_profile_arn").(string),
 		},
 	}
 

@@ -247,16 +247,17 @@ type EBSEncryption struct {
 }
 
 type AWSCluster struct {
-	Region               string                 `json:"region"`
-	BucketName           string                 `json:"bucketName"`
-	InstanceProfileArn   string                 `json:"instanceProfileArn"`
-	VpcId                string                 `json:"vpcId"`
-	SubnetId             string                 `json:"subnetId"`
-	SecurityGroupId      string                 `json:"securityGroupId"`
-	EksClusterName       string                 `json:"eksClusterName"`
-	EcrRegistryAccountId string                 `json:"ecrRegistryAccountId"`
-	BucketConfiguration  *S3BucketConfiguration `json:"bucketConfiguration,omitempty"`
-	EBSEncryption        *EBSEncryption         `json:"ebsEncryption,omitempty"`
+	Region                 string                 `json:"region"`
+	BucketName             string                 `json:"bucketName"`
+	InstanceProfileArn     string                 `json:"instanceProfileArn"`
+	HeadInstanceProfileArn string                 `json:"headInstanceProfileArn"`
+	VpcId                  string                 `json:"vpcId"`
+	SubnetId               string                 `json:"subnetId"`
+	SecurityGroupId        string                 `json:"securityGroupId"`
+	EksClusterName         string                 `json:"eksClusterName"`
+	EcrRegistryAccountId   string                 `json:"ecrRegistryAccountId"`
+	BucketConfiguration    *S3BucketConfiguration `json:"bucketConfiguration,omitempty"`
+	EBSEncryption          *EBSEncryption         `json:"ebsEncryption,omitempty"`
 }
 
 type NodeConfiguration struct {
@@ -544,10 +545,11 @@ type CreateAzureClusterFromBackup struct {
 
 type CreateAWSClusterFromBackup struct {
 	CreateClusterFromBackup
-	InstanceProfileArn string `json:"instanceProfileArn,omitempty"`
-	VpcId              string `json:"vpcId,omitempty"`
-	SubnetId           string `json:"subnetId,omitempty"`
-	SecurityGroupId    string `json:"securityGroupId,omitempty"`
+	InstanceProfileArn     string `json:"instanceProfileArn,omitempty"`
+	HeadInstanceProfileArn string `json:"headInstanceProfileArn,omitempty"`
+	VpcId                  string `json:"vpcId,omitempty"`
+	SubnetId               string `json:"subnetId,omitempty"`
+	SecurityGroupId        string `json:"securityGroupId,omitempty"`
 }
 
 type NewClusterFromBackupRequest struct {

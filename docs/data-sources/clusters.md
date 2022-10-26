@@ -146,6 +146,7 @@ Read-Only:
 - `ebs_encryption` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--aws_attributes--ebs_encryption))
 - `ecr_registry_account_id` (String)
 - `eks_cluster_name` (String)
+- `head_instance_profile_arn` (String)
 - `instance_profile_arn` (String)
 - `network` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--aws_attributes--network))
 - `region` (String)

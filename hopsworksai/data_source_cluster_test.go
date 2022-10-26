@@ -132,6 +132,7 @@ func TestClusterDataSourceRead_AWS(t *testing.T) {
 							"aws": {
 								"region": "region-1",
 								"instanceProfileArn": "profile-1",
+								"headInstanceProfileArn": "profile-2",
 								"bucketName": "bucket-1",
 								"vpcId": "vpc-1",
 								"subnetId": "subnet-1",
@@ -184,8 +185,9 @@ func TestClusterDataSourceRead_AWS(t *testing.T) {
 			"backup_retention_period":        10,
 			"aws_attributes": []interface{}{
 				map[string]interface{}{
-					"region":               "region-1",
-					"instance_profile_arn": "profile-1",
+					"region":                    "region-1",
+					"instance_profile_arn":      "profile-1",
+					"head_instance_profile_arn": "profile-2",
 					"network": []interface{}{
 						map[string]interface{}{
 							"vpc_id":            "vpc-1",

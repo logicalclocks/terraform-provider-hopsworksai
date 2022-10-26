@@ -132,6 +132,7 @@ Optional:
 
 Optional:
 
+- `head_instance_profile_arn` (String) The ARN of the AWS instance profile that the head node will be started with.
 - `instance_profile_arn` (String) The ARN of the AWS instance profile that the cluster will be started with.
 - `network` (Block List, Max: 1) The network configurations. (see [below for nested schema](#nestedblock--aws_attributes--network))
 
