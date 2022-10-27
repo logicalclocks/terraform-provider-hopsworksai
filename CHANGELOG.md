@@ -12,6 +12,7 @@ ENHANCEMENTS:
 BUG FIXES:
 
 FEATURES:
+* Add support for head node dedicated instance profile.
 
 
 ## 1.1.0 (October 14, 2022)

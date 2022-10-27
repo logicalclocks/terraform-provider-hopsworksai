@@ -522,6 +522,7 @@ func TestClusterFromBackupCreate_AWS_update(t *testing.T) {
 				}
 			},
 			"instanceProfileArn": "profile-1",
+			"headInstanceProfileArn": "profile-2",
 			"vpcId": "vpc-1",
 			"subnetId": "subnet-1",
 			"securityGroupId": "security-group-1"
@@ -548,7 +549,8 @@ func TestClusterFromBackupCreate_AWS_update(t *testing.T) {
 		},
 		"aws_attributes": []interface{}{
 			map[string]interface{}{
-				"instance_profile_arn": "profile-1",
+				"instance_profile_arn":      "profile-1",
+				"head_instance_profile_arn": "profile-2",
 				"network": []interface{}{
 					map[string]interface{}{
 						"vpc_id":            "vpc-1",

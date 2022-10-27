@@ -363,6 +363,7 @@ Optional:
 - `ebs_encryption` (Block List, Max: 1) The EBS disk encryption configuration. (see [below for nested schema](#nestedblock--aws_attributes--ebs_encryption))
 - `ecr_registry_account_id` (String) The account id used for ECR. Defaults to the user's account id, inferred from the instance profille ARN.
 - `eks_cluster_name` (String) The name of the AWS EKS cluster.
+- `head_instance_profile_arn` (String) The ARN of the AWS instance profile that the head node will be started with.
 - `network` (Block List, Max: 1) The network configurations. (see [below for nested schema](#nestedblock--aws_attributes--network))
 
 <a id="nestedblock--aws_attributes--bucket"></a>

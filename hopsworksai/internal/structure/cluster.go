@@ -125,8 +125,9 @@ func flattenAWSAttributes(cluster *api.Cluster) []interface{} {
 
 	awsAttributes := make([]interface{}, 1)
 	awsAttributes[0] = map[string]interface{}{
-		"region":               cluster.AWS.Region,
-		"instance_profile_arn": cluster.AWS.InstanceProfileArn,
+		"region":                    cluster.AWS.Region,
+		"instance_profile_arn":      cluster.AWS.InstanceProfileArn,
+		"head_instance_profile_arn": cluster.AWS.HeadInstanceProfileArn,
 		"network": []map[string]interface{}{
 			{
 				"vpc_id":            cluster.AWS.VpcId,

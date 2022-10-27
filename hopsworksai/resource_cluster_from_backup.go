@@ -42,6 +42,8 @@ func clusterFromBackupResource() *schema.Resource {
 	clusterAWSAttributesSchema := baseSchema["aws_attributes"].Elem.(*schema.Resource).Schema
 	clusterAWSAttributesSchema["instance_profile_arn"].Optional = true
 	clusterAWSAttributesSchema["instance_profile_arn"].ForceNew = true
+	clusterAWSAttributesSchema["head_instance_profile_arn"].Optional = true
+	clusterAWSAttributesSchema["head_instance_profile_arn"].ForceNew = true
 	clusterAWSAttributesSchema["network"] = awsAttributesSchema().Schema["network"]
 
 	// allow changing azure managed identity and network configurations during restore
@@ -135,6 +137,10 @@ func resourceClusterFromBackupCreate(ctx context.Context, d *schema.ResourceData
 		if awsRequest, okV := restoreRequest.(*api.CreateAWSClusterFromBackup); okV {
 			if v, ok := d.GetOk("aws_attributes.0.instance_profile_arn"); ok {
 				awsRequest.InstanceProfileArn = v.(string)
+			}
+
+			if v, ok := d.GetOk("aws_attributes.0.head_instance_profile_arn"); ok {
+				awsRequest.HeadInstanceProfileArn = v.(string)
 			}
 
 			if v, ok := d.GetOk("aws_attributes.0.network.0.vpc_id"); ok {
