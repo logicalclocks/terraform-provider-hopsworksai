@@ -5802,3 +5802,164 @@ func TestClusterUpdate_modifyInstancetype_rondb_single_node(t *testing.T) {
 	}
 	r.Apply(t, context.TODO())
 }
+
+func TestClusterCreate_AWS_defaultECRAccountId_version31(t *testing.T) {
+	testClusterCreate_AWS_defaultECRAccountId_without_EKS(t, "3.1.0", func(ecr string) error {
+		if ecr != "000011111333" {
+			return fmt.Errorf("expected ecr account id 000011111333 but got %s", ecr)
+		}
+		return nil
+	})
+
+	testClusterCreate_AWS_defaultECRAccountId_without_EKS(t, "3.0.0", func(ecr string) error {
+		if ecr != "" {
+			return fmt.Errorf("expected empty ecr account id but got %s", ecr)
+		}
+		return nil
+	})
+}
+
+func testClusterCreate_AWS_defaultECRAccountId_without_EKS(t *testing.T, version string, errorCheck func(ecr string) error) {
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 400,
+					"message": "skip"
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					var req api.NewAWSClusterRequest
+					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+						return err
+					}
+					ecr := req.CreateRequest.EcrRegistryAccountId
+					return errorCheck(ecr)
+				},
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name":    "cluster",
+			"version": version,
+			"head": []interface{}{
+				map[string]interface{}{
+					"disk_size": 512,
+				},
+			},
+			"aws_attributes": []interface{}{
+				map[string]interface{}{
+					"region": "region-1",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
+					"instance_profile_arn": "arn:aws:iam::000011111333:instance-profile/my-instance-profile",
+				},
+			},
+		},
+		ExpectError: "failed to create cluster, error: skip",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_AZURE_ACR_31_missing(t *testing.T) {
+	r := test.ResourceFixture{
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"version": "3.1.0",
+			"head": []interface{}{
+				map[string]interface{}{
+					"disk_size": 512,
+				},
+			},
+			"ssh_key": "my-key",
+			"azure_attributes": []interface{}{
+				map[string]interface{}{
+					"location":                       "location-1",
+					"resource_group":                 "resource-group-1",
+					"user_assigned_managed_identity": "user-identity-1",
+					"container": []interface{}{
+						map[string]interface{}{
+							"storage_account": "storage-account-1",
+						},
+					},
+				},
+			},
+		},
+		ExpectError: "acr_registry_name is missing",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_AZURE_set_ACR_only(t *testing.T) {
+	testClusterCreate_AZURE_set_ACR_without_AKS(t, "3.1.0", func(aks, acr string) error {
+		if aks != "" || acr != "acr-registry-1" {
+			return fmt.Errorf("error while matching:\nexpected no aks cluster name, acr-registry-1 \nbut got %#v, %#v", aks, acr)
+		}
+		return nil
+	})
+
+	testClusterCreate_AZURE_set_ACR_without_AKS(t, "3.0.0", func(aks, acr string) error {
+		if aks != "" || acr != "" {
+			return fmt.Errorf("error while matching:\nexpected no aks or acr names \nbut got %#v, %#v", aks, acr)
+		}
+		return nil
+	})
+}
+
+func testClusterCreate_AZURE_set_ACR_without_AKS(t *testing.T, version string, errorCheck func(aks string, acr string) error) {
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 400,
+					"message": "skip"
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					var req api.NewAzureClusterRequest
+					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+						return err
+					}
+					return errorCheck(req.CreateRequest.AksClusterName, req.CreateRequest.AcrRegistryName)
+				},
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"version": version,
+			"head": []interface{}{
+				map[string]interface{}{
+					"disk_size": 512,
+				},
+			},
+			"ssh_key": "my-key",
+			"azure_attributes": []interface{}{
+				map[string]interface{}{
+					"location":                       "location-1",
+					"resource_group":                 "resource-group-1",
+					"user_assigned_managed_identity": "user-identity-1",
+					"acr_registry_name":              "acr-registry-1",
+					"container": []interface{}{
+						map[string]interface{}{
+							"storage_account": "storage-account-1",
+						},
+					},
+				},
+			},
+		},
+		ExpectError: "failed to create cluster, error: skip",
+	}
+	r.Apply(t, context.TODO())
+}
