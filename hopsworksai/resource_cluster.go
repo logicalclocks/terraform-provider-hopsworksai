@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -1109,7 +1110,10 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 	if azure, ok := d.GetOk("azure_attributes"); ok {
 		azureAttributes := azure.([]interface{})
 		if len(azureAttributes) > 0 {
-			createRequest = createAzureCluster(d, baseRequest)
+			createRequest, err = createAzureCluster(d, baseRequest)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 	}
 
@@ -1155,6 +1159,12 @@ func createAWSCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) *a
 
 	if v, ok := d.GetOk("aws_attributes.0.eks_cluster_name"); ok {
 		req.EksClusterName = v.(string)
+	}
+
+	clusterVersion, _ := version.NewVersion(d.Get("version").(string))
+	versionWithDefaultECR, _ := version.NewVersion("3.0.0")
+
+	if req.EksClusterName != "" || clusterVersion.GreaterThan(versionWithDefaultECR) {
 		if registry, okR := d.GetOk("aws_attributes.0.ecr_registry_account_id"); okR {
 			req.EcrRegistryAccountId = registry.(string)
 		} else {
@@ -1205,7 +1215,7 @@ func createAWSCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) *a
 	return &req
 }
 
-func createAzureCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) *api.CreateAzureCluster {
+func createAzureCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) (*api.CreateAzureCluster, error) {
 	req := api.CreateAzureCluster{
 		CreateCluster: *baseRequest,
 		AzureCluster: api.AzureCluster{
@@ -1238,8 +1248,16 @@ func createAzureCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) 
 
 	if aks, ok := d.GetOk("azure_attributes.0.aks_cluster_name"); ok {
 		req.AksClusterName = aks.(string)
+	}
+
+	clusterVersion, _ := version.NewVersion(d.Get("version").(string))
+	versionWithDefaultECR, _ := version.NewVersion("3.0.0")
+
+	if req.AksClusterName != "" || clusterVersion.GreaterThan(versionWithDefaultECR) {
 		if registry, okR := d.GetOk("azure_attributes.0.acr_registry_name"); okR {
 			req.AcrRegistryName = registry.(string)
+		} else {
+			return nil, fmt.Errorf("acr_registry_name is missing")
 		}
 	}
 
@@ -1252,7 +1270,7 @@ func createAzureCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) 
 			Mode: encryptionMode,
 		},
 	}
-	return &req
+	return &req, nil
 }
 
 func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error) {
