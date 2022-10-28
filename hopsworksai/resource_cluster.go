@@ -868,6 +868,7 @@ func awsAttributesSchema() *schema.Resource {
 				Description:  "The ARN of the AWS instance profile that the head node will be started with.",
 				Type:         schema.TypeString,
 				Optional:     true,
+				Computed:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringMatch(instanceProfileRegex(), "You should use the Instance Profile ARNs"),
 			},
