@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -55,7 +54,7 @@ func (a *HopsworksAIClient) doRequest(ctx context.Context, method string, endpoi
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusForbidden {
-		bodyBytes, respErr := ioutil.ReadAll(resp.Body)
+		bodyBytes, respErr := io.ReadAll(resp.Body)
 		if respErr != nil {
 			return fmt.Errorf("the API token provided does not have access to hopsworks.ai, verify the token you specified matches the token hopsworks.ai created")
 		}

@@ -357,10 +357,11 @@ func GetAllNodeTypes() []string {
 }
 
 type SupportedInstanceType struct {
-	Id     string  `json:"id"`
-	CPUs   int     `json:"cpus"`
-	Memory float64 `json:"memory"`
-	GPUs   int     `json:"gpus"`
+	Id       string  `json:"id"`
+	CPUs     int     `json:"cpus"`
+	Memory   float64 `json:"memory"`
+	GPUs     int     `json:"gpus"`
+	WithNVMe bool    `json:"withNVMe"`
 }
 
 type SupportedInstanceTypeList []SupportedInstanceType

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"reflect"
 	"strings"
@@ -49,7 +48,7 @@ func newHttpClient(t *testing.T, opsMap map[string][]Operation) *httpClient {
 				}
 
 				if op.ExpectRequestBody != "" || op.CheckRequestBody != nil {
-					reqBody, err := ioutil.ReadAll(req.Body)
+					reqBody, err := io.ReadAll(req.Body)
 					if err != nil {
 						return nil, err
 					}

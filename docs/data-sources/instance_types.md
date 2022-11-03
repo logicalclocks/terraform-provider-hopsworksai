@@ -44,5 +44,6 @@ Read-Only:
 - `gpus` (Number)
 - `id` (String)
 - `memory` (Number)
+- `with_nvme` (Boolean)
 
 
