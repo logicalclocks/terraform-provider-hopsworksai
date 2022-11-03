@@ -24,37 +24,38 @@ func TestInstanceTypeDataSourceRead(t *testing.T) {
 
 func TestInstanceTypeDataSourceRead_filtered(t *testing.T) {
 	for _, c := range []api.CloudProvider{api.AWS, api.AZURE} {
-		testInstanceTypeDataSourceBase(t, c, api.HeadNode, 20, 0, 0, "head-type-1")
-		testInstanceTypeDataSourceBase(t, c, api.HeadNode, 21, 0, 0, "head-type-2")
-		testInstanceTypeDataSourceBase(t, c, api.HeadNode, 0, 10, 0, "head-type-1")
-		testInstanceTypeDataSourceBase(t, c, api.HeadNode, 0, 11, 0, "head-type-2")
-		testInstanceTypeDataSourceBase(t, c, api.HeadNode, 0, 0, 1, "head-type-2")
+		testInstanceTypeDataSourceBase(t, c, api.HeadNode, 20, 0, 0, false, "head-type-1")
+		testInstanceTypeDataSourceBase(t, c, api.HeadNode, 21, 0, 0, false, "head-type-2")
+		testInstanceTypeDataSourceBase(t, c, api.HeadNode, 0, 10, 0, false, "head-type-1")
+		testInstanceTypeDataSourceBase(t, c, api.HeadNode, 0, 11, 0, false, "head-type-2")
+		testInstanceTypeDataSourceBase(t, c, api.HeadNode, 0, 0, 1, false, "head-type-2")
 
-		testInstanceTypeDataSourceBase(t, c, api.WorkerNode, 20, 0, 0, "worker-type-1")
-		testInstanceTypeDataSourceBase(t, c, api.WorkerNode, 21, 0, 0, "worker-type-2")
-		testInstanceTypeDataSourceBase(t, c, api.WorkerNode, 0, 10, 0, "worker-type-1")
-		testInstanceTypeDataSourceBase(t, c, api.WorkerNode, 0, 11, 0, "worker-type-2")
-		testInstanceTypeDataSourceBase(t, c, api.WorkerNode, 0, 0, 1, "worker-type-2")
+		testInstanceTypeDataSourceBase(t, c, api.WorkerNode, 20, 0, 0, false, "worker-type-1")
+		testInstanceTypeDataSourceBase(t, c, api.WorkerNode, 21, 0, 0, false, "worker-type-2")
+		testInstanceTypeDataSourceBase(t, c, api.WorkerNode, 0, 10, 0, false, "worker-type-1")
+		testInstanceTypeDataSourceBase(t, c, api.WorkerNode, 0, 11, 0, false, "worker-type-2")
+		testInstanceTypeDataSourceBase(t, c, api.WorkerNode, 0, 0, 1, false, "worker-type-2")
+		testInstanceTypeDataSourceBase(t, c, api.WorkerNode, 0, 0, 0, true, "worker-type-3")
 
-		testInstanceTypeDataSourceBase(t, c, api.RonDBManagementNode, 20, 0, 0, "mgm-type-2")
-		testInstanceTypeDataSourceBase(t, c, api.RonDBManagementNode, 21, 0, 0, "mgm-type-1")
-		testInstanceTypeDataSourceBase(t, c, api.RonDBManagementNode, 0, 2, 0, "mgm-type-2")
-		testInstanceTypeDataSourceBase(t, c, api.RonDBManagementNode, 0, 3, 0, "mgm-type-1")
+		testInstanceTypeDataSourceBase(t, c, api.RonDBManagementNode, 20, 0, 0, false, "mgm-type-2")
+		testInstanceTypeDataSourceBase(t, c, api.RonDBManagementNode, 21, 0, 0, false, "mgm-type-1")
+		testInstanceTypeDataSourceBase(t, c, api.RonDBManagementNode, 0, 2, 0, false, "mgm-type-2")
+		testInstanceTypeDataSourceBase(t, c, api.RonDBManagementNode, 0, 3, 0, false, "mgm-type-1")
 
-		testInstanceTypeDataSourceBase(t, c, api.RonDBDataNode, 50, 0, 0, "ndbd-type-2")
-		testInstanceTypeDataSourceBase(t, c, api.RonDBDataNode, 51, 0, 0, "ndbd-type-1")
-		testInstanceTypeDataSourceBase(t, c, api.RonDBDataNode, 0, 8, 0, "ndbd-type-2")
-		testInstanceTypeDataSourceBase(t, c, api.RonDBDataNode, 0, 9, 0, "ndbd-type-1")
+		testInstanceTypeDataSourceBase(t, c, api.RonDBDataNode, 50, 0, 0, false, "ndbd-type-2")
+		testInstanceTypeDataSourceBase(t, c, api.RonDBDataNode, 51, 0, 0, false, "ndbd-type-1")
+		testInstanceTypeDataSourceBase(t, c, api.RonDBDataNode, 0, 8, 0, false, "ndbd-type-2")
+		testInstanceTypeDataSourceBase(t, c, api.RonDBDataNode, 0, 9, 0, false, "ndbd-type-1")
 
-		testInstanceTypeDataSourceBase(t, c, api.RonDBMySQLNode, 50, 0, 0, "mysql-type-2")
-		testInstanceTypeDataSourceBase(t, c, api.RonDBMySQLNode, 51, 0, 0, "mysql-type-1")
-		testInstanceTypeDataSourceBase(t, c, api.RonDBMySQLNode, 0, 8, 0, "mysql-type-2")
-		testInstanceTypeDataSourceBase(t, c, api.RonDBMySQLNode, 0, 9, 0, "mysql-type-1")
+		testInstanceTypeDataSourceBase(t, c, api.RonDBMySQLNode, 50, 0, 0, false, "mysql-type-2")
+		testInstanceTypeDataSourceBase(t, c, api.RonDBMySQLNode, 51, 0, 0, false, "mysql-type-1")
+		testInstanceTypeDataSourceBase(t, c, api.RonDBMySQLNode, 0, 8, 0, false, "mysql-type-2")
+		testInstanceTypeDataSourceBase(t, c, api.RonDBMySQLNode, 0, 9, 0, false, "mysql-type-1")
 
-		testInstanceTypeDataSourceBase(t, c, api.RonDBAPINode, 50, 0, 0, "api-type-2")
-		testInstanceTypeDataSourceBase(t, c, api.RonDBAPINode, 51, 0, 0, "api-type-1")
-		testInstanceTypeDataSourceBase(t, c, api.RonDBAPINode, 0, 8, 0, "api-type-2")
-		testInstanceTypeDataSourceBase(t, c, api.RonDBAPINode, 0, 9, 0, "api-type-1")
+		testInstanceTypeDataSourceBase(t, c, api.RonDBAPINode, 50, 0, 0, false, "api-type-2")
+		testInstanceTypeDataSourceBase(t, c, api.RonDBAPINode, 51, 0, 0, false, "api-type-1")
+		testInstanceTypeDataSourceBase(t, c, api.RonDBAPINode, 0, 8, 0, false, "api-type-2")
+		testInstanceTypeDataSourceBase(t, c, api.RonDBAPINode, 0, 9, 0, false, "api-type-1")
 	}
 }
 
@@ -86,10 +87,10 @@ func TestInstanceTypeDataSourceRead_error(t *testing.T) {
 }
 
 func testInstanceTypeDataSource(t *testing.T, cloud api.CloudProvider, nodeType api.NodeType, expectedId string) {
-	testInstanceTypeDataSourceBase(t, cloud, nodeType, 0, 0, 0, expectedId)
+	testInstanceTypeDataSourceBase(t, cloud, nodeType, 0, 0, 0, false, expectedId)
 }
 
-func testInstanceTypeDataSourceBase(t *testing.T, cloud api.CloudProvider, nodeType api.NodeType, minMemory float64, minCPU int, minGPU int, expectedId string) {
+func testInstanceTypeDataSourceBase(t *testing.T, cloud api.CloudProvider, nodeType api.NodeType, minMemory float64, minCPU int, minGPU int, withNvme bool, expectedId string) {
 	r := test.ResourceFixture{
 		HttpOps: []test.Operation{
 			{
@@ -127,6 +128,13 @@ func testInstanceTypeDataSourceBase(t *testing.T, cloud api.CloudProvider, nodeT
 									"memory": 50,
 									"cpus": 20,
 									"gpus": 1
+								},
+								{
+									"id": "worker-type-3",
+									"memory": 50,
+									"cpus": 20,
+									"gpus": 1,
+									"withNvme": true
 								}
 							],
 							"ronDB": {
@@ -200,6 +208,7 @@ func testInstanceTypeDataSourceBase(t *testing.T, cloud api.CloudProvider, nodeT
 			"min_memory_gb":  minMemory,
 			"min_cpus":       minCPU,
 			"min_gpus":       minGPU,
+			"with_nvme":      withNvme,
 		},
 		ExpectId: expectedId,
 	}

@@ -14,7 +14,7 @@ BUG FIXES:
 
 FEATURES:
 * Add support for head node dedicated instance profile.
-
+* Filter instance types based on nvme drives
 
 ## 1.1.0 (October 14, 2022)
 

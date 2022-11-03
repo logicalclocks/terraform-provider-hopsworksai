@@ -124,91 +124,103 @@ func TestInstanceTypesDataSourceRead(t *testing.T) {
 	for _, c := range []api.CloudProvider{api.AWS, api.AZURE} {
 		testInstanceTypesDataSource(t, c, api.HeadNode, []interface{}{
 			map[string]interface{}{
-				"id":     "head-type-1",
-				"memory": 20.0,
-				"cpus":   10,
-				"gpus":   0,
+				"id":        "head-type-1",
+				"memory":    20.0,
+				"cpus":      10,
+				"gpus":      0,
+				"with_nvme": false,
 			},
 			map[string]interface{}{
-				"id":     "head-type-2",
-				"memory": 50.0,
-				"cpus":   20,
-				"gpus":   1,
+				"id":        "head-type-2",
+				"memory":    50.0,
+				"cpus":      20,
+				"gpus":      1,
+				"with_nvme": false,
 			},
 		})
 
 		testInstanceTypesDataSource(t, c, api.WorkerNode, []interface{}{
 			map[string]interface{}{
-				"id":     "worker-type-1",
-				"memory": 20.0,
-				"cpus":   10,
-				"gpus":   0,
+				"id":        "worker-type-1",
+				"memory":    20.0,
+				"cpus":      10,
+				"gpus":      0,
+				"with_nvme": false,
 			},
 			map[string]interface{}{
-				"id":     "worker-type-2",
-				"memory": 50.0,
-				"cpus":   20,
-				"gpus":   1,
+				"id":        "worker-type-2",
+				"memory":    50.0,
+				"cpus":      20,
+				"gpus":      1,
+				"with_nvme": false,
 			},
 		})
 
 		testInstanceTypesDataSource(t, c, api.RonDBManagementNode, []interface{}{
 			map[string]interface{}{
-				"id":     "mgm-type-2",
-				"memory": 20.0,
-				"cpus":   2,
-				"gpus":   0,
+				"id":        "mgm-type-2",
+				"memory":    20.0,
+				"cpus":      2,
+				"gpus":      0,
+				"with_nvme": false,
 			},
 			map[string]interface{}{
-				"id":     "mgm-type-1",
-				"memory": 30.0,
-				"cpus":   16,
-				"gpus":   0,
+				"id":        "mgm-type-1",
+				"memory":    30.0,
+				"cpus":      16,
+				"gpus":      0,
+				"with_nvme": false,
 			},
 		})
 
 		testInstanceTypesDataSource(t, c, api.RonDBDataNode, []interface{}{
 			map[string]interface{}{
-				"id":     "ndbd-type-2",
-				"memory": 50.0,
-				"cpus":   8,
-				"gpus":   0,
+				"id":        "ndbd-type-2",
+				"memory":    50.0,
+				"cpus":      8,
+				"gpus":      0,
+				"with_nvme": false,
 			},
 			map[string]interface{}{
-				"id":     "ndbd-type-1",
-				"memory": 100.0,
-				"cpus":   16,
-				"gpus":   0,
+				"id":        "ndbd-type-1",
+				"memory":    100.0,
+				"cpus":      16,
+				"gpus":      0,
+				"with_nvme": false,
 			},
 		})
 
 		testInstanceTypesDataSource(t, c, api.RonDBMySQLNode, []interface{}{
 			map[string]interface{}{
-				"id":     "mysql-type-2",
-				"memory": 50.0,
-				"cpus":   8,
-				"gpus":   0,
+				"id":        "mysql-type-2",
+				"memory":    50.0,
+				"cpus":      8,
+				"gpus":      0,
+				"with_nvme": false,
 			},
 			map[string]interface{}{
-				"id":     "mysql-type-1",
-				"memory": 100.0,
-				"cpus":   16,
-				"gpus":   0,
+				"id":        "mysql-type-1",
+				"memory":    100.0,
+				"cpus":      16,
+				"gpus":      0,
+				"with_nvme": false,
 			},
 		})
 
 		testInstanceTypesDataSource(t, c, api.RonDBAPINode, []interface{}{
 			map[string]interface{}{
-				"id":     "api-type-2",
-				"memory": 50.0,
-				"cpus":   8,
-				"gpus":   0,
+				"id":        "api-type-2",
+				"memory":    50.0,
+				"cpus":      8,
+				"gpus":      0,
+				"with_nvme": false,
 			},
 			map[string]interface{}{
-				"id":     "api-type-1",
-				"memory": 100.0,
-				"cpus":   16,
-				"gpus":   0,
+				"id":        "api-type-1",
+				"memory":    100.0,
+				"cpus":      16,
+				"gpus":      0,
+				"with_nvme": false,
 			},
 		})
 	}

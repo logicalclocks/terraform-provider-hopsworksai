@@ -3,7 +3,6 @@ package test
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strings"
 	"testing"
@@ -59,7 +58,7 @@ func (c *HttpClientFixture) Do(req *http.Request) (*http.Response, error) {
 		}
 	}
 	if c.ExpectRequestBody != "" {
-		reqBody, err := ioutil.ReadAll(req.Body)
+		reqBody, err := io.ReadAll(req.Body)
 		if err != nil {
 			return nil, err
 		}
