@@ -1,16 +1,10 @@
-## 1.2.0 (Unreleased)
-
-NOTES:
-
-BREAKING CHANGES:
+## 1.2.0 (November 8, 2022)
 
 ENHANCEMENTS:
 * Bump minimum Go version to 1.18
 * Bump golangci-lint version to 1.50.1
 * dependencies: Bump hashicorp/terraform-plugin-sdk/v2 from 2.20.0 to 2.24.0
 * resource/hopsworksai_cluster: Use managed docker containers by default from version 3.1.0
-
-BUG FIXES:
 
 FEATURES:
 * Add support for head node dedicated instance profile.
