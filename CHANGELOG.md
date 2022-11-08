@@ -7,6 +7,7 @@ BREAKING CHANGES:
 BUG FIXES:
 
 ENHANCEMENTS:
+* datasource/aws_instance_profile_policy: Add ecr:TagResource permission
 
 FEATURES:
 
