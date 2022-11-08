@@ -171,6 +171,7 @@ func awsEKSECRPermissions(allowDescribeEKSResource interface{}, allowPushandPull
 				"ecr:BatchDeleteImage",
 				"ecr:GetLifecyclePolicy",
 				"ecr:PutLifecyclePolicy",
+				"ecr:TagResource",
 			},
 			Resources: allowPushandPullImagesResource,
 		}, {
