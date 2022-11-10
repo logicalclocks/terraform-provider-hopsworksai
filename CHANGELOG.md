@@ -1,15 +1,7 @@
-## 1.3.0 (Unreleased)
-
-NOTES:
-
-BREAKING CHANGES:
-
-BUG FIXES:
+## 1.2.1 (November 10, 2022)
 
 ENHANCEMENTS:
 * datasource/aws_instance_profile_policy: Add ecr:TagResource permission
-
-FEATURES:
 
 ## 1.2.0 (November 8, 2022)
 
