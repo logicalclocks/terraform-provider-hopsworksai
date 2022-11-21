@@ -69,7 +69,7 @@ popd
 mkdir -p $TF_ACCTEST_LOG_DIR
 
 echo "Run test cases with args ${TESTARGS} timeout ${ACCTEST_TIMEOUT} parallel ${ACCTEST_PARALLELISM}"
-TF_LOG=${TF_ACCTEST_LOG_LEVEL} TF_LOG_PATH_MASK="${TF_ACCTEST_LOG_DIR}/%s" TF_ACC=1 go test ./... -v ${TESTARGS} --cover -timeout ${ACCTEST_TIMEOUT} --parallel ${ACCTEST_PARALLELISM}
+TF_LOG=${TF_ACCTEST_LOG_LEVEL} TF_LOG_PATH_MASK="${TF_ACCTEST_LOG_DIR}/%s" TF_ACC=1 go test ./... -v ${TESTARGS} --cover -timeout ${ACCTEST_TIMEOUT} --parallel ${ACCTEST_PARALLELISM} 2>&1 | go-junit-report -set-exit-code -iocopy -out report.xml
 
 pushd ${BASE_DIR}
 echo "Destroying test fixtures"

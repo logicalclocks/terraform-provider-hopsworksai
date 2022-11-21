@@ -5,6 +5,7 @@ NOTES:
 BREAKING CHANGES:
 
 ENHANCEMENTS:
+* add a jenkins pipline for acceptance tests
 
 BUG FIXES:
 
