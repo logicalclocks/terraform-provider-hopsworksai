@@ -1,0 +1,70 @@
+pipeline {
+    agent {
+        node {
+            label 'local'
+        }
+    }
+    tools { go 'ndbagent' }
+    environment {
+        TF_ACCTEST_LOG_DIR="/home/jenkinsmaster/terraform/acc-test-logs/${currentBuild.number}"
+        TF_ACCTEST_LOG_LEVEL="debug"
+        TF_VAR_skip_aws="false"
+        TF_VAR_skip_azure="false"
+        TF_VAR_azure_resource_group="terraform_acceptance_tests"
+        TF_VAR_aws_profile="terraform"
+        TF_VAR_aws_region="eu-central-1"
+
+        ACCTEST_PARALLELISM="4"
+        ACCTEST_TIMEOUT="720m"
+        PATH="/home/jenkinsmaster/terraform/:/home/jenkinsmaster/go/bin:${env.PATH}"
+        HOPSWORKSAI_API_KEY=credentials('f2115d9e-c7ed-4a3c-aa71-7082b27b6215')
+    }
+
+    stages {
+        stage ('install gloangci-lint') {
+            steps {
+                sh '''
+                    curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.50.1
+                    golangci-lint --version
+                    '''
+            }
+        }
+        stage ('install go-junit-report'){
+            steps {
+                sh '''
+                    go install github.com/jstemmer/go-junit-report/v2@latest
+                '''
+            }
+        }
+        stage ('build'){
+            steps {
+                sh '''
+                    make
+                '''
+            }
+        }
+        stage ('sweep'){
+            steps {
+                sh '''
+                    make sweep
+                '''
+            }
+        }
+        stage ('test'){
+            steps {
+                sh '''
+                    make testacc
+                '''
+            }
+        }
+    }
+     post { 
+        always { 
+            junit 'report.xml'
+            sh '''
+            cd test-fixtures
+            terraform destroy -auto-approve || terraform destroy -auto-approve
+            '''
+        }
+    }
+}
