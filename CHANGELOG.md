@@ -5,9 +5,11 @@ NOTES:
 BREAKING CHANGES:
 
 ENHANCEMENTS:
+* add a jenkins pipline for acceptance tests
 * dependencies: Bump hashicorp/terraform-plugin-sdk/v2 from 2.24.0 to 2.24.1
 
 BUG FIXES:
+* Fix TestAccClusterAWS_RonDB and TestAccClusterAzure_RonDB
 
 FEATURES:
 
