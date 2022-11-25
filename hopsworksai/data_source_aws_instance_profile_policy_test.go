@@ -21,6 +21,9 @@ func TestAccAWSInstanceProfilePolicy_basic(t *testing.T) {
 	var allowPushandPullImagesResource = []string{
 		"arn:aws:ecr:*:*:repository/*/filebeat",
 		"arn:aws:ecr:*:*:repository/*/base",
+		"arn:aws:ecr:*:*:repository/*/onlinefs",
+		"arn:aws:ecr:*:*:repository/*/airflow",
+		"arn:aws:ecr:*:*:repository/*/git",
 	}
 	policy.Statements = append(policy.Statements, awsEKSECRPermissions(allowDescribeEKSResource, allowPushandPullImagesResource)...)
 
@@ -51,6 +54,9 @@ func TestAccAWSInstanceProfilePolicy_eks_restriction(t *testing.T) {
 	var allowPushandPullImagesResource = []string{
 		"arn:aws:ecr:*:*:repository/*/filebeat",
 		"arn:aws:ecr:*:*:repository/*/base",
+		"arn:aws:ecr:*:*:repository/*/onlinefs",
+		"arn:aws:ecr:*:*:repository/*/airflow",
+		"arn:aws:ecr:*:*:repository/*/git",
 	}
 	policy.Statements = append(policy.Statements, awsEKSECRPermissions(allowDescribeEKSResource, allowPushandPullImagesResource)...)
 
@@ -81,6 +87,9 @@ func TestAccAWSInstanceProfilePolicy_cluster_id(t *testing.T) {
 	var allowPushandPullImagesResource = []string{
 		"arn:aws:ecr:*:*:repository/cluster_id/filebeat",
 		"arn:aws:ecr:*:*:repository/cluster_id/base",
+		"arn:aws:ecr:*:*:repository/cluster_id/onlinefs",
+		"arn:aws:ecr:*:*:repository/cluster_id/airflow",
+		"arn:aws:ecr:*:*:repository/cluster_id/git",
 	}
 	policy.Statements = append(policy.Statements, awsEKSECRPermissions(allowDescribeEKSResource, allowPushandPullImagesResource)...)
 
@@ -111,6 +120,9 @@ func TestAccAWSInstanceProfilePolicy_singleBucket(t *testing.T) {
 	var allowPushandPullImagesResource = []string{
 		"arn:aws:ecr:*:*:repository/*/filebeat",
 		"arn:aws:ecr:*:*:repository/*/base",
+		"arn:aws:ecr:*:*:repository/*/onlinefs",
+		"arn:aws:ecr:*:*:repository/*/airflow",
+		"arn:aws:ecr:*:*:repository/*/git",
 	}
 	policy.Statements = append(policy.Statements, awsEKSECRPermissions(allowDescribeEKSResource, allowPushandPullImagesResource)...)
 
