@@ -5,6 +5,7 @@ NOTES:
 BREAKING CHANGES:
 
 ENHANCEMENTS:
+* dependencies: Bump hashicorp/terraform-plugin-sdk/v2 from 2.24.0 to 2.24.1
 
 BUG FIXES:
 
