@@ -8,6 +8,7 @@ ENHANCEMENTS:
 * add a jenkins pipline for acceptance tests
 
 BUG FIXES:
+* Fix TestAccClusterAWS_RonDB and TestAccClusterAzure_RonDB
 
 FEATURES:
 
