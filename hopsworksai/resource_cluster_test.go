@@ -432,10 +432,12 @@ func testAccCluster_RonDB(t *testing.T, cloud api.CloudProvider) {
 		defaultRonDBConfig.ManagementNodes.InstanceType = "t3a.medium"
 		defaultRonDBConfig.DataNodes.InstanceType = "r5.large"
 		defaultRonDBConfig.MYSQLNodes.InstanceType = "c5.large"
+		defaultRonDBConfig.APINodes.InstanceType = "c5.large"
 	case api.AZURE:
 		defaultRonDBConfig.ManagementNodes.InstanceType = "Standard_D2s_v4"
 		defaultRonDBConfig.DataNodes.InstanceType = "Standard_D4s_v4"
 		defaultRonDBConfig.MYSQLNodes.InstanceType = "Standard_D2s_v4"
+		defaultRonDBConfig.APINodes.InstanceType = "Standard_D2s_v4"
 	}
 	resourceName := fmt.Sprintf("hopsworksai_cluster.%s", rName)
 	parallelTest(t, cloud, resource.TestCase{
@@ -455,8 +457,13 @@ func testAccCluster_RonDB(t *testing.T, cloud api.CloudProvider) {
 					  mysql_nodes {
 						instance_type = "%s"
 					  }
+
+					  api_nodes {
+						instance_type = "%s"
+						count = 1
+					}
 				}
-				`, defaultRonDBConfig.ManagementNodes.InstanceType, defaultRonDBConfig.DataNodes.InstanceType, defaultRonDBConfig.MYSQLNodes.InstanceType)),
+				`, defaultRonDBConfig.ManagementNodes.InstanceType, defaultRonDBConfig.DataNodes.InstanceType, defaultRonDBConfig.MYSQLNodes.InstanceType, defaultRonDBConfig.APINodes.InstanceType)),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "state", api.Running.String()),
 					resource.TestCheckResourceAttr(resourceName, "activation_state", api.Stoppable.String()),
@@ -476,7 +483,7 @@ func testAccCluster_RonDB(t *testing.T, cloud api.CloudProvider) {
 					resource.TestCheckResourceAttr(resourceName, "rondb.0.mysql_nodes.0.count", strconv.Itoa(defaultRonDBConfig.MYSQLNodes.Count)),
 					resource.TestCheckResourceAttr(resourceName, "rondb.0.api_nodes.0.instance_type", defaultRonDBConfig.APINodes.InstanceType),
 					resource.TestCheckResourceAttr(resourceName, "rondb.0.api_nodes.0.disk_size", strconv.Itoa(defaultRonDBConfig.APINodes.DiskSize)),
-					resource.TestCheckResourceAttr(resourceName, "rondb.0.api_nodes.0.count", strconv.Itoa(defaultRonDBConfig.APINodes.Count)),
+					resource.TestCheckResourceAttr(resourceName, "rondb.0.api_nodes.0.count", "1"),
 				),
 			},
 			{
