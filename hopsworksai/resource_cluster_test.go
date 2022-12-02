@@ -903,6 +903,7 @@ func testAccClusterConfig_Head_upscale(cloud api.CloudProvider, rName string, su
 		head {
 			instance_type = "%s"
 		}
+		%s
 		
 		%s 
 
@@ -922,6 +923,7 @@ func testAccClusterConfig_Head_upscale(cloud api.CloudProvider, rName string, su
 		suffix,
 		testAccClusterCloudSSHKeyAttribute(cloud),
 		instanceType,
+		testCollectLogs(cloud),
 		testRonDBConfig(cloud),
 		testAccClusterCloudConfigAttributes(cloud, 11, false),
 		extraConfig,
@@ -942,6 +944,7 @@ func testAccClusterConfig(cloud api.CloudProvider, rName string, suffix string, 
 		head {
 			instance_type = "%s"
 		}
+		%s
 		
 		%s
 		
@@ -959,12 +962,20 @@ func testAccClusterConfig(cloud api.CloudProvider, rName string, suffix string, 
 		suffix,
 		testAccClusterCloudSSHKeyAttribute(cloud),
 		testHeadInstanceType(cloud),
+		testCollectLogs(cloud),
 		testAccClusterCloudConfigAttributes(cloud, bucketIndex, false),
 		extraConfig,
 		default_CLUSTER_TAG_KEY,
 		default_CLUSTER_TAG_VALUE,
 		test,
 	)
+}
+
+func testCollectLogs(cloud api.CloudProvider) string {
+	if cloud == api.AWS {
+		return "collect_logs=true"
+	}
+	return ""
 }
 
 func testHeadInstanceType(cloud api.CloudProvider) string {

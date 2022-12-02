@@ -88,6 +88,7 @@ func testAccClustersDataSourceConfig(cloud api.CloudProvider, rName string, suff
 		head {
 			instance_type = "%s"
 		}
+		%s
 
 		%s 
 
@@ -113,6 +114,7 @@ func testAccClustersDataSourceConfig(cloud api.CloudProvider, rName string, suff
 		suffix,
 		testAccClusterCloudSSHKeyAttribute(cloud),
 		testHeadInstanceType(cloud),
+		testCollectLogs(cloud),
 		testRonDBConfig(cloud),
 		testAccClusterCloudConfigAttributes(cloud, 1, false),
 		cloud.String(),
