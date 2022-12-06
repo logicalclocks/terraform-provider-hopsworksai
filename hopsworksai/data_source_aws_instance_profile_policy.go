@@ -147,6 +147,9 @@ func awsEKSECRPermissions(allowDescribeEKSResource interface{}, allowPushandPull
 			Resources: []string{
 				"arn:aws:ecr:*:*:repository/filebeat",
 				"arn:aws:ecr:*:*:repository/base",
+				"arn:aws:ecr:*:*:repository/onlinefs",
+				"arn:aws:ecr:*:*:repository/airflow",
+				"arn:aws:ecr:*:*:repository/git",
 			},
 		}, {
 			Sid:    "AllowCreateRepository",
@@ -228,12 +231,18 @@ func dataSourceAWSInstanceProfilePolicyRead(ctx context.Context, d *schema.Resou
 		var allowPushandPullImagesResource = []string{
 			"arn:aws:ecr:*:*:repository/*/filebeat",
 			"arn:aws:ecr:*:*:repository/*/base",
+			"arn:aws:ecr:*:*:repository/*/onlinefs",
+			"arn:aws:ecr:*:*:repository/*/airflow",
+			"arn:aws:ecr:*:*:repository/*/git",
 		}
 		if v, ok := d.GetOk("cluster_id"); ok {
 			clusterId := v.(string)
 			allowPushandPullImagesResource = []string{
 				fmt.Sprintf("arn:aws:ecr:*:*:repository/%s/filebeat", clusterId),
 				fmt.Sprintf("arn:aws:ecr:*:*:repository/%s/base", clusterId),
+				fmt.Sprintf("arn:aws:ecr:*:*:repository/%s/onlinefs", clusterId),
+				fmt.Sprintf("arn:aws:ecr:*:*:repository/%s/airflow", clusterId),
+				fmt.Sprintf("arn:aws:ecr:*:*:repository/%s/git", clusterId),
 			}
 		}
 		policy.Statements = append(policy.Statements, awsEKSECRPermissions(allowDescribeEKSResource, allowPushandPullImagesResource)...)
