@@ -1,8 +1,4 @@
-## 1.3.0 (Unreleased)
-
-NOTES:
-
-BREAKING CHANGES:
+## 1.2.2 (December 6, 2022)
 
 ENHANCEMENTS:
 * add a jenkins pipline for acceptance tests
@@ -12,8 +8,6 @@ ENHANCEMENTS:
 
 BUG FIXES:
 * Fix TestAccClusterAWS_RonDB and TestAccClusterAzure_RonDB
-
-FEATURES:
 
 ## 1.2.1 (November 10, 2022)
 
