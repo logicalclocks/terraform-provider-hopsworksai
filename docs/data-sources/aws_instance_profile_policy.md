@@ -39,7 +39,9 @@ data "hopsworksai_aws_instance_profile_policy" "policy" {
 - `eks_cluster_name` (String) Limit permissions to eks cluster.
 - `enable_backup` (Boolean) Add permissions required to allow creating backups of your clusters. Defaults to `true`.
 - `enable_cloud_watch` (Boolean) Add permissions required to allow collecting your cluster logs using cloud watch. Defaults to `true`.
-- `enable_eks_and_ecr` (Boolean) Add permissions required to enable access to Amazon EKS and ECR from within your Hopsworks cluster. Defaults to `true`.
+- `enable_ecr` (Boolean) Add permissions required to enable access to Amazon ECR from within your Hopsworks cluster. Defaults to `true`.
+- `enable_eks` (Boolean) Add permissions required to enable access to Amazon EKS from within your Hopsworks cluster. Defaults to `true`.
+- `enable_eks_and_ecr` (Boolean, Deprecated) Add permissions required to enable access to Amazon EKS and ECR from within your Hopsworks cluster. Defaults to `false`. Use enable_ecr and enable_eks instead
 - `enable_storage` (Boolean) Add permissions required to allow Hopsworks clusters to read and write from and to your aws S3 buckets. Defaults to `true`.
 
 ### Read-Only

@@ -5,6 +5,8 @@ NOTES:
 BREAKING CHANGES:
 
 ENHANCEMENTS:
+* datasource/aws_instance_profile_policy: Deprecate `enable_eks_and_ecr` attribute to use `enable_eks` and `enable_ecr` instead
+* datasource/azure_user_assigned_identity_permissions: Deprecate `enable_aks_and_acr` attribute  to use `enable_aks` and `enable_acr` instead
 
 BUG FIXES:
 

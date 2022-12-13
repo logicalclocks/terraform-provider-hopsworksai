@@ -25,7 +25,8 @@ func TestAccAWSInstanceProfilePolicy_basic(t *testing.T) {
 		"arn:aws:ecr:*:*:repository/*/airflow",
 		"arn:aws:ecr:*:*:repository/*/git",
 	}
-	policy.Statements = append(policy.Statements, awsEKSECRPermissions(allowDescribeEKSResource, allowPushandPullImagesResource)...)
+	policy.Statements = append(policy.Statements, awsEKSPermissions(allowDescribeEKSResource)...)
+	policy.Statements = append(policy.Statements, awsECRPermissions(allowPushandPullImagesResource)...)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProviderFactories: testAccProviderFactories,
@@ -58,7 +59,8 @@ func TestAccAWSInstanceProfilePolicy_eks_restriction(t *testing.T) {
 		"arn:aws:ecr:*:*:repository/*/airflow",
 		"arn:aws:ecr:*:*:repository/*/git",
 	}
-	policy.Statements = append(policy.Statements, awsEKSECRPermissions(allowDescribeEKSResource, allowPushandPullImagesResource)...)
+	policy.Statements = append(policy.Statements, awsEKSPermissions(allowDescribeEKSResource)...)
+	policy.Statements = append(policy.Statements, awsECRPermissions(allowPushandPullImagesResource)...)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProviderFactories: testAccProviderFactories,
@@ -91,7 +93,8 @@ func TestAccAWSInstanceProfilePolicy_cluster_id(t *testing.T) {
 		"arn:aws:ecr:*:*:repository/cluster_id/airflow",
 		"arn:aws:ecr:*:*:repository/cluster_id/git",
 	}
-	policy.Statements = append(policy.Statements, awsEKSECRPermissions(allowDescribeEKSResource, allowPushandPullImagesResource)...)
+	policy.Statements = append(policy.Statements, awsEKSPermissions(allowDescribeEKSResource)...)
+	policy.Statements = append(policy.Statements, awsECRPermissions(allowPushandPullImagesResource)...)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProviderFactories: testAccProviderFactories,
@@ -124,13 +127,38 @@ func TestAccAWSInstanceProfilePolicy_singleBucket(t *testing.T) {
 		"arn:aws:ecr:*:*:repository/*/airflow",
 		"arn:aws:ecr:*:*:repository/*/git",
 	}
-	policy.Statements = append(policy.Statements, awsEKSECRPermissions(allowDescribeEKSResource, allowPushandPullImagesResource)...)
+	policy.Statements = append(policy.Statements, awsEKSPermissions(allowDescribeEKSResource)...)
+	policy.Statements = append(policy.Statements, awsECRPermissions(allowPushandPullImagesResource)...)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAWSInstanceProfilePolicyConfig_singleBucket(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(dataSourceName, "json", testAccAWSPolicyToJSONString(t, policy)),
+				),
+			},
+		},
+	})
+}
+
+func TestAccAWSInstanceProfilePolicy_disableEKSAndECR(t *testing.T) {
+	dataSourceName := "data.hopsworksai_aws_instance_profile_policy.test"
+	policy := &awsPolicy{
+		Version: "2012-10-17",
+		Statements: []awsPolicyStatement{
+			awsStoragePermissions("*"),
+			awsBackupPermissions("*"),
+		},
+	}
+	policy.Statements = append(policy.Statements, awsCloudWatchPermissions()...)
+
+	resource.UnitTest(t, resource.TestCase{
+		ProviderFactories: testAccProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAWSInstanceProfilePolicyConfig_disableEKSAndECR(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(dataSourceName, "json", testAccAWSPolicyToJSONString(t, policy)),
 				),
@@ -149,6 +177,14 @@ func TestAccAWSInstanceProfilePolicy_disableEKS(t *testing.T) {
 		},
 	}
 	policy.Statements = append(policy.Statements, awsCloudWatchPermissions()...)
+	var allowPushandPullImagesResource = []string{
+		"arn:aws:ecr:*:*:repository/*/filebeat",
+		"arn:aws:ecr:*:*:repository/*/base",
+		"arn:aws:ecr:*:*:repository/*/onlinefs",
+		"arn:aws:ecr:*:*:repository/*/airflow",
+		"arn:aws:ecr:*:*:repository/*/git",
+	}
+	policy.Statements = append(policy.Statements, awsECRPermissions(allowPushandPullImagesResource)...)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProviderFactories: testAccProviderFactories,
@@ -216,10 +252,11 @@ func testAccAWSInstanceProfilePolicyConfig_singleBucket() string {
 	`
 }
 
-func testAccAWSInstanceProfilePolicyConfig_disableEKS() string {
+func testAccAWSInstanceProfilePolicyConfig_disableEKSAndECR() string {
 	return `
 	data "hopsworksai_aws_instance_profile_policy" "test" {
-		enable_eks_and_ecr = false
+		enable_eks = false
+		enable_ecr = false
 	}
 	`
 }
@@ -227,9 +264,18 @@ func testAccAWSInstanceProfilePolicyConfig_disableEKS() string {
 func testAccAWSInstanceProfilePolicyConfig_enableOnlyStorage() string {
 	return `
 	data "hopsworksai_aws_instance_profile_policy" "test" {
-		enable_eks_and_ecr = false
+		enable_eks = false
+		enable_ecr = false
 		enable_cloud_watch = false
 		enable_backup = false
+	}
+	`
+}
+
+func testAccAWSInstanceProfilePolicyConfig_disableEKS() string {
+	return `
+	data "hopsworksai_aws_instance_profile_policy" "test" {
+		enable_eks = false
 	}
 	`
 }
