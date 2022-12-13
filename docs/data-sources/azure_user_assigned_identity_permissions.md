@@ -29,7 +29,9 @@ data "hopsworksai_azure_user_assigned_identity_permissions" "permissions" {
 
 ### Optional
 
-- `enable_aks_and_acr` (Boolean) Add permissions required to enable access to Azure AKS and ACR from within your Hopsworks cluster. Defaults to `false`.
+- `enable_acr` (Boolean) Add permissions required to enable access to Azure ACR from within your Hopsworks cluster. Defaults to `true`.
+- `enable_aks` (Boolean) Add permissions required to enable access to Azure AKS from within your Hopsworks cluster. Defaults to `true`.
+- `enable_aks_and_acr` (Boolean, Deprecated) Add permissions required to enable access to Azure AKS and ACR from within your Hopsworks cluster. Defaults to `false`. Use enable_aks and enable_acr instead
 - `enable_backup` (Boolean) Add permissions required to allow creating backups of your clusters. Defaults to `true`.
 - `enable_storage` (Boolean) Add permissions required to allow Hopsworks clusters to read and write from and to your azure storage accounts. Defaults to `true`.
 

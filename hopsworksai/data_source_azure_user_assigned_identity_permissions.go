@@ -26,10 +26,26 @@ func dataSourceAzureUserAssignedIdentityPermissions() *schema.Resource {
 				Default:     true,
 			},
 			"enable_aks_and_acr": {
-				Description: "Add permissions required to enable access to Azure AKS and ACR from within your Hopsworks cluster.",
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     false,
+				Description:   "Add permissions required to enable access to Azure AKS and ACR from within your Hopsworks cluster.",
+				Deprecated:    "Use enable_aks and enable_acr instead",
+				Type:          schema.TypeBool,
+				Optional:      true,
+				Default:       false,
+				ConflictsWith: []string{"enable_aks", "enable_acr"},
+			},
+			"enable_aks": {
+				Description:   "Add permissions required to enable access to Azure AKS from within your Hopsworks cluster.",
+				Type:          schema.TypeBool,
+				Optional:      true,
+				Default:       true,
+				ConflictsWith: []string{"enable_aks_and_acr"},
+			},
+			"enable_acr": {
+				Description:   "Add permissions required to enable access to Azure ACR from within your Hopsworks cluster.",
+				Type:          schema.TypeBool,
+				Optional:      true,
+				Default:       true,
+				ConflictsWith: []string{"enable_aks_and_acr"},
 			},
 			"actions": {
 				Description: "The actions permissions.",
@@ -92,12 +108,16 @@ func dataSourceAzureUserAssignedIdentityPermissionsRead(ctx context.Context, d *
 			"Microsoft.Storage/storageAccounts/listKeys/action")
 	}
 
-	if d.Get("enable_aks_and_acr").(bool) {
+	if d.Get("enable_aks_and_acr").(bool) || d.Get("enable_aks").(bool) {
+		actions = append(actions, "Microsoft.ContainerService/managedClusters/listClusterUserCredential/action",
+			"Microsoft.ContainerService/managedClusters/read",
+		)
+	}
+
+	if d.Get("enable_aks_and_acr").(bool) || d.Get("enable_acr").(bool) {
 		actions = append(actions, "Microsoft.ContainerRegistry/registries/pull/read",
 			"Microsoft.ContainerRegistry/registries/push/write",
 			"Microsoft.ContainerRegistry/registries/artifacts/delete",
-			"Microsoft.ContainerService/managedClusters/listClusterUserCredential/action",
-			"Microsoft.ContainerService/managedClusters/read",
 		)
 	}
 

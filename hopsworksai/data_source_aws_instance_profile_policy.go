@@ -50,10 +50,26 @@ func dataSourceAWSInstanceProfilePolicy() *schema.Resource {
 				Default:     true,
 			},
 			"enable_eks_and_ecr": {
-				Description: "Add permissions required to enable access to Amazon EKS and ECR from within your Hopsworks cluster.",
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     true,
+				Description:   "Add permissions required to enable access to Amazon EKS and ECR from within your Hopsworks cluster.",
+				Deprecated:    "Use enable_ecr and enable_eks instead",
+				Type:          schema.TypeBool,
+				Optional:      true,
+				Default:       false,
+				ConflictsWith: []string{"enable_ecr", "enable_eks"},
+			},
+			"enable_ecr": {
+				Description:   "Add permissions required to enable access to Amazon ECR from within your Hopsworks cluster.",
+				Type:          schema.TypeBool,
+				Optional:      true,
+				Default:       true,
+				ConflictsWith: []string{"enable_eks_and_ecr"},
+			},
+			"enable_eks": {
+				Description:   "Add permissions required to enable access to Amazon EKS from within your Hopsworks cluster.",
+				Type:          schema.TypeBool,
+				Optional:      true,
+				Default:       true,
+				ConflictsWith: []string{"enable_eks_and_ecr"},
 			},
 			"eks_cluster_name": {
 				Description: "Limit permissions to eks cluster.",
@@ -135,7 +151,7 @@ func awsCloudWatchPermissions() []awsPolicyStatement {
 	}
 }
 
-func awsEKSECRPermissions(allowDescribeEKSResource interface{}, allowPushandPullImagesResource interface{}) []awsPolicyStatement {
+func awsECRPermissions(allowPushandPullImagesResource interface{}) []awsPolicyStatement {
 	return []awsPolicyStatement{
 		{
 			Sid:    "AllowPullMainImages",
@@ -184,7 +200,13 @@ func awsEKSECRPermissions(allowDescribeEKSResource interface{}, allowPushandPull
 				"ecr:GetAuthorizationToken",
 			},
 			Resources: "*",
-		}, {
+		},
+	}
+}
+
+func awsEKSPermissions(allowDescribeEKSResource interface{}) []awsPolicyStatement {
+	return []awsPolicyStatement{
+		{
 			Sid:    "AllowDescribeEKS",
 			Effect: "Allow",
 			Action: []string{
@@ -222,12 +244,17 @@ func dataSourceAWSInstanceProfilePolicyRead(ctx context.Context, d *schema.Resou
 		policy.Statements = append(policy.Statements, awsCloudWatchPermissions()...)
 	}
 
-	if d.Get("enable_eks_and_ecr").(bool) {
+	if d.Get("enable_eks_and_ecr").(bool) || d.Get("enable_eks").(bool) {
 		var allowDescribeEKSResource interface{} = "arn:aws:eks:*:*:cluster/*"
 		if v, ok := d.GetOk("eks_cluster_name"); ok {
 			eksClusterName := v.(string)
 			allowDescribeEKSResource = fmt.Sprintf("arn:aws:eks:*:*:cluster/%s", eksClusterName)
 		}
+
+		policy.Statements = append(policy.Statements, awsEKSPermissions(allowDescribeEKSResource)...)
+	}
+
+	if d.Get("enable_eks_and_ecr").(bool) || d.Get("enable_ecr").(bool) {
 		var allowPushandPullImagesResource = []string{
 			"arn:aws:ecr:*:*:repository/*/filebeat",
 			"arn:aws:ecr:*:*:repository/*/base",
@@ -245,7 +272,7 @@ func dataSourceAWSInstanceProfilePolicyRead(ctx context.Context, d *schema.Resou
 				fmt.Sprintf("arn:aws:ecr:*:*:repository/%s/git", clusterId),
 			}
 		}
-		policy.Statements = append(policy.Statements, awsEKSECRPermissions(allowDescribeEKSResource, allowPushandPullImagesResource)...)
+		policy.Statements = append(policy.Statements, awsECRPermissions(allowPushandPullImagesResource)...)
 	}
 
 	policyJson, err := json.MarshalIndent(policy, "", "  ")
