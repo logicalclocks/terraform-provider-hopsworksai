@@ -18,6 +18,7 @@ import (
 const (
 	env_API_KEY = "HOPSWORKSAI_API_KEY"
 
+	env_TEST_RUN_SUFFIX          = "TF_HOPSWORKSAI_TEST_SUFFIX"
 	env_AWS_SKIP                 = "TF_HOPSWORKSAI_AWS_SKIP"
 	env_AWS_REGION               = "TF_HOPSWORKSAI_AWS_REGION"
 	env_AWS_SSH_KEY              = "TF_HOPSWORKSAI_AWS_SSH_KEY"
@@ -36,6 +37,7 @@ const (
 	env_AZURE_VIRTUAL_NETWORK_NAME        = "TF_HOPSWORKSAI_AZURE_VIRTUAL_NETWORK_NAME"
 	env_AZURE_SUBNET_NAME                 = "TF_HOPSWORKSAI_AZURE_SUBNET_NAME"
 	env_AZURE_SECURITY_GROUP_NAME         = "TF_HOPSWORKSAI_AZURE_SECURITY_GROUP_NAME"
+	env_AZURE_ACR_REGISTRY_NAME           = "TF_HOPSWORKSAI_AZURE_ACR_REGISTRY_NAME"
 
 	num_AWS_BUCKETS_NEEDED = 11
 )
@@ -70,7 +72,7 @@ func parallelTest(t *testing.T, cloud api.CloudProvider, test resource.TestCase)
 func testAccPreCheck(t *testing.T) func() {
 	return func() {
 		testCheckEnv(t, "", env_API_KEY)
-
+		testCheckEnv(t, "", env_TEST_RUN_SUFFIX)
 		if !isAWSAccSkipped() {
 			testCheckEnv(t, fmt.Sprintf("You can skip AWS tests by setting %s=true", env_AWS_SKIP),
 				env_AWS_REGION,
@@ -96,7 +98,8 @@ func testAccPreCheck(t *testing.T) func() {
 				env_AZURE_USER_ASSIGNED_IDENTITY_NAME,
 				env_AZURE_VIRTUAL_NETWORK_NAME,
 				env_AZURE_SUBNET_NAME,
-				env_AZURE_SECURITY_GROUP_NAME)
+				env_AZURE_SECURITY_GROUP_NAME,
+				env_AZURE_ACR_REGISTRY_NAME)
 		}
 	}
 }
@@ -169,7 +172,8 @@ func testAccClusterCloudConfigAttributes(cloud api.CloudProvider, bucketIndex in
 				storage_account            = "%s"
 			}
 			user_assigned_managed_identity = "%s"
-		`, os.Getenv(env_AZURE_LOCATION), os.Getenv(env_AZURE_RESOURCE_GROUP), os.Getenv(env_AZURE_STORAGE_ACCOUNT), os.Getenv(env_AZURE_USER_ASSIGNED_IDENTITY_NAME))
+			acr_registry_name              = "%s"
+		`, os.Getenv(env_AZURE_LOCATION), os.Getenv(env_AZURE_RESOURCE_GROUP), os.Getenv(env_AZURE_STORAGE_ACCOUNT), os.Getenv(env_AZURE_USER_ASSIGNED_IDENTITY_NAME), os.Getenv(env_AZURE_ACR_REGISTRY_NAME))
 		var networkConfig = ""
 		if setNetwork {
 			networkConfig = fmt.Sprintf(`
@@ -188,6 +192,13 @@ func testAccClusterCloudConfigAttributes(cloud api.CloudProvider, bucketIndex in
 		`, baseConfig, networkConfig)
 	}
 	return ""
+}
+
+func testAccDefaultTags() string {
+	return fmt.Sprintf(`
+		"Run" = "%s"
+		"%s" = "%s"
+	`, os.Getenv(env_TEST_RUN_SUFFIX), default_CLUSTER_TAG_KEY, default_CLUSTER_TAG_VALUE)
 }
 
 func testAccResourceDataSourceCheckAllAttributes(resourceName string, dataSourceName string) resource.TestCheckFunc {

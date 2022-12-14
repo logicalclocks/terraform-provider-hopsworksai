@@ -912,8 +912,8 @@ func testAccClusterConfig_Head_upscale(cloud api.CloudProvider, rName string, su
 		%s 
 
 		tags = {
-		  "%s" = "%s"
 		  "Test" = "TestAccCluster_Head_upscale"
+		  %s
 		}
 	  }
 	`,
@@ -927,8 +927,7 @@ func testAccClusterConfig_Head_upscale(cloud api.CloudProvider, rName string, su
 		testRonDBConfig(cloud),
 		testAccClusterCloudConfigAttributes(cloud, 11, false),
 		extraConfig,
-		default_CLUSTER_TAG_KEY,
-		default_CLUSTER_TAG_VALUE,
+		testAccDefaultTags(),
 	)
 }
 
@@ -951,8 +950,8 @@ func testAccClusterConfig(cloud api.CloudProvider, rName string, suffix string, 
 		%s 
 
 		tags = {
-		  "%s" = "%s"
 		  "Test" = "%s"
+		  %s
 		}
 	  }
 	`,
@@ -965,9 +964,8 @@ func testAccClusterConfig(cloud api.CloudProvider, rName string, suffix string, 
 		testCollectLogs(cloud),
 		testAccClusterCloudConfigAttributes(cloud, bucketIndex, false),
 		extraConfig,
-		default_CLUSTER_TAG_KEY,
-		default_CLUSTER_TAG_VALUE,
 		test,
+		testAccDefaultTags(),
 	)
 }
 
@@ -2261,6 +2259,7 @@ func testClusterCreate_RonDB(t *testing.T, cloud api.CloudProvider) {
 						"storage_account": "storage-account-1",
 					},
 				},
+				"acr_registry_name": "my-registry",
 			},
 		}
 	}
@@ -2502,6 +2501,7 @@ func testClusterCreate_RonDB_single_node(t *testing.T, cloud api.CloudProvider) 
 						"storage_account": "storage-account-1",
 					},
 				},
+				"acr_registry_name": "registry-1",
 			},
 		}
 	}
@@ -2723,6 +2723,7 @@ func testClusterCreate_Autoscale(t *testing.T, cloud api.CloudProvider, withGpu 
 						"storage_account": "storage-account-1",
 					},
 				},
+				"acr_registry_name": "registry-1",
 			},
 		}
 	}
@@ -3301,6 +3302,7 @@ func TestClusterCreate_AZURE_container(t *testing.T) {
 							"name":            "container-1",
 						},
 					},
+					"acr_registry_name": "registry-1",
 				},
 			},
 		},
@@ -3357,6 +3359,7 @@ func TestClusterCreate_AZURE_searchDomain(t *testing.T) {
 							"storage_account": "storage-account-1",
 						},
 					},
+					"acr_registry_name": "registry-1",
 				},
 			},
 		},
@@ -4517,6 +4520,7 @@ func TestClusterCreate_AZURE_setEncryption(t *testing.T) {
 							},
 						},
 					},
+					"acr_registry_name": "registry-1",
 				},
 			},
 		},
@@ -4577,6 +4581,7 @@ func TestClusterCreate_AZURE_setEncryption_default(t *testing.T) {
 							"storage_account": "storage-account-1",
 						},
 					},
+					"acr_registry_name": "registry-1",
 				},
 			},
 		},
@@ -4636,6 +4641,7 @@ func TestClusterCreate_AZURE_newContainerConfiguration(t *testing.T) {
 							"name":            "container-name-1",
 						},
 					},
+					"acr_registry_name": "registry-1",
 				},
 			},
 		},

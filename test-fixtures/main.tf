@@ -37,4 +37,5 @@ module "azure" {
   ssh_key_name                = "tf-key-${random_string.suffix.result}"
   ssh_public_key              = file("${path.module}/.keys/tf.pub")
   virtual_network_name        = "tf-vnet-${random_string.suffix.result}"
+  acr_registry_name           = "tfacr${random_string.suffix.result}"
 }

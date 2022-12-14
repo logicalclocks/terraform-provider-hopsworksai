@@ -153,8 +153,8 @@ func testAccBackupConfig(cloud api.CloudProvider, rName string, suffix string, e
 		%s 
 
 		tags = {
-		  "%s" = "%s"
 		  "Test" = "%s"
+		  %s
 		}
 	  }
 
@@ -170,9 +170,8 @@ func testAccBackupConfig(cloud api.CloudProvider, rName string, suffix string, e
 		testRonDBConfig(cloud),
 		testAccClusterCloudConfigAttributes(cloud, bucketIndex, setNetwork),
 		extraConfig,
-		default_CLUSTER_TAG_KEY,
-		default_CLUSTER_TAG_VALUE,
 		test,
+		testAccDefaultTags(),
 		backupConfig,
 	)
 }

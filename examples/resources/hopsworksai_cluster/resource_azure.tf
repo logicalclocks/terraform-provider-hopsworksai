@@ -13,6 +13,7 @@ resource "hopsworksai_cluster" "cluster" {
     container {
       storage_account = "mystorage"
     }
+    acr_registry_name = "registry-name"
   }
 
   rondb {

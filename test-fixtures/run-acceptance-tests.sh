@@ -37,10 +37,11 @@ fi
 
 echo "Initialize test fixtures"
 terraform init || ( rm -rf .terraform* && terraform init )
-terraform destroy -auto-approve || terraform destroy -auto-approve
+./cleanup-acceptance-tests.sh
 terraform apply -auto-approve || terraform apply -auto-approve
 
 echo "Setting environment variables for testing"
+export TF_HOPSWORKSAI_TEST_SUFFIX=$(terraform output -raw test_random_suffix)
 export TF_HOPSWORKSAI_AWS_SKIP=${TF_VAR_skip_aws}
 if [ ${TF_VAR_skip_aws} = false ]; then 
     export TF_HOPSWORKSAI_AWS_REGION=$(terraform output -raw aws_region)
@@ -62,6 +63,7 @@ if [ ${TF_VAR_skip_azure} = false ]; then
     export TF_HOPSWORKSAI_AZURE_VIRTUAL_NETWORK_NAME=$(terraform output -raw azure_virtual_network_name)
     export TF_HOPSWORKSAI_AZURE_SUBNET_NAME=$(terraform output -raw azure_subnet_name)
     export TF_HOPSWORKSAI_AZURE_SECURITY_GROUP_NAME=$(terraform output -raw azure_security_group_name)
+    export TF_HOPSWORKSAI_AZURE_ACR_REGISTRY_NAME=$(terraform output -raw azure_acr_registry_name)
 fi
 
 popd
@@ -73,6 +75,6 @@ TF_LOG=${TF_ACCTEST_LOG_LEVEL} TF_LOG_PATH_MASK="${TF_ACCTEST_LOG_DIR}/%s" TF_AC
 
 pushd ${BASE_DIR}
 echo "Destroying test fixtures"
-terraform destroy -auto-approve || terraform destroy -auto-approve
+./cleanup-acceptance-tests.sh
 echo "Done"
 popd

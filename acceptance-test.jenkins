@@ -62,8 +62,7 @@ pipeline {
         always { 
             junit 'report.xml'
             sh '''
-            cd test-fixtures
-            terraform destroy -auto-approve || terraform destroy -auto-approve
+                make cleanupacc
             '''
         }
     }
