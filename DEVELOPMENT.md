@@ -92,6 +92,11 @@ We use a GitHub Action that is configured to automatically build and publish ass
 
 Releases will appear as drafts. Once marked as published on the GitHub Releases page, they will become available via the Terraform Registry.
 
+### How to release 
+- Update the release date at the top of `CHANGELOG.md` to the current date for the release and push it to `main` branch
+- Create a new tag with the release version (for example `v1.3.0`) using git tags `git tag v1.3.0` and push to upstream `git push upstream v1.3.0`
+- Add a new section to the `CHANGELOG.md` for the new release and push it to main branch 
+
 ## Recommended Docs
 
 - [Terraform Plugin Best Practices](https://www.terraform.io/docs/extend/best-practices/index.html)
