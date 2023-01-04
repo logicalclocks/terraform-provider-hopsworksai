@@ -98,3 +98,40 @@ resource "azurerm_network_security_group" "security_group" {
     destination_address_prefix = "*"
   }
 }
+
+# add aks/acr permissions on the resource group
+data "hopsworksai_azure_user_assigned_identity_permissions" "resource_group_policy" {
+  enable_storage = false
+  enable_backup  = false
+  enable_aks     = true
+  enable_acr     = true
+}
+
+resource "azurerm_role_definition" "rg_role" {
+  name  = "${var.user_assigned_identity_name}-rg-role"
+  scope = data.azurerm_resource_group.rg.id
+  permissions {
+    actions          = data.hopsworksai_azure_user_assigned_identity_permissions.resource_group_policy.actions
+    not_actions      = data.hopsworksai_azure_user_assigned_identity_permissions.resource_group_policy.not_actions
+    data_actions     = data.hopsworksai_azure_user_assigned_identity_permissions.resource_group_policy.data_actions
+    not_data_actions = data.hopsworksai_azure_user_assigned_identity_permissions.resource_group_policy.not_data_actions
+  }
+}
+
+resource "azurerm_role_assignment" "rg_role_assignment" {
+  scope              = data.azurerm_resource_group.rg.id
+  role_definition_id = azurerm_role_definition.rg_role.role_definition_resource_id
+  principal_id       = azurerm_user_assigned_identity.identity.principal_id
+}
+
+resource "azurerm_container_registry" "acr" {
+  name                = var.acr_registry_name
+  resource_group_name = data.azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
+  sku                 = "Premium"
+  admin_enabled       = false
+  retention_policy {
+    enabled = true
+    days    = 7
+  }
+}

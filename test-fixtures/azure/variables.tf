@@ -27,3 +27,8 @@ variable "virtual_network_name" {
   description = "Virtual network name"
   type        = string
 }
+
+variable "acr_registry_name" {
+  description = "ACR registry name"
+  type        = string
+}

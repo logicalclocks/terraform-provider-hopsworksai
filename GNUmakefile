@@ -35,4 +35,8 @@ sweep:
 	@echo "WARNING: This will destroy infrastructure. Use only in development accounts."
 	go test ./hopsworksai -v -sweep="all" $(SWEEPARGS) -timeout 60m
 
+cleanupacc:
+	@echo "Cleanup acceptance test resources"
+	./test-fixtures/cleanup-acceptance-tests.sh
+
 .PHONY: build testacc generate test fmt lint sweep coverage

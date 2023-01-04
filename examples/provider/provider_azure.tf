@@ -56,6 +56,18 @@ data "hopsworksai_instance_type" "smallest_worker" {
   region         = module.azure.location
 }
 
+resource "azurerm_container_registry" "acr" {
+  name                = "tfhopsworksbasic"
+  resource_group_name = module.azure.resource_group
+  location            = module.azure.location
+  sku                 = "Premium"
+  admin_enabled       = false
+  retention_policy {
+    enabled = true
+    days    = 7
+  }
+}
+
 resource "hopsworksai_cluster" "cluster" {
   name    = "tf-hopsworks-cluster"
   ssh_key = module.azure.ssh_key_pair_name
@@ -76,6 +88,7 @@ resource "hopsworksai_cluster" "cluster" {
     container {
       storage_account = module.azure.storage_account_name
     }
+    acr_registry_name = azurerm_container_registry.acr.name
   }
 
   rondb {

@@ -29,3 +29,7 @@ output "subnet_name" {
 output "security_group_name" {
   value = azurerm_network_security_group.security_group.name
 }
+
+output "acr_registry_name" {
+  value = azurerm_container_registry.acr.name
+}

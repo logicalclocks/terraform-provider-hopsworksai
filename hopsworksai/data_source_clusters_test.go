@@ -97,8 +97,8 @@ func testAccClustersDataSourceConfig(cloud api.CloudProvider, rName string, suff
 
 		tags = {
 		  "ListClusters" = "%s"
-		  "%s" = "%s"
 		  "Test" = "TestAccClustersDataSource_basic"
+		  %s
 		}
 	  }
 
@@ -118,8 +118,7 @@ func testAccClustersDataSourceConfig(cloud api.CloudProvider, rName string, suff
 		testRonDBConfig(cloud),
 		testAccClusterCloudConfigAttributes(cloud, 1, false),
 		cloud.String(),
-		default_CLUSTER_TAG_KEY,
-		default_CLUSTER_TAG_VALUE,
+		testAccDefaultTags(),
 		rName,
 		rName,
 	)

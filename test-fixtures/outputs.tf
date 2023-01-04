@@ -57,3 +57,11 @@ output "azure_subnet_name" {
 output "azure_security_group_name" {
   value = var.skip_azure ? null : module.azure[0].security_group_name
 }
+
+output "azure_acr_registry_name" {
+  value = var.skip_azure ? null : module.azure[0].acr_registry_name
+}
+
+output "test_random_suffix" {
+  value = random_string.suffix.result
+}

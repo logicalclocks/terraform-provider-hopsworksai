@@ -69,6 +69,7 @@ resource "hopsworksai_cluster" "cluster" {
     container {
       storage_account = "mystorage"
     }
+    acr_registry_name = "registry-name"
   }
 
   rondb {
@@ -123,7 +124,7 @@ resource "hopsworksai_cluster" "cluster" {
 - `tags` (Map of String) The list of custom tags to be attached to the cluster.
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 - `update_state` (String) The action you can use to start or stop the cluster. It has to be one of these values [none, start, stop]. Defaults to `none`.
-- `version` (String) The version of the cluster. For existing clusters, you can change this attribute to upgrade to a newer version of Hopsworks. If the upgrade process ended up in an error state, you can always rollback to the old version by resetting this attribute to the old version. Defaults to `3.0.0`.
+- `version` (String) The version of the cluster. For existing clusters, you can change this attribute to upgrade to a newer version of Hopsworks. If the upgrade process ended up in an error state, you can always rollback to the old version by resetting this attribute to the old version. Defaults to `3.1.0`.
 - `workers` (Block Set) The configurations of worker nodes. You can add as many as you want of this block to create workers with different configurations. (see [below for nested schema](#nestedblock--workers))
 
 ### Read-Only
