@@ -94,7 +94,7 @@ Releases will appear as drafts. Once marked as published on the GitHub Releases 
 
 ### How to release 
 - Update the release date at the top of `CHANGELOG.md` to the current date for the release and push it to `main` branch
-- Create a new tag with the release version (for example `v1.3.0`) using git tags `git tag v1.3.0` and push to upstream `git push upstream v1.3.0`
+- Create a new tag with the release version (for example `v1.3.1`) using git tags `git tag v1.3.1` and push to upstream `git push upstream v1.3.1`
 - Add a new section to the `CHANGELOG.md` for the new release and push it to main branch 
 
 ## Recommended Docs

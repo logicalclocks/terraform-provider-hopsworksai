@@ -1,17 +1,21 @@
-## 1.3.0 (January 4, 2023)
+## 1.3.1 (Unreleased)
 
 NOTES:
 
 BREAKING CHANGES:
 
 ENHANCEMENTS:
-* datasource/aws_instance_profile_policy: Deprecate `enable_eks_and_ecr` attribute to use `enable_eks` and `enable_ecr` instead
-* datasource/azure_user_assigned_identity_permissions: Deprecate `enable_aks_and_acr` attribute  to use `enable_aks` and `enable_acr` instead
-* Update acceptance tests and examples for new release
 
 BUG FIXES:
 
 FEATURES:
+
+## 1.3.0 (January 4, 2023)
+
+ENHANCEMENTS:
+* datasource/aws_instance_profile_policy: Deprecate `enable_eks_and_ecr` attribute to use `enable_eks` and `enable_ecr` instead
+* datasource/azure_user_assigned_identity_permissions: Deprecate `enable_aks_and_acr` attribute  to use `enable_aks` and `enable_acr` instead
+* Update acceptance tests and examples for new release
 
 ## 1.2.2 (December 6, 2022)
 
