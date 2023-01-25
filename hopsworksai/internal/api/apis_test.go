@@ -2290,7 +2290,7 @@ func TestUpgradeCluster(t *testing.T) {
 		},
 	}
 
-	if err := UpgradeCluster(context.TODO(), apiClient, "cluster-id-1", "v2"); err != nil {
+	if err := UpgradeCluster(context.TODO(), apiClient, "cluster-id-1", "v2", ""); err != nil {
 		t.Fatalf("should not throw an error, but got %s", err)
 	}
 }
@@ -2314,7 +2314,7 @@ func TestUpgradeCluster_API_error(t *testing.T) {
 		},
 	}
 
-	if err := UpgradeCluster(context.TODO(), apiClient, "cluster-id-1", "v2"); err == nil || err.Error() != "failure to start upgrade" {
+	if err := UpgradeCluster(context.TODO(), apiClient, "cluster-id-1", "v2", ""); err == nil || err.Error() != "failure to start upgrade" {
 		t.Fatalf("should throw an error, but got %s", err)
 	}
 }

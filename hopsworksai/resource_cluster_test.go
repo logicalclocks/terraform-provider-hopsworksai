@@ -5987,3 +5987,333 @@ func testClusterCreate_AZURE_set_ACR_without_AKS(t *testing.T, version string, e
 	}
 	r.Apply(t, context.TODO())
 }
+
+func TestClusterUpdate_upgrade_AWS_3_0_to_3_1(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"cluster": {
+							"id": "cluster-id-1",
+							"name": "cluster-name-1",
+							"state" : "running",
+							"provider": "AWS",
+							"version": "3.0.0",
+							"ports":{
+								"featureStore": false,
+								"onlineFeatureStore": false,
+								"kafka": false,
+								"ssh": false
+							}
+						}
+					}
+				}`,
+			},
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters/cluster-id-1/upgrade",
+				ExpectRequestBody: `{
+					"version": "3.1.0",
+					"dockerRegistryAccount": "123456789101"
+				}`,
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200
+				}`,
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().UpdateContext,
+		Id:                   "cluster-id-1",
+		Update:               true,
+		State: map[string]interface{}{
+			"version": "3.1.0",
+			"aws_attributes": []interface{}{
+				map[string]interface{}{
+					"region":               "region-1",
+					"instance_profile_arn": "arn:aws:iam::123456789101:instance-profile/profile",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
+				},
+			},
+			"open_ports": []interface{}{
+				map[string]interface{}{
+					"ssh":                  false,
+					"kafka":                false,
+					"feature_store":        false,
+					"online_feature_store": false,
+				},
+			},
+		},
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterUpdate_upgrade_AZURE_3_0_to_3_1(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"cluster": {
+							"id": "cluster-id-1",
+							"name": "cluster-name-1",
+							"state" : "running",
+							"provider": "AWS",
+							"version": "3.0.0",
+							"ports":{
+								"featureStore": false,
+								"onlineFeatureStore": false,
+								"kafka": false,
+								"ssh": false
+							}
+						}
+					}
+				}`,
+			},
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters/cluster-id-1/upgrade",
+				ExpectRequestBody: `{
+					"version": "3.1.0",
+					"dockerRegistryAccount": "my-acr"
+				}`,
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200
+				}`,
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().UpdateContext,
+		Id:                   "cluster-id-1",
+		Update:               true,
+		State: map[string]interface{}{
+			"version": "3.1.0",
+			"azure_attributes": []interface{}{
+				map[string]interface{}{
+					"location":                       "location-1",
+					"resource_group":                 "resource-group-1",
+					"user_assigned_managed_identity": "user-identity-1",
+					"container": []interface{}{
+						map[string]interface{}{
+							"storage_account": "storage-account-1",
+						},
+					},
+					"acr_registry_name": "my-acr",
+				},
+			},
+			"open_ports": []interface{}{
+				map[string]interface{}{
+					"ssh":                  false,
+					"kafka":                false,
+					"feature_store":        false,
+					"online_feature_store": false,
+				},
+			},
+		},
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterUpdate_upgrade_AZURE_3_0_to_3_1_error(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"cluster": {
+							"id": "cluster-id-1",
+							"name": "cluster-name-1",
+							"state" : "running",
+							"provider": "AWS",
+							"version": "3.0.0",
+							"ports":{
+								"featureStore": false,
+								"onlineFeatureStore": false,
+								"kafka": false,
+								"ssh": false
+							}
+						}
+					}
+				}`,
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().UpdateContext,
+		Id:                   "cluster-id-1",
+		Update:               true,
+		State: map[string]interface{}{
+			"version": "3.1.0",
+			"azure_attributes": []interface{}{
+				map[string]interface{}{
+					"location":                       "location-1",
+					"resource_group":                 "resource-group-1",
+					"user_assigned_managed_identity": "user-identity-1",
+					"container": []interface{}{
+						map[string]interface{}{
+							"storage_account": "storage-account-1",
+						},
+					},
+				},
+			},
+			"open_ports": []interface{}{
+				map[string]interface{}{
+					"ssh":                  false,
+					"kafka":                false,
+					"feature_store":        false,
+					"online_feature_store": false,
+				},
+			},
+		},
+		ExpectError: "To upgrade from 3.0.0 to 3.1.0, you need to create an acr registry and configure it by setting attribute acr_registry_name",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterUpdate_AWS_update_ecr_error(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"cluster": {
+							"id": "cluster-id-1",
+							"name": "cluster-name-1",
+							"state" : "running",
+							"provider": "AWS",
+							"version": "3.0.0",
+							"ports":{
+								"featureStore": false,
+								"onlineFeatureStore": false,
+								"kafka": false,
+								"ssh": false
+							}
+						}
+					}
+				}`,
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().UpdateContext,
+		Id:                   "cluster-id-1",
+		Update:               true,
+		State: map[string]interface{}{
+			"version": "3.0.0",
+			"aws_attributes": []interface{}{
+				map[string]interface{}{
+					"region":               "region-1",
+					"instance_profile_arn": "arn:aws:iam::123456789101:instance-profile/profile",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
+					"ecr_registry_account_id": "1123232323",
+				},
+			},
+			"open_ports": []interface{}{
+				map[string]interface{}{
+					"ssh":                  false,
+					"kafka":                false,
+					"feature_store":        false,
+					"online_feature_store": false,
+				},
+			},
+		},
+		ExpectError: "You cannot change the ecr_registry_account_id after cluster creation",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterUpdate_AZURE_update_acr_error(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"cluster": {
+							"id": "cluster-id-1",
+							"name": "cluster-name-1",
+							"state" : "running",
+							"provider": "AWS",
+							"version": "3.0.0",
+							"ports":{
+								"featureStore": false,
+								"onlineFeatureStore": false,
+								"kafka": false,
+								"ssh": false
+							}
+						}
+					}
+				}`,
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().UpdateContext,
+		Id:                   "cluster-id-1",
+		Update:               true,
+		State: map[string]interface{}{
+			"version": "3.0.0",
+			"azure_attributes": []interface{}{
+				map[string]interface{}{
+					"location":                       "location-1",
+					"resource_group":                 "resource-group-1",
+					"user_assigned_managed_identity": "user-identity-1",
+					"container": []interface{}{
+						map[string]interface{}{
+							"storage_account": "storage-account-1",
+						},
+					},
+					"acr_registry_name": "my-acr",
+				},
+			},
+			"open_ports": []interface{}{
+				map[string]interface{}{
+					"ssh":                  false,
+					"kafka":                false,
+					"feature_store":        false,
+					"online_feature_store": false,
+				},
+			},
+		},
+		ExpectError: "You cannot change the acr_registry_name after cluster creation",
+	}
+	r.Apply(t, context.TODO())
+}
