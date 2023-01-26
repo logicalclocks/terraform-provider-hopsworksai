@@ -268,9 +268,10 @@ func GetSupportedVersions(ctx context.Context, apiClient APIHandler, cloud Cloud
 	return response.Payload.Versions, nil
 }
 
-func UpgradeCluster(ctx context.Context, apiClient APIHandler, clusterId string, upgradeToVersion string) error {
+func UpgradeCluster(ctx context.Context, apiClient APIHandler, clusterId string, upgradeToVersion string, dockerRegistryAccount string) error {
 	req := UpgradeClusterRequest{
-		Version: upgradeToVersion,
+		Version:               upgradeToVersion,
+		DockerRegistryAccount: dockerRegistryAccount,
 	}
 	payload, err := json.Marshal(req)
 	if err != nil {

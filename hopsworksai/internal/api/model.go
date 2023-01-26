@@ -579,7 +579,8 @@ type GetSupportedVersionsResponse struct {
 }
 
 type UpgradeClusterRequest struct {
-	Version string `json:"version"`
+	Version               string `json:"version"`
+	DockerRegistryAccount string `json:"dockerRegistryAccount,omitempty"`
 }
 
 type NodeInfo struct {

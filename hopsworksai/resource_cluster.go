@@ -916,7 +916,6 @@ func awsAttributesSchema() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ForceNew:     true,
 				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^\d{12}$`), "Invalid ECR account id"),
 			},
 			"ebs_encryption": {
@@ -1062,7 +1061,6 @@ func azureAttributesSchema() *schema.Resource {
 				Description: "The name of the ACR registry.",
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 			},
 		},
 	}
@@ -1140,6 +1138,14 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourceClusterRead(ctx, d, meta)
 }
 
+func getECRRegistryAccountIdFromInstanceProfile(instanceProfile string) string {
+	submatches := instanceProfileRegex().FindStringSubmatch(instanceProfile)
+	if len(submatches) == 3 {
+		return submatches[1]
+	}
+	return ""
+}
+
 func createAWSCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) *api.CreateAWSCluster {
 	req := api.CreateAWSCluster{
 		CreateCluster: *baseRequest,
@@ -1168,10 +1174,7 @@ func createAWSCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) *a
 		if registry, okR := d.GetOk("aws_attributes.0.ecr_registry_account_id"); okR {
 			req.EcrRegistryAccountId = registry.(string)
 		} else {
-			submatches := instanceProfileRegex().FindStringSubmatch(req.InstanceProfileArn)
-			if len(submatches) == 3 {
-				req.EcrRegistryAccountId = submatches[1]
-			}
+			req.EcrRegistryAccountId = getECRRegistryAccountIdFromInstanceProfile(req.InstanceProfileArn)
 		}
 	}
 
@@ -1450,7 +1453,29 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		upgradeInProgressToVersion, upgradeInProgressToVersionOk := d.GetOk("upgrade_in_progress.0.to_version")
 
 		if !upgradeInProgressFromVersionOk && !upgradeInProgressToVersionOk {
-			if err := api.UpgradeCluster(ctx, client, clusterId, toVersion); err != nil {
+			clusterVersion, _ := version.NewVersion(toVersion)
+			versionWithDefaultECR, _ := version.NewVersion("3.0.0")
+
+			dockerRegistryAccount := ""
+			if clusterVersion.GreaterThan(versionWithDefaultECR) {
+				if _, ok := d.GetOk("aws_attributes"); ok {
+					if v, okR := d.GetOk("aws_attributes.0.ecr_registry_account_id"); okR {
+						dockerRegistryAccount = v.(string)
+					} else {
+						dockerRegistryAccount = getECRRegistryAccountIdFromInstanceProfile(d.Get("aws_attributes.0.instance_profile_arn").(string))
+					}
+				}
+
+				if _, ok := d.GetOk("azure_attributes"); ok {
+					if v, okR := d.GetOk("azure_attributes.0.acr_registry_name"); okR {
+						dockerRegistryAccount = v.(string)
+					} else {
+						return diag.Errorf("To upgrade from %s to %s, you need to create an acr registry and configure it by setting attribute acr_registry_name", fromVersion, toVersion)
+					}
+				}
+			}
+
+			if err := api.UpgradeCluster(ctx, client, clusterId, toVersion, dockerRegistryAccount); err != nil {
 				return diag.FromErr(err)
 			}
 			if err := resourceClusterWaitForRunningAfterUpgrade(ctx, client, d.Timeout(schema.TimeoutUpdate), clusterId); err != nil {
@@ -1654,6 +1679,15 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 			}
 		}
 	}
+
+	if d.HasChange("aws_attributes.0.ecr_registry_account_id") {
+		return diag.Errorf("You cannot change the ecr_registry_account_id after cluster creation")
+	}
+
+	if d.HasChange("azure_attributes.0.acr_registry_name") {
+		return diag.Errorf("You cannot change the acr_registry_name after cluster creation")
+	}
+
 	return resourceClusterRead(ctx, d, meta)
 }
 
