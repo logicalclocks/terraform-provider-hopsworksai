@@ -1,15 +1,7 @@
-## 1.3.1 (Unreleased)
-
-NOTES:
-
-BREAKING CHANGES:
+## 1.3.1 (January 26, 2023)
 
 ENHANCEMENTS:
 * resource/hopsworksai_cluster: Enforce setting `ecr_registry_account_id` and `acr_registry_name` during upgrade from 3.0 to 3.1
-
-BUG FIXES:
-
-FEATURES:
 
 ## 1.3.0 (January 4, 2023)
 
