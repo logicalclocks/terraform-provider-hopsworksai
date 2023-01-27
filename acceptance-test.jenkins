@@ -12,7 +12,7 @@ pipeline {
         TF_VAR_skip_azure="false"
         TF_VAR_azure_resource_group="terraform_acceptance_tests"
         TF_VAR_aws_profile="terraform"
-        TF_VAR_aws_region="eu-central-1"
+        TF_VAR_aws_region="eu-west-1"
 
         ACCTEST_PARALLELISM="4"
         ACCTEST_TIMEOUT="720m"
