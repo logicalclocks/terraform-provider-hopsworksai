@@ -3,6 +3,7 @@
 NOTES:
 
 ENHANCEMENTS:
+* dependencies: Bump hashicorp/terraform-plugin-log from 0.7.0 to 0.8.0
 
 BUG FIXES:
 
