@@ -86,6 +86,22 @@ func dataSourceAWSInstanceProfilePolicy() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 			},
+			"region": {
+				Description: "Limit docker repository permissions to a region",
+				Type:        schema.TypeString,
+				Optional:    true,
+			},
+			"user_ecr_account": {
+				Description: "Limit docker repository permissions to the user aws account",
+				Type:        schema.TypeString,
+				Optional:    true,
+			},
+			"hopsworksai_ecr_account": {
+				Description: "Limit docker pull image from hopsworks.ai permissions to the hopsworks.ai aws account",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "822623301872",
+			},
 		},
 		ReadContext: dataSourceAWSInstanceProfilePolicyRead,
 	}
@@ -151,22 +167,16 @@ func awsCloudWatchPermissions() []awsPolicyStatement {
 	}
 }
 
-func awsECRPermissions(allowPushandPullImagesResource interface{}) []awsPolicyStatement {
+func awsECRPermissions(allowPullImagesFromHopsworkAiResource interface{}, allowPushandPullImagesToUserRepoResource interface{}) []awsPolicyStatement {
 	return []awsPolicyStatement{
 		{
-			Sid:    "AllowPullMainImages",
+			Sid:    "AllowPullImagesFromHopsworkAi",
 			Effect: "Allow",
 			Action: []string{
 				"ecr:GetDownloadUrlForLayer",
 				"ecr:BatchGetImage",
 			},
-			Resources: []string{
-				"arn:aws:ecr:*:*:repository/filebeat",
-				"arn:aws:ecr:*:*:repository/base",
-				"arn:aws:ecr:*:*:repository/onlinefs",
-				"arn:aws:ecr:*:*:repository/airflow",
-				"arn:aws:ecr:*:*:repository/git",
-			},
+			Resources: allowPullImagesFromHopsworkAiResource,
 		}, {
 			Sid:    "AllowCreateRepository",
 			Effect: "Allow",
@@ -175,7 +185,7 @@ func awsECRPermissions(allowPushandPullImagesResource interface{}) []awsPolicySt
 			},
 			Resources: "*",
 		}, {
-			Sid:    "AllowPushandPullImages",
+			Sid:    "AllowPushandPullImagesToUserRepo",
 			Effect: "Allow",
 			Action: []string{
 				"ecr:GetDownloadUrlForLayer",
@@ -192,7 +202,7 @@ func awsECRPermissions(allowPushandPullImagesResource interface{}) []awsPolicySt
 				"ecr:PutLifecyclePolicy",
 				"ecr:TagResource",
 			},
-			Resources: allowPushandPullImagesResource,
+			Resources: allowPushandPullImagesToUserRepoResource,
 		}, {
 			Sid:    "AllowGetAuthToken",
 			Effect: "Allow",
@@ -255,24 +265,37 @@ func dataSourceAWSInstanceProfilePolicyRead(ctx context.Context, d *schema.Resou
 	}
 
 	if d.Get("enable_eks_and_ecr").(bool) || d.Get("enable_ecr").(bool) {
-		var allowPushandPullImagesResource = []string{
-			"arn:aws:ecr:*:*:repository/*/filebeat",
-			"arn:aws:ecr:*:*:repository/*/base",
-			"arn:aws:ecr:*:*:repository/*/onlinefs",
-			"arn:aws:ecr:*:*:repository/*/airflow",
-			"arn:aws:ecr:*:*:repository/*/git",
+		var region = "*"
+		if v, ok := d.GetOk("region"); ok {
+			region = v.(string)
 		}
+		var clusterId = "*"
 		if v, ok := d.GetOk("cluster_id"); ok {
-			clusterId := v.(string)
-			allowPushandPullImagesResource = []string{
-				fmt.Sprintf("arn:aws:ecr:*:*:repository/%s/filebeat", clusterId),
-				fmt.Sprintf("arn:aws:ecr:*:*:repository/%s/base", clusterId),
-				fmt.Sprintf("arn:aws:ecr:*:*:repository/%s/onlinefs", clusterId),
-				fmt.Sprintf("arn:aws:ecr:*:*:repository/%s/airflow", clusterId),
-				fmt.Sprintf("arn:aws:ecr:*:*:repository/%s/git", clusterId),
-			}
+			clusterId = v.(string)
 		}
-		policy.Statements = append(policy.Statements, awsECRPermissions(allowPushandPullImagesResource)...)
+		var userEcrAccount = "*"
+		if v, ok := d.GetOk("user_ecr_account"); ok {
+			userEcrAccount = v.(string)
+		}
+		var hopsworksaiEcrAccount = "822623301872"
+		if v, ok := d.GetOk("hopsworksai_ecr_account"); ok {
+			hopsworksaiEcrAccount = v.(string)
+		}
+		var allowPushandPullImagesResource = []string{
+			fmt.Sprintf("arn:aws:ecr:%s:%s:repository/%s/filebeat", region, userEcrAccount, clusterId),
+			fmt.Sprintf("arn:aws:ecr:%s:%s:repository/%s/base", region, userEcrAccount, clusterId),
+			fmt.Sprintf("arn:aws:ecr:%s:%s:repository/%s/onlinefs", region, userEcrAccount, clusterId),
+			fmt.Sprintf("arn:aws:ecr:%s:%s:repository/%s/airflow", region, userEcrAccount, clusterId),
+			fmt.Sprintf("arn:aws:ecr:%s:%s:repository/%s/git", region, userEcrAccount, clusterId),
+		}
+		var allowPullImagesFromHopsworkAiResource = []string{
+			fmt.Sprintf("arn:aws:ecr:%s:%s:repository/filebeat", region, hopsworksaiEcrAccount),
+			fmt.Sprintf("arn:aws:ecr:%s:%s:repository/base", region, hopsworksaiEcrAccount),
+			fmt.Sprintf("arn:aws:ecr:%s:%s:repository/onlinefs", region, hopsworksaiEcrAccount),
+			fmt.Sprintf("arn:aws:ecr:%s:%s:repository/airflow", region, hopsworksaiEcrAccount),
+			fmt.Sprintf("arn:aws:ecr:%s:%s:repository/git", region, hopsworksaiEcrAccount),
+		}
+		policy.Statements = append(policy.Statements, awsECRPermissions(allowPullImagesFromHopsworkAiResource, allowPushandPullImagesResource)...)
 	}
 
 	policyJson, err := json.MarshalIndent(policy, "", "  ")
