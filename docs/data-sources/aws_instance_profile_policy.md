@@ -44,6 +44,9 @@ data "hopsworksai_aws_instance_profile_policy" "policy" {
 - `enable_eks` (Boolean) Add permissions required to enable access to Amazon EKS from within your Hopsworks cluster. Defaults to `true`.
 - `enable_eks_and_ecr` (Boolean, Deprecated) Add permissions required to enable access to Amazon EKS and ECR from within your Hopsworks cluster. Defaults to `false`. Use enable_ecr and enable_eks instead
 - `enable_storage` (Boolean) Add permissions required to allow Hopsworks clusters to read and write from and to your aws S3 buckets. Defaults to `true`.
+- `hopsworksai_ecr_account` (String) Limit docker pull image from hopsworks.ai permissions to the hopsworks.ai aws account Defaults to `822623301872`.
+- `region` (String) Limit docker repository permissions to a region
+- `user_ecr_account` (String) Limit docker repository permissions to the user aws account
 
 ### Read-Only
 
