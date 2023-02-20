@@ -114,7 +114,6 @@ func awsStoragePermissions(s3Resources interface{}) awsPolicyStatement {
 		Action: []string{
 			"S3:PutObject",
 			"S3:ListBucket",
-			"S3:GetBucketLocation",
 			"S3:GetObject",
 			"S3:DeleteObject",
 			"S3:AbortMultipartUpload",
@@ -193,7 +192,6 @@ func awsECRPermissions(allowPullImagesFromHopsworkAiResource interface{}, allowP
 				"ecr:CompleteLayerUpload",
 				"ecr:UploadLayerPart",
 				"ecr:InitiateLayerUpload",
-				"ecr:DeleteRepository",
 				"ecr:BatchCheckLayerAvailability",
 				"ecr:PutImage",
 				"ecr:ListImages",
