@@ -2,6 +2,7 @@ package hopsworksai
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"regexp"
 	"time"
@@ -351,7 +352,6 @@ func clusterSchema() map[string]*schema.Schema {
 			Description: "Setup a cluster with managed RonDB.",
 			Type:        schema.TypeList,
 			Required:    true,
-			ForceNew:    true,
 			MaxItems:    1,
 			Elem:        ronDBSchema(),
 		},
@@ -485,16 +485,22 @@ func ronDBSchema() *schema.Resource {
 							Type:        schema.TypeList,
 							Optional:    true,
 							Computed:    true,
-							ForceNew:    true,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"rondbVersion": {
+										Description: "Version of RonDB. It is intended for development purposes only. To change between major RonDB versions, change the Hopsworks version instead.",
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										MaxItems:    1,
+									},
 									"benchmark": {
 										Description: "The configurations required to benchmark RonDB.",
 										Type:        schema.TypeList,
 										Optional:    true,
 										Computed:    true,
-										ForceNew:    true,
+										ForceNew:    true, // should not be necessary; works fine if benchmarking==false --> benchmarking==true
 										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -1066,6 +1072,7 @@ func azureAttributesSchema() *schema.Resource {
 	}
 }
 
+// root of resources
 func clusterResource() *schema.Resource {
 	return &schema.Resource{
 		Description:   "Use this resource to create, read, update, and delete clusters on Hopsworks.ai.",
@@ -1103,9 +1110,7 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 		if len(awsAttributes) > 0 {
 			createRequest = createAWSCluster(d, baseRequest)
 		}
-	}
-
-	if azure, ok := d.GetOk("azure_attributes"); ok {
+	} else if azure, ok := d.GetOk("azure_attributes"); ok {
 		azureAttributes := azure.([]interface{})
 		if len(azureAttributes) > 0 {
 			createRequest, err = createAzureCluster(d, baseRequest)
@@ -1319,72 +1324,12 @@ func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error
 		createCluster.ClusterConfiguration.Workers = workersConfig
 	}
 
-	if _, ok := d.GetOk("rondb"); ok {
-		defaultRonDB := defaultRonDBConfiguration()
-		if singleRonDB, ok := d.GetOk("rondb.0.single_node"); ok {
-			createCluster.RonDB = &api.RonDBConfiguration{
-				Configuration: api.RonDBBaseConfiguration{
-					NdbdDefault: api.RonDBNdbdDefaultConfiguration{
-						ReplicationFactor: 1,
-					},
-				},
-				ManagementNodes: api.RonDBNodeConfiguration{
-					NodeConfiguration: api.NodeConfiguration{
-						DiskSize: defaultRonDB.ManagementNodes.DiskSize,
-					},
-					Count: 1,
-				},
-				MYSQLNodes: api.RonDBNodeConfiguration{
-					NodeConfiguration: api.NodeConfiguration{
-						DiskSize: defaultRonDB.MYSQLNodes.DiskSize,
-					},
-					Count: 1,
-				},
-				DataNodes: api.RonDBNodeConfiguration{
-					NodeConfiguration: structure.ExpandNode(singleRonDB.([]interface{})[0].(map[string]interface{})),
-					Count:             1,
-				},
-			}
-		} else {
-			var replicationFactor = defaultRonDB.Configuration.NdbdDefault.ReplicationFactor
-			if v, ok := d.GetOk("rondb.0.configuration.0.ndbd_default.0.replication_factor"); ok {
-				replicationFactor = v.(int)
-			}
-
-			var grantUserPrivileges = defaultRonDB.Configuration.General.Benchmark.GrantUserPrivileges
-			if v, ok := d.GetOk("rondb.0.configuration.0.general.0.benchmark.0.grant_user_privileges"); ok {
-				grantUserPrivileges = v.(bool)
-			}
-
-			createCluster.RonDB = &api.RonDBConfiguration{
-				Configuration: api.RonDBBaseConfiguration{
-					NdbdDefault: api.RonDBNdbdDefaultConfiguration{
-						ReplicationFactor: replicationFactor,
-					},
-					General: api.RonDBGeneralConfiguration{
-						Benchmark: api.RonDBBenchmarkConfiguration{
-							GrantUserPrivileges: grantUserPrivileges,
-						},
-					},
-				},
-				ManagementNodes: structure.ExpandRonDBNodeConfiguration(d.Get("rondb.0.management_nodes").([]interface{})[0].(map[string]interface{})),
-				DataNodes:       structure.ExpandRonDBNodeConfiguration(d.Get("rondb.0.data_nodes").([]interface{})[0].(map[string]interface{})),
-				MYSQLNodes:      structure.ExpandRonDBNodeConfiguration(d.Get("rondb.0.mysql_nodes").([]interface{})[0].(map[string]interface{})),
-			}
-
-			if n, ok := d.GetOk("rondb.0.api_nodes"); ok {
-				createCluster.RonDB.APINodes = structure.ExpandRonDBNodeConfiguration(n.([]interface{})[0].(map[string]interface{}))
-			}
-
-			if createCluster.RonDB.DataNodes.Count%createCluster.RonDB.Configuration.NdbdDefault.ReplicationFactor != 0 {
-				return nil, fmt.Errorf("number of RonDB data nodes must be multiples of RonDB replication factor")
-			}
-
-			if createCluster.RonDB.IsSingleNodeSetup() {
-				return nil, fmt.Errorf("your configuration creates a single rondb node, you should use singe_node configuration block instead or modifiy the configuration to run RonDB in a cluster mode")
-			}
-		}
+	// "d" has access to the keys/values in the yaml file
+	ronDBConfig, err := createAndValidateRonDB(d)
+	if err != nil {
+		return nil, err
 	}
+	createCluster.RonDB = ronDBConfig
 
 	if v, ok := d.GetOk("autoscale"); ok {
 		createCluster.Autoscale = structure.ExpandAutoscaleConfiguration(v.([]interface{}))
@@ -1403,6 +1348,77 @@ func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error
 	}
 
 	return createCluster, nil
+}
+
+func createAndValidateRonDB(d *schema.ResourceData) (*api.RonDBConfiguration, error) {
+	if _, ok := d.GetOk("rondb"); !ok {
+		return nil, errors.New("rondb has to be defined")
+	}
+
+	var ronDBConfig *api.RonDBConfiguration
+
+	defaultRonDB := defaultRonDBConfiguration()
+	if singleRonDB, ok := d.GetOk("rondb.0.single_node"); ok {
+		nodeConfig := structure.ExpandNode(singleRonDB.([]interface{})[0].(map[string]interface{}))
+		ronDBConfig = &api.RonDBConfiguration{
+			Configuration: api.RonDBBaseConfiguration{
+				NdbdDefault: api.RonDBNdbdDefaultConfiguration{
+					ReplicationFactor: 1,
+				},
+			},
+			ManagementNodes: api.RonDBNodeConfiguration{
+				NodeConfiguration: nodeConfig,
+				Count:             1,
+			},
+			MYSQLNodes: api.RonDBNodeConfiguration{
+				NodeConfiguration: nodeConfig,
+				Count:             1,
+			},
+			DataNodes: api.RonDBNodeConfiguration{
+				NodeConfiguration: nodeConfig,
+				Count:             1,
+			},
+		}
+	} else {
+		var replicationFactor = defaultRonDB.Configuration.NdbdDefault.ReplicationFactor
+		if v, ok := d.GetOk("rondb.0.configuration.0.ndbd_default.0.replication_factor"); ok {
+			replicationFactor = v.(int)
+		}
+
+		var grantUserPrivileges = defaultRonDB.Configuration.General.Benchmark.GrantUserPrivileges
+		if v, ok := d.GetOk("rondb.0.configuration.0.general.0.benchmark.0.grant_user_privileges"); ok {
+			grantUserPrivileges = v.(bool)
+		}
+
+		ronDBConfig = &api.RonDBConfiguration{
+			Configuration: api.RonDBBaseConfiguration{
+				NdbdDefault: api.RonDBNdbdDefaultConfiguration{
+					ReplicationFactor: replicationFactor,
+				},
+				General: api.RonDBGeneralConfiguration{
+					Benchmark: api.RonDBBenchmarkConfiguration{
+						GrantUserPrivileges: grantUserPrivileges,
+					},
+				},
+			},
+			ManagementNodes: structure.ExpandRonDBNodeConfiguration(d.Get("rondb.0.management_nodes").([]interface{})[0].(map[string]interface{})),
+			DataNodes:       structure.ExpandRonDBNodeConfiguration(d.Get("rondb.0.data_nodes").([]interface{})[0].(map[string]interface{})),
+			MYSQLNodes:      structure.ExpandRonDBNodeConfiguration(d.Get("rondb.0.mysql_nodes").([]interface{})[0].(map[string]interface{})),
+		}
+
+		if n, ok := d.GetOk("rondb.0.api_nodes"); ok {
+			ronDBConfig.APINodes = structure.ExpandRonDBNodeConfiguration(n.([]interface{})[0].(map[string]interface{}))
+		}
+
+		if ronDBConfig.DataNodes.Count%ronDBConfig.Configuration.NdbdDefault.ReplicationFactor != 0 {
+			return nil, fmt.Errorf("number of RonDB data nodes must be multiples of RonDB replication factor")
+		}
+
+		if ronDBConfig.IsSingleNodeSetup() {
+			return nil, fmt.Errorf("your configuration creates a single rondb node, you should use singe_node configuration block instead or modifiy the configuration to run RonDB in a cluster mode")
+		}
+	}
+	return ronDBConfig, nil
 }
 
 func resourceClusterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -1443,6 +1459,15 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 
 	clusterId := d.Id()
 
+	/*
+		Consider to run this with RonDB changes, since it will affect the RonDB version as well.
+		Otherwise there is a risk that we might exchange all VMs for a new RonDB version (which means
+		backup RonDB, and restore it, which are both lengthy processes) and then exchange all VMs again
+		because we have new desired VM types. We could instead just have requested new VM types
+		with the new cluster / RonDB version.
+
+		This would also have to be changed in the UI though, so it is not an easy task.
+	*/
 	if d.HasChange("version") {
 		o, n := d.GetChange("version")
 		fromVersion := o.(string)
@@ -1490,10 +1515,13 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 			}
 		}
 
+		// TODO: How will the user know that perhaps not all of their changes have been applied?
 		return resourceClusterRead(ctx, d, meta)
 	}
 
 	if d.HasChange("head.0.instance_type") {
+		// TODO: What about changes in disk_size & ha_enabled?
+
 		_, n := d.GetChange("head.0.instance_type")
 		toInstanceType := n.(string)
 
@@ -1502,38 +1530,19 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		}
 	}
 
-	if d.HasChange("rondb.0.data_nodes.0.instance_type") {
-		_, n := d.GetChange("rondb.0.data_nodes.0.instance_type")
-		toInstanceType := n.(string)
-
-		if err := api.ModifyInstanceType(ctx, client, clusterId, api.RonDBDataNode, toInstanceType); err != nil {
+	if d.HasChange("rondb") {
+		/*
+			using d.GetChange() can be helpful to access single fields;
+			might be easier to just let the backend handle the details
+			here though
+		*/
+		ronDBConfig, err := createAndValidateRonDB(d)
+		if err != nil {
 			return diag.FromErr(err)
 		}
-	}
 
-	if d.HasChange("rondb.0.mysql_nodes.0.instance_type") {
-		_, n := d.GetChange("rondb.0.mysql_nodes.0.instance_type")
-		toInstanceType := n.(string)
-
-		if err := api.ModifyInstanceType(ctx, client, clusterId, api.RonDBMySQLNode, toInstanceType); err != nil {
-			return diag.FromErr(err)
-		}
-	}
-
-	if d.HasChange("rondb.0.api_nodes.0.instance_type") {
-		_, n := d.GetChange("rondb.0.api_nodes.0.instance_type")
-		toInstanceType := n.(string)
-
-		if err := api.ModifyInstanceType(ctx, client, clusterId, api.RonDBAPINode, toInstanceType); err != nil {
-			return diag.FromErr(err)
-		}
-	}
-
-	if d.HasChange("rondb.0.single_node.0.instance_type") {
-		_, n := d.GetChange("rondb.0.single_node.0.instance_type")
-		toInstanceType := n.(string)
-
-		if err := api.ModifyInstanceType(ctx, client, clusterId, api.RonDBAllInOneNode, toInstanceType); err != nil {
+		err = api.ReconfigureRonDB(ctx, client, clusterId, *ronDBConfig)
+		if err != nil {
 			return diag.FromErr(err)
 		}
 	}

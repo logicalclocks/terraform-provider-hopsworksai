@@ -22,6 +22,7 @@ func GetClusters(ctx context.Context, apiClient APIHandler, cloud CloudProvider)
 	return response.Payload.Clusters, nil
 }
 
+// Creating a new cluster
 func NewCluster(ctx context.Context, apiClient APIHandler, createRequest interface{}) (string, error) {
 	var cloudProvider CloudProvider
 	switch createRequest.(type) {
@@ -292,8 +293,24 @@ func RollbackUpgradeCluster(ctx context.Context, apiClient APIHandler, clusterId
 	return nil
 }
 
+func ReconfigureRonDB(ctx context.Context, apiClient APIHandler, clusterId string, ronDBConfiguration RonDBConfiguration) error {
+	payload, err := json.Marshal(ronDBConfiguration)
+	if err != nil {
+		return fmt.Errorf("failed to marshal request: %s", err)
+	}
+	var response BaseResponse
+	if err := apiClient.doRequest(ctx, http.MethodPut, "/api/clusters/"+clusterId+"/rondb/reconfigure", bytes.NewBuffer(payload), &response); err != nil {
+		return err
+	}
+	return nil
+}
+
+func IsNodeTypeModifyable(nodeType NodeType) bool {
+	return nodeType != WorkerNode && nodeType != RonDBManagementNode
+}
+
 func ModifyInstanceType(ctx context.Context, apiClient APIHandler, clusterId string, nodeType NodeType, instanceType string) error {
-	if nodeType == WorkerNode || nodeType == RonDBManagementNode {
+	if !IsNodeTypeModifyable(nodeType) {
 		return fmt.Errorf("modifying instance type for %s is not supported", nodeType.String())
 	}
 	req := ModifyInstanceTypeRequest{
