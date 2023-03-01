@@ -531,6 +531,7 @@ func TestNewClusterAWS(t *testing.T) {
 						}
 					],
 					"ronDB": {
+						"allInOne": false,
 						"configuration": {
 							"ndbdDefault": {
 								"replicationFactor": 2
@@ -726,6 +727,7 @@ func TestNewClusterAZURE(t *testing.T) {
 						}
 					],
 					"ronDB": {
+						"allInOne": false,
 						"configuration": {
 							"ndbdDefault": {
 								"replicationFactor": 2
@@ -2443,6 +2445,7 @@ func TestNewClusterAWS_HA(t *testing.T) {
 						}
 					],
 					"ronDB": {
+						"allInOne": false,
 						"configuration": {
 							"ndbdDefault": {
 								"replicationFactor": 2
