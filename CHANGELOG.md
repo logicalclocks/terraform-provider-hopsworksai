@@ -5,7 +5,7 @@ NOTES:
 ENHANCEMENTS:
 * dependencies: Bump hashicorp/terraform-plugin-log from 0.7.0 to 0.8.0
 * dependencies: Bump hashicorp/terraform-plugin-sdk/v2 from 2.24.1 to 2.25.0
-* dependencies: Bump hashicorp/terraform-plugin-docs from 0.13.0 to 0.14.0
+* dependencies: Bump hashicorp/terraform-plugin-docs from 0.13.0 to 0.14.1
 * datasource/dataSourceAWSInstanceProfilePolicy: Add possibility to limit permissions to region, user ecr account and hopsworks.ai ecr account.
 * remove unusued AWS permissions from instance profile policy
 
