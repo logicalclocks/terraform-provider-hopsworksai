@@ -1,6 +1,7 @@
 ## 1.4.0 (Unreleased)
 
 NOTES:
+Old terraform providers would fail to create new single_node RonDB clusters, so you they need to update to this version.
 
 ENHANCEMENTS:
 * dependencies: Bump hashicorp/terraform-plugin-log from 0.7.0 to 0.8.0
@@ -8,6 +9,7 @@ ENHANCEMENTS:
 * dependencies: Bump hashicorp/terraform-plugin-docs from 0.13.0 to 0.14.1
 * datasource/dataSourceAWSInstanceProfilePolicy: Add possibility to limit permissions to region, user ecr account and hopsworks.ai ecr account.
 * remove unusued AWS permissions from instance profile policy
+* resource/hopsworksai_cluster: introduce an explicit allInOne parameter instead of detecting allInOne RonDB implicitly
 
 BUG FIXES:
 

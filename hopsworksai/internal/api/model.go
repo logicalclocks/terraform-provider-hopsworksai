@@ -123,15 +123,12 @@ type RonDBNodeConfiguration struct {
 }
 
 type RonDBConfiguration struct {
+	AllInOne        bool                   `json:"allInOne"`
 	Configuration   RonDBBaseConfiguration `json:"configuration"`
 	ManagementNodes RonDBNodeConfiguration `json:"mgmd"`
 	DataNodes       RonDBNodeConfiguration `json:"ndbd"`
 	MYSQLNodes      RonDBNodeConfiguration `json:"mysqld"`
 	APINodes        RonDBNodeConfiguration `json:"api"`
-}
-
-func (rondb *RonDBConfiguration) IsSingleNodeSetup() bool {
-	return rondb.Configuration.NdbdDefault.ReplicationFactor == 1 && rondb.DataNodes.Count == 1 && rondb.MYSQLNodes.Count == 1
 }
 
 type SpotConfiguration struct {

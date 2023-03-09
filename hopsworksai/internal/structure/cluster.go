@@ -252,7 +252,7 @@ func flattenRonDB(ronDB *api.RonDBConfiguration) []map[string]interface{} {
 		return nil
 	}
 
-	if ronDB.IsSingleNodeSetup() {
+	if ronDB.AllInOne {
 		singleNode :=
 			map[string]interface{}{
 				"instance_type": ronDB.DataNodes.InstanceType,

@@ -1323,6 +1323,7 @@ func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error
 		defaultRonDB := defaultRonDBConfiguration()
 		if singleRonDB, ok := d.GetOk("rondb.0.single_node"); ok {
 			createCluster.RonDB = &api.RonDBConfiguration{
+				AllInOne: true,
 				Configuration: api.RonDBBaseConfiguration{
 					NdbdDefault: api.RonDBNdbdDefaultConfiguration{
 						ReplicationFactor: 1,
@@ -1339,6 +1340,12 @@ func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error
 						DiskSize: defaultRonDB.MYSQLNodes.DiskSize,
 					},
 					Count: 1,
+				},
+				APINodes: api.RonDBNodeConfiguration{
+					NodeConfiguration: api.NodeConfiguration{
+						DiskSize: defaultRonDB.APINodes.DiskSize,
+					},
+					Count: 0,
 				},
 				DataNodes: api.RonDBNodeConfiguration{
 					NodeConfiguration: structure.ExpandNode(singleRonDB.([]interface{})[0].(map[string]interface{})),
@@ -1357,6 +1364,7 @@ func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error
 			}
 
 			createCluster.RonDB = &api.RonDBConfiguration{
+				AllInOne: false,
 				Configuration: api.RonDBBaseConfiguration{
 					NdbdDefault: api.RonDBNdbdDefaultConfiguration{
 						ReplicationFactor: replicationFactor,
@@ -1374,14 +1382,17 @@ func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error
 
 			if n, ok := d.GetOk("rondb.0.api_nodes"); ok {
 				createCluster.RonDB.APINodes = structure.ExpandRonDBNodeConfiguration(n.([]interface{})[0].(map[string]interface{}))
+			} else {
+				createCluster.RonDB.APINodes = api.RonDBNodeConfiguration{
+					NodeConfiguration: api.NodeConfiguration{
+						DiskSize: defaultRonDB.APINodes.DiskSize,
+					},
+					Count: 0,
+				}
 			}
 
 			if createCluster.RonDB.DataNodes.Count%createCluster.RonDB.Configuration.NdbdDefault.ReplicationFactor != 0 {
 				return nil, fmt.Errorf("number of RonDB data nodes must be multiples of RonDB replication factor")
-			}
-
-			if createCluster.RonDB.IsSingleNodeSetup() {
-				return nil, fmt.Errorf("your configuration creates a single rondb node, you should use singe_node configuration block instead or modifiy the configuration to run RonDB in a cluster mode")
 			}
 		}
 	}

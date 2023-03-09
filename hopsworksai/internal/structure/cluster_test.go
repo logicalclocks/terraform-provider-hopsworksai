@@ -1947,6 +1947,7 @@ func TestFlattenRonDBNodeConfiguration(t *testing.T) {
 
 func TestFlattenRonDB_single_node(t *testing.T) {
 	input := &api.RonDBConfiguration{
+		AllInOne: true,
 		Configuration: api.RonDBBaseConfiguration{
 			NdbdDefault: api.RonDBNdbdDefaultConfiguration{
 				ReplicationFactor: 1,
