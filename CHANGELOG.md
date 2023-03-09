@@ -1,4 +1,4 @@
-## 1.4.0 (Unreleased)
+## 1.4.0 (March 9, 2023)
 
 NOTES:
 Old terraform providers would fail to create new single_node RonDB clusters, so you they need to update to this version.
@@ -10,10 +10,6 @@ ENHANCEMENTS:
 * datasource/dataSourceAWSInstanceProfilePolicy: Add possibility to limit permissions to region, user ecr account and hopsworks.ai ecr account.
 * remove unusued AWS permissions from instance profile policy
 * resource/hopsworksai_cluster: introduce an explicit allInOne parameter instead of detecting allInOne RonDB implicitly
-
-BUG FIXES:
-
-FEATURES:
 
 
 ## 1.3.1 (January 26, 2023)
