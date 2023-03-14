@@ -10,7 +10,7 @@ provider "hopsworksai" {
 module "azure" {
   source         = "logicalclocks/helpers/hopsworksai//modules/azure"
   resource_group = var.resource_group
-  version        = "2.0.0"
+  version        = "2.1.0"
 }
 
 # Create a simple cluster with two workers with two different configuration
