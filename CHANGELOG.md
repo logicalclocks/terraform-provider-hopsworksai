@@ -1,15 +1,7 @@
-## 1.5.0 (Unreleased)
-
-NOTES:
-
-BREAKING CHANGES:
+## 1.4.1 (March 14, 2023)
 
 ENHANCEMENTS:
 examples: Update terraform helpers modules
-
-FEATURES:
-
-BUG FIXES:
 
 ## 1.4.0 (March 9, 2023)
 
