@@ -56,7 +56,7 @@ provider "hopsworksai" {
 module "aws" {
   source  = "logicalclocks/helpers/hopsworksai//modules/aws"
   region  = var.region
-  version = "2.0.0"
+  version = "2.2.0"
 }
 
 # Step 2: create a cluster with 1 worker
@@ -162,7 +162,7 @@ data "azurerm_resource_group" "rg" {
 module "azure" {
   source         = "logicalclocks/helpers/hopsworksai//modules/azure"
   resource_group = var.resource_group
-  version        = "2.0.0"
+  version        = "2.2.0"
 }
 
 # Step 2: create a cluster with no workers
