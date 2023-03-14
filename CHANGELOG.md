@@ -5,6 +5,7 @@ NOTES:
 BREAKING CHANGES:
 
 ENHANCEMENTS:
+examples: Update terraform helpers modules
 
 FEATURES:
 
