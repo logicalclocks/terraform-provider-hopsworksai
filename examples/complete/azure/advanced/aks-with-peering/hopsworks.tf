@@ -1,6 +1,4 @@
-
-
-// We should all external ACR and AKS references here since user's won't run the AKS part
+// In the following locals block, we define all ACR and AKS references that are needed to correctly create a Hopsworks cluster with AKS integration
 locals {
   ext_aks_resource_group_name  = data.azurerm_resource_group.aks_resource_group.name
   ext_aks_cluster_name         = azurerm_kubernetes_cluster.aks.name
