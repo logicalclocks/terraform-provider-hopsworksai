@@ -5,6 +5,7 @@ NOTES:
 BREAKING CHANGES:
 
 ENHANCEMENTS:
+examples: add advanced azure aks example with vnet peering
 
 FEATURES:
 
