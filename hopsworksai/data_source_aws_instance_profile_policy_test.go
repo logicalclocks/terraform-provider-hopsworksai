@@ -24,6 +24,7 @@ func TestAccAWSInstanceProfilePolicy_basic(t *testing.T) {
 		"arn:aws:ecr:*:*:repository/*/onlinefs",
 		"arn:aws:ecr:*:*:repository/*/airflow",
 		"arn:aws:ecr:*:*:repository/*/git",
+		"arn:aws:ecr:*:*:repository/*/testconnector",
 	}
 	var allowPullImagesFromHopsworkAiResource = []string{
 		"arn:aws:ecr:*:822623301872:repository/filebeat",
@@ -31,6 +32,7 @@ func TestAccAWSInstanceProfilePolicy_basic(t *testing.T) {
 		"arn:aws:ecr:*:822623301872:repository/onlinefs",
 		"arn:aws:ecr:*:822623301872:repository/airflow",
 		"arn:aws:ecr:*:822623301872:repository/git",
+		"arn:aws:ecr:*:822623301872:repository/testconnector",
 	}
 	policy.Statements = append(policy.Statements, awsEKSPermissions(allowDescribeEKSResource)...)
 	policy.Statements = append(policy.Statements, awsECRPermissions(allowPullImagesFromHopsworkAiResource, allowPushandPullImagesResource)...)
@@ -65,6 +67,7 @@ func TestAccAWSInstanceProfilePolicy_eks_restriction(t *testing.T) {
 		"arn:aws:ecr:*:*:repository/*/onlinefs",
 		"arn:aws:ecr:*:*:repository/*/airflow",
 		"arn:aws:ecr:*:*:repository/*/git",
+		"arn:aws:ecr:*:*:repository/*/testconnector",
 	}
 	var allowPullImagesFromHopsworkAiResource = []string{
 		"arn:aws:ecr:*:822623301872:repository/filebeat",
@@ -72,6 +75,7 @@ func TestAccAWSInstanceProfilePolicy_eks_restriction(t *testing.T) {
 		"arn:aws:ecr:*:822623301872:repository/onlinefs",
 		"arn:aws:ecr:*:822623301872:repository/airflow",
 		"arn:aws:ecr:*:822623301872:repository/git",
+		"arn:aws:ecr:*:822623301872:repository/testconnector",
 	}
 	policy.Statements = append(policy.Statements, awsEKSPermissions(allowDescribeEKSResource)...)
 	policy.Statements = append(policy.Statements, awsECRPermissions(allowPullImagesFromHopsworkAiResource, allowPushandPullImagesResource)...)
@@ -106,6 +110,7 @@ func TestAccAWSInstanceProfilePolicy_cluster_id(t *testing.T) {
 		"arn:aws:ecr:*:*:repository/cluster_id/onlinefs",
 		"arn:aws:ecr:*:*:repository/cluster_id/airflow",
 		"arn:aws:ecr:*:*:repository/cluster_id/git",
+		"arn:aws:ecr:*:*:repository/cluster_id/testconnector",
 	}
 	var allowPullImagesFromHopsworkAiResource = []string{
 		"arn:aws:ecr:*:822623301872:repository/filebeat",
@@ -113,6 +118,7 @@ func TestAccAWSInstanceProfilePolicy_cluster_id(t *testing.T) {
 		"arn:aws:ecr:*:822623301872:repository/onlinefs",
 		"arn:aws:ecr:*:822623301872:repository/airflow",
 		"arn:aws:ecr:*:822623301872:repository/git",
+		"arn:aws:ecr:*:822623301872:repository/testconnector",
 	}
 	policy.Statements = append(policy.Statements, awsEKSPermissions(allowDescribeEKSResource)...)
 	policy.Statements = append(policy.Statements, awsECRPermissions(allowPullImagesFromHopsworkAiResource, allowPushandPullImagesResource)...)
@@ -147,6 +153,7 @@ func TestAccAWSInstanceProfilePolicy_singleBucket(t *testing.T) {
 		"arn:aws:ecr:*:*:repository/*/onlinefs",
 		"arn:aws:ecr:*:*:repository/*/airflow",
 		"arn:aws:ecr:*:*:repository/*/git",
+		"arn:aws:ecr:*:*:repository/*/testconnector",
 	}
 	var allowPullImagesFromHopsworkAiResource = []string{
 		"arn:aws:ecr:*:822623301872:repository/filebeat",
@@ -154,6 +161,7 @@ func TestAccAWSInstanceProfilePolicy_singleBucket(t *testing.T) {
 		"arn:aws:ecr:*:822623301872:repository/onlinefs",
 		"arn:aws:ecr:*:822623301872:repository/airflow",
 		"arn:aws:ecr:*:822623301872:repository/git",
+		"arn:aws:ecr:*:822623301872:repository/testconnector",
 	}
 	policy.Statements = append(policy.Statements, awsEKSPermissions(allowDescribeEKSResource)...)
 	policy.Statements = append(policy.Statements, awsECRPermissions(allowPullImagesFromHopsworkAiResource, allowPushandPullImagesResource)...)
@@ -211,6 +219,7 @@ func TestAccAWSInstanceProfilePolicy_disableEKS(t *testing.T) {
 		"arn:aws:ecr:*:*:repository/*/onlinefs",
 		"arn:aws:ecr:*:*:repository/*/airflow",
 		"arn:aws:ecr:*:*:repository/*/git",
+		"arn:aws:ecr:*:*:repository/*/testconnector",
 	}
 	var allowPullImagesFromHopsworkAiResource = []string{
 		"arn:aws:ecr:*:822623301872:repository/filebeat",
@@ -218,6 +227,7 @@ func TestAccAWSInstanceProfilePolicy_disableEKS(t *testing.T) {
 		"arn:aws:ecr:*:822623301872:repository/onlinefs",
 		"arn:aws:ecr:*:822623301872:repository/airflow",
 		"arn:aws:ecr:*:822623301872:repository/git",
+		"arn:aws:ecr:*:822623301872:repository/testconnector",
 	}
 	policy.Statements = append(policy.Statements, awsECRPermissions(allowPullImagesFromHopsworkAiResource, allowPushandPullImagesResource)...)
 
@@ -250,6 +260,7 @@ func TestAccAWSInstanceProfilePolicy_limitRegion(t *testing.T) {
 		"arn:aws:ecr:us-east-2:*:repository/*/onlinefs",
 		"arn:aws:ecr:us-east-2:*:repository/*/airflow",
 		"arn:aws:ecr:us-east-2:*:repository/*/git",
+		"arn:aws:ecr:us-east-2:*:repository/*/testconnector",
 	}
 	var allowPullImagesFromHopsworkAiResource = []string{
 		"arn:aws:ecr:us-east-2:822623301872:repository/filebeat",
@@ -257,6 +268,7 @@ func TestAccAWSInstanceProfilePolicy_limitRegion(t *testing.T) {
 		"arn:aws:ecr:us-east-2:822623301872:repository/onlinefs",
 		"arn:aws:ecr:us-east-2:822623301872:repository/airflow",
 		"arn:aws:ecr:us-east-2:822623301872:repository/git",
+		"arn:aws:ecr:us-east-2:822623301872:repository/testconnector",
 	}
 	policy.Statements = append(policy.Statements, awsECRPermissions(allowPullImagesFromHopsworkAiResource, allowPushandPullImagesResource)...)
 
@@ -289,6 +301,7 @@ func TestAccAWSInstanceProfilePolicy_limitUserAccount(t *testing.T) {
 		"arn:aws:ecr:*:user:repository/*/onlinefs",
 		"arn:aws:ecr:*:user:repository/*/airflow",
 		"arn:aws:ecr:*:user:repository/*/git",
+		"arn:aws:ecr:*:user:repository/*/testconnector",
 	}
 	var allowPullImagesFromHopsworkAiResource = []string{
 		"arn:aws:ecr:*:822623301872:repository/filebeat",
@@ -296,6 +309,7 @@ func TestAccAWSInstanceProfilePolicy_limitUserAccount(t *testing.T) {
 		"arn:aws:ecr:*:822623301872:repository/onlinefs",
 		"arn:aws:ecr:*:822623301872:repository/airflow",
 		"arn:aws:ecr:*:822623301872:repository/git",
+		"arn:aws:ecr:*:822623301872:repository/testconnector",
 	}
 	policy.Statements = append(policy.Statements, awsECRPermissions(allowPullImagesFromHopsworkAiResource, allowPushandPullImagesResource)...)
 
@@ -328,6 +342,7 @@ func TestAccAWSInstanceProfilePolicy_limitHopsworksAccount(t *testing.T) {
 		"arn:aws:ecr:*:*:repository/*/onlinefs",
 		"arn:aws:ecr:*:*:repository/*/airflow",
 		"arn:aws:ecr:*:*:repository/*/git",
+		"arn:aws:ecr:*:*:repository/*/testconnector",
 	}
 	var allowPullImagesFromHopsworkAiResource = []string{
 		"arn:aws:ecr:*:hopsworks:repository/filebeat",
@@ -335,6 +350,7 @@ func TestAccAWSInstanceProfilePolicy_limitHopsworksAccount(t *testing.T) {
 		"arn:aws:ecr:*:hopsworks:repository/onlinefs",
 		"arn:aws:ecr:*:hopsworks:repository/airflow",
 		"arn:aws:ecr:*:hopsworks:repository/git",
+		"arn:aws:ecr:*:hopsworks:repository/testconnector",
 	}
 	policy.Statements = append(policy.Statements, awsECRPermissions(allowPullImagesFromHopsworkAiResource, allowPushandPullImagesResource)...)
 
