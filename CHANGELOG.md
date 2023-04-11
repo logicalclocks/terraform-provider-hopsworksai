@@ -7,6 +7,7 @@ BREAKING CHANGES:
 ENHANCEMENTS:
 * examples: add advanced azure aks example with vnet peering
 * datasource/aws_instance_profile_policy: Add support for testconnector image
+examples: Update terraform helpers modules to version 2.3.0
 
 FEATURES:
 
