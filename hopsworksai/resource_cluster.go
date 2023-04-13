@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-version"
@@ -1146,6 +1147,16 @@ func getECRRegistryAccountIdFromInstanceProfile(instanceProfile string) string {
 	return ""
 }
 
+func getHopsworksVersion(v string) *version.Version {
+	ver := strings.Split(v, "_")[0]
+	versionObj, _ := version.NewVersion(ver)
+	return versionObj
+}
+
+func getHopsworksVersion3_0() *version.Version {
+	return getHopsworksVersion("3.0.0")
+}
+
 func createAWSCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) *api.CreateAWSCluster {
 	req := api.CreateAWSCluster{
 		CreateCluster: *baseRequest,
@@ -1167,10 +1178,9 @@ func createAWSCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) *a
 		req.EksClusterName = v.(string)
 	}
 
-	clusterVersion, _ := version.NewVersion(d.Get("version").(string))
-	versionWithDefaultECR, _ := version.NewVersion("3.0.0")
+	clusterVersion := getHopsworksVersion(d.Get("version").(string))
 
-	if req.EksClusterName != "" || clusterVersion.GreaterThan(versionWithDefaultECR) {
+	if req.EksClusterName != "" || clusterVersion.GreaterThan(getHopsworksVersion3_0()) {
 		if registry, okR := d.GetOk("aws_attributes.0.ecr_registry_account_id"); okR {
 			req.EcrRegistryAccountId = registry.(string)
 		} else {
@@ -1253,10 +1263,9 @@ func createAzureCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) 
 		req.AksClusterName = aks.(string)
 	}
 
-	clusterVersion, _ := version.NewVersion(d.Get("version").(string))
-	versionWithDefaultECR, _ := version.NewVersion("3.0.0")
+	clusterVersion := getHopsworksVersion(d.Get("version").(string))
 
-	if req.AksClusterName != "" || clusterVersion.GreaterThan(versionWithDefaultECR) {
+	if req.AksClusterName != "" || clusterVersion.GreaterThan(getHopsworksVersion3_0()) {
 		if registry, okR := d.GetOk("azure_attributes.0.acr_registry_name"); okR {
 			req.AcrRegistryName = registry.(string)
 		} else {
@@ -1464,11 +1473,10 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		upgradeInProgressToVersion, upgradeInProgressToVersionOk := d.GetOk("upgrade_in_progress.0.to_version")
 
 		if !upgradeInProgressFromVersionOk && !upgradeInProgressToVersionOk {
-			clusterVersion, _ := version.NewVersion(toVersion)
-			versionWithDefaultECR, _ := version.NewVersion("3.0.0")
+			clusterVersion := getHopsworksVersion(toVersion)
 
 			dockerRegistryAccount := ""
-			if clusterVersion.GreaterThan(versionWithDefaultECR) {
+			if clusterVersion.GreaterThan(getHopsworksVersion3_0()) {
 				if _, ok := d.GetOk("aws_attributes"); ok {
 					if v, okR := d.GetOk("aws_attributes.0.ecr_registry_account_id"); okR {
 						dockerRegistryAccount = v.(string)
