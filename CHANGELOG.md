@@ -1,3 +1,15 @@
+## 1.6.0 (Unreleased)
+
+NOTES:
+
+BREAKING CHANGES:
+
+ENHANCEMENTS:
+
+FEATURES:
+
+BUG FIXES:
+
 ## 1.5.0 (May 3, 2023)
 
 ENHANCEMENTS:
