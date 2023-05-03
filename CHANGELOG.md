@@ -1,18 +1,10 @@
-## 1.5.0 (Unreleased)
-
-NOTES:
-
-BREAKING CHANGES:
+## 1.5.0 (May 3, 2023)
 
 ENHANCEMENTS:
 * examples: add advanced azure aks example with vnet peering
 * datasource/aws_instance_profile_policy: Add support for testconnector image
 * examples: Update terraform helpers modules to version 2.3.0
 * resource/hopsworksai_cluster: remove version suffix before checking
-
-FEATURES:
-
-BUG FIXES:
 
 ## 1.4.1 (March 14, 2023)
 
