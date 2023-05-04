@@ -1,15 +1,7 @@
-## 1.6.0 (Unreleased)
-
-NOTES:
-
-BREAKING CHANGES:
+## 1.6.0 (May 4, 2023)
 
 ENHANCEMENTS:
 * resource/hopsworksai_cluster: Set Default `version` to 3.2.0
-
-FEATURES:
-
-BUG FIXES:
 
 ## 1.5.0 (May 3, 2023)
 
