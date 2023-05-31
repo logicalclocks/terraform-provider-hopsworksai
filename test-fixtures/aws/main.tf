@@ -1,4 +1,5 @@
 data "hopsworksai_aws_instance_profile_policy" "policy" {
+  hopsworksai_ecr_account = "*"
 }
 
 resource "aws_iam_role" "role" {
