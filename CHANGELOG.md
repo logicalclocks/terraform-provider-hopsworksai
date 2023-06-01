@@ -5,6 +5,7 @@ NOTES:
 BREAKING CHANGES:
 
 ENHANCEMENTS:
+* test-fixtures: run against dev and prod envs
 
 FEATURES:
 
