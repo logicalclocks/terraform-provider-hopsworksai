@@ -4,7 +4,7 @@ pipeline {
             label 'local'
         }
     }
-    tools { go 'ndbagent' }
+    tools { go 'hopsworks-terraform' }
     environment {
         TF_ACCTEST_LOG_DIR="/home/jenkinsmaster/terraform/acc-test-logs/${currentBuild.number}"
         TF_ACCTEST_LOG_LEVEL="debug"
