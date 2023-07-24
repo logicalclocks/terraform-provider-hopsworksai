@@ -52,5 +52,3 @@ data "hopsworksai_aws_instance_profile_policy" "policy" {
 
 - `id` (String) The ID of this resource.
 - `json` (String) The instance profile policy in JSON format.
-
-

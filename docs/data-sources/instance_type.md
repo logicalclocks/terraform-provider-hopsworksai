@@ -49,5 +49,3 @@ data "hopsworksai_instance_type" "supported_type" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-
-

@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/logicalclocks/terraform-provider-hopsworksai/hopsworksai/internal/api"
 	"github.com/logicalclocks/terraform-provider-hopsworksai/hopsworksai/internal/test"
 )

@@ -413,5 +413,3 @@ Read-Only:
 
 - `from_version` (String)
 - `to_version` (String)
-
-

@@ -34,5 +34,3 @@ data "hopsworksai_backup" "backup" {
 - `id` (String) The ID of this resource.
 - `state` (String) The backup state.
 - `state_message` (String) The backup state message.
-
-

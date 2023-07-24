@@ -9,9 +9,10 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	terraformSDK "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/logicalclocks/terraform-provider-hopsworksai/hopsworksai/internal/api"
 )
 
@@ -221,12 +222,12 @@ func testAccResourceDataSourceCheckAllAttributes(resourceName string, dataSource
 
 func TestProviderAPIGateway(t *testing.T) {
 	testCases := []struct {
-		config              *terraform.ResourceConfig
+		config              *terraformSDK.ResourceConfig
 		expectedGateway     string
 		expectedDiagnostics diag.Diagnostics
 	}{
 		{
-			config: terraform.NewResourceConfigRaw(map[string]interface{}{
+			config: terraformSDK.NewResourceConfigRaw(map[string]interface{}{
 				"api_gateway": "https://api.gateway.ai",
 			}),
 			expectedGateway: "https://api.gateway.ai",
@@ -236,12 +237,12 @@ func TestProviderAPIGateway(t *testing.T) {
 		},
 
 		{
-			config:          terraform.NewResourceConfigRaw(map[string]interface{}{}),
+			config:          terraformSDK.NewResourceConfigRaw(map[string]interface{}{}),
 			expectedGateway: api.DEFAULT_API_GATEWAY,
 		},
 
 		{
-			config: terraform.NewResourceConfigRaw(map[string]interface{}{
+			config: terraformSDK.NewResourceConfigRaw(map[string]interface{}{
 				"api_gateway": "api.gateway.ai",
 			}),
 			expectedDiagnostics: diag.Diagnostics{
@@ -254,7 +255,7 @@ func TestProviderAPIGateway(t *testing.T) {
 		},
 
 		{
-			config: terraform.NewResourceConfigRaw(map[string]interface{}{
+			config: terraformSDK.NewResourceConfigRaw(map[string]interface{}{
 				"api_gateway": ":foo",
 			}),
 			expectedDiagnostics: diag.Diagnostics{

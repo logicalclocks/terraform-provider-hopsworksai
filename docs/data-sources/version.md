@@ -60,5 +60,3 @@ Read-Only:
 
 - `centos` (List of String)
 - `ubuntu` (List of String)
-
-
