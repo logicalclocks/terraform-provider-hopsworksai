@@ -42,5 +42,3 @@ data "hopsworksai_azure_user_assigned_identity_permissions" "permissions" {
 - `id` (String) The ID of this resource.
 - `not_actions` (List of String) The not actions permissions.
 - `not_data_actions` (Set of String) The not data actions permissions.
-
-

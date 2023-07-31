@@ -11,7 +11,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	terraformSDK "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/logicalclocks/terraform-provider-hopsworksai/hopsworksai/internal/api"
 	"github.com/logicalclocks/terraform-provider-hopsworksai/hopsworksai/internal/api/test"
 )
@@ -90,11 +90,11 @@ type ResourceFixture struct {
 	ExpectWarning             string
 }
 
-func getResourceData(ctx context.Context, t *testing.T, r *schema.Resource, currentState *terraform.InstanceState, newState map[string]interface{}, mockClient interface{}) *schema.ResourceData {
+func getResourceData(ctx context.Context, t *testing.T, r *schema.Resource, currentState *terraformSDK.InstanceState, newState map[string]interface{}, mockClient interface{}) *schema.ResourceData {
 	schemaMap := schema.InternalMap(r.Schema)
-	var diff = terraform.NewInstanceDiff()
+	var diff = terraformSDK.NewInstanceDiff()
 	if newState != nil {
-		resourceConfig := terraform.NewResourceConfigRaw(newState)
+		resourceConfig := terraformSDK.NewResourceConfigRaw(newState)
 		if d, err := r.Diff(ctx, currentState, resourceConfig, mockClient); err != nil {
 			t.Fatal(err)
 		} else {
@@ -133,7 +133,7 @@ func (r *ResourceFixture) Apply(t *testing.T, ctx context.Context) {
 	}
 
 	var data *schema.ResourceData
-	data = getResourceData(ctx, t, r.Resource, &terraform.InstanceState{}, r.State, mockClient)
+	data = getResourceData(ctx, t, r.Resource, &terraformSDK.InstanceState{}, r.State, mockClient)
 
 	if r.Id != "" {
 		data.SetId(r.Id)

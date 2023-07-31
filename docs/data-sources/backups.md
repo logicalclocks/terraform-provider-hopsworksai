@@ -48,5 +48,3 @@ Read-Only:
 - `creation_date` (String)
 - `state` (String)
 - `state_message` (String)
-
-

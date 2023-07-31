@@ -369,5 +369,3 @@ Read-Only:
 
 - `fall_back_on_demand` (Boolean)
 - `max_price_percent` (Number)
-
-

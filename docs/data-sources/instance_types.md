@@ -45,5 +45,3 @@ Read-Only:
 - `id` (String)
 - `memory` (Number)
 - `with_nvme` (Boolean)
-
-
