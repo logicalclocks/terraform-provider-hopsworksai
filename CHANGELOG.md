@@ -20,6 +20,7 @@ ENHANCEMENTS:
 * test-fixtures: run against dev and prod envs
 * resource/hopsworksai_cluster: Set Default `version` to 3.3.0
 * Bump minimum Go version to 1.19
+* examples: add an advanced aws example to setup a Hopsworks cluster with ArrowFlight server
 
 FEATURES:
 
