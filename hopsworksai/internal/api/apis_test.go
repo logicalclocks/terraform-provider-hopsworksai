@@ -652,12 +652,15 @@ func TestNewClusterAWS(t *testing.T) {
 					},
 					Count: 2,
 				},
-				MYSQLNodes: RonDBNodeConfiguration{
-					NodeConfiguration: NodeConfiguration{
-						InstanceType: "mysqld-node-1",
-						DiskSize:     100,
+				MYSQLNodes: MYSQLNodeConfiguration{
+					RonDBNodeConfiguration: RonDBNodeConfiguration{
+						NodeConfiguration: NodeConfiguration{
+							InstanceType: "mysqld-node-1",
+							DiskSize:     100,
+						},
+						Count: 1,
 					},
-					Count: 1,
+					ArrowFlightServer: false,
 				},
 				APINodes: RonDBNodeConfiguration{
 					NodeConfiguration: NodeConfiguration{
@@ -847,12 +850,15 @@ func TestNewClusterAZURE(t *testing.T) {
 					},
 					Count: 2,
 				},
-				MYSQLNodes: RonDBNodeConfiguration{
-					NodeConfiguration: NodeConfiguration{
-						InstanceType: "mysqld-node-1",
-						DiskSize:     100,
+				MYSQLNodes: MYSQLNodeConfiguration{
+					RonDBNodeConfiguration: RonDBNodeConfiguration{
+						NodeConfiguration: NodeConfiguration{
+							InstanceType: "mysqld-node-1",
+							DiskSize:     100,
+						},
+						Count: 1,
 					},
-					Count: 1,
+					ArrowFlightServer: false,
 				},
 				APINodes: RonDBNodeConfiguration{
 					NodeConfiguration: NodeConfiguration{
@@ -2563,12 +2569,15 @@ func TestNewClusterAWS_HA(t *testing.T) {
 					},
 					Count: 2,
 				},
-				MYSQLNodes: RonDBNodeConfiguration{
-					NodeConfiguration: NodeConfiguration{
-						InstanceType: "mysqld-node-1",
-						DiskSize:     100,
+				MYSQLNodes: MYSQLNodeConfiguration{
+					RonDBNodeConfiguration: RonDBNodeConfiguration{
+						NodeConfiguration: NodeConfiguration{
+							InstanceType: "mysqld-node-1",
+							DiskSize:     100,
+						},
+						Count: 1,
 					},
-					Count: 1,
+					ArrowFlightServer: false,
 				},
 				APINodes: RonDBNodeConfiguration{
 					NodeConfiguration: NodeConfiguration{

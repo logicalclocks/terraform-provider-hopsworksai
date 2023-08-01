@@ -2298,12 +2298,15 @@ func testClusterCreate_RonDB(t *testing.T, cloud api.CloudProvider) {
 							},
 							Count: 2,
 						},
-						MYSQLNodes: api.RonDBNodeConfiguration{
-							NodeConfiguration: api.NodeConfiguration{
-								InstanceType: "mysqld-node-1",
-								DiskSize:     100,
+						MYSQLNodes: api.MYSQLNodeConfiguration{
+							RonDBNodeConfiguration: api.RonDBNodeConfiguration{
+								NodeConfiguration: api.NodeConfiguration{
+									InstanceType: "mysqld-node-1",
+									DiskSize:     100,
+								},
+								Count: 1,
 							},
-							Count: 1,
+							ArrowFlightServer: false,
 						},
 						APINodes: api.RonDBNodeConfiguration{
 							NodeConfiguration: api.NodeConfiguration{
@@ -2432,11 +2435,14 @@ func testClusterCreate_RonDB_single_node(t *testing.T, cloud api.CloudProvider) 
 							},
 							Count: 1,
 						},
-						MYSQLNodes: api.RonDBNodeConfiguration{
-							NodeConfiguration: api.NodeConfiguration{
-								DiskSize: defaultRonDB.MYSQLNodes.DiskSize,
+						MYSQLNodes: api.MYSQLNodeConfiguration{
+							RonDBNodeConfiguration: api.RonDBNodeConfiguration{
+								NodeConfiguration: api.NodeConfiguration{
+									DiskSize: defaultRonDB.MYSQLNodes.DiskSize,
+								},
+								Count: 1,
 							},
-							Count: 1,
+							ArrowFlightServer: false,
 						},
 						APINodes: api.RonDBNodeConfiguration{
 							NodeConfiguration: api.NodeConfiguration{

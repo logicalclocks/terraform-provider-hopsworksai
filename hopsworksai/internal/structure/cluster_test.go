@@ -366,12 +366,15 @@ func TestFlattenCluster(t *testing.T) {
 				},
 				Count: 2,
 			},
-			MYSQLNodes: api.RonDBNodeConfiguration{
-				NodeConfiguration: api.NodeConfiguration{
-					InstanceType: "mysqld-node-1",
-					DiskSize:     100,
+			MYSQLNodes: api.MYSQLNodeConfiguration{
+				RonDBNodeConfiguration: api.RonDBNodeConfiguration{
+					NodeConfiguration: api.NodeConfiguration{
+						InstanceType: "mysqld-node-1",
+						DiskSize:     100,
+					},
+					Count: 1,
 				},
-				Count: 1,
+				ArrowFlightServer: false,
 			},
 			APINodes: api.RonDBNodeConfiguration{
 				NodeConfiguration: api.NodeConfiguration{
@@ -803,12 +806,15 @@ func TestFlattenRonDB(t *testing.T) {
 			},
 			Count: 2,
 		},
-		MYSQLNodes: api.RonDBNodeConfiguration{
-			NodeConfiguration: api.NodeConfiguration{
-				InstanceType: "mysqld-node-1",
-				DiskSize:     100,
+		MYSQLNodes: api.MYSQLNodeConfiguration{
+			RonDBNodeConfiguration: api.RonDBNodeConfiguration{
+				NodeConfiguration: api.NodeConfiguration{
+					InstanceType: "mysqld-node-1",
+					DiskSize:     100,
+				},
+				Count: 1,
 			},
-			Count: 1,
+			ArrowFlightServer: false,
 		},
 		APINodes: api.RonDBNodeConfiguration{
 			NodeConfiguration: api.NodeConfiguration{
@@ -1301,12 +1307,15 @@ func TestFlattenClusters(t *testing.T) {
 					},
 					Count: 2,
 				},
-				MYSQLNodes: api.RonDBNodeConfiguration{
-					NodeConfiguration: api.NodeConfiguration{
-						InstanceType: "mysqld-node-1",
-						DiskSize:     100,
+				MYSQLNodes: api.MYSQLNodeConfiguration{
+					RonDBNodeConfiguration: api.RonDBNodeConfiguration{
+						NodeConfiguration: api.NodeConfiguration{
+							InstanceType: "mysqld-node-1",
+							DiskSize:     100,
+						},
+						Count: 1,
 					},
-					Count: 1,
+					ArrowFlightServer: false,
 				},
 				APINodes: api.RonDBNodeConfiguration{
 					NodeConfiguration: api.NodeConfiguration{
@@ -1419,12 +1428,15 @@ func TestFlattenClusters(t *testing.T) {
 					},
 					Count: 2,
 				},
-				MYSQLNodes: api.RonDBNodeConfiguration{
-					NodeConfiguration: api.NodeConfiguration{
-						InstanceType: "mysqld-node-1",
-						DiskSize:     100,
+				MYSQLNodes: api.MYSQLNodeConfiguration{
+					RonDBNodeConfiguration: api.RonDBNodeConfiguration{
+						NodeConfiguration: api.NodeConfiguration{
+							InstanceType: "mysqld-node-1",
+							DiskSize:     100,
+						},
+						Count: 1,
 					},
-					Count: 1,
+					ArrowFlightServer: false,
 				},
 				APINodes: api.RonDBNodeConfiguration{
 					NodeConfiguration: api.NodeConfiguration{
@@ -1968,12 +1980,15 @@ func TestFlattenRonDB_single_node(t *testing.T) {
 			Count:      1,
 			PrivateIps: []string{"ip1"},
 		},
-		MYSQLNodes: api.RonDBNodeConfiguration{
-			NodeConfiguration: api.NodeConfiguration{
-				InstanceType: "mysqld-node-1",
-				DiskSize:     100,
+		MYSQLNodes: api.MYSQLNodeConfiguration{
+			RonDBNodeConfiguration: api.RonDBNodeConfiguration{
+				NodeConfiguration: api.NodeConfiguration{
+					InstanceType: "mysqld-node-1",
+					DiskSize:     100,
+				},
+				Count: 1,
 			},
-			Count: 1,
+			ArrowFlightServer: false,
 		},
 	}
 
