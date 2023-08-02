@@ -861,9 +861,10 @@ func TestFlattenRonDB(t *testing.T) {
 			},
 			"mysql_nodes": []interface{}{
 				map[string]interface{}{
-					"instance_type": "mysqld-node-1",
-					"disk_size":     100,
-					"count":         1,
+					"instance_type":            "mysqld-node-1",
+					"disk_size":                100,
+					"count":                    1,
+					"arrow_flight_with_duckdb": false,
 				},
 			},
 			"api_nodes": []interface{}{

@@ -555,7 +555,8 @@ func TestNewClusterAWS(t *testing.T) {
 						"mysqld": {
 							"instanceType": "mysqld-node-1",
 							"diskSize": 100,
-							"count": 1
+							"count": 1,
+							"arrowFlight": false
 						},
 						"api": {
 							"instanceType": "api-node-1",
@@ -754,7 +755,8 @@ func TestNewClusterAZURE(t *testing.T) {
 						"mysqld": {
 							"instanceType": "mysqld-node-1",
 							"diskSize": 100,
-							"count": 1
+							"count": 1,
+							"arrowFlight": false
 						},
 						"api": {
 							"instanceType": "api-node-1",
@@ -2475,7 +2477,8 @@ func TestNewClusterAWS_HA(t *testing.T) {
 						"mysqld": {
 							"instanceType": "mysqld-node-1",
 							"diskSize": 100,
-							"count": 1
+							"count": 1,
+							"arrowFlight": false
 						},
 						"api": {
 							"instanceType": "api-node-1",
