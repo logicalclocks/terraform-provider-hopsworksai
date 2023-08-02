@@ -2015,3 +2015,29 @@ func TestFlattenRonDB_single_node(t *testing.T) {
 		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
 	}
 }
+
+func TestExpandRonDBMySQLNodeConfiguration(t *testing.T) {
+	input := map[string]interface{}{
+		"instance_type":            "node-type-1",
+		"disk_size":                512,
+		"count":                    2,
+		"arrow_flight_with_duckdb": true,
+		"private_ips":              []interface{}{"ip1", "ip2"},
+	}
+
+	expected := api.MYSQLNodeConfiguration{
+		RonDBNodeConfiguration: api.RonDBNodeConfiguration{
+			NodeConfiguration: api.NodeConfiguration{
+				InstanceType: "node-type-1",
+				DiskSize:     512,
+			},
+			Count:      2,
+			PrivateIps: []string{"ip1", "ip2"},
+		},
+		ArrowFlightServer: true,
+	}
+	output := ExpandRonDBMySQLNodeConfiguration(input)
+	if !reflect.DeepEqual(expected, output) {
+		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
+	}
+}

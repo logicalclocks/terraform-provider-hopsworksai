@@ -2613,3 +2613,203 @@ func TestNewClusterAWS_HA(t *testing.T) {
 		t.Fatalf("new cluster should return the new cluster id, expected: new-cluster-id-1, got %s", clusterId)
 	}
 }
+
+func TestNewClusterAWS_withArrowFlight(t *testing.T) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod: http.MethodPost,
+			ExpectPath:   "/api/clusters",
+			ExpectRequestBody: `{
+				"cloudProvider": "AWS",
+				"cluster": {
+					"name": "cluster-1",
+					"version": "2.0",
+					"sshKeyName": "ssh-key-1",
+					"clusterConfiguration": {
+						"head": {
+							"instanceType": "node-type-1",
+							"diskSize": 512,
+							"haEnabled": false
+						},
+						"workers": [
+							{
+								"instanceType": "node-type-2",
+								"diskSize": 256,
+								"count": 2
+							}
+						]
+					},
+					"issueLetsEncrypt": true,
+					"attachPublicIP": true,
+					"backupRetentionPeriod": 10,
+					"managedUsers": true,
+					"tags": [
+						{
+							"name": "tag1",
+							"value": "tag1-value1"
+						}
+					],
+					"ronDB": {
+						"allInOne": false,
+						"configuration": {
+							"ndbdDefault": {
+								"replicationFactor": 2
+							},
+							"general": {
+								"benchmark": {
+									"grantUserPrivileges": false
+								}
+							}
+						},
+						"mgmd": {
+							"instanceType": "mgm-node-1",
+							"diskSize": 30,
+							"count": 1
+						},
+						"ndbd": {
+							"instanceType": "data-node-1",
+							"diskSize": 512,
+							"count": 2
+						},
+						"mysqld": {
+							"instanceType": "mysqld-node-1",
+							"diskSize": 100,
+							"count": 1,
+							"arrowFlight": true
+						},
+						"api": {
+							"instanceType": "api-node-1",
+							"diskSize": 50,
+							"count": 1
+						}
+					},
+					"initScript": "",
+					"runInitScriptFirst": false,
+					"deactivateLogReport": false,
+					"collectLogs": false,
+					"clusterDomainPrefix": "my-prefix",
+					"customHostedZone": "custom.zone.ai",
+					"region": "region-1",
+					"bucketName": "bucket-1",
+					"instanceProfileArn": "profile-1",
+					"headInstanceProfileArn": "profile-2",
+					"vpcId": "vpc-1",
+					"subnetId": "subnet-1",
+					"securityGroupId": "security-group-1",
+					"eksClusterName": "eks-cluster-1",
+					"ecrRegistryAccountId": "ecr-account-1"
+				}
+			}`,
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200,
+				"payload":{
+					"id" : "new-cluster-id-1"
+				}
+			}`,
+			T: t,
+		},
+	}
+
+	input := CreateAWSCluster{
+		CreateCluster: CreateCluster{
+			Name:       "cluster-1",
+			Version:    "2.0",
+			SshKeyName: "ssh-key-1",
+			ClusterConfiguration: ClusterConfiguration{
+				Head: HeadConfiguration{
+					NodeConfiguration: NodeConfiguration{
+						InstanceType: "node-type-1",
+						DiskSize:     512,
+					},
+				},
+				Workers: []WorkerConfiguration{
+					{
+						NodeConfiguration: NodeConfiguration{
+							InstanceType: "node-type-2",
+							DiskSize:     256,
+						},
+						Count: 2,
+					},
+				},
+			},
+			IssueLetsEncrypt:      true,
+			AttachPublicIP:        true,
+			BackupRetentionPeriod: 10,
+			ManagedUsers:          true,
+			Tags: []ClusterTag{
+				{
+					Name:  "tag1",
+					Value: "tag1-value1",
+				},
+			},
+			ClusterDomainPrefix: "my-prefix",
+			CustomHostedZone:    "custom.zone.ai",
+			RonDB: &RonDBConfiguration{
+				Configuration: RonDBBaseConfiguration{
+					NdbdDefault: RonDBNdbdDefaultConfiguration{
+						ReplicationFactor: 2,
+					},
+					General: RonDBGeneralConfiguration{
+						Benchmark: RonDBBenchmarkConfiguration{
+							GrantUserPrivileges: false,
+						},
+					},
+				},
+				ManagementNodes: RonDBNodeConfiguration{
+					NodeConfiguration: NodeConfiguration{
+						InstanceType: "mgm-node-1",
+						DiskSize:     30,
+					},
+					Count: 1,
+				},
+				DataNodes: RonDBNodeConfiguration{
+					NodeConfiguration: NodeConfiguration{
+						InstanceType: "data-node-1",
+						DiskSize:     512,
+					},
+					Count: 2,
+				},
+				MYSQLNodes: MYSQLNodeConfiguration{
+					RonDBNodeConfiguration: RonDBNodeConfiguration{
+						NodeConfiguration: NodeConfiguration{
+							InstanceType: "mysqld-node-1",
+							DiskSize:     100,
+						},
+						Count: 1,
+					},
+					ArrowFlightServer: true,
+				},
+				APINodes: RonDBNodeConfiguration{
+					NodeConfiguration: NodeConfiguration{
+						InstanceType: "api-node-1",
+						DiskSize:     50,
+					},
+					Count: 1,
+				},
+			},
+		},
+		AWSCluster: AWSCluster{
+			Region:                 "region-1",
+			BucketName:             "bucket-1",
+			InstanceProfileArn:     "profile-1",
+			HeadInstanceProfileArn: "profile-2",
+			VpcId:                  "vpc-1",
+			SubnetId:               "subnet-1",
+			SecurityGroupId:        "security-group-1",
+			EksClusterName:         "eks-cluster-1",
+			EcrRegistryAccountId:   "ecr-account-1",
+		},
+	}
+
+	clusterId, err := NewCluster(context.TODO(), apiClient, input)
+	if err != nil {
+		t.Fatalf("new cluster should not throw error, but got %s", err)
+	}
+
+	if clusterId != "new-cluster-id-1" {
+		t.Fatalf("new cluster should return the new cluster id, expected: new-cluster-id-1, got %s", clusterId)
+	}
+}
