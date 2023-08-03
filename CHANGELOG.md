@@ -1,3 +1,15 @@
+## 1.8.0 (Unreleased)
+
+NOTES:
+
+BREAKING CHANGES:
+
+ENHANCEMENTS:
+
+FEATURES:
+
+BUG FIXES:
+
 ## 1.7.0 (August 3, 2023)
 
 NOTES:
