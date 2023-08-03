@@ -261,6 +261,7 @@ Required:
 
 Optional:
 
+- `arrow_flight_with_duckdb` (Boolean) Enable or disable ArrowFight server with DuckDB to speed up different feature store operations for external python clients. Defaults to `false`.
 - `count` (Number) The number of MySQL nodes. Defaults to `1`.
 - `disk_size` (Number) The disk size of MySQL nodes in units of GB Defaults to `128`.
 

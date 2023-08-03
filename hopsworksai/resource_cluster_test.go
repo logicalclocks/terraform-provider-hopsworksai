@@ -2298,12 +2298,15 @@ func testClusterCreate_RonDB(t *testing.T, cloud api.CloudProvider) {
 							},
 							Count: 2,
 						},
-						MYSQLNodes: api.RonDBNodeConfiguration{
-							NodeConfiguration: api.NodeConfiguration{
-								InstanceType: "mysqld-node-1",
-								DiskSize:     100,
+						MYSQLNodes: api.MYSQLNodeConfiguration{
+							RonDBNodeConfiguration: api.RonDBNodeConfiguration{
+								NodeConfiguration: api.NodeConfiguration{
+									InstanceType: "mysqld-node-1",
+									DiskSize:     100,
+								},
+								Count: 1,
 							},
-							Count: 1,
+							ArrowFlightServer: false,
 						},
 						APINodes: api.RonDBNodeConfiguration{
 							NodeConfiguration: api.NodeConfiguration{
@@ -2432,11 +2435,14 @@ func testClusterCreate_RonDB_single_node(t *testing.T, cloud api.CloudProvider) 
 							},
 							Count: 1,
 						},
-						MYSQLNodes: api.RonDBNodeConfiguration{
-							NodeConfiguration: api.NodeConfiguration{
-								DiskSize: defaultRonDB.MYSQLNodes.DiskSize,
+						MYSQLNodes: api.MYSQLNodeConfiguration{
+							RonDBNodeConfiguration: api.RonDBNodeConfiguration{
+								NodeConfiguration: api.NodeConfiguration{
+									DiskSize: defaultRonDB.MYSQLNodes.DiskSize,
+								},
+								Count: 1,
 							},
-							Count: 1,
+							ArrowFlightServer: false,
 						},
 						APINodes: api.RonDBNodeConfiguration{
 							NodeConfiguration: api.NodeConfiguration{
@@ -6218,6 +6224,159 @@ func TestClusterUpdate_AZURE_update_acr_error(t *testing.T) {
 			},
 		},
 		ExpectError: "You cannot change the acr_registry_name after cluster creation",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_withArrowFlight(t *testing.T) {
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 400,
+					"message": "skip"
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					output, err := testGetRonDBConfig(reqBody, api.AWS)
+					if err != nil {
+						return err
+					}
+
+					expected := api.RonDBConfiguration{
+						Configuration: api.RonDBBaseConfiguration{
+							NdbdDefault: api.RonDBNdbdDefaultConfiguration{
+								ReplicationFactor: 2,
+							},
+							General: api.RonDBGeneralConfiguration{
+								Benchmark: api.RonDBBenchmarkConfiguration{
+									GrantUserPrivileges: false,
+								},
+							},
+						},
+						ManagementNodes: api.RonDBNodeConfiguration{
+							NodeConfiguration: api.NodeConfiguration{
+								InstanceType: "mgm-node-1",
+								DiskSize:     30,
+							},
+							Count: 1,
+						},
+						DataNodes: api.RonDBNodeConfiguration{
+							NodeConfiguration: api.NodeConfiguration{
+								InstanceType: "data-node-1",
+								DiskSize:     512,
+							},
+							Count: 2,
+						},
+						MYSQLNodes: api.MYSQLNodeConfiguration{
+							RonDBNodeConfiguration: api.RonDBNodeConfiguration{
+								NodeConfiguration: api.NodeConfiguration{
+									InstanceType: "mysqld-node-1",
+									DiskSize:     100,
+								},
+								Count: 1,
+							},
+							ArrowFlightServer: true,
+						},
+						APINodes: api.RonDBNodeConfiguration{
+							NodeConfiguration: api.NodeConfiguration{
+								InstanceType: "api-node-1",
+								DiskSize:     50,
+							},
+							Count: 1,
+						},
+					}
+
+					if !reflect.DeepEqual(&expected, output) {
+						return fmt.Errorf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
+					}
+					return nil
+				},
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name": "cluster",
+			"head": []interface{}{
+				map[string]interface{}{
+					"disk_size": 512,
+				},
+			},
+			"ssh_key": "my-key",
+			"workers": []interface{}{
+				map[string]interface{}{
+					"disk_size": 256,
+					"count":     2,
+				},
+			},
+			"rondb": []interface{}{
+				map[string]interface{}{
+					"configuration": []interface{}{
+						map[string]interface{}{
+							"ndbd_default": []interface{}{
+								map[string]interface{}{
+									"replication_factor": 2,
+								},
+							},
+							"general": []interface{}{
+								map[string]interface{}{
+									"benchmark": []interface{}{
+										map[string]interface{}{
+											"grant_user_privileges": false,
+										},
+									},
+								},
+							},
+						},
+					},
+					"management_nodes": []interface{}{
+						map[string]interface{}{
+							"instance_type": "mgm-node-1",
+							"disk_size":     30,
+							"count":         1,
+						},
+					},
+					"data_nodes": []interface{}{
+						map[string]interface{}{
+							"instance_type": "data-node-1",
+							"disk_size":     512,
+							"count":         2,
+						},
+					},
+					"mysql_nodes": []interface{}{
+						map[string]interface{}{
+							"instance_type":            "mysqld-node-1",
+							"disk_size":                100,
+							"count":                    1,
+							"arrow_flight_with_duckdb": true,
+						},
+					},
+					"api_nodes": []interface{}{
+						map[string]interface{}{
+							"instance_type": "api-node-1",
+							"disk_size":     50,
+							"count":         1,
+						},
+					},
+				},
+			},
+			"aws_attributes": []interface{}{
+				map[string]interface{}{
+					"region": "region-1",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
+					"instance_profile_arn": "profile-1",
+				},
+			},
+		},
+		ExpectError: "failed to create cluster, error: skip",
 	}
 	r.Apply(t, context.TODO())
 }

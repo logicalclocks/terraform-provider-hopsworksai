@@ -122,12 +122,17 @@ type RonDBNodeConfiguration struct {
 	PrivateIps []string `json:"privateIps,omitempty"`
 }
 
+type MYSQLNodeConfiguration struct {
+	RonDBNodeConfiguration
+	ArrowFlightServer bool `json:"arrowFlight"`
+}
+
 type RonDBConfiguration struct {
 	AllInOne        bool                   `json:"allInOne"`
 	Configuration   RonDBBaseConfiguration `json:"configuration"`
 	ManagementNodes RonDBNodeConfiguration `json:"mgmd"`
 	DataNodes       RonDBNodeConfiguration `json:"ndbd"`
-	MYSQLNodes      RonDBNodeConfiguration `json:"mysqld"`
+	MYSQLNodes      MYSQLNodeConfiguration `json:"mysqld"`
 	APINodes        RonDBNodeConfiguration `json:"api"`
 }
 

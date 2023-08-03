@@ -5,6 +5,7 @@ NOTES:
 BREAKING CHANGES:
 
 ENHANCEMENTS:
+* resource/hopsworksai_cluster: Add a new attribute `rondb/mysql_nodes/arrow_flight_with_duckdb` to enable or disable ArrowFlight server with DuckDB
 
 FEATURES:
 
@@ -20,6 +21,7 @@ ENHANCEMENTS:
 * test-fixtures: run against dev and prod envs
 * resource/hopsworksai_cluster: Set Default `version` to 3.3.0
 * Bump minimum Go version to 1.19
+
 
 FEATURES:
 
