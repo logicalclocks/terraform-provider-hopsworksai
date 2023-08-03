@@ -45,11 +45,14 @@ func defaultRonDBConfiguration() api.RonDBConfiguration {
 			},
 			Count: 2,
 		},
-		MYSQLNodes: api.RonDBNodeConfiguration{
-			NodeConfiguration: api.NodeConfiguration{
-				DiskSize: 128,
+		MYSQLNodes: api.MYSQLNodeConfiguration{
+			RonDBNodeConfiguration: api.RonDBNodeConfiguration{
+				NodeConfiguration: api.NodeConfiguration{
+					DiskSize: 128,
+				},
+				Count: 1,
 			},
-			Count: 1,
+			ArrowFlightServer: false,
 		},
 		APINodes: api.RonDBNodeConfiguration{
 			NodeConfiguration: api.NodeConfiguration{
@@ -633,6 +636,13 @@ func ronDBSchema() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+						},
+						"arrow_flight_with_duckdb": {
+							Description: "Enable or disable ArrowFight server with DuckDB to speed up different feature store operations for external python clients.",
+							Type:        schema.TypeBool,
+							Optional:    true,
+							ForceNew:    true,
+							Default:     defaultRonDBConfiguration().MYSQLNodes.ArrowFlightServer,
 						},
 					},
 				},
@@ -1344,11 +1354,14 @@ func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error
 					},
 					Count: 1,
 				},
-				MYSQLNodes: api.RonDBNodeConfiguration{
-					NodeConfiguration: api.NodeConfiguration{
-						DiskSize: defaultRonDB.MYSQLNodes.DiskSize,
+				MYSQLNodes: api.MYSQLNodeConfiguration{
+					RonDBNodeConfiguration: api.RonDBNodeConfiguration{
+						NodeConfiguration: api.NodeConfiguration{
+							DiskSize: defaultRonDB.MYSQLNodes.DiskSize,
+						},
+						Count: 1,
 					},
-					Count: 1,
+					ArrowFlightServer: false,
 				},
 				APINodes: api.RonDBNodeConfiguration{
 					NodeConfiguration: api.NodeConfiguration{
@@ -1386,7 +1399,7 @@ func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error
 				},
 				ManagementNodes: structure.ExpandRonDBNodeConfiguration(d.Get("rondb.0.management_nodes").([]interface{})[0].(map[string]interface{})),
 				DataNodes:       structure.ExpandRonDBNodeConfiguration(d.Get("rondb.0.data_nodes").([]interface{})[0].(map[string]interface{})),
-				MYSQLNodes:      structure.ExpandRonDBNodeConfiguration(d.Get("rondb.0.mysql_nodes").([]interface{})[0].(map[string]interface{})),
+				MYSQLNodes:      structure.ExpandRonDBMySQLNodeConfiguration(d.Get("rondb.0.mysql_nodes").([]interface{})[0].(map[string]interface{})),
 			}
 
 			if n, ok := d.GetOk("rondb.0.api_nodes"); ok {

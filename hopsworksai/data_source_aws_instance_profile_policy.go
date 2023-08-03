@@ -286,6 +286,7 @@ func dataSourceAWSInstanceProfilePolicyRead(ctx context.Context, d *schema.Resou
 			fmt.Sprintf("arn:aws:ecr:%s:%s:repository/%s/airflow", region, userEcrAccount, clusterId),
 			fmt.Sprintf("arn:aws:ecr:%s:%s:repository/%s/git", region, userEcrAccount, clusterId),
 			fmt.Sprintf("arn:aws:ecr:%s:%s:repository/%s/testconnector", region, userEcrAccount, clusterId),
+			fmt.Sprintf("arn:aws:ecr:%s:%s:repository/%s/flyingduck", region, userEcrAccount, clusterId),
 		}
 		var allowPullImagesFromHopsworkAiResource = []string{
 			fmt.Sprintf("arn:aws:ecr:%s:%s:repository/filebeat", region, hopsworksaiEcrAccount),
@@ -294,6 +295,7 @@ func dataSourceAWSInstanceProfilePolicyRead(ctx context.Context, d *schema.Resou
 			fmt.Sprintf("arn:aws:ecr:%s:%s:repository/airflow", region, hopsworksaiEcrAccount),
 			fmt.Sprintf("arn:aws:ecr:%s:%s:repository/git", region, hopsworksaiEcrAccount),
 			fmt.Sprintf("arn:aws:ecr:%s:%s:repository/testconnector", region, hopsworksaiEcrAccount),
+			fmt.Sprintf("arn:aws:ecr:%s:%s:repository/flyingduck", region, hopsworksaiEcrAccount),
 		}
 		policy.Statements = append(policy.Statements, awsECRPermissions(allowPullImagesFromHopsworkAiResource, allowPushandPullImagesResource)...)
 	}

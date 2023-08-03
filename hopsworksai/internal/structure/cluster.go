@@ -101,6 +101,12 @@ func flattenRonDBNode(node api.RonDBNodeConfiguration) map[string]interface{} {
 	return rondbNodeConf
 }
 
+func flattenRonDBMySQLNode(node api.MYSQLNodeConfiguration) map[string]interface{} {
+	mysqlNodeConf := flattenRonDBNode(node.RonDBNodeConfiguration)
+	mysqlNodeConf["arrow_flight_with_duckdb"] = node.ArrowFlightServer
+	return mysqlNodeConf
+}
+
 func flattenPrivateIps(privateIps []string) []interface{} {
 	var ips = make([]interface{}, len(privateIps))
 	for i, v := range privateIps {
@@ -299,7 +305,7 @@ func flattenRonDB(ronDB *api.RonDBConfiguration) []map[string]interface{} {
 					flattenRonDBNode(ronDB.DataNodes),
 				},
 				"mysql_nodes": []interface{}{
-					flattenRonDBNode(ronDB.MYSQLNodes),
+					flattenRonDBMySQLNode(ronDB.MYSQLNodes),
 				},
 				"api_nodes": []interface{}{
 					flattenRonDBNode(ronDB.APINodes),
@@ -421,6 +427,18 @@ func ExpandRonDBNodeConfiguration(node map[string]interface{}) api.RonDBNodeConf
 		NodeConfiguration: ExpandNode(node),
 		Count:             node["count"].(int),
 		PrivateIps:        expandPrivateIps(node["private_ips"].([]interface{})),
+	}
+	return nodeConf
+}
+
+func ExpandRonDBMySQLNodeConfiguration(node map[string]interface{}) api.MYSQLNodeConfiguration {
+	nodeConf := api.MYSQLNodeConfiguration{
+		RonDBNodeConfiguration: api.RonDBNodeConfiguration{
+			NodeConfiguration: ExpandNode(node),
+			Count:             node["count"].(int),
+			PrivateIps:        expandPrivateIps(node["private_ips"].([]interface{})),
+		},
+		ArrowFlightServer: node["arrow_flight_with_duckdb"].(bool),
 	}
 	return nodeConf
 }

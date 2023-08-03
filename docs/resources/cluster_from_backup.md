@@ -389,6 +389,7 @@ Read-Only:
 
 Read-Only:
 
+- `arrow_flight_with_duckdb` (Boolean)
 - `count` (Number)
 - `disk_size` (Number)
 - `instance_type` (String)
