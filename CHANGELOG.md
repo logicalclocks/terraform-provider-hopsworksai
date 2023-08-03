@@ -5,6 +5,7 @@ NOTES:
 BREAKING CHANGES:
 
 ENHANCEMENTS:
+* examples: add an advanced aws example to setup a Hopsworks cluster with ArrowFlight server
 * resource/hopsworksai_cluster: Add a new attribute `rondb/mysql_nodes/arrow_flight_with_duckdb` to enable or disable ArrowFlight server with DuckDB
 
 FEATURES:
