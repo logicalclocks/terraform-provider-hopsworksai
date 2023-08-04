@@ -1,16 +1,8 @@
-## 1.8.0 (Unreleased)
-
-NOTES:
-
-BREAKING CHANGES:
+## 1.8.0 (August 4, 2023)
 
 ENHANCEMENTS:
 * examples: add an advanced aws example to setup a Hopsworks cluster with ArrowFlight server
 * resource/hopsworksai_cluster: Add a new attribute `rondb/mysql_nodes/arrow_flight_with_duckdb` to enable or disable ArrowFlight server with DuckDB
-
-FEATURES:
-
-BUG FIXES:
 
 ## 1.7.0 (August 3, 2023)
 
