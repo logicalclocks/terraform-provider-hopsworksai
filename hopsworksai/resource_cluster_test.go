@@ -557,38 +557,6 @@ func testAccCluster_Autoscale(t *testing.T, cloud api.CloudProvider) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			{
-				Config: testAccClusterConfig_Autoscale(cloud, rName, suffix, fmt.Sprintf(`
-				autoscale {
-					non_gpu_workers {
-						instance_type = "%s"
-					}
-
-					gpu_workers {
-						instance_type = "%s"
-					}
-				}
-				`, testWorkerInstanceType1(cloud), testWorkerInstanceTypeWithGPU(cloud))),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "state", api.Running.String()),
-					resource.TestCheckResourceAttr(resourceName, "activation_state", api.Stoppable.String()),
-					resource.TestCheckResourceAttr(resourceName, "update_state", "none"),
-					resource.TestCheckResourceAttr(resourceName, "workers.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.instance_type", testWorkerInstanceType1(cloud)),
-					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.disk_size", strconv.Itoa(defaultAutoscaleConfig.DiskSize)),
-					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.min_workers", strconv.Itoa(defaultAutoscaleConfig.MinWorkers)),
-					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.max_workers", strconv.Itoa(defaultAutoscaleConfig.MaxWorkers)),
-					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.standby_workers", fmt.Sprint(defaultAutoscaleConfig.StandbyWorkers)),
-					resource.TestCheckResourceAttr(resourceName, "autoscale.0.non_gpu_workers.0.downscale_wait_time", strconv.Itoa(defaultAutoscaleConfig.DownscaleWaitTime)),
-
-					resource.TestCheckResourceAttr(resourceName, "autoscale.0.gpu_workers.0.instance_type", testWorkerInstanceTypeWithGPU(cloud)),
-					resource.TestCheckResourceAttr(resourceName, "autoscale.0.gpu_workers.0.disk_size", strconv.Itoa(defaultAutoscaleConfig.DiskSize)),
-					resource.TestCheckResourceAttr(resourceName, "autoscale.0.gpu_workers.0.min_workers", strconv.Itoa(defaultAutoscaleConfig.MinWorkers)),
-					resource.TestCheckResourceAttr(resourceName, "autoscale.0.gpu_workers.0.max_workers", strconv.Itoa(defaultAutoscaleConfig.MaxWorkers)),
-					resource.TestCheckResourceAttr(resourceName, "autoscale.0.gpu_workers.0.standby_workers", fmt.Sprint(defaultAutoscaleConfig.StandbyWorkers)),
-					resource.TestCheckResourceAttr(resourceName, "autoscale.0.gpu_workers.0.downscale_wait_time", strconv.Itoa(defaultAutoscaleConfig.DownscaleWaitTime)),
-				),
-			},
 		},
 	})
 }
@@ -819,15 +787,6 @@ func testAccCluster_RonDB_upscale(t *testing.T, cloud api.CloudProvider, managem
 			},
 		},
 	})
-}
-
-func testWorkerInstanceTypeWithGPU(cloud api.CloudProvider) string {
-	if cloud == api.AWS {
-		return "g3s.xlarge"
-	} else if cloud == api.AZURE {
-		return "Standard_NC6s_v3"
-	}
-	return ""
 }
 
 func testWorkerInstanceType1(cloud api.CloudProvider) string {
@@ -2561,13 +2520,11 @@ func testClusterCreate_RonDB_invalidReplicationFactor(t *testing.T, cloud api.Cl
 }
 
 func TestClusterCreate_Autoscale(t *testing.T) {
-	testClusterCreate_Autoscale(t, api.AWS, true)
-	testClusterCreate_Autoscale(t, api.AZURE, true)
-	testClusterCreate_Autoscale(t, api.AWS, false)
-	testClusterCreate_Autoscale(t, api.AZURE, false)
+	testClusterCreate_Autoscale(t, api.AWS)
+	testClusterCreate_Autoscale(t, api.AZURE)
 }
 
-func testClusterCreate_Autoscale(t *testing.T, cloud api.CloudProvider, withGpu bool) {
+func testClusterCreate_Autoscale(t *testing.T, cloud api.CloudProvider) {
 	state := map[string]interface{}{
 		"name": "cluster",
 		"head": []interface{}{
@@ -2597,18 +2554,6 @@ func testClusterCreate_Autoscale(t *testing.T, cloud api.CloudProvider, withGpu 
 		},
 	}
 
-	if withGpu {
-		state["autoscale"].([]interface{})[0].(map[string]interface{})["gpu_workers"] = []interface{}{
-			map[string]interface{}{
-				"instance_type":       "gpu-node",
-				"disk_size":           200,
-				"min_workers":         1,
-				"max_workers":         5,
-				"standby_workers":     0.4,
-				"downscale_wait_time": 100,
-			},
-		}
-	}
 	if cloud == api.AWS {
 		state["aws_attributes"] = []interface{}{
 			map[string]interface{}{
@@ -2667,16 +2612,6 @@ func testClusterCreate_Autoscale(t *testing.T, cloud api.CloudProvider, withGpu 
 								FallBackOnDemand: true,
 							},
 						},
-					}
-					if withGpu {
-						expected.GPU = &api.AutoscaleConfigurationBase{
-							InstanceType:      "gpu-node",
-							DiskSize:          200,
-							MinWorkers:        1,
-							MaxWorkers:        5,
-							StandbyWorkers:    0.4,
-							DownscaleWaitTime: 100,
-						}
 					}
 					if !reflect.DeepEqual(&expected, output) {
 						return fmt.Errorf("error while matching:\nexpected %#v \nbut got %#v", expected, output)

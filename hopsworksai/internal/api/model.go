@@ -153,7 +153,6 @@ type AutoscaleConfigurationBase struct {
 
 type AutoscaleConfiguration struct {
 	NonGPU *AutoscaleConfigurationBase `json:"nonGpu,omitempty"`
-	GPU    *AutoscaleConfigurationBase `json:"gpu,omitempty"`
 }
 
 type UpgradeInProgress struct {
@@ -362,7 +361,6 @@ type SupportedInstanceType struct {
 	Id       string  `json:"id"`
 	CPUs     int     `json:"cpus"`
 	Memory   float64 `json:"memory"`
-	GPUs     int     `json:"gpus"`
 	WithNVMe bool    `json:"withNVMe"`
 }
 
@@ -370,10 +368,6 @@ type SupportedInstanceTypeList []SupportedInstanceType
 
 func (l SupportedInstanceTypeList) Sort() {
 	sort.SliceStable(l, func(i, j int) bool {
-		if l[i].GPUs != l[j].GPUs {
-			return l[i].GPUs < l[j].GPUs
-		}
-
 		if l[i].CPUs != l[j].CPUs {
 			return l[i].CPUs < l[j].CPUs
 		}

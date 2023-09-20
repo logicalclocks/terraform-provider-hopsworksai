@@ -127,14 +127,12 @@ func TestInstanceTypesDataSourceRead(t *testing.T) {
 				"id":        "head-type-1",
 				"memory":    20.0,
 				"cpus":      10,
-				"gpus":      0,
 				"with_nvme": false,
 			},
 			map[string]interface{}{
 				"id":        "head-type-2",
 				"memory":    50.0,
 				"cpus":      20,
-				"gpus":      1,
 				"with_nvme": false,
 			},
 		})
@@ -144,14 +142,12 @@ func TestInstanceTypesDataSourceRead(t *testing.T) {
 				"id":        "worker-type-1",
 				"memory":    20.0,
 				"cpus":      10,
-				"gpus":      0,
 				"with_nvme": false,
 			},
 			map[string]interface{}{
 				"id":        "worker-type-2",
 				"memory":    50.0,
 				"cpus":      20,
-				"gpus":      1,
 				"with_nvme": false,
 			},
 		})
@@ -161,14 +157,12 @@ func TestInstanceTypesDataSourceRead(t *testing.T) {
 				"id":        "mgm-type-2",
 				"memory":    20.0,
 				"cpus":      2,
-				"gpus":      0,
 				"with_nvme": false,
 			},
 			map[string]interface{}{
 				"id":        "mgm-type-1",
 				"memory":    30.0,
 				"cpus":      16,
-				"gpus":      0,
 				"with_nvme": false,
 			},
 		})
@@ -178,14 +172,12 @@ func TestInstanceTypesDataSourceRead(t *testing.T) {
 				"id":        "ndbd-type-2",
 				"memory":    50.0,
 				"cpus":      8,
-				"gpus":      0,
 				"with_nvme": false,
 			},
 			map[string]interface{}{
 				"id":        "ndbd-type-1",
 				"memory":    100.0,
 				"cpus":      16,
-				"gpus":      0,
 				"with_nvme": false,
 			},
 		})
@@ -195,14 +187,12 @@ func TestInstanceTypesDataSourceRead(t *testing.T) {
 				"id":        "mysql-type-2",
 				"memory":    50.0,
 				"cpus":      8,
-				"gpus":      0,
 				"with_nvme": false,
 			},
 			map[string]interface{}{
 				"id":        "mysql-type-1",
 				"memory":    100.0,
 				"cpus":      16,
-				"gpus":      0,
 				"with_nvme": false,
 			},
 		})
@@ -212,14 +202,12 @@ func TestInstanceTypesDataSourceRead(t *testing.T) {
 				"id":        "api-type-2",
 				"memory":    50.0,
 				"cpus":      8,
-				"gpus":      0,
 				"with_nvme": false,
 			},
 			map[string]interface{}{
 				"id":        "api-type-1",
 				"memory":    100.0,
 				"cpus":      16,
-				"gpus":      0,
 				"with_nvme": false,
 			},
 		})
@@ -242,28 +230,24 @@ func testInstanceTypesDataSource(t *testing.T, cloud api.CloudProvider, nodeType
 								{
 									"id": "head-type-1",
 									"memory": 20,
-									"cpus": 10,
-									"gpus": 0
+									"cpus": 10
 								},
 								{
 									"id": "head-type-2",
 									"memory": 50,
-									"cpus": 20,
-									"gpus": 1
+									"cpus": 20
 								}
 							],
 							"worker": [
 								{
 									"id": "worker-type-1",
 									"memory": 20,
-									"cpus": 10,
-									"gpus": 0
+									"cpus": 10
 								},
 								{
 									"id": "worker-type-2",
 									"memory": 50,
-									"cpus": 20,
-									"gpus": 1
+									"cpus": 20
 								}
 							],
 							"ronDB": {
@@ -271,56 +255,48 @@ func testInstanceTypesDataSource(t *testing.T, cloud api.CloudProvider, nodeType
 									{
 										"id": "mgm-type-1",
 										"memory": 30,
-										"cpus": 16,
-										"gpus": 0
+										"cpus": 16
 									},
 									{
 										"id": "mgm-type-2",
 										"memory": 20,
-										"cpus": 2,
-										"gpus": 0
+										"cpus": 2
 									}
 								],
 								"ndbd": [
 									{
 										"id": "ndbd-type-1",
 										"memory": 100,
-										"cpus": 16,
-										"gpus": 0
+										"cpus": 16
 									},
 									{
 										"id": "ndbd-type-2",
 										"memory": 50,
-										"cpus": 8,
-										"gpus": 0
+										"cpus": 8
 									}
 								],
 								"mysqld": [
 									{
 										"id": "mysql-type-1",
 										"memory": 100,
-										"cpus": 16,
-										"gpus": 0
+										"cpus": 16
 									},
 									{
 										"id": "mysql-type-2",
 										"memory": 50,
-										"cpus": 8,
-										"gpus": 0
+										"cpus": 8
 									}
 								],
 								"api": [
 									{
 										"id": "api-type-1",
 										"memory": 100,
-										"cpus": 16,
-										"gpus": 0
+										"cpus": 16
 									},
 									{
 										"id": "api-type-2",
 										"memory": 50,
-										"cpus": 8,
-										"gpus": 0
+										"cpus": 8
 									}
 								]
 							}

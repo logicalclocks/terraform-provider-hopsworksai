@@ -46,13 +46,6 @@ func dataSourceInstanceType() *schema.Resource {
 				Default:      0,
 				ValidateFunc: validation.IntAtLeast(0),
 			},
-			"min_gpus": {
-				Description:  "Filter based on the minimum number of GPUs.",
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      0,
-				ValidateFunc: validation.IntAtLeast(0),
-			},
 			"with_nvme": {
 				Description: "Filter based on the presence of NVMe drives.",
 				Type:        schema.TypeBool,
@@ -85,7 +78,6 @@ func dataSourceInstanceTypeRead(ctx context.Context, d *schema.ResourceData, met
 
 	minMemory := d.Get("min_memory_gb").(float64)
 	minCPUs := d.Get("min_cpus").(int)
-	minGPUs := d.Get("min_gpus").(int)
 	withNVMe := d.Get("with_nvme").(bool)
 
 	var chosenType *api.SupportedInstanceType = nil
@@ -94,9 +86,6 @@ func dataSourceInstanceTypeRead(ctx context.Context, d *schema.ResourceData, met
 			continue
 		}
 		if minCPUs > 0 && v.CPUs < minCPUs {
-			continue
-		}
-		if minGPUs > 0 && v.GPUs < minGPUs {
 			continue
 		}
 		if withNVMe != v.WithNVMe {

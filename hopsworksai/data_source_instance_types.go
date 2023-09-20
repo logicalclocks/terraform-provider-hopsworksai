@@ -53,11 +53,6 @@ func dataSourceInstanceTypes() *schema.Resource {
 							Type:        schema.TypeInt,
 							Computed:    true,
 						},
-						"gpus": {
-							Description: "The instance type number of GPUs.",
-							Type:        schema.TypeInt,
-							Computed:    true,
-						},
 						"with_nvme": {
 							Description: "The instance type is equipped of NVMe drives.",
 							Type:        schema.TypeBool,

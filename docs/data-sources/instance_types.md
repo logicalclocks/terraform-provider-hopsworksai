@@ -41,7 +41,6 @@ data "hopsworksai_instance_types" "supported_worker_types" {
 Read-Only:
 
 - `cpus` (Number)
-- `gpus` (Number)
 - `id` (String)
 - `memory` (Number)
 - `with_nvme` (Boolean)

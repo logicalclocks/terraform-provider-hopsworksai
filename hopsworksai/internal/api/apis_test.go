@@ -1184,28 +1184,24 @@ func testGetSupportedInstanceTypes(t *testing.T, cloud CloudProvider, region str
 							{
 								"id": "head-type-1",
 								"memory": 20,
-								"cpus": 10,
-								"gpus": 0
+								"cpus": 10
 							},
 							{
 								"id": "head-type-2",
 								"memory": 50,
-								"cpus": 20,
-								"gpus": 1
+								"cpus": 20
 							}
 						],
 						"worker": [
 							{
 								"id": "worker-type-1",
 								"memory": 20,
-								"cpus": 10,
-								"gpus": 0
+								"cpus": 10
 							},
 							{
 								"id": "worker-type-2",
 								"memory": 50,
-								"cpus": 20,
-								"gpus": 1
+								"cpus": 20
 							}
 						],
 						"ronDB": {
@@ -1213,32 +1209,28 @@ func testGetSupportedInstanceTypes(t *testing.T, cloud CloudProvider, region str
 								{
 									"id": "mgm-type-1",
 									"memory": 30,
-									"cpus": 2,
-									"gpus": 0
+									"cpus": 2
 								}
 							],
 							"ndbd": [
 								{
 									"id": "ndbd-type-1",
 									"memory": 100,
-									"cpus": 16,
-									"gpus": 0
+									"cpus": 16
 								}
 							],
 							"mysqld": [
 								{
 									"id": "mysql-type-1",
 									"memory": 100,
-									"cpus": 16,
-									"gpus": 0
+									"cpus": 16
 								}
 							],
 							"api": [
 								{
 									"id": "api-type-1",
 									"memory": 100,
-									"cpus": 16,
-									"gpus": 0
+									"cpus": 16
 								}
 							]
 						}
@@ -1260,13 +1252,11 @@ func testGetSupportedInstanceTypes(t *testing.T, cloud CloudProvider, region str
 				Id:     "head-type-1",
 				Memory: 20,
 				CPUs:   10,
-				GPUs:   0,
 			},
 			{
 				Id:     "head-type-2",
 				Memory: 50,
 				CPUs:   20,
-				GPUs:   1,
 			},
 		},
 		Worker: SupportedInstanceTypeList{
@@ -1274,13 +1264,11 @@ func testGetSupportedInstanceTypes(t *testing.T, cloud CloudProvider, region str
 				Id:     "worker-type-1",
 				Memory: 20,
 				CPUs:   10,
-				GPUs:   0,
 			},
 			{
 				Id:     "worker-type-2",
 				Memory: 50,
 				CPUs:   20,
-				GPUs:   1,
 			},
 		},
 		RonDB: SupportedRonDBInstanceTypes{
@@ -1289,7 +1277,6 @@ func testGetSupportedInstanceTypes(t *testing.T, cloud CloudProvider, region str
 					Id:     "mgm-type-1",
 					Memory: 30,
 					CPUs:   2,
-					GPUs:   0,
 				},
 			},
 			DataNode: SupportedInstanceTypeList{
@@ -1297,7 +1284,6 @@ func testGetSupportedInstanceTypes(t *testing.T, cloud CloudProvider, region str
 					Id:     "ndbd-type-1",
 					Memory: 100,
 					CPUs:   16,
-					GPUs:   0,
 				},
 			},
 			MySQLNode: SupportedInstanceTypeList{
@@ -1305,7 +1291,6 @@ func testGetSupportedInstanceTypes(t *testing.T, cloud CloudProvider, region str
 					Id:     "mysql-type-1",
 					Memory: 100,
 					CPUs:   16,
-					GPUs:   0,
 				},
 			},
 			APINode: SupportedInstanceTypeList{
@@ -1313,7 +1298,6 @@ func testGetSupportedInstanceTypes(t *testing.T, cloud CloudProvider, region str
 					Id:     "api-type-1",
 					Memory: 100,
 					CPUs:   16,
-					GPUs:   0,
 				},
 			},
 		},
@@ -1381,49 +1365,6 @@ func testConfigureAutoscale(t *testing.T, reqBody string, config *AutoscaleConfi
 func TestConfigureAutoscale(t *testing.T) {
 	testConfigureAutoscale(t, `
 	{
-		"autoscale": 
-		{
-			"nonGpu": 
-			{
-				"instanceType": "non-gpu-node",
-				"diskSize": 256,
-				"minWorkers": 0,
-				"maxWorkers": 10,
-				"standbyWorkers": 0.5,
-				"downscaleWaitTime": 300
-			},
-			"gpu":
-			{
-				"instanceType": "gpu-node",
-				"diskSize": 512,
-				"minWorkers": 1,
-				"maxWorkers": 5,
-				"standbyWorkers": 0.4,
-				"downscaleWaitTime": 200
-			}
-		}
-	}`,
-		&AutoscaleConfiguration{
-			NonGPU: &AutoscaleConfigurationBase{
-				InstanceType:      "non-gpu-node",
-				DiskSize:          256,
-				MinWorkers:        0,
-				MaxWorkers:        10,
-				StandbyWorkers:    0.5,
-				DownscaleWaitTime: 300,
-			},
-			GPU: &AutoscaleConfigurationBase{
-				InstanceType:      "gpu-node",
-				DiskSize:          512,
-				MinWorkers:        1,
-				MaxWorkers:        5,
-				StandbyWorkers:    0.4,
-				DownscaleWaitTime: 200,
-			},
-		})
-
-	testConfigureAutoscale(t, `
-	{
 		"autoscale":{
 			"nonGpu":{
 				"instanceType": "non-gpu-node",
@@ -1444,31 +1385,6 @@ func TestConfigureAutoscale(t *testing.T) {
 				MaxWorkers:        10,
 				StandbyWorkers:    0.5,
 				DownscaleWaitTime: 300,
-			},
-		})
-
-	testConfigureAutoscale(t, `
-		{
-			"autoscale":{
-				"gpu":{
-					"instanceType": "gpu-node",
-					"diskSize": 512,
-					"minWorkers": 1,
-					"maxWorkers": 5,
-					"standbyWorkers": 0.4,
-					"downscaleWaitTime": 200
-				}
-			}
-		}
-		`,
-		&AutoscaleConfiguration{
-			GPU: &AutoscaleConfigurationBase{
-				InstanceType:      "gpu-node",
-				DiskSize:          512,
-				MinWorkers:        1,
-				MaxWorkers:        5,
-				StandbyWorkers:    0.4,
-				DownscaleWaitTime: 200,
 			},
 		})
 }

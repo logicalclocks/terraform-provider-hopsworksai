@@ -68,13 +68,6 @@ func TestGetSupportedNodesByNodeType(t *testing.T) {
 				Id:     "head-type-1",
 				CPUs:   10,
 				Memory: 30,
-				GPUs:   0,
-			},
-			{
-				Id:     "head-type-2",
-				CPUs:   10,
-				Memory: 30,
-				GPUs:   1,
 			},
 		},
 		Worker: SupportedInstanceTypeList{
@@ -82,13 +75,6 @@ func TestGetSupportedNodesByNodeType(t *testing.T) {
 				Id:     "worker-type-1",
 				CPUs:   16,
 				Memory: 100,
-				GPUs:   0,
-			},
-			{
-				Id:     "worker-type-2",
-				CPUs:   32,
-				Memory: 100,
-				GPUs:   1,
 			},
 		},
 		RonDB: SupportedRonDBInstanceTypes{
@@ -97,7 +83,6 @@ func TestGetSupportedNodesByNodeType(t *testing.T) {
 					Id:     "rondb-mgm-type-1",
 					CPUs:   2,
 					Memory: 30,
-					GPUs:   0,
 				},
 			},
 			DataNode: SupportedInstanceTypeList{
@@ -105,13 +90,11 @@ func TestGetSupportedNodesByNodeType(t *testing.T) {
 					Id:     "rondb-data-type-1",
 					CPUs:   16,
 					Memory: 100,
-					GPUs:   0,
 				},
 				{
 					Id:     "rondb-data-type-2",
 					CPUs:   32,
 					Memory: 200,
-					GPUs:   0,
 				},
 			},
 			MySQLNode: SupportedInstanceTypeList{
@@ -119,13 +102,11 @@ func TestGetSupportedNodesByNodeType(t *testing.T) {
 					Id:     "rondb-mysql-type-1",
 					CPUs:   8,
 					Memory: 100,
-					GPUs:   0,
 				},
 				{
 					Id:     "rondb-mysql-type-2",
 					CPUs:   16,
 					Memory: 100,
-					GPUs:   0,
 				},
 			},
 			APINode: SupportedInstanceTypeList{
@@ -133,13 +114,11 @@ func TestGetSupportedNodesByNodeType(t *testing.T) {
 					Id:     "rondb-api-type-1",
 					CPUs:   8,
 					Memory: 100,
-					GPUs:   0,
 				},
 				{
 					Id:     "rondb-api-type-2",
 					CPUs:   16,
 					Memory: 100,
-					GPUs:   0,
 				},
 			},
 		},
@@ -190,70 +169,34 @@ func TestGetSupportedNodesByNodeType(t *testing.T) {
 func TestSortSupportedNodeTypes(t *testing.T) {
 	input := SupportedInstanceTypeList{
 		{
-			Id:     "node-type-1",
-			CPUs:   16,
-			Memory: 32,
-			GPUs:   1,
-		},
-		{
 			Id:     "node-type-2",
 			CPUs:   32,
 			Memory: 64,
-			GPUs:   0,
-		},
-		{
-			Id:     "node-type-3",
-			CPUs:   8,
-			Memory: 16,
-			GPUs:   1,
 		},
 		{
 			Id:     "node-type-4",
 			CPUs:   4,
 			Memory: 16,
-			GPUs:   0,
 		},
 		{
 			Id:     "node-type-5",
 			CPUs:   2,
 			Memory: 8,
-			GPUs:   0,
 		},
 		{
 			Id:     "node-type-6",
 			CPUs:   16,
 			Memory: 32,
-			GPUs:   0,
-		},
-		{
-			Id:     "node-type-7",
-			CPUs:   32,
-			Memory: 64,
-			GPUs:   2,
 		},
 		{
 			Id:     "node-type-8",
 			CPUs:   8,
 			Memory: 16,
-			GPUs:   0,
-		},
-		{
-			Id:     "node-type-9",
-			CPUs:   4,
-			Memory: 16,
-			GPUs:   1,
-		},
-		{
-			Id:     "node-type-10",
-			CPUs:   2,
-			Memory: 8,
-			GPUs:   2,
 		},
 		{
 			Id:     "node-type-11",
 			CPUs:   2,
 			Memory: 16,
-			GPUs:   0,
 		},
 	}
 
@@ -262,67 +205,31 @@ func TestSortSupportedNodeTypes(t *testing.T) {
 			Id:     "node-type-5",
 			CPUs:   2,
 			Memory: 8,
-			GPUs:   0,
 		},
 		{
 			Id:     "node-type-11",
 			CPUs:   2,
 			Memory: 16,
-			GPUs:   0,
 		},
 		{
 			Id:     "node-type-4",
 			CPUs:   4,
 			Memory: 16,
-			GPUs:   0,
 		},
 		{
 			Id:     "node-type-8",
 			CPUs:   8,
 			Memory: 16,
-			GPUs:   0,
 		},
 		{
 			Id:     "node-type-6",
 			CPUs:   16,
 			Memory: 32,
-			GPUs:   0,
 		},
 		{
 			Id:     "node-type-2",
 			CPUs:   32,
 			Memory: 64,
-			GPUs:   0,
-		},
-		{
-			Id:     "node-type-9",
-			CPUs:   4,
-			Memory: 16,
-			GPUs:   1,
-		},
-		{
-			Id:     "node-type-3",
-			CPUs:   8,
-			Memory: 16,
-			GPUs:   1,
-		},
-		{
-			Id:     "node-type-1",
-			CPUs:   16,
-			Memory: 32,
-			GPUs:   1,
-		},
-		{
-			Id:     "node-type-10",
-			CPUs:   2,
-			Memory: 8,
-			GPUs:   2,
-		},
-		{
-			Id:     "node-type-7",
-			CPUs:   32,
-			Memory: 64,
-			GPUs:   2,
 		},
 	}
 

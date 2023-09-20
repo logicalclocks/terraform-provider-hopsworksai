@@ -5,7 +5,7 @@ NOTES:
 BREAKING CHANGES:
 
 ENHANCEMENTS:
-
+* Drop support for GPU workers on Spark
 FEATURES:
 
 BUG FIXES:
