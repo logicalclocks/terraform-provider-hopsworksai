@@ -82,13 +82,13 @@ resource "hopsworksai_cluster" "cluster" {
 }
 ```
 
-You can add a new different worker type for example another worker with at least one gpu as follows:
+You can add a new different worker type for example another worker with at least 16 cpu cores follows:
 
 ```hcl
-data "hopsworksai_instance_type" "gpu_worker" {
+data "hopsworksai_instance_type" "my_worker" {
   cloud_provider = "AZURE"
   node_type      = "worker"
-  min_gpus = 1
+  min_cpus       = 16
 }
 
 resource "hopsworksai_cluster" "cluster" {
@@ -101,7 +101,7 @@ resource "hopsworksai_cluster" "cluster" {
   }
 
   workers {
-    instance_type = data.hopsworksai_instance_type.gpu_worker.id
+    instance_type = data.hopsworksai_instance_type.my_worker.id
     disk_size = 512
     count = 1
   }

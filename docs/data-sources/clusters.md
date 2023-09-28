@@ -87,31 +87,7 @@ Read-Only:
 
 Read-Only:
 
-- `gpu_workers` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--autoscale--gpu_workers))
 - `non_gpu_workers` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--autoscale--non_gpu_workers))
-
-<a id="nestedobjatt--clusters--autoscale--gpu_workers"></a>
-### Nested Schema for `clusters.autoscale.gpu_workers`
-
-Read-Only:
-
-- `disk_size` (Number)
-- `downscale_wait_time` (Number)
-- `instance_type` (String)
-- `max_workers` (Number)
-- `min_workers` (Number)
-- `spot_config` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--autoscale--gpu_workers--spot_config))
-- `standby_workers` (Number)
-
-<a id="nestedobjatt--clusters--autoscale--gpu_workers--spot_config"></a>
-### Nested Schema for `clusters.autoscale.gpu_workers.standby_workers`
-
-Read-Only:
-
-- `fall_back_on_demand` (Boolean)
-- `max_price_percent` (Number)
-
-
 
 <a id="nestedobjatt--clusters--autoscale--non_gpu_workers"></a>
 ### Nested Schema for `clusters.autoscale.non_gpu_workers`

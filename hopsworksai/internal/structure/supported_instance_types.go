@@ -17,7 +17,6 @@ func flattenSupportedInstanceType(instanceType *api.SupportedInstanceType) map[s
 		"id":        instanceType.Id,
 		"memory":    instanceType.Memory,
 		"cpus":      instanceType.CPUs,
-		"gpus":      instanceType.GPUs,
 		"with_nvme": instanceType.WithNVMe,
 	}
 }

@@ -12,7 +12,6 @@ func TestFlattenSupportedInstanceType(t *testing.T) {
 		Id:       "node-type",
 		CPUs:     10,
 		Memory:   30,
-		GPUs:     1,
 		WithNVMe: false,
 	}
 
@@ -20,7 +19,6 @@ func TestFlattenSupportedInstanceType(t *testing.T) {
 		"id":        "node-type",
 		"cpus":      10,
 		"memory":    30.0,
-		"gpus":      1,
 		"with_nvme": false,
 	}
 
@@ -36,14 +34,12 @@ func TestFlattenSupportedInstanceTypes(t *testing.T) {
 			Id:       "node-type-1",
 			CPUs:     10,
 			Memory:   30,
-			GPUs:     1,
 			WithNVMe: false,
 		},
 		{
 			Id:       "node-type-2",
 			CPUs:     5,
 			Memory:   20,
-			GPUs:     0,
 			WithNVMe: false,
 		},
 	}
@@ -53,14 +49,12 @@ func TestFlattenSupportedInstanceTypes(t *testing.T) {
 			"id":        "node-type-1",
 			"cpus":      10,
 			"memory":    30.0,
-			"gpus":      1,
 			"with_nvme": false,
 		},
 		{
 			"id":        "node-type-2",
 			"cpus":      5,
 			"memory":    20.0,
-			"gpus":      0,
 			"with_nvme": false,
 		},
 	}

@@ -374,13 +374,6 @@ func clusterSchema() map[string]*schema.Schema {
 						MaxItems:    1,
 						Elem:        autoscaleSchema(),
 					},
-					"gpu_workers": {
-						Description: "Setup auto scaling for gpu nodes.",
-						Type:        schema.TypeList,
-						Optional:    true,
-						MaxItems:    1,
-						Elem:        autoscaleSchema(),
-					},
 				},
 			},
 		},
@@ -1657,11 +1650,6 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 			nonGpuConfig := newConfig["non_gpu_workers"].([]interface{})
 			// required field
 			autoscaleConfig.NonGPU = structure.ExpandAutoscaleConfigurationBase(nonGpuConfig[0].(map[string]interface{}))
-
-			gpuConfig := newConfig["gpu_workers"].([]interface{})
-			if len(gpuConfig) > 0 {
-				autoscaleConfig.GPU = structure.ExpandAutoscaleConfigurationBase(gpuConfig[0].(map[string]interface{}))
-			}
 
 			if err := api.ConfigureAutoscale(ctx, client, clusterId, autoscaleConfig); err != nil {
 				return diag.FromErr(err)

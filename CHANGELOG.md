@@ -5,6 +5,7 @@ NOTES:
 BREAKING CHANGES:
 
 ENHANCEMENTS:
+* Drop support for GPU workers on Spark
 * resource/hopsworksai_cluster: Set Default `version` to 3.4.0
 
 FEATURES:

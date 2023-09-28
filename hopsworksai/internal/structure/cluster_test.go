@@ -393,14 +393,6 @@ func TestFlattenCluster(t *testing.T) {
 				StandbyWorkers:    0.5,
 				DownscaleWaitTime: 300,
 			},
-			GPU: &api.AutoscaleConfigurationBase{
-				InstanceType:      "auto-gpu-node-1",
-				DiskSize:          512,
-				MinWorkers:        1,
-				MaxWorkers:        5,
-				StandbyWorkers:    0.4,
-				DownscaleWaitTime: 200,
-			},
 		},
 		InitScript:         "#!/usr/bin/env bash\nset -e\necho 'Hello World'",
 		RunInitScriptFirst: true,
@@ -943,18 +935,6 @@ func TestFlattenAutoscaleConfiguration(t *testing.T) {
 						FallBackOnDemand: true,
 					},
 				},
-				GPU: &api.AutoscaleConfigurationBase{
-					InstanceType:      "gpu-node",
-					DiskSize:          512,
-					MinWorkers:        1,
-					MaxWorkers:        10,
-					StandbyWorkers:    0.4,
-					DownscaleWaitTime: 200,
-					SpotInfo: &api.SpotConfiguration{
-						MaxPrice:         2,
-						FallBackOnDemand: true,
-					},
-				},
 			},
 			expected: []map[string]interface{}{
 				{
@@ -969,22 +949,6 @@ func TestFlattenAutoscaleConfiguration(t *testing.T) {
 							"spot_config": []interface{}{
 								map[string]interface{}{
 									"max_price_percent":   1,
-									"fall_back_on_demand": true,
-								},
-							},
-						},
-					},
-					"gpu_workers": []interface{}{
-						map[string]interface{}{
-							"instance_type":       "gpu-node",
-							"disk_size":           512,
-							"min_workers":         1,
-							"max_workers":         10,
-							"standby_workers":     0.4,
-							"downscale_wait_time": 200,
-							"spot_config": []interface{}{
-								map[string]interface{}{
-									"max_price_percent":   2,
 									"fall_back_on_demand": true,
 								},
 							},
@@ -1014,34 +978,6 @@ func TestFlattenAutoscaleConfiguration(t *testing.T) {
 							"max_workers":         5,
 							"standby_workers":     0.5,
 							"downscale_wait_time": 300,
-						},
-					},
-					"gpu_workers": []interface{}{},
-				},
-			},
-		},
-		{
-			input: &api.AutoscaleConfiguration{
-				GPU: &api.AutoscaleConfigurationBase{
-					InstanceType:      "gpu-node",
-					DiskSize:          512,
-					MinWorkers:        1,
-					MaxWorkers:        10,
-					StandbyWorkers:    0.4,
-					DownscaleWaitTime: 200,
-				},
-			},
-			expected: []map[string]interface{}{
-				{
-					"non_gpu_workers": []interface{}{},
-					"gpu_workers": []interface{}{
-						map[string]interface{}{
-							"instance_type":       "gpu-node",
-							"disk_size":           512,
-							"min_workers":         1,
-							"max_workers":         10,
-							"standby_workers":     0.4,
-							"downscale_wait_time": 200,
 						},
 					},
 				},
@@ -1080,18 +1016,6 @@ func TestExpandAutoscaleConfiguration(t *testing.T) {
 						FallBackOnDemand: true,
 					},
 				},
-				GPU: &api.AutoscaleConfigurationBase{
-					InstanceType:      "gpu-node",
-					DiskSize:          512,
-					MinWorkers:        1,
-					MaxWorkers:        10,
-					StandbyWorkers:    0.4,
-					DownscaleWaitTime: 200,
-					SpotInfo: &api.SpotConfiguration{
-						MaxPrice:         2,
-						FallBackOnDemand: true,
-					},
-				},
 			},
 			input: []interface{}{
 				map[string]interface{}{
@@ -1106,22 +1030,6 @@ func TestExpandAutoscaleConfiguration(t *testing.T) {
 							"spot_config": []interface{}{
 								map[string]interface{}{
 									"max_price_percent":   1,
-									"fall_back_on_demand": true,
-								},
-							},
-						},
-					},
-					"gpu_workers": []interface{}{
-						map[string]interface{}{
-							"instance_type":       "gpu-node",
-							"disk_size":           512,
-							"min_workers":         1,
-							"max_workers":         10,
-							"standby_workers":     0.4,
-							"downscale_wait_time": 200,
-							"spot_config": []interface{}{
-								map[string]interface{}{
-									"max_price_percent":   2,
 									"fall_back_on_demand": true,
 								},
 							},
@@ -1151,34 +1059,6 @@ func TestExpandAutoscaleConfiguration(t *testing.T) {
 							"max_workers":         5,
 							"standby_workers":     0.5,
 							"downscale_wait_time": 300,
-						},
-					},
-					"gpu_workers": []interface{}{},
-				},
-			},
-		},
-		{
-			expected: &api.AutoscaleConfiguration{
-				GPU: &api.AutoscaleConfigurationBase{
-					InstanceType:      "gpu-node",
-					DiskSize:          512,
-					MinWorkers:        1,
-					MaxWorkers:        10,
-					StandbyWorkers:    0.4,
-					DownscaleWaitTime: 200,
-				},
-			},
-			input: []interface{}{
-				map[string]interface{}{
-					"non_gpu_workers": []interface{}{},
-					"gpu_workers": []interface{}{
-						map[string]interface{}{
-							"instance_type":       "gpu-node",
-							"disk_size":           512,
-							"min_workers":         1,
-							"max_workers":         10,
-							"standby_workers":     0.4,
-							"downscale_wait_time": 200,
 						},
 					},
 				},
@@ -1335,14 +1215,6 @@ func TestFlattenClusters(t *testing.T) {
 					StandbyWorkers:    0.5,
 					DownscaleWaitTime: 300,
 				},
-				GPU: &api.AutoscaleConfigurationBase{
-					InstanceType:      "auto-gpu-node-1",
-					DiskSize:          512,
-					MinWorkers:        1,
-					MaxWorkers:        5,
-					StandbyWorkers:    0.4,
-					DownscaleWaitTime: 200,
-				},
 			},
 			InitScript: "#!/usr/bin/env bash\nset -e\necho 'Hello World'",
 			AWS: api.AWSCluster{
@@ -1455,14 +1327,6 @@ func TestFlattenClusters(t *testing.T) {
 					MaxWorkers:        10,
 					StandbyWorkers:    0.5,
 					DownscaleWaitTime: 300,
-				},
-				GPU: &api.AutoscaleConfigurationBase{
-					InstanceType:      "auto-gpu-node-1",
-					DiskSize:          512,
-					MinWorkers:        1,
-					MaxWorkers:        5,
-					StandbyWorkers:    0.4,
-					DownscaleWaitTime: 200,
 				},
 			},
 			InitScript: "#!/usr/bin/env bash\nset -e\necho 'Hello World 2'",

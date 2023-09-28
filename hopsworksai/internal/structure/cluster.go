@@ -322,18 +322,13 @@ func flattenAutoscaleConfiguration(autoscale *api.AutoscaleConfiguration) []map[
 	}
 
 	var nonGPUNodes []interface{} = make([]interface{}, 0)
-	var gpuNodes []interface{} = make([]interface{}, 0)
 	if autoscale.NonGPU != nil {
 		nonGPUNodes = append(nonGPUNodes, flattenAutoscaleConfigurationBase(autoscale.NonGPU))
-	}
-	if autoscale.GPU != nil {
-		gpuNodes = append(gpuNodes, flattenAutoscaleConfigurationBase(autoscale.GPU))
 	}
 
 	return []map[string]interface{}{
 		{
 			"non_gpu_workers": nonGPUNodes,
-			"gpu_workers":     gpuNodes,
 		},
 	}
 }
@@ -363,11 +358,6 @@ func ExpandAutoscaleConfiguration(autoscaleConfig []interface{}) *api.AutoscaleC
 		if v, ok := autoscaleConfigMap["non_gpu_workers"]; ok && len(v.([]interface{})) > 0 {
 			config := v.([]interface{})[0].(map[string]interface{})
 			autoscale.NonGPU = ExpandAutoscaleConfigurationBase(config)
-		}
-
-		if v, ok := autoscaleConfigMap["gpu_workers"]; ok && len(v.([]interface{})) > 0 {
-			config := v.([]interface{})[0].(map[string]interface{})
-			autoscale.GPU = ExpandAutoscaleConfigurationBase(config)
 		}
 	}
 	return autoscale

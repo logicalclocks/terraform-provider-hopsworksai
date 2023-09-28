@@ -44,15 +44,15 @@ terraform apply -var="resource_group=<YOUR_RESOURCE_GROUP>"
 
 ## Update Autoscale 
 
-You can update the autoscale configuration after creations, by changing the `autoscale` configuration block. For example, you can configure autoscale for GPU workers as follows:
+You can update the autoscale configuration after creations, by changing the `autoscale` configuration block. For example, you can configure your own worker as follows:
 
 > **Notice** that you need to run `terraform apply` after updating your configuration for your changes to take place.
 
 ```hcl
-data "hopsworksai_instance_type" "gpu_worker" {
+data "hopsworksai_instance_type" "my_worker" {
   cloud_provider = "AZURE"
   node_type      = "worker"
-  min_gpus = 1
+  min_cpus       = 16
 }
 
 resource "hopsworksai_cluster" "cluster" {
@@ -60,19 +60,10 @@ resource "hopsworksai_cluster" "cluster" {
 
   autoscale {
     non_gpu_workers {
-      instance_type = data.hopsworksai_instance_type.small_worker.id
+      instance_type = data.hopsworksai_instance_type.my_worker.id
       disk_size = 256
       min_workers = 0
       max_workers = 10
-      standby_workers = 0.5
-      downscale_wait_time = 300
-    }
-
-    gpu_workers {
-      instance_type = data.hopsworksai_instance_type.gpu_worker.id
-      disk_size = 256
-      min_workers = 0
-      max_workers = 5
       standby_workers = 0.5
       downscale_wait_time = 300
     }
