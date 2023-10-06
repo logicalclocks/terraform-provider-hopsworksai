@@ -1,16 +1,8 @@
-## 1.9.0 (Unreleased)
-
-NOTES:
-
-BREAKING CHANGES:
+## 1.9.0 (October 6, 2023)
 
 ENHANCEMENTS:
 * Drop support for GPU workers on Spark
 * resource/hopsworksai_cluster: Set Default `version` to 3.4.1
-
-FEATURES:
-
-BUG FIXES:
 
 ## 1.8.0 (August 4, 2023)
 
