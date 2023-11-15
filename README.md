@@ -104,7 +104,7 @@ output "hopsworks_cluster_url" {
 ## Requirements
 
 -	[Terraform](https://www.terraform.io/downloads.html) >= 0.13.x
--	[Go](https://golang.org/doc/install) >= 1.19
+-	[Go](https://golang.org/doc/install) >= 1.20
 -	[golangci-lint](https://golangci-lint.run/usage/install/) = 1.50.1
 
 
