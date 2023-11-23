@@ -5,6 +5,7 @@ NOTES:
 BREAKING CHANGES:
 
 ENHANCEMENTS:
+* Bump minimum Go version to 1.20
 
 FEATURES:
 
