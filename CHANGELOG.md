@@ -6,6 +6,7 @@ BREAKING CHANGES:
 
 ENHANCEMENTS:
 * Bump minimum Go version to 1.20
+* resource/hopsworksai_cluster: Set Default `version` to 3.5.0
 
 FEATURES:
 
