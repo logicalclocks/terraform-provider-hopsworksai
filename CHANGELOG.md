@@ -1,16 +1,8 @@
-## 1.10.0 (Unreleased)
-
-NOTES:
-
-BREAKING CHANGES:
+## 1.10.0 (November 29, 2023)
 
 ENHANCEMENTS:
 * Bump minimum Go version to 1.20
 * resource/hopsworksai_cluster: Set Default `version` to 3.5.0
-
-FEATURES:
-
-BUG FIXES:
 
 ## 1.9.0 (October 6, 2023)
 
