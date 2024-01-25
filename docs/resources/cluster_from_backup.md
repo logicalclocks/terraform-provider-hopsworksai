@@ -49,6 +49,7 @@ resource "hopsworksai_cluster_from_backup" "cluster" {
 - `creation_date` (String) The creation date of the cluster. The date is represented in RFC3339 format.
 - `custom_hosted_zone` (String) Override the default cloud.hopsworks.ai Hosted Zone. This option is available only to users with necessary privileges.
 - `deactivate_hopsworksai_log_collection` (Boolean) Allow Hopsworks.ai to collect services logs to help diagnose issues with the cluster. By deactivating this option, you will not be able to get full support from our teams.
+- `gcp_attributes` (List of Object) The configurations required to run the cluster on Google GCP. (see [below for nested schema](#nestedatt--gcp_attributes))
 - `head` (List of Object) The configurations of the head node of the cluster. (see [below for nested schema](#nestedatt--head))
 - `id` (String) The ID of this resource.
 - `init_script` (String) A bash script that will run on all nodes during their initialization (must start with #!/usr/bin/env bash)
@@ -261,6 +262,46 @@ Optional:
 
 - `fall_back_on_demand` (Boolean) Fall back to on demand instance if unable to allocate a spot instance Defaults to `true`.
 - `max_price_percent` (Number) The maximum spot instance price in percentage of the on-demand price. Defaults to `100`.
+
+
+
+<a id="nestedatt--gcp_attributes"></a>
+### Nested Schema for `gcp_attributes`
+
+Read-Only:
+
+- `bucket` (List of Object) (see [below for nested schema](#nestedobjatt--gcp_attributes--bucket))
+- `disk_encryption` (List of Object) (see [below for nested schema](#nestedobjatt--gcp_attributes--disk_encryption))
+- `gke_cluster_name` (String)
+- `network` (List of Object) (see [below for nested schema](#nestedobjatt--gcp_attributes--network))
+- `project_id` (String)
+- `region` (String)
+- `service_account_email` (String)
+- `zone` (String)
+
+<a id="nestedobjatt--gcp_attributes--bucket"></a>
+### Nested Schema for `gcp_attributes.bucket`
+
+Read-Only:
+
+- `name` (String)
+
+
+<a id="nestedobjatt--gcp_attributes--disk_encryption"></a>
+### Nested Schema for `gcp_attributes.disk_encryption`
+
+Read-Only:
+
+- `customer_managed_encryption_key` (String)
+
+
+<a id="nestedobjatt--gcp_attributes--network"></a>
+### Nested Schema for `gcp_attributes.network`
+
+Read-Only:
+
+- `network_name` (String)
+- `subnetwork_name` (String)
 
 
 

@@ -36,7 +36,7 @@ func dataSourceClusters() *schema.Resource {
 							Description:  "Filter based on cloud provider.",
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{api.AWS.String(), api.AZURE.String()}, false),
+							ValidateFunc: validation.StringInSlice([]string{api.AWS.String(), api.AZURE.String(), api.GCP.String()}, false),
 						},
 					},
 				},

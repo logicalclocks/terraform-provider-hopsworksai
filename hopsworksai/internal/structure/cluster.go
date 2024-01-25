@@ -36,6 +36,7 @@ func FlattenCluster(cluster *api.Cluster) map[string]interface{} {
 		"workers":                               flattenWorkers(cluster.Autoscale, cluster.ClusterConfiguration.Workers),
 		"aws_attributes":                        flattenAWSAttributes(cluster),
 		"azure_attributes":                      flattenAzureAttributes(cluster),
+		"gcp_attributes":                        flattenGCPAttributes(cluster),
 		"open_ports":                            flattenPorts(&cluster.Ports),
 		"tags":                                  flattenTags(cluster.Tags),
 		"rondb":                                 flattenRonDB(cluster.RonDB),
@@ -480,4 +481,44 @@ func flattenUpgradeInProgress(upgradeInProgress *api.UpgradeInProgress) []interf
 			"to_version":   upgradeInProgress.To,
 		},
 	}
+}
+
+func flattenGCPDiskEncryption(diskEncryption *api.GCPDiskEncryption) []map[string]interface{} {
+	if diskEncryption == nil {
+		return []map[string]interface{}{}
+	}
+
+	return []map[string]interface{}{
+		{
+			"customer_managed_encryption_key": diskEncryption.CustomerManagedKey,
+		},
+	}
+}
+
+func flattenGCPAttributes(cluster *api.Cluster) []interface{} {
+	if !cluster.IsGCPCluster() {
+		return nil
+	}
+
+	gcpAttributes := make([]interface{}, 1)
+	gcpAttributes[0] = map[string]interface{}{
+		"project_id":            cluster.GCP.Project,
+		"region":                cluster.GCP.Region,
+		"zone":                  cluster.GCP.Zone,
+		"service_account_email": cluster.GCP.ServiceAccountEmail,
+		"bucket": []map[string]interface{}{
+			{
+				"name": cluster.GCP.BucketName,
+			},
+		},
+		"network": []map[string]interface{}{
+			{
+				"network_name":    cluster.GCP.NetworkName,
+				"subnetwork_name": cluster.GCP.SubNetworkName,
+			},
+		},
+		"gke_cluster_name": cluster.GCP.GkeClusterName,
+		"disk_encryption":  flattenGCPDiskEncryption(cluster.GCP.DiskEncryption),
+	}
+	return gcpAttributes
 }

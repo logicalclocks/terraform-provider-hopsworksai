@@ -425,6 +425,7 @@ func TestFlattenCluster(t *testing.T) {
 		"workers":                               flattenWorkers(input.Autoscale, input.ClusterConfiguration.Workers),
 		"aws_attributes":                        emptyAttributes,
 		"azure_attributes":                      emptyAttributes,
+		"gcp_attributes":                        emptyAttributes,
 		"open_ports":                            flattenPorts(&input.Ports),
 		"tags":                                  flattenTags(input.Tags),
 		"rondb":                                 flattenRonDB(input.RonDB),
@@ -439,9 +440,10 @@ func TestFlattenCluster(t *testing.T) {
 		"custom_hosted_zone":                    input.CustomHostedZone,
 	}
 
-	for _, cloud := range []api.CloudProvider{api.AWS, api.AZURE} {
+	for _, cloud := range []api.CloudProvider{api.AWS, api.AZURE, api.GCP} {
 		input.Provider = cloud
-		if cloud == api.AWS {
+		switch cloud {
+		case api.AWS:
 			input.AWS = api.AWSCluster{
 				Region:               "region-1",
 				InstanceProfileArn:   "instance-profile-1",
@@ -453,9 +455,11 @@ func TestFlattenCluster(t *testing.T) {
 				EcrRegistryAccountId: "ecr-registry-account-1",
 			}
 			input.Azure = api.AzureCluster{}
+			input.GCP = api.GCPCluster{}
 			expected["aws_attributes"] = flattenAWSAttributes(input)
 			expected["azure_attributes"] = emptyAttributes
-		} else if cloud == api.AZURE {
+			expected["gcp_attributes"] = emptyAttributes
+		case api.AZURE:
 			input.Azure = api.AzureCluster{
 				Location:           "location-1",
 				ResourceGroup:      "resource-group-1",
@@ -472,6 +476,23 @@ func TestFlattenCluster(t *testing.T) {
 			input.AWS = api.AWSCluster{}
 			expected["aws_attributes"] = emptyAttributes
 			expected["azure_attributes"] = flattenAzureAttributes(input)
+			expected["gcp_attributes"] = emptyAttributes
+		case api.GCP:
+			input.GCP = api.GCPCluster{
+				Project:             "project-1",
+				Region:              "region-1",
+				Zone:                "zone-1",
+				ServiceAccountEmail: "serviceaccount@iam.com",
+				BucketName:          "my-bucket",
+				NetworkName:         "my-network",
+				SubNetworkName:      "my-subnetwork",
+				GkeClusterName:      "my-gke-cluster",
+			}
+			input.AWS = api.AWSCluster{}
+			input.Azure = api.AzureCluster{}
+			expected["aws_attributes"] = emptyAttributes
+			expected["azure_attributes"] = emptyAttributes
+			expected["gcp_attributes"] = flattenGCPAttributes(input)
 		}
 
 		output := FlattenCluster(input)
@@ -1344,6 +1365,119 @@ func TestFlattenClusters(t *testing.T) {
 				SearchDomain:       "internal.cloudapp.net",
 			},
 		},
+		{
+			Id:                  "cluster-id-2",
+			Name:                "cluster",
+			State:               "state-1",
+			ActivationState:     "activation-state-1",
+			InitializationStage: "initializtion-stage-1",
+			CreatedOn:           1605374387069,
+			StartedOn:           1605374388069,
+			Version:             "cluster-version",
+			URL:                 "cluster-url",
+			Provider:            api.GCP,
+			Tags: []api.ClusterTag{
+				{
+					Name:  "tag1",
+					Value: "tagvalue1",
+				},
+			},
+			PublicIPAttached:      true,
+			LetsEncryptIssued:     true,
+			ManagedUsers:          true,
+			BackupRetentionPeriod: 0,
+			ClusterConfiguration: api.ClusterConfigurationStatus{
+				Head: api.HeadConfigurationStatus{
+					HeadConfiguration: api.HeadConfiguration{
+						NodeConfiguration: api.NodeConfiguration{
+							InstanceType: "head-node-type-1",
+							DiskSize:     512,
+						},
+						HAEnabled: false,
+					},
+					NodeId: "head-node-id-1",
+				},
+				Workers: []api.WorkerConfiguration{
+					{
+						NodeConfiguration: api.NodeConfiguration{
+							InstanceType: "worker-node-type-1",
+							DiskSize:     256,
+						},
+						Count: 1,
+					},
+				},
+			},
+			Ports: api.ServiceOpenPorts{
+				FeatureStore:       true,
+				OnlineFeatureStore: false,
+				Kafka:              true,
+				SSH:                false,
+			},
+			RonDB: &api.RonDBConfiguration{
+				Configuration: api.RonDBBaseConfiguration{
+					NdbdDefault: api.RonDBNdbdDefaultConfiguration{
+						ReplicationFactor: 2,
+					},
+					General: api.RonDBGeneralConfiguration{
+						Benchmark: api.RonDBBenchmarkConfiguration{
+							GrantUserPrivileges: false,
+						},
+					},
+				},
+				ManagementNodes: api.RonDBNodeConfiguration{
+					NodeConfiguration: api.NodeConfiguration{
+						InstanceType: "mgm-node-1",
+						DiskSize:     30,
+					},
+					Count: 1,
+				},
+				DataNodes: api.RonDBNodeConfiguration{
+					NodeConfiguration: api.NodeConfiguration{
+						InstanceType: "data-node-1",
+						DiskSize:     512,
+					},
+					Count: 2,
+				},
+				MYSQLNodes: api.MYSQLNodeConfiguration{
+					RonDBNodeConfiguration: api.RonDBNodeConfiguration{
+						NodeConfiguration: api.NodeConfiguration{
+							InstanceType: "mysqld-node-1",
+							DiskSize:     100,
+						},
+						Count: 1,
+					},
+					ArrowFlightServer: false,
+				},
+				APINodes: api.RonDBNodeConfiguration{
+					NodeConfiguration: api.NodeConfiguration{
+						InstanceType: "api-node-1",
+						DiskSize:     50,
+					},
+					Count: 1,
+				},
+			},
+			Autoscale: &api.AutoscaleConfiguration{
+				NonGPU: &api.AutoscaleConfigurationBase{
+					InstanceType:      "auto-node-1",
+					DiskSize:          256,
+					MinWorkers:        0,
+					MaxWorkers:        10,
+					StandbyWorkers:    0.5,
+					DownscaleWaitTime: 300,
+				},
+			},
+			InitScript: "#!/usr/bin/env bash\nset -e\necho 'Hello World'",
+			GCP: api.GCPCluster{
+				Project:             "project-1",
+				Region:              "region-1",
+				Zone:                "zone-1",
+				ServiceAccountEmail: "serviceaccount@iam.com",
+				BucketName:          "my-bucket",
+				NetworkName:         "my-network",
+				SubNetworkName:      "my-subnetwork",
+				GkeClusterName:      "my-gke-cluster",
+			},
+		},
 	}
 
 	var emptyAttributes []interface{} = nil
@@ -1367,6 +1501,7 @@ func TestFlattenClusters(t *testing.T) {
 			"workers":                        flattenWorkers(input[0].Autoscale, input[0].ClusterConfiguration.Workers),
 			"aws_attributes":                 flattenAWSAttributes(&input[0]),
 			"azure_attributes":               emptyAttributes,
+			"gcp_attributes":                 emptyAttributes,
 			"open_ports":                     flattenPorts(&input[0].Ports),
 			"tags":                           flattenTags(input[0].Tags),
 			"rondb":                          flattenRonDB(input[0].RonDB),
@@ -1392,11 +1527,38 @@ func TestFlattenClusters(t *testing.T) {
 			"workers":                        flattenWorkers(input[1].Autoscale, input[1].ClusterConfiguration.Workers),
 			"aws_attributes":                 emptyAttributes,
 			"azure_attributes":               flattenAzureAttributes(&input[1]),
+			"gcp_attributes":                 emptyAttributes,
 			"open_ports":                     flattenPorts(&input[1].Ports),
 			"tags":                           flattenTags(input[1].Tags),
 			"rondb":                          flattenRonDB(input[1].RonDB),
 			"autoscale":                      flattenAutoscaleConfiguration(input[1].Autoscale),
 			"init_script":                    input[1].InitScript,
+		},
+		{
+			"cluster_id":                     input[2].Id,
+			"name":                           input[2].Name,
+			"url":                            input[2].URL,
+			"state":                          input[2].State,
+			"activation_state":               input[2].ActivationState,
+			"creation_date":                  time.Unix(input[0].CreatedOn, 0).Format(time.RFC3339),
+			"start_date":                     time.Unix(input[0].StartedOn, 0).Format(time.RFC3339),
+			"version":                        input[2].Version,
+			"ssh_key":                        input[2].SshKeyName,
+			"head":                           flattenHead(&input[0].ClusterConfiguration.Head),
+			"issue_lets_encrypt_certificate": input[2].LetsEncryptIssued,
+			"attach_public_ip":               input[2].PublicIPAttached,
+			"managed_users":                  input[2].ManagedUsers,
+			"backup_retention_period":        input[2].BackupRetentionPeriod,
+			"update_state":                   "none",
+			"workers":                        flattenWorkers(input[0].Autoscale, input[0].ClusterConfiguration.Workers),
+			"aws_attributes":                 emptyAttributes,
+			"azure_attributes":               emptyAttributes,
+			"gcp_attributes":                 flattenGCPAttributes(&input[2]),
+			"open_ports":                     flattenPorts(&input[2].Ports),
+			"tags":                           flattenTags(input[2].Tags),
+			"rondb":                          flattenRonDB(input[2].RonDB),
+			"autoscale":                      flattenAutoscaleConfiguration(input[2].Autoscale),
+			"init_script":                    input[2].InitScript,
 		},
 	}
 
@@ -1903,5 +2065,101 @@ func TestExpandRonDBMySQLNodeConfiguration(t *testing.T) {
 	output := ExpandRonDBMySQLNodeConfiguration(input)
 	if !reflect.DeepEqual(expected, output) {
 		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
+	}
+}
+
+func TestFlattenGCPAttributes(t *testing.T) {
+	input := &api.Cluster{
+		Provider: api.GCP,
+		GCP: api.GCPCluster{
+			Project:             "project-1",
+			Region:              "region-1",
+			Zone:                "zone-1",
+			ServiceAccountEmail: "serviceaccount@iam.com",
+			BucketName:          "my-bucket",
+			NetworkName:         "my-network",
+			SubNetworkName:      "my-subnetwork",
+			GkeClusterName:      "my-gke-cluster",
+			DiskEncryption: &api.GCPDiskEncryption{
+				CustomerManagedKey: "customer-managed-key",
+			},
+		},
+	}
+
+	expected := []interface{}{
+		map[string]interface{}{
+			"project_id":            input.GCP.Project,
+			"region":                input.GCP.Region,
+			"zone":                  input.GCP.Zone,
+			"service_account_email": input.GCP.ServiceAccountEmail,
+			"network": []map[string]interface{}{
+				{
+					"network_name":    input.GCP.NetworkName,
+					"subnetwork_name": input.GCP.SubNetworkName,
+				},
+			},
+			"gke_cluster_name": input.GCP.GkeClusterName,
+			"bucket": []map[string]interface{}{
+				{
+					"name": input.GCP.BucketName,
+				},
+			},
+			"disk_encryption": []map[string]interface{}{
+				{
+					"customer_managed_encryption_key": input.GCP.DiskEncryption.CustomerManagedKey,
+				},
+			},
+		},
+	}
+
+	output := flattenGCPAttributes(input)
+	if !reflect.DeepEqual(expected, output) {
+		t.Fatalf("error while matching:\nexpected %#v \nbut got %#v", expected, output)
+	}
+
+	input.Provider = ""
+	if flattenGCPAttributes(input) != nil {
+		t.Fatalf("should return nil if the provider is not %s", api.AWS)
+	}
+
+	input.Provider = api.AZURE
+	if flattenGCPAttributes(input) != nil {
+		t.Fatalf("should return nil if the provider is not %s", api.AWS)
+	}
+
+	input.Provider = "gcp"
+	if flattenGCPAttributes(input) != nil {
+		t.Fatal("cloud provider should be always capital")
+	}
+}
+
+func TestFlattenGCPDiskEncryption(t *testing.T) {
+	input := []*api.GCPDiskEncryption{
+		{},
+		{
+			CustomerManagedKey: "my-kms-key",
+		},
+		nil,
+	}
+
+	expected := [][]map[string]interface{}{
+		{
+			map[string]interface{}{
+				"customer_managed_encryption_key": "",
+			},
+		},
+		{
+			map[string]interface{}{
+				"customer_managed_encryption_key": "my-kms-key",
+			},
+		},
+		{},
+	}
+
+	for i := range input {
+		output := flattenGCPDiskEncryption(input[i])
+		if !reflect.DeepEqual(expected[i], output) {
+			t.Fatalf("error while matching[%d]:\nexpected %#v \nbut got %#v", i, expected[i], output)
+		}
 	}
 }

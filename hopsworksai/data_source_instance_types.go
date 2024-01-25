@@ -25,10 +25,10 @@ func dataSourceInstanceTypes() *schema.Resource {
 				Description:  "The cloud provider where you plan to create your cluster.",
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validation.StringInSlice([]string{api.AWS.String(), api.AZURE.String()}, false),
+				ValidateFunc: validation.StringInSlice([]string{api.AWS.String(), api.AZURE.String(), api.GCP.String()}, false),
 			},
 			"region": {
-				Description: "The region/location where you plan to create your cluster.",
+				Description: "The region/location/zone where you plan to create your cluster. In case of GCP you should use the zone name.",
 				Type:        schema.TypeString,
 				Required:    true,
 			},

@@ -37,7 +37,7 @@ data "hopsworksai_instance_type" "supported_type" {
 
 - `cloud_provider` (String) The cloud provider where you plan to create your cluster.
 - `node_type` (String) The node type that you want to get its smallest instance type. It has to be one of these types (head, worker, rondb_management, rondb_data, rondb_mysql, rondb_api).
-- `region` (String) The region/location where you plan to create your cluster.
+- `region` (String) The region/location/zone where you plan to create your cluster. In case of GCP you should use the zone name.
 
 ### Optional
 

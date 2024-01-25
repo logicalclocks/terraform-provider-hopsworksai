@@ -31,6 +31,9 @@ func NewCluster(ctx context.Context, apiClient APIHandler, createRequest interfa
 	case CreateAWSCluster, *CreateAWSCluster:
 		tflog.Debug(ctx, fmt.Sprintf("new aws cluster: %#v", createRequest))
 		cloudProvider = AWS
+	case CreateGCPCluster, *CreateGCPCluster:
+		tflog.Debug(ctx, fmt.Sprintf("new gcp cluster: %#v", createRequest))
+		cloudProvider = GCP
 	default:
 		return "", fmt.Errorf("unknown cloud provider %#v", createRequest)
 	}
@@ -156,10 +159,13 @@ func GetSupportedInstanceTypes(ctx context.Context, apiClient APIHandler, cloud 
 	if err := apiClient.doRequest(ctx, http.MethodGet, url, nil, &response); err != nil {
 		return nil, err
 	}
-	if cloud == AWS {
+	switch cloud {
+	case AWS:
 		return &response.Payload.AWS, nil
-	} else if cloud == AZURE {
+	case AZURE:
 		return &response.Payload.AZURE, nil
+	case GCP:
+		return &response.Payload.GCP, nil
 	}
 	return nil, fmt.Errorf("unknown cloud provider %s", cloud.String())
 }
