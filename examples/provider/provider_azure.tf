@@ -36,7 +36,7 @@ module "azure" {
   version        = "2.3.0"
 }
 
-# Step 2: create a cluster with no workers
+# Step 2: create a cluster with 1 worker
 
 data "hopsworksai_instance_type" "head" {
   cloud_provider = "AZURE"
