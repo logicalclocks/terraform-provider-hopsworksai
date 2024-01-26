@@ -12,6 +12,7 @@ The Hopsworksai terraform provider is used to interact with [Hopsworks.ai](https
 If you are new to Hopsworks, then first you need to create an account on [Hopsworks.ai](https://managed.hopsworks.ai), and then you can follow one of the getting started guides to connect either your AWS account or Azure account to create your own Hopsworks clusters. 
   * [Getting Started with AWS](https://docs.hopsworks.ai/latest/setup_installation/aws/getting_started/)
   * [Getting Started with Azure](https://docs.hopsworks.ai/latest/setup_installation/azure/getting_started/)
+  * [Getting Started with GCP](https://docs.hopsworks.ai/latest/setup_installation/gcp/getting_started/)
 
 
 -> A Hopsworks API Key is required to allow the provider to manage clusters on Hopsworks.ai on your behalf. To create an API Key, follow [this guide](https://docs.hopsworks.ai/latest/setup_installation/common/api_key).
