@@ -5,8 +5,10 @@ NOTES:
 BREAKING CHANGES:
 
 ENHANCEMENTS:
+* resource/hopsworksai_cluster: Add support for `gcp_attributes`
 
 FEATURES:
+* **New Data Source**: `hopsworksai_gcp_service_account_custom_role_permissions`
 
 BUG FIXES:
 
