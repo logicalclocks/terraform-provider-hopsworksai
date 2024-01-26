@@ -15,7 +15,7 @@ terraform {
 
 variable "region" {
   type    = string
-  default = "us-east1"
+  default = "europe-north1"
 }
 
 variable "project" {
