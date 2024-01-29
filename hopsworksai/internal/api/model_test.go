@@ -40,6 +40,23 @@ func TestIsAZURECluster(t *testing.T) {
 	}
 }
 
+func TestIsGCPCluster(t *testing.T) {
+	cluster := &Cluster{
+		Provider: GCP,
+	}
+	if !cluster.IsGCPCluster() {
+		t.Fatal("is gcp cluster should return true")
+	}
+	cluster.Provider = AWS
+	if cluster.IsGCPCluster() {
+		t.Fatal("is gcp cluster should return false")
+	}
+	cluster.Provider = ""
+	if cluster.IsGCPCluster() {
+		t.Fatal("is gcp cluster should return false")
+	}
+}
+
 func TestValidateResponse(t *testing.T) {
 	resp := BaseResponse{}
 
