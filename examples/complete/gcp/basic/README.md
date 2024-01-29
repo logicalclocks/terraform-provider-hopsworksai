@@ -32,10 +32,10 @@ resource "hopsworksai_cluster" "cluster" {
 First ensure that your aws credentials are setup correctly by running the following command 
 
 ```bash
-aws configure 
+gcloud init
 ```
 
-Then, run the following commands. Replace the placeholder with your Hopsworks API Key. The cluster will be created in us-east-2 region by default, however, you can configure which region to use by setting the variable region when applying the changes `-var="region=YOUR_REGION"`
+Then, run the following commands. Replace the placeholder with your Hopsworks API Key. The cluster will be created in europe-north1 region by default, however, you can configure which region to use by setting the variable region when applying the changes `-var="region=YOUR_REGION" -var="project=YOUR_PROJECT_ID"`
 
 ```bash
 export HOPSWORKSAI_API_KEY=<YOUR_HOPSWORKSAI_API_KEY>
