@@ -9,5 +9,9 @@ terraform {
     hopsworksai = {
       source = "logicalclocks/hopsworksai"
     }
+    time = {
+      source  = "hashicorp/time"
+      version = "0.10.0"
+    }
   }
 }

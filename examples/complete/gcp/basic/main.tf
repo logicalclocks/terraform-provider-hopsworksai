@@ -6,6 +6,10 @@ provider "google" {
 provider "hopsworksai" {
 }
 
+provider "time" {
+
+}
+
 # Create required google resources, a storage bucket and an service account with the required hopsworks permissions
 data "hopsworksai_gcp_service_account_custom_role_permissions" "service_account" {
 
@@ -39,6 +43,13 @@ resource "google_storage_bucket" "bucket" {
   force_destroy = true
 }
 
+resource "time_sleep" "wait_60_seconds" {
+  depends_on = [google_project_iam_binding.service_account_role_binding]
+
+  create_duration = "60s"
+}
+
+# Create a simple cluster with two workers with two different configuration
 data "google_compute_zones" "available" {
   region = var.region
 }
@@ -47,7 +58,6 @@ locals {
   zone = data.google_compute_zones.available.names.0
 }
 
-# Create a simple cluster with two workers with two different configuration
 data "hopsworksai_instance_type" "head" {
   cloud_provider = "GCP"
   node_type      = "head"
@@ -64,7 +74,6 @@ data "hopsworksai_instance_type" "rondb_data" {
   cloud_provider = "GCP"
   node_type      = "rondb_data"
   region         = local.zone
-  min_memory_gb  = 32
 }
 
 data "hopsworksai_instance_type" "rondb_mysql" {
@@ -133,4 +142,8 @@ resource "hopsworksai_cluster" "cluster" {
   open_ports {
     ssh = true
   }
+
+  # waiting for 60 seconds after service account permissions has been granted 
+  # to avoid permissions validation failure on hopsworks when creating the cluster 
+  depends_on = [time_sleep.wait_60_seconds]
 }
