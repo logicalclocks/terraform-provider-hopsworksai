@@ -30,6 +30,7 @@ resource "hopsworksai_cluster_from_backup" "cluster" {
 - `autoscale` (Block List, Max: 1) Setup auto scaling. (see [below for nested schema](#nestedblock--autoscale))
 - `aws_attributes` (Block List, Max: 1) The configurations required to run the cluster on Amazon AWS. (see [below for nested schema](#nestedblock--aws_attributes))
 - `azure_attributes` (Block List, Max: 1) The configurations required to run the cluster on Microsoft Azure. (see [below for nested schema](#nestedblock--azure_attributes))
+- `gcp_attributes` (Block List, Max: 1) The configurations required to run the cluster on Google GCP. (see [below for nested schema](#nestedblock--gcp_attributes))
 - `name` (String) The name of the cluster, must be unique.
 - `open_ports` (Block List, Max: 1) Open the required ports to communicate with one of the Hopsworks services. (see [below for nested schema](#nestedblock--open_ports))
 - `ssh_key` (String) The ssh key name that will be attached to this cluster.
@@ -49,7 +50,6 @@ resource "hopsworksai_cluster_from_backup" "cluster" {
 - `creation_date` (String) The creation date of the cluster. The date is represented in RFC3339 format.
 - `custom_hosted_zone` (String) Override the default cloud.hopsworks.ai Hosted Zone. This option is available only to users with necessary privileges.
 - `deactivate_hopsworksai_log_collection` (Boolean) Allow Hopsworks.ai to collect services logs to help diagnose issues with the cluster. By deactivating this option, you will not be able to get full support from our teams.
-- `gcp_attributes` (List of Object) The configurations required to run the cluster on Google GCP. (see [below for nested schema](#nestedatt--gcp_attributes))
 - `head` (List of Object) The configurations of the head node of the cluster. (see [below for nested schema](#nestedatt--head))
 - `id` (String) The ID of this resource.
 - `init_script` (String) A bash script that will run on all nodes during their initialization (must start with #!/usr/bin/env bash)
@@ -216,6 +216,53 @@ Read-Only:
 
 
 
+<a id="nestedblock--gcp_attributes"></a>
+### Nested Schema for `gcp_attributes`
+
+Optional:
+
+- `network` (Block List, Max: 1) The network configurations. (see [below for nested schema](#nestedblock--gcp_attributes--network))
+- `service_account_email` (String) The service account email address that the cluster will be started with.
+
+Read-Only:
+
+- `bucket` (List of Object) The bucket configurations. (see [below for nested schema](#nestedatt--gcp_attributes--bucket))
+- `disk_encryption` (List of Object) The disk encryption configuration. (see [below for nested schema](#nestedatt--gcp_attributes--disk_encryption))
+- `gke_cluster_name` (String) The name of the Google GKE cluster.
+- `project_id` (String) The GCP project where the cluster will be created.
+- `region` (String) The GCP region where the cluster will be created.
+- `zone` (String) The GCP region where the cluster will be created.
+
+<a id="nestedblock--gcp_attributes--network"></a>
+### Nested Schema for `gcp_attributes.network`
+
+Required:
+
+- `subnet_id` (String) The subnet id.
+- `vpc_id` (String) The VPC id.
+
+Optional:
+
+- `security_group_id` (String) The security group id.
+
+
+<a id="nestedatt--gcp_attributes--bucket"></a>
+### Nested Schema for `gcp_attributes.bucket`
+
+Read-Only:
+
+- `name` (String)
+
+
+<a id="nestedatt--gcp_attributes--disk_encryption"></a>
+### Nested Schema for `gcp_attributes.disk_encryption`
+
+Read-Only:
+
+- `customer_managed_encryption_key` (String)
+
+
+
 <a id="nestedblock--open_ports"></a>
 ### Nested Schema for `open_ports`
 
@@ -262,46 +309,6 @@ Optional:
 
 - `fall_back_on_demand` (Boolean) Fall back to on demand instance if unable to allocate a spot instance Defaults to `true`.
 - `max_price_percent` (Number) The maximum spot instance price in percentage of the on-demand price. Defaults to `100`.
-
-
-
-<a id="nestedatt--gcp_attributes"></a>
-### Nested Schema for `gcp_attributes`
-
-Read-Only:
-
-- `bucket` (List of Object) (see [below for nested schema](#nestedobjatt--gcp_attributes--bucket))
-- `disk_encryption` (List of Object) (see [below for nested schema](#nestedobjatt--gcp_attributes--disk_encryption))
-- `gke_cluster_name` (String)
-- `network` (List of Object) (see [below for nested schema](#nestedobjatt--gcp_attributes--network))
-- `project_id` (String)
-- `region` (String)
-- `service_account_email` (String)
-- `zone` (String)
-
-<a id="nestedobjatt--gcp_attributes--bucket"></a>
-### Nested Schema for `gcp_attributes.bucket`
-
-Read-Only:
-
-- `name` (String)
-
-
-<a id="nestedobjatt--gcp_attributes--disk_encryption"></a>
-### Nested Schema for `gcp_attributes.disk_encryption`
-
-Read-Only:
-
-- `customer_managed_encryption_key` (String)
-
-
-<a id="nestedobjatt--gcp_attributes--network"></a>
-### Nested Schema for `gcp_attributes.network`
-
-Read-Only:
-
-- `network_name` (String)
-- `subnetwork_name` (String)
 
 
 

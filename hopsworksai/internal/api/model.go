@@ -582,6 +582,13 @@ type CreateAWSClusterFromBackup struct {
 	SecurityGroupId        string `json:"securityGroupId,omitempty"`
 }
 
+type CreateGCPClusterFromBackup struct {
+	CreateClusterFromBackup
+	ServiceAccountEmail string `json:"serviceAccountEmail"`
+	NetworkName         string `json:"networkName"`
+	SubNetworkName      string `json:"subNetworkName"`
+}
+
 type NewClusterFromBackupRequest struct {
 	CreateRequest interface{} `json:"cluster"`
 }
