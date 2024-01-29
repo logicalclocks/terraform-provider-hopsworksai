@@ -99,11 +99,14 @@ resource "google_compute_firewall" "inbound" {
 
 # Create a standard GKE cluster 
 resource "google_container_cluster" "cluster" {
-  name              = "tf-gke-cluster"
-  location          = local.zone
-  cluster_ipv4_cidr = "10.124.0.0/14"
-  network           = google_compute_network.network.name
-  subnetwork        = google_compute_subnetwork.subnetwork.name
+  name       = "tf-gke-cluster"
+  location   = local.zone
+  network    = google_compute_network.network.name
+  subnetwork = google_compute_subnetwork.subnetwork.name
+
+  ip_allocation_policy {
+    cluster_ipv4_cidr_block = "10.124.0.0/14"
+  }
 
   deletion_protection = false
   # We can't create a cluster with no node pool defined, but we want to only use
@@ -132,7 +135,7 @@ resource "google_compute_firewall" "gke_traffic" {
 
   direction               = "INGRESS"
   target_service_accounts = [google_service_account.service_account.email]
-  source_ranges           = [google_container_cluster.cluster.cluster_ipv4_cidr]
+  source_ranges           = [google_container_cluster.cluster.ip_allocation_policy.0.cluster_ipv4_cidr_block]
 }
 
 # Create a simple cluster with autoscale and GKE integration
