@@ -1,6 +1,6 @@
-# Integrate Hopsworks cluster with Google Standard GKE
+# Integrate Hopsworks cluster with Google Autopilot GKE
 
-In this example, we create a standard GKE cluster and a Hopsworks cluster that is integrated with GKE. We also create a VPC network where both GKE and Hopsworks reside ensuring that they can communicate with each other.
+In this example, we create an autopilot GKE cluster and a Hopsworks cluster that is integrated with GKE. We also create a VPC network where both GKE and Hopsworks reside ensuring that they can communicate with each other.
 
 ## Configure RonDB
 

@@ -4,7 +4,6 @@ provider "google" {
 }
 
 provider "hopsworksai" {
-
 }
 
 # Create required google resources, a storage bucket and an service account with the required hopsworks permissions
@@ -97,30 +96,20 @@ resource "google_compute_firewall" "inbound" {
   source_ranges           = ["0.0.0.0/0"]
 }
 
-# Create a standard GKE cluster 
+# Create an autopilot GKE cluster 
+
 resource "google_container_cluster" "cluster" {
-  name              = "tf-gke-cluster"
-  location          = local.zone
-  cluster_ipv4_cidr = "10.124.0.0/14"
-  network           = google_compute_network.network.name
-  subnetwork        = google_compute_subnetwork.subnetwork.name
+  name             = "tf-gke-cluster"
+  enable_autopilot = true
+  location         = var.region
+  network          = google_compute_network.network.name
+  subnetwork       = google_compute_subnetwork.subnetwork.name
+
+  ip_allocation_policy {
+    cluster_ipv4_cidr_block = "10.124.0.0/14"
+  }
 
   deletion_protection = false
-  # We can't create a cluster with no node pool defined, but we want to only use
-  # separately managed node pools. So we create the smallest possible default
-  # node pool and immediately delete it.
-  remove_default_node_pool = true
-  initial_node_count       = 1
-}
-
-resource "google_container_node_pool" "node_pool" {
-  name       = "tf-hopsworks-node-pool"
-  location   = local.zone
-  cluster    = google_container_cluster.cluster.name
-  node_count = 1
-  node_config {
-    machine_type = "e2-standard-8"
-  }
 }
 
 resource "google_compute_firewall" "gke_traffic" {
@@ -132,7 +121,20 @@ resource "google_compute_firewall" "gke_traffic" {
 
   direction               = "INGRESS"
   target_service_accounts = [google_service_account.service_account.email]
-  source_ranges           = [google_container_cluster.cluster.cluster_ipv4_cidr]
+  source_ranges           = [google_container_cluster.cluster.ip_allocation_policy.0.cluster_ipv4_cidr_block]
+}
+
+resource "google_compute_firewall" "cloud_dns" {
+  name    = "tf-hopsworks-clouddns-traffic"
+  network = google_compute_network.network.name
+  allow {
+    protocol = "udp"
+    ports    = ["53"]
+  }
+
+  direction               = "INGRESS"
+  target_service_accounts = [google_service_account.service_account.email]
+  source_ranges           = ["35.199.192.0/19"]
 }
 
 # Create a simple cluster with autoscale and GKE integration
@@ -169,7 +171,7 @@ data "hopsworksai_instance_type" "worker" {
 }
 
 resource "hopsworksai_cluster" "cluster" {
-  name    = "tf-cluster"
+  name = "tf-cluster"
 
   head {
     instance_type = data.hopsworksai_instance_type.head.id
@@ -212,4 +214,26 @@ resource "hopsworksai_cluster" "cluster" {
       instance_type = data.hopsworksai_instance_type.rondb_mysql.id
     }
   }
+
 }
+
+# Configure CloudDNS to forward consul requests to Hopsworks 
+resource "google_dns_managed_zone" "consul" {
+  name        = "hopsworks-consul"
+  dns_name    = "consul."
+  description = "Forward .consul DNS requests to Hopsworks"
+  visibility  = "private"
+
+  private_visibility_config {
+    networks {
+      network_url = google_compute_network.network.id
+    }
+  }
+
+  forwarding_config {
+    target_name_servers {
+      ipv4_address = hopsworksai_cluster.cluster.head.0.private_ip
+    }
+  }
+}
+
