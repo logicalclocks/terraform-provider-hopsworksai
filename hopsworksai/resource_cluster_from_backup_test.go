@@ -379,6 +379,53 @@ func TestClusterFromBackupCreate_AZURE_incompatibleConfig(t *testing.T) {
 	r.Apply(t, context.TODO())
 }
 
+func TestClusterFromBackupCreate_GCP_incompatibleConfig(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodGet,
+				Path:   "/api/backups/backup-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"backup": {
+							"backupId" : "backup-id-1",
+							"backupName": "backup-1",
+							"clusterId": "cluster-id-1",
+							"cloudProvider": "GCP",
+							"createdOn": 100,
+							"state": "succeed",
+							"stateMessage": "backup completed"
+						}
+					}
+				}`,
+			},
+		},
+		Resource:             clusterFromBackupResource(),
+		OperationContextFunc: clusterFromBackupResource().CreateContext,
+		State: map[string]interface{}{
+			"source_backup_id": "backup-id-1",
+			"azure_attributes": []interface{}{
+				map[string]interface{}{
+					"network": []interface{}{
+						map[string]interface{}{
+							"resource_group":       "resource-group-1",
+							"virtual_network_name": "virtual-network-name-1",
+							"subnet_name":          "subnet-name-1",
+							"security_group_name":  "security-group-name-1",
+						},
+					},
+				},
+			},
+		},
+		ExpectError: "incompatible cloud configuration, expected gcp_attributes instead",
+	}
+	r.Apply(t, context.TODO())
+}
+
 func testClusterFromBackupCreate_update(t *testing.T, cloudProvider api.CloudProvider, expectedReqBody string, state map[string]interface{}) {
 	state["source_backup_id"] = "backup-id-1"
 	r := test.ResourceFixture{
@@ -716,4 +763,64 @@ func TestClusterFromBackupCreate_backup_notfound(t *testing.T) {
 		ExpectError: "backup not found",
 	}
 	r.Apply(t, context.TODO())
+}
+
+func TestClusterFromBackupCreate_GCP_update(t *testing.T) {
+	t.Parallel()
+	testClusterFromBackupCreate_update(t, api.GCP, `{
+		"cluster": {
+			"name": "new-cluster-name",
+			"sshKeyName": "new-ssh-key",
+			"tags": [
+				{
+					"name": "tag1",
+					"value": "tag1-value"
+				}
+			],
+			"autoscale": {
+				"nonGpu": {
+					"instanceType": "non-gpu-node",
+					"diskSize": 100,
+					"minWorkers": 0,
+					"maxWorkers": 10,
+					"standbyWorkers": 0.5,
+					"downscaleWaitTime": 200
+				}
+			},
+			"serviceAccountEmail": "service@account.ai",
+			"networkName": "network-name-1",
+			"subNetworkName": "sub-name-1"
+		}
+	}`, map[string]interface{}{
+		"name":    "new-cluster-name",
+		"ssh_key": "new-ssh-key",
+		"tags": map[string]interface{}{
+			"tag1": "tag1-value",
+		},
+		"autoscale": []interface{}{
+			map[string]interface{}{
+				"non_gpu_workers": []interface{}{
+					map[string]interface{}{
+						"instance_type":       "non-gpu-node",
+						"disk_size":           100,
+						"min_workers":         0,
+						"max_workers":         10,
+						"standby_workers":     0.5,
+						"downscale_wait_time": 200,
+					},
+				},
+			},
+		},
+		"gcp_attributes": []interface{}{
+			map[string]interface{}{
+				"service_account_email": "service@account.ai",
+				"network": []interface{}{
+					map[string]interface{}{
+						"network_name":    "network-name-1",
+						"subnetwork_name": "sub-name-1",
+					},
+				},
+			},
+		},
+	})
 }

@@ -65,7 +65,7 @@ func clusterFromBackupResource() *schema.Resource {
 	clusterGCPAttributesSchema := baseSchema["gcp_attributes"].Elem.(*schema.Resource).Schema
 	clusterGCPAttributesSchema["service_account_email"].Optional = true
 	clusterGCPAttributesSchema["service_account_email"].ForceNew = true
-	clusterGCPAttributesSchema["network"] = awsAttributesSchema().Schema["network"]
+	clusterGCPAttributesSchema["network"] = gcpAttributesSchema().Schema["network"]
 
 	// allow the following attributes to be updated later after creation
 	baseSchema["update_state"] = clusterResourceSchema["update_state"]
