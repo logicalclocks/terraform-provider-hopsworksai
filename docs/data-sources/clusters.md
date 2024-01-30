@@ -63,6 +63,7 @@ Read-Only:
 - `creation_date` (String)
 - `custom_hosted_zone` (String)
 - `deactivate_hopsworksai_log_collection` (Boolean)
+- `gcp_attributes` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--gcp_attributes))
 - `head` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--head))
 - `init_script` (String)
 - `issue_lets_encrypt_certificate` (Boolean)
@@ -216,6 +217,46 @@ Read-Only:
 - `security_group_name` (String)
 - `subnet_name` (String)
 - `virtual_network_name` (String)
+
+
+
+<a id="nestedobjatt--clusters--gcp_attributes"></a>
+### Nested Schema for `clusters.gcp_attributes`
+
+Read-Only:
+
+- `bucket` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--gcp_attributes--bucket))
+- `disk_encryption` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--gcp_attributes--disk_encryption))
+- `gke_cluster_name` (String)
+- `network` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--gcp_attributes--network))
+- `project_id` (String)
+- `region` (String)
+- `service_account_email` (String)
+- `zone` (String)
+
+<a id="nestedobjatt--clusters--gcp_attributes--bucket"></a>
+### Nested Schema for `clusters.gcp_attributes.bucket`
+
+Read-Only:
+
+- `name` (String)
+
+
+<a id="nestedobjatt--clusters--gcp_attributes--disk_encryption"></a>
+### Nested Schema for `clusters.gcp_attributes.disk_encryption`
+
+Read-Only:
+
+- `customer_managed_encryption_key` (String)
+
+
+<a id="nestedobjatt--clusters--gcp_attributes--network"></a>
+### Nested Schema for `clusters.gcp_attributes.network`
+
+Read-Only:
+
+- `network_name` (String)
+- `subnetwork_name` (String)
 
 
 

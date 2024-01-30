@@ -305,7 +305,7 @@ func clusterSchema() map[string]*schema.Schema {
 			ForceNew:     true,
 			MaxItems:     1,
 			Elem:         awsAttributesSchema(),
-			ExactlyOneOf: []string{"aws_attributes", "azure_attributes"},
+			ExactlyOneOf: []string{"aws_attributes", "azure_attributes", "gcp_attributes"},
 		},
 		"azure_attributes": {
 			Description:  "The configurations required to run the cluster on Microsoft Azure.",
@@ -314,7 +314,16 @@ func clusterSchema() map[string]*schema.Schema {
 			ForceNew:     true,
 			MaxItems:     1,
 			Elem:         azureAttributesSchema(),
-			ExactlyOneOf: []string{"aws_attributes", "azure_attributes"},
+			ExactlyOneOf: []string{"aws_attributes", "azure_attributes", "gcp_attributes"},
+		},
+		"gcp_attributes": {
+			Description:  "The configurations required to run the cluster on Google GCP.",
+			Type:         schema.TypeList,
+			Optional:     true,
+			ForceNew:     true,
+			MaxItems:     1,
+			Elem:         gcpAttributesSchema(),
+			ExactlyOneOf: []string{"aws_attributes", "azure_attributes", "gcp_attributes"},
 		},
 		"open_ports": {
 			Description: "Open the required ports to communicate with one of the Hopsworks services.",
@@ -1070,6 +1079,103 @@ func azureAttributesSchema() *schema.Resource {
 	}
 }
 
+func gcpAttributesSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"project_id": {
+				Description: "The GCP project where the cluster will be created.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+			},
+			"region": {
+				Description: "The GCP region where the cluster will be created.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+			},
+			"zone": {
+				Description: "The GCP region where the cluster will be created.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+			},
+			"bucket": {
+				Description: "The bucket configurations.",
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Description: "The name of the GCP storage bucket that the cluster will use to store data in.",
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+						},
+					},
+				},
+			},
+			"service_account_email": {
+				Description: "The service account email address that the cluster will be started with.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+			},
+			"network": {
+				Description: "The network configurations.",
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"network_name": {
+							Description: "The network name.",
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+						},
+						"subnetwork_name": {
+							Description: "The subnetwork name.",
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+						},
+					},
+				},
+			},
+			"gke_cluster_name": {
+				Description: "The name of the Google GKE cluster.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+			},
+			"disk_encryption": {
+				Description: "The disk encryption configuration.",
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Computed:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"customer_managed_encryption_key": {
+							Description: "Specify a customer-managed encryption key to be used for encryption of local storage. The key has to use the format: projects/PROJECT_ID/locations/REGION/keyRings/KEY_RING/cryptoKeys/KEY.",
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
 func clusterResource() *schema.Resource {
 	return &schema.Resource{
 		Description:   "Use this resource to create, read, update, and delete clusters on Hopsworks.ai.",
@@ -1116,6 +1222,13 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 			if err != nil {
 				return diag.FromErr(err)
 			}
+		}
+	}
+
+	if gcp, ok := d.GetOk("gcp_attributes"); ok {
+		gcpAttributes := gcp.([]interface{})
+		if len(gcpAttributes) > 0 {
+			createRequest = createGCPCluster(d, baseRequest)
 		}
 	}
 
@@ -1288,6 +1401,36 @@ func createAzureCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) 
 	return &req, nil
 }
 
+func createGCPCluster(d *schema.ResourceData, baseRequest *api.CreateCluster) *api.CreateGCPCluster {
+	req := api.CreateGCPCluster{
+		CreateCluster: *baseRequest,
+		GCPCluster: api.GCPCluster{
+			Project:             d.Get("gcp_attributes.0.project_id").(string),
+			Region:              d.Get("gcp_attributes.0.region").(string),
+			Zone:                d.Get("gcp_attributes.0.zone").(string),
+			ServiceAccountEmail: d.Get("gcp_attributes.0.service_account_email").(string),
+			BucketName:          d.Get("gcp_attributes.0.bucket.0.name").(string),
+		},
+	}
+
+	if _, ok := d.GetOk("gcp_attributes.0.network"); ok {
+		req.NetworkName = d.Get("gcp_attributes.0.network.0.network_name").(string)
+		req.SubNetworkName = d.Get("gcp_attributes.0.network.0.subnetwork_name").(string)
+	}
+
+	if v, ok := d.GetOk("gcp_attributes.0.gke_cluster_name"); ok {
+		req.GkeClusterName = v.(string)
+	}
+
+	if v, oke := d.GetOk("gcp_attributes.0.disk_encryption.0.customer_managed_encryption_key"); oke {
+		req.DiskEncryption = &api.GCPDiskEncryption{
+			CustomerManagedKey: v.(string),
+		}
+	}
+
+	return &req
+}
+
 func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error) {
 	headConfig := d.Get("head").([]interface{})[0].(map[string]interface{})
 
@@ -1316,7 +1459,7 @@ func createClusterBaseRequest(d *schema.ResourceData) (*api.CreateCluster, error
 	if v, ok := d.GetOk("ssh_key"); ok {
 		createCluster.SshKeyName = v.(string)
 	} else {
-		if _, ok := d.GetOk("aws_attributes"); !ok {
+		if _, ok := d.GetOk("azure_attributes"); ok {
 			return nil, fmt.Errorf("SSH key is required")
 		}
 	}

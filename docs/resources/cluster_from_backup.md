@@ -30,6 +30,7 @@ resource "hopsworksai_cluster_from_backup" "cluster" {
 - `autoscale` (Block List, Max: 1) Setup auto scaling. (see [below for nested schema](#nestedblock--autoscale))
 - `aws_attributes` (Block List, Max: 1) The configurations required to run the cluster on Amazon AWS. (see [below for nested schema](#nestedblock--aws_attributes))
 - `azure_attributes` (Block List, Max: 1) The configurations required to run the cluster on Microsoft Azure. (see [below for nested schema](#nestedblock--azure_attributes))
+- `gcp_attributes` (Block List, Max: 1) The configurations required to run the cluster on Google GCP. (see [below for nested schema](#nestedblock--gcp_attributes))
 - `name` (String) The name of the cluster, must be unique.
 - `open_ports` (Block List, Max: 1) Open the required ports to communicate with one of the Hopsworks services. (see [below for nested schema](#nestedblock--open_ports))
 - `ssh_key` (String) The ssh key name that will be attached to this cluster.
@@ -212,6 +213,49 @@ Read-Only:
 
 - `mode` (String)
 
+
+
+
+<a id="nestedblock--gcp_attributes"></a>
+### Nested Schema for `gcp_attributes`
+
+Optional:
+
+- `network` (Block List, Max: 1) The network configurations. (see [below for nested schema](#nestedblock--gcp_attributes--network))
+- `service_account_email` (String) The service account email address that the cluster will be started with.
+
+Read-Only:
+
+- `bucket` (List of Object) The bucket configurations. (see [below for nested schema](#nestedatt--gcp_attributes--bucket))
+- `disk_encryption` (List of Object) The disk encryption configuration. (see [below for nested schema](#nestedatt--gcp_attributes--disk_encryption))
+- `gke_cluster_name` (String) The name of the Google GKE cluster.
+- `project_id` (String) The GCP project where the cluster will be created.
+- `region` (String) The GCP region where the cluster will be created.
+- `zone` (String) The GCP region where the cluster will be created.
+
+<a id="nestedblock--gcp_attributes--network"></a>
+### Nested Schema for `gcp_attributes.network`
+
+Required:
+
+- `network_name` (String) The network name.
+- `subnetwork_name` (String) The subnetwork name.
+
+
+<a id="nestedatt--gcp_attributes--bucket"></a>
+### Nested Schema for `gcp_attributes.bucket`
+
+Read-Only:
+
+- `name` (String)
+
+
+<a id="nestedatt--gcp_attributes--disk_encryption"></a>
+### Nested Schema for `gcp_attributes.disk_encryption`
+
+Read-Only:
+
+- `customer_managed_encryption_key` (String)
 
 
 

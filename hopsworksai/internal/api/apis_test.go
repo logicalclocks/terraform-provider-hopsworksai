@@ -897,6 +897,211 @@ func TestNewClusterAZURE(t *testing.T) {
 	}
 }
 
+func TestNewClusterGCP(t *testing.T) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod: http.MethodPost,
+			ExpectPath:   "/api/clusters",
+			ExpectRequestBody: `{
+				"cloudProvider": "GCP",
+				"cluster": {
+					"name": "cluster-1",
+					"version": "2.0",
+					"sshKeyName": "ssh-key-1",
+					"clusterConfiguration": {
+						"head": {
+							"instanceType": "node-type-1",
+							"diskSize": 512,
+							"haEnabled": false
+						},
+						"workers": [
+							{
+								"instanceType": "node-type-2",
+								"diskSize": 256,
+								"count": 2
+							}
+						]
+					},
+					"issueLetsEncrypt": true,
+					"attachPublicIP": true,
+					"backupRetentionPeriod": 10,
+					"managedUsers": true,
+					"tags": [
+						{
+							"name": "tag1",
+							"value": "tag1-value1"
+						}
+					],
+					"ronDB": {
+						"allInOne": false,
+						"configuration": {
+							"ndbdDefault": {
+								"replicationFactor": 2
+							},
+							"general": {
+								"benchmark": {
+									"grantUserPrivileges": false
+								}
+							}
+						},
+						"mgmd": {
+							"instanceType": "mgm-node-1",
+							"diskSize": 30,
+							"count": 1
+						},
+						"ndbd": {
+							"instanceType": "data-node-1",
+							"diskSize": 512,
+							"count": 2
+						},
+						"mysqld": {
+							"instanceType": "mysqld-node-1",
+							"diskSize": 100,
+							"count": 1,
+							"arrowFlight": false
+						},
+						"api": {
+							"instanceType": "api-node-1",
+							"diskSize": 50,
+							"count": 1
+						}
+					},
+					"initScript": "",
+					"runInitScriptFirst": false,
+					"deactivateLogReport": false,
+					"collectLogs": false,
+					"clusterDomainPrefix": "my-prefix",
+					"customHostedZone": "custom.zone.ai",
+					"project": "project-1",
+					"region": "region-1",
+					"zone": "zone-1",
+					"serviceAccountEmail": "service-account-1",
+					"bucketName": "bucket-1",
+					"networkName": "network-1",
+					"subNetworkName": "sub-1",
+					"gkeClusterName": "gke-cluster-1",
+					"diskEncryption": {
+						"customerManagedKey": "key-1"
+					}
+					
+				}
+			}`,
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200,
+				"payload":{
+					"id" : "new-cluster-id-1"
+				}
+			}`,
+			T: t,
+		},
+	}
+
+	input := CreateGCPCluster{
+		CreateCluster: CreateCluster{
+			Name:       "cluster-1",
+			Version:    "2.0",
+			SshKeyName: "ssh-key-1",
+			ClusterConfiguration: ClusterConfiguration{
+				Head: HeadConfiguration{
+					NodeConfiguration: NodeConfiguration{
+						InstanceType: "node-type-1",
+						DiskSize:     512,
+					},
+				},
+				Workers: []WorkerConfiguration{
+					{
+						NodeConfiguration: NodeConfiguration{
+							InstanceType: "node-type-2",
+							DiskSize:     256,
+						},
+						Count: 2,
+					},
+				},
+			},
+			IssueLetsEncrypt:      true,
+			AttachPublicIP:        true,
+			BackupRetentionPeriod: 10,
+			ManagedUsers:          true,
+			Tags: []ClusterTag{
+				{
+					Name:  "tag1",
+					Value: "tag1-value1",
+				},
+			},
+			ClusterDomainPrefix: "my-prefix",
+			CustomHostedZone:    "custom.zone.ai",
+			RonDB: &RonDBConfiguration{
+				Configuration: RonDBBaseConfiguration{
+					NdbdDefault: RonDBNdbdDefaultConfiguration{
+						ReplicationFactor: 2,
+					},
+					General: RonDBGeneralConfiguration{
+						Benchmark: RonDBBenchmarkConfiguration{
+							GrantUserPrivileges: false,
+						},
+					},
+				},
+				ManagementNodes: RonDBNodeConfiguration{
+					NodeConfiguration: NodeConfiguration{
+						InstanceType: "mgm-node-1",
+						DiskSize:     30,
+					},
+					Count: 1,
+				},
+				DataNodes: RonDBNodeConfiguration{
+					NodeConfiguration: NodeConfiguration{
+						InstanceType: "data-node-1",
+						DiskSize:     512,
+					},
+					Count: 2,
+				},
+				MYSQLNodes: MYSQLNodeConfiguration{
+					RonDBNodeConfiguration: RonDBNodeConfiguration{
+						NodeConfiguration: NodeConfiguration{
+							InstanceType: "mysqld-node-1",
+							DiskSize:     100,
+						},
+						Count: 1,
+					},
+					ArrowFlightServer: false,
+				},
+				APINodes: RonDBNodeConfiguration{
+					NodeConfiguration: NodeConfiguration{
+						InstanceType: "api-node-1",
+						DiskSize:     50,
+					},
+					Count: 1,
+				},
+			},
+		},
+		GCPCluster: GCPCluster{
+			Project:             "project-1",
+			Region:              "region-1",
+			Zone:                "zone-1",
+			ServiceAccountEmail: "service-account-1",
+			BucketName:          "bucket-1",
+			NetworkName:         "network-1",
+			SubNetworkName:      "sub-1",
+			GkeClusterName:      "gke-cluster-1",
+			DiskEncryption: &GCPDiskEncryption{
+				CustomerManagedKey: "key-1",
+			},
+		},
+	}
+
+	clusterId, err := NewCluster(context.TODO(), apiClient, input)
+	if err != nil {
+		t.Fatalf("new cluster should not throw error, but got %s", err)
+	}
+
+	if clusterId != "new-cluster-id-1" {
+		t.Fatalf("new cluster should return the new cluster id, expected: new-cluster-id-1, got %s", clusterId)
+	}
+}
+
 func TestNewClusterInvalidCloud(t *testing.T) {
 	clusterId, err := NewCluster(context.TODO(), nil, struct{}{})
 	if err == nil {
@@ -1313,6 +1518,8 @@ func TestGetSupportedInstanceTypes(t *testing.T) {
 	testGetSupportedInstanceTypes(t, AWS, "region1")
 	testGetSupportedInstanceTypes(t, AZURE, "")
 	testGetSupportedInstanceTypes(t, AZURE, "region1")
+	testGetSupportedInstanceTypes(t, GCP, "")
+	testGetSupportedInstanceTypes(t, GCP, "region1")
 }
 
 func TestGetSupportedInstanceTypes_unknownProvider(t *testing.T) {
@@ -2727,5 +2934,91 @@ func TestNewClusterAWS_withArrowFlight(t *testing.T) {
 
 	if clusterId != "new-cluster-id-1" {
 		t.Fatalf("new cluster should return the new cluster id, expected: new-cluster-id-1, got %s", clusterId)
+	}
+}
+
+func TestNewClusterFromBackup_GCP_changeConfig(t *testing.T) {
+	apiClient := &HopsworksAIClient{
+		Client: &test.HttpClientFixture{
+			ExpectMethod: http.MethodPost,
+			ExpectPath:   "/api/clusters/restore/backup-id-1",
+			ExpectRequestBody: `{
+				"cluster":{
+					"name": "new-cluster-name",
+					"sshKeyName": "new-ssh-key",
+					"tags": [
+						{
+							"name": "tag1",
+							"value": "tag1-value"
+						}
+					],
+					"autoscale":{
+						"nonGpu": {
+							"instanceType": "new-node-type",
+							"diskSize": 512,
+							"minWorkers": 1,
+							"maxWorkers": 10,
+							"standbyWorkers": 0.7,
+							"downscaleWaitTime": 500,
+							"spotInfo": {
+								"maxPrice": 100,
+								"fallBackOnDemand": false
+							}
+						}
+					},
+					"serviceAccountEmail": "service@account.ai",
+					"networkName": "network-name-1",
+					"subNetworkName": "sub-name-1"
+				}
+			}`,
+			ResponseCode: http.StatusOK,
+			ResponseBody: `{
+				"apiVersion": "v1",
+				"status": "ok",
+				"code": 200,
+				"payload": {
+					"id": "cluster-id-1"
+				}
+			}`,
+			T: t,
+		},
+	}
+
+	id, err := NewClusterFromBackup(context.TODO(), apiClient, "backup-id-1", CreateGCPClusterFromBackup{
+		CreateClusterFromBackup: CreateClusterFromBackup{
+			Name:       "new-cluster-name",
+			SshKeyName: "new-ssh-key",
+			Tags: []ClusterTag{
+				{
+					Name:  "tag1",
+					Value: "tag1-value",
+				},
+			},
+			Autoscale: &AutoscaleConfiguration{
+				NonGPU: &AutoscaleConfigurationBase{
+					InstanceType:      "new-node-type",
+					DiskSize:          512,
+					MinWorkers:        1,
+					MaxWorkers:        10,
+					StandbyWorkers:    0.7,
+					DownscaleWaitTime: 500,
+					SpotInfo: &SpotConfiguration{
+						MaxPrice:         100,
+						FallBackOnDemand: false,
+					},
+				},
+			},
+		},
+		ServiceAccountEmail: "service@account.ai",
+		NetworkName:         "network-name-1",
+		SubNetworkName:      "sub-name-1",
+	})
+
+	if err != nil {
+		t.Fatalf("should not throw an error, but got %s", err)
+	}
+
+	if id != "cluster-id-1" {
+		t.Fatalf("expected cluster id (cluster-id-1), but got %s", id)
 	}
 }

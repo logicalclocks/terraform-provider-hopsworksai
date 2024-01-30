@@ -6315,3 +6315,363 @@ func TestClusterCreate_withArrowFlight(t *testing.T) {
 	}
 	r.Apply(t, context.TODO())
 }
+
+func TestClusterCreate_GCP(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"id" : "new-cluster-id-1"
+					}
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					var req api.NewGCPClusterRequest
+					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+						return err
+					}
+					expected := api.GCPCluster{
+						Project:             "project-1",
+						Region:              "region-1",
+						Zone:                "zone-1",
+						BucketName:          "bucket-1",
+						ServiceAccountEmail: "email@iam.com",
+					}
+					if !reflect.DeepEqual(expected, req.CreateRequest.GCPCluster) {
+						return fmt.Errorf("error while matching:\nexpected %#v \nbut got %#v", expected, req.CreateRequest.GCPCluster)
+					}
+					return nil
+				},
+			},
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/new-cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"cluster": {
+							"id" : "new-cluster-id-1",
+							"state": "running"
+						}
+					}
+				}`,
+			},
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters/new-cluster-id-1/ports",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200
+				}`,
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name":    "cluster-1",
+			"version": "2.0",
+			"head": []interface{}{
+				map[string]interface{}{
+					"instance_type": "node-type-1",
+					"disk_size":     512,
+				},
+			},
+			"workers": []interface{}{
+				map[string]interface{}{
+					"instance_type": "node-type-2",
+					"disk_size":     256,
+					"count":         2,
+				},
+			},
+			"ssh_key": "ssh-key-1",
+			"tags": map[string]interface{}{
+				"tag1": "tag1-value1",
+			},
+			"gcp_attributes": []interface{}{
+				map[string]interface{}{
+					"project_id":            "project-1",
+					"region":                "region-1",
+					"zone":                  "zone-1",
+					"service_account_email": "email@iam.com",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
+				},
+			},
+			"open_ports": []interface{}{
+				map[string]interface{}{
+					"ssh":                  true,
+					"kafka":                true,
+					"feature_store":        true,
+					"online_feature_store": true,
+				},
+			},
+		},
+		ExpectId: "new-cluster-id-1",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterCreate_GCP_setAll(t *testing.T) {
+	t.Parallel()
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"id" : "new-cluster-id-1"
+					}
+				}`,
+				CheckRequestBody: func(reqBody io.Reader) error {
+					var req api.NewGCPClusterRequest
+					if err := json.NewDecoder(reqBody).Decode(&req); err != nil {
+						return err
+					}
+					expected := api.GCPCluster{
+						Project:             "project-1",
+						Region:              "region-1",
+						Zone:                "zone-1",
+						BucketName:          "bucket-1",
+						ServiceAccountEmail: "email@iam.com",
+						NetworkName:         "network-1",
+						SubNetworkName:      "sub-1",
+						GkeClusterName:      "cluster-1",
+						DiskEncryption: &api.GCPDiskEncryption{
+							CustomerManagedKey: "key-1",
+						},
+					}
+					if !reflect.DeepEqual(expected, req.CreateRequest.GCPCluster) {
+						return fmt.Errorf("error while matching:\nexpected %#v \nbut got %#v", expected, req.CreateRequest.GCPCluster)
+					}
+					return nil
+				},
+			},
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/new-cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200,
+					"payload":{
+						"cluster": {
+							"id" : "new-cluster-id-1",
+							"state": "running"
+						}
+					}
+				}`,
+			},
+			{
+				Method: http.MethodPost,
+				Path:   "/api/clusters/new-cluster-id-1/ports",
+				Response: `{
+					"apiVersion": "v1",
+					"status": "ok",
+					"code": 200
+				}`,
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().CreateContext,
+		State: map[string]interface{}{
+			"name":    "cluster-1",
+			"version": "2.0",
+			"head": []interface{}{
+				map[string]interface{}{
+					"instance_type": "node-type-1",
+					"disk_size":     512,
+				},
+			},
+			"workers": []interface{}{
+				map[string]interface{}{
+					"instance_type": "node-type-2",
+					"disk_size":     256,
+					"count":         2,
+				},
+			},
+			"ssh_key": "ssh-key-1",
+			"tags": map[string]interface{}{
+				"tag1": "tag1-value1",
+			},
+			"gcp_attributes": []interface{}{
+				map[string]interface{}{
+					"project_id":            "project-1",
+					"region":                "region-1",
+					"zone":                  "zone-1",
+					"service_account_email": "email@iam.com",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
+					"network": []interface{}{
+						map[string]interface{}{
+							"network_name":    "network-1",
+							"subnetwork_name": "sub-1",
+						},
+					},
+					"gke_cluster_name": "cluster-1",
+					"disk_encryption": []interface{}{
+						map[string]interface{}{
+							"customer_managed_encryption_key": "key-1",
+						},
+					},
+				},
+			},
+			"open_ports": []interface{}{
+				map[string]interface{}{
+					"ssh":                  true,
+					"kafka":                true,
+					"feature_store":        true,
+					"online_feature_store": true,
+				},
+			},
+		},
+		ExpectId: "new-cluster-id-1",
+	}
+	r.Apply(t, context.TODO())
+}
+
+func TestClusterRead_GCP(t *testing.T) {
+	r := test.ResourceFixture{
+		HttpOps: []test.Operation{
+			{
+				Method: http.MethodGet,
+				Path:   "/api/clusters/cluster-id-1",
+				Response: `{
+					"apiVersion": "v1",
+					"statue": "ok",
+					"code": 200,
+					"payload":{
+						"cluster": {
+							"id": "cluster-id-1",
+							"name": "cluster-name-1",
+							"state" : "running", 
+							"activationState": "stoppable", 
+							"initializationStage": "running", 
+							"createdOn": 123, 
+							"startedOn" : 123,
+							"version": "version-1",
+							"url": "https://cluster-url",
+							"provider": "GCP",
+							"tags": [
+								{
+									"name": "tag1",
+									"value": "tag1-value1"
+								}
+							],
+							"sshKeyName": "ssh-key-1",
+							"clusterConfiguration": {
+								"head": {
+									"instanceType": "node-type-1",
+									"diskSize": 512,
+									"nodeId": "head-node-id-1",
+									"privateIp": "ip1"
+								},
+								"workers": [
+									{
+										"instanceType": "node-type-2",
+										"diskSize": 256,
+										"count": 2,
+										"privateIps": ["ip2","ip3"]
+									}
+								]
+							},
+							"publicIPAttached": true,
+							"letsEncryptIssued": true,
+							"managedUsers": true,
+							"backupRetentionPeriod": 10,
+							"gcp": {
+								"project": "project-1",
+								"region": "region-1",
+								"zone": "zone-1",
+								"bucketName": "bucket-1",
+								"serviceAccountEmail": "email@iam.com",
+								"networkName": "network-1",
+								"subNetworkName": "sub-1"
+							}
+						}
+					}
+				}`,
+			},
+		},
+		Resource:             clusterResource(),
+		OperationContextFunc: clusterResource().ReadContext,
+		Id:                   "cluster-id-1",
+		ExpectState: map[string]interface{}{
+			"cluster_id":       "cluster-id-1",
+			"state":            "running",
+			"activation_state": "stoppable",
+			"creation_date":    time.Unix(123, 0).Format(time.RFC3339),
+			"start_date":       time.Unix(123, 0).Format(time.RFC3339),
+			"version":          "version-1",
+			"url":              "https://cluster-url",
+			"tags": map[string]interface{}{
+				"tag1": "tag1-value1",
+			},
+			"ssh_key": "ssh-key-1",
+			"head": []interface{}{
+				map[string]interface{}{
+					"instance_type": "node-type-1",
+					"disk_size":     512,
+					"node_id":       "head-node-id-1",
+					"ha_enabled":    false,
+					"private_ip":    "ip1",
+				},
+			},
+			"workers": schema.NewSet(helpers.WorkerSetHash, []interface{}{
+				map[string]interface{}{
+					"instance_type": "node-type-2",
+					"disk_size":     256,
+					"count":         2,
+					"spot_config":   []interface{}{},
+					"private_ips":   []interface{}{"ip2", "ip3"},
+				},
+			}),
+			"attach_public_ip":               true,
+			"issue_lets_encrypt_certificate": true,
+			"managed_users":                  true,
+			"backup_retention_period":        10,
+			"gcp_attributes": []interface{}{
+				map[string]interface{}{
+					"project_id":            "project-1",
+					"region":                "region-1",
+					"zone":                  "zone-1",
+					"service_account_email": "email@iam.com",
+					"network": []interface{}{
+						map[string]interface{}{
+							"network_name":    "network-1",
+							"subnetwork_name": "sub-1",
+						},
+					},
+					"gke_cluster_name": "",
+					"bucket": []interface{}{
+						map[string]interface{}{
+							"name": "bucket-1",
+						},
+					},
+					"disk_encryption": []interface{}{},
+				},
+			},
+			"azure_attributes": []interface{}{},
+			"aws_attributes":   []interface{}{},
+		},
+	}
+	r.Apply(t, context.TODO())
+}

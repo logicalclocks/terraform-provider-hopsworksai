@@ -11,6 +11,7 @@ type CloudProvider string
 const (
 	AWS   CloudProvider = "AWS"
 	AZURE CloudProvider = "AZURE"
+	GCP   CloudProvider = "GCP"
 )
 
 func (c CloudProvider) String() string {
@@ -181,6 +182,7 @@ type Cluster struct {
 	BackupRetentionPeriod    int                        `json:"backupRetentionPeriod"`
 	Azure                    AzureCluster               `json:"azure,omitempty"`
 	AWS                      AWSCluster                 `json:"aws,omitempty"`
+	GCP                      GCPCluster                 `json:"gcp,omitempty"`
 	Ports                    ServiceOpenPorts           `json:"ports"`
 	RonDB                    *RonDBConfiguration        `json:"ronDB,omitempty"`
 	Autoscale                *AutoscaleConfiguration    `json:"autoscale,omitempty"`
@@ -201,6 +203,10 @@ func (c *Cluster) IsAWSCluster() bool {
 
 func (c *Cluster) IsAzureCluster() bool {
 	return c.Provider == AZURE
+}
+
+func (c *Cluster) IsGCPCluster() bool {
+	return c.Provider == GCP
 }
 
 type AzureEncryptionConfiguration struct {
@@ -259,6 +265,22 @@ type AWSCluster struct {
 	EcrRegistryAccountId   string                 `json:"ecrRegistryAccountId"`
 	BucketConfiguration    *S3BucketConfiguration `json:"bucketConfiguration,omitempty"`
 	EBSEncryption          *EBSEncryption         `json:"ebsEncryption,omitempty"`
+}
+
+type GCPDiskEncryption struct {
+	CustomerManagedKey string `json:"customerManagedKey"`
+}
+
+type GCPCluster struct {
+	Project             string             `json:"project"`
+	Region              string             `json:"region"`
+	Zone                string             `json:"zone"`
+	ServiceAccountEmail string             `json:"serviceAccountEmail"`
+	BucketName          string             `json:"bucketName"`
+	NetworkName         string             `json:"networkName"`
+	SubNetworkName      string             `json:"subNetworkName"`
+	GkeClusterName      string             `json:"gkeClusterName"`
+	DiskEncryption      *GCPDiskEncryption `json:"diskEncryption,omitempty"`
 }
 
 type NodeConfiguration struct {
@@ -328,6 +350,11 @@ type CreateAzureCluster struct {
 type CreateAWSCluster struct {
 	CreateCluster
 	AWSCluster
+}
+
+type CreateGCPCluster struct {
+	CreateCluster
+	GCPCluster
 }
 
 type NodeType string
@@ -436,6 +463,11 @@ type NewAzureClusterRequest struct {
 	CreateRequest CreateAzureCluster `json:"cluster"`
 }
 
+type NewGCPClusterRequest struct {
+	CloudProvider CloudProvider    `json:"cloudProvider"`
+	CreateRequest CreateGCPCluster `json:"cluster"`
+}
+
 type NewClusterResponse struct {
 	BaseResponse
 	Payload struct {
@@ -463,6 +495,7 @@ type GetSupportedInstanceTypesResponse struct {
 	Payload struct {
 		AWS   SupportedInstanceTypes `json:"aws"`
 		AZURE SupportedInstanceTypes `json:"azure"`
+		GCP   SupportedInstanceTypes `json:"gcp"`
 	} `json:"payload"`
 }
 
@@ -547,6 +580,13 @@ type CreateAWSClusterFromBackup struct {
 	VpcId                  string `json:"vpcId,omitempty"`
 	SubnetId               string `json:"subnetId,omitempty"`
 	SecurityGroupId        string `json:"securityGroupId,omitempty"`
+}
+
+type CreateGCPClusterFromBackup struct {
+	CreateClusterFromBackup
+	ServiceAccountEmail string `json:"serviceAccountEmail"`
+	NetworkName         string `json:"networkName"`
+	SubNetworkName      string `json:"subNetworkName"`
 }
 
 type NewClusterFromBackupRequest struct {

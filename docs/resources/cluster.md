@@ -114,6 +114,7 @@ resource "hopsworksai_cluster" "cluster" {
 - `collect_logs` (Boolean) Push services' logs to AWS cloud watch. Defaults to `false`.
 - `custom_hosted_zone` (String) Override the default cloud.hopsworks.ai Hosted Zone. This option is available only to users with necessary privileges.
 - `deactivate_hopsworksai_log_collection` (Boolean) Allow Hopsworks.ai to collect services logs to help diagnose issues with the cluster. By deactivating this option, you will not be able to get full support from our teams. Defaults to `false`.
+- `gcp_attributes` (Block List, Max: 1) The configurations required to run the cluster on Google GCP. (see [below for nested schema](#nestedblock--gcp_attributes))
 - `init_script` (String) A bash script that will run on all nodes during their initialization (must start with #!/usr/bin/env bash)
 - `issue_lets_encrypt_certificate` (Boolean) Enable or disable issuing let's encrypt certificates. This can be used to disable issuing certificates if port 80 can not be open. Defaults to `true`.
 - `managed_users` (Boolean) Enable or disable Hopsworks.ai to manage your users. Defaults to `true`.
@@ -442,6 +443,49 @@ Optional:
 - `resource_group` (String) The resource group where the network resources reside. If not specified, the azure_attributes/resource_group will be used.
 - `search_domain` (String) The search domain to use for node address resolution. If not specified it will use the Azure default one (internal.cloudapp.net).
 - `security_group_name` (String) The security group name.
+
+
+
+<a id="nestedblock--gcp_attributes"></a>
+### Nested Schema for `gcp_attributes`
+
+Required:
+
+- `project_id` (String) The GCP project where the cluster will be created.
+- `region` (String) The GCP region where the cluster will be created.
+- `service_account_email` (String) The service account email address that the cluster will be started with.
+- `zone` (String) The GCP region where the cluster will be created.
+
+Optional:
+
+- `bucket` (Block List, Max: 1) The bucket configurations. (see [below for nested schema](#nestedblock--gcp_attributes--bucket))
+- `disk_encryption` (Block List, Max: 1) The disk encryption configuration. (see [below for nested schema](#nestedblock--gcp_attributes--disk_encryption))
+- `gke_cluster_name` (String) The name of the Google GKE cluster.
+- `network` (Block List, Max: 1) The network configurations. (see [below for nested schema](#nestedblock--gcp_attributes--network))
+
+<a id="nestedblock--gcp_attributes--bucket"></a>
+### Nested Schema for `gcp_attributes.bucket`
+
+Required:
+
+- `name` (String) The name of the GCP storage bucket that the cluster will use to store data in.
+
+
+<a id="nestedblock--gcp_attributes--disk_encryption"></a>
+### Nested Schema for `gcp_attributes.disk_encryption`
+
+Optional:
+
+- `customer_managed_encryption_key` (String) Specify a customer-managed encryption key to be used for encryption of local storage. The key has to use the format: projects/PROJECT_ID/locations/REGION/keyRings/KEY_RING/cryptoKeys/KEY.
+
+
+<a id="nestedblock--gcp_attributes--network"></a>
+### Nested Schema for `gcp_attributes.network`
+
+Required:
+
+- `network_name` (String) The network name.
+- `subnetwork_name` (String) The subnetwork name.
 
 
 

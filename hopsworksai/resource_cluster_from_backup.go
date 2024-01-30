@@ -2,6 +2,7 @@ package hopsworksai
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -37,7 +38,7 @@ func clusterFromBackupResource() *schema.Resource {
 	baseSchema["aws_attributes"].Optional = true
 	baseSchema["aws_attributes"].ForceNew = true
 	baseSchema["aws_attributes"].MaxItems = 1
-	baseSchema["aws_attributes"].ConflictsWith = []string{"azure_attributes"}
+	baseSchema["aws_attributes"].ConflictsWith = []string{"azure_attributes", "gcp_attributes"}
 
 	clusterAWSAttributesSchema := baseSchema["aws_attributes"].Elem.(*schema.Resource).Schema
 	clusterAWSAttributesSchema["instance_profile_arn"].Optional = true
@@ -50,10 +51,21 @@ func clusterFromBackupResource() *schema.Resource {
 	baseSchema["azure_attributes"].Optional = true
 	baseSchema["azure_attributes"].ForceNew = true
 	baseSchema["azure_attributes"].MaxItems = 1
-	baseSchema["azure_attributes"].ConflictsWith = []string{"aws_attributes"}
+	baseSchema["azure_attributes"].ConflictsWith = []string{"aws_attributes", "gcp_attributes"}
 
 	clusterAZUREAttributesSchema := baseSchema["azure_attributes"].Elem.(*schema.Resource).Schema
 	clusterAZUREAttributesSchema["network"] = azureAttributesSchema().Schema["network"]
+
+	// allow changing gcp
+	baseSchema["gcp_attributes"].Optional = true
+	baseSchema["gcp_attributes"].ForceNew = true
+	baseSchema["gcp_attributes"].MaxItems = 1
+	baseSchema["gcp_attributes"].ConflictsWith = []string{"aws_attributes", "azure_attributes"}
+
+	clusterGCPAttributesSchema := baseSchema["gcp_attributes"].Elem.(*schema.Resource).Schema
+	clusterGCPAttributesSchema["service_account_email"].Optional = true
+	clusterGCPAttributesSchema["service_account_email"].ForceNew = true
+	clusterGCPAttributesSchema["network"] = gcpAttributesSchema().Schema["network"]
 
 	// allow the following attributes to be updated later after creation
 	baseSchema["update_state"] = clusterResourceSchema["update_state"]
@@ -129,6 +141,10 @@ func resourceClusterFromBackupCreate(ctx context.Context, d *schema.ResourceData
 		restoreRequest = &api.CreateAzureClusterFromBackup{
 			CreateClusterFromBackup: baseRequest,
 		}
+	case api.GCP:
+		restoreRequest = &api.CreateGCPClusterFromBackup{
+			CreateClusterFromBackup: baseRequest,
+		}
 	default:
 		return diag.Errorf("Unknown cloud provider %s for backup %s", backup.CloudProvider, backupId)
 	}
@@ -155,7 +171,7 @@ func resourceClusterFromBackupCreate(ctx context.Context, d *schema.ResourceData
 				awsRequest.SecurityGroupId = v.(string)
 			}
 		} else {
-			return diag.Errorf("incompatible cloud configuration, expected azure_attributes instead")
+			return diag.Errorf("incompatible cloud configuration, expected %s_attributes instead", strings.ToLower(backup.CloudProvider.String()))
 		}
 	}
 
@@ -177,7 +193,25 @@ func resourceClusterFromBackupCreate(ctx context.Context, d *schema.ResourceData
 				azureRequest.SecurityGroupName = v.(string)
 			}
 		} else {
-			return diag.Errorf("incompatible cloud configuration, expected aws_attributes instead")
+			return diag.Errorf("incompatible cloud configuration, expected %s_attributes instead", strings.ToLower(backup.CloudProvider.String()))
+		}
+	}
+
+	if gcp, ok := d.GetOk("gcp_attributes"); ok && len(gcp.([]interface{})) > 0 {
+		if gcpRequest, okV := restoreRequest.(*api.CreateGCPClusterFromBackup); okV {
+			if v, ok := d.GetOk("gcp_attributes.0.service_account_email"); ok {
+				gcpRequest.ServiceAccountEmail = v.(string)
+			}
+
+			if v, ok := d.GetOk("gcp_attributes.0.network.0.network_name"); ok {
+				gcpRequest.NetworkName = v.(string)
+			}
+
+			if v, ok := d.GetOk("gcp_attributes.0.network.0.subnetwork_name"); ok {
+				gcpRequest.SubNetworkName = v.(string)
+			}
+		} else {
+			return diag.Errorf("incompatible cloud configuration, expected %s_attributes instead", strings.ToLower(backup.CloudProvider.String()))
 		}
 	}
 

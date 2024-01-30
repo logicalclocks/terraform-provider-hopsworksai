@@ -28,7 +28,7 @@ data "hopsworksai_instance_types" "supported_worker_types" {
 
 - `cloud_provider` (String) The cloud provider where you plan to create your cluster.
 - `node_type` (String) The node type that you want to get its supported instance types.
-- `region` (String) The region/location where you plan to create your cluster.
+- `region` (String) The region/location/zone where you plan to create your cluster. In case of GCP you should use the zone name.
 
 ### Read-Only
 

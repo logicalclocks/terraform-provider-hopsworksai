@@ -31,6 +31,9 @@ func NewCluster(ctx context.Context, apiClient APIHandler, createRequest interfa
 	case CreateAWSCluster, *CreateAWSCluster:
 		tflog.Debug(ctx, fmt.Sprintf("new aws cluster: %#v", createRequest))
 		cloudProvider = AWS
+	case CreateGCPCluster, *CreateGCPCluster:
+		tflog.Debug(ctx, fmt.Sprintf("new gcp cluster: %#v", createRequest))
+		cloudProvider = GCP
 	default:
 		return "", fmt.Errorf("unknown cloud provider %#v", createRequest)
 	}
@@ -156,10 +159,13 @@ func GetSupportedInstanceTypes(ctx context.Context, apiClient APIHandler, cloud 
 	if err := apiClient.doRequest(ctx, http.MethodGet, url, nil, &response); err != nil {
 		return nil, err
 	}
-	if cloud == AWS {
+	switch cloud {
+	case AWS:
 		return &response.Payload.AWS, nil
-	} else if cloud == AZURE {
+	case AZURE:
 		return &response.Payload.AZURE, nil
+	case GCP:
+		return &response.Payload.GCP, nil
 	}
 	return nil, fmt.Errorf("unknown cloud provider %s", cloud.String())
 }
@@ -243,6 +249,8 @@ func NewClusterFromBackup(ctx context.Context, apiClient APIHandler, backupId st
 		tflog.Debug(ctx, fmt.Sprintf("restore aws cluster: #%v", createRequest))
 	case CreateAzureClusterFromBackup, *CreateAzureClusterFromBackup:
 		tflog.Debug(ctx, fmt.Sprintf("restore azure cluster: #%v", createRequest))
+	case CreateGCPClusterFromBackup, *CreateGCPClusterFromBackup:
+		tflog.Debug(ctx, fmt.Sprintf("restore gcp cluster: #%v", createRequest))
 	default:
 		return "", fmt.Errorf("unknown create request #%v", createRequest)
 	}

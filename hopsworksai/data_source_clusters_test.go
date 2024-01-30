@@ -155,6 +155,12 @@ func TestClustersDataSourceRead(t *testing.T) {
 								"name": "cluster-name-3",
 								"createdOn": 3,
 								"provider": "AZURE"
+							},
+							{
+								"id": "cluster-4",
+								"name": "cluster-name-4",
+								"createdOn": 3,
+								"provider": "GCP"
 							}
 						]
 					}
@@ -337,6 +343,64 @@ func TestClustersDataSourceRead(t *testing.T) {
 						},
 					},
 					"aws_attributes": []interface{}{},
+					"open_ports": []interface{}{
+						map[string]interface{}{
+							"ssh":                  false,
+							"kafka":                false,
+							"feature_store":        false,
+							"online_feature_store": false,
+						},
+					},
+					"update_state": "none",
+				},
+				map[string]interface{}{
+					"cluster_id":       "cluster-4",
+					"name":             "cluster-name-4",
+					"state":            "",
+					"activation_state": "",
+					"creation_date":    time.Unix(3, 0).Format(time.RFC3339),
+					"start_date":       time.Unix(0, 0).Format(time.RFC3339),
+					"version":          "",
+					"url":              "",
+					"tags":             map[string]interface{}{},
+					"ssh_key":          "",
+					"head": []interface{}{
+						map[string]interface{}{
+							"instance_type": "",
+							"disk_size":     0,
+							"node_id":       "",
+							"ha_enabled":    false,
+							"private_ip":    "",
+						},
+					},
+					"workers":                        schema.NewSet(helpers.WorkerSetHash, []interface{}{}),
+					"attach_public_ip":               false,
+					"issue_lets_encrypt_certificate": false,
+					"managed_users":                  false,
+					"backup_retention_period":        0,
+					"gcp_attributes": []interface{}{
+						map[string]interface{}{
+							"project_id":            "",
+							"region":                "",
+							"zone":                  "",
+							"service_account_email": "",
+							"network": []interface{}{
+								map[string]interface{}{
+									"network_name":    "",
+									"subnetwork_name": "",
+								},
+							},
+							"gke_cluster_name": "",
+							"bucket": []interface{}{
+								map[string]interface{}{
+									"name": "",
+								},
+							},
+							"disk_encryption": []interface{}{},
+						},
+					},
+					"aws_attributes":   []interface{}{},
+					"azure_attributes": []interface{}{},
 					"open_ports": []interface{}{
 						map[string]interface{}{
 							"ssh":                  false,
