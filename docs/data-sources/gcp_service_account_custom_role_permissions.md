@@ -3,12 +3,12 @@
 page_title: "hopsworksai_gcp_service_account_custom_role_permissions Data Source - terraform-provider-hopsworksai"
 subcategory: ""
 description: |-
-  Use this data source to get the azure user assigned identity permissions needed by Hopsworks.ai
+  Use this data source to get the GCP service account custom role permissions needed by Hopsworks.ai
 ---
 
 # hopsworksai_gcp_service_account_custom_role_permissions (Data Source)
 
-Use this data source to get the azure user assigned identity permissions needed by Hopsworks.ai
+Use this data source to get the GCP service account custom role permissions needed by Hopsworks.ai
 
 
 

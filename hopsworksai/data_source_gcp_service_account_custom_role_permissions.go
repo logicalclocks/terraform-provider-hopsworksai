@@ -11,7 +11,7 @@ import (
 
 func dataSourceGCPServiceAccountCustomRolePermissions() *schema.Resource {
 	return &schema.Resource{
-		Description: "Use this data source to get the azure user assigned identity permissions needed by Hopsworks.ai",
+		Description: "Use this data source to get the GCP service account custom role permissions needed by Hopsworks.ai",
 		Schema: map[string]*schema.Schema{
 			"enable_storage": {
 				Description: "Add permissions required to allow Hopsworks clusters to read and write from and to your google storage bucket.",

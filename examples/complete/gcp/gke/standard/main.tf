@@ -40,7 +40,7 @@ resource "google_storage_bucket" "bucket" {
   force_destroy = true
 }
 
-# Attach Kuberentes developer role to the service account for cluster instance
+# Attach Kubernetes developer role to the service account for cluster instance
 
 resource "google_project_iam_binding" "service_account_k8s_role_binding" {
   project = var.project

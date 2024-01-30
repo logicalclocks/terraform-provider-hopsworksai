@@ -29,7 +29,7 @@ resource "hopsworksai_cluster" "cluster" {
 ```
 
 ## How to run the example 
-First ensure that your aws credentials are setup correctly by running the following command 
+First ensure that your GCP account credentials are setup correctly by running the following command 
 
 ```bash
 gcloud init
