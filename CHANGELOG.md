@@ -1,16 +1,10 @@
-## 1.11.0 (Unreleased)
-
-NOTES:
-
-BREAKING CHANGES:
+## 1.11.0 (January 31, 2024)
 
 ENHANCEMENTS:
 * resource/hopsworksai_cluster: Add support for `gcp_attributes`
 
 FEATURES:
 * **New Data Source**: `hopsworksai_gcp_service_account_custom_role_permissions`
-
-BUG FIXES:
 
 ## 1.10.0 (November 29, 2023)
 
