@@ -116,7 +116,7 @@ func clusterSchema() map[string]*schema.Schema {
 			Description: "The version of the cluster. For existing clusters, you can change this attribute to upgrade to a newer version of Hopsworks. If the upgrade process ended up in an error state, you can always rollback to the old version by resetting this attribute to the old version.",
 			Type:        schema.TypeString,
 			Optional:    true,
-			Default:     "3.5.0",
+			Default:     "3.7.0",
 		},
 		"head": {
 			Description: "The configurations of the head node of the cluster.",
