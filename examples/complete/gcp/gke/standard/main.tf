@@ -172,7 +172,7 @@ data "hopsworksai_instance_type" "worker" {
 }
 
 resource "hopsworksai_cluster" "cluster" {
-  name    = "tf-cluster"
+  name = "tf-cluster"
 
   head {
     instance_type = data.hopsworksai_instance_type.head.id
