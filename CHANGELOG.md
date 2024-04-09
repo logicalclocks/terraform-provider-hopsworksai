@@ -1,3 +1,15 @@
+## 1.12.0 (Unreleased)
+
+NOTES:
+
+BREAKING CHANGES:
+
+ENHANCEMENTS:
+
+FEATURES:
+
+BUG FIXES:
+
 ## 1.11.2 (April 09, 2024)
 
 ENHANCEMENTS:
