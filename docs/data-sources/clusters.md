@@ -104,7 +104,7 @@ Read-Only:
 - `standby_workers` (Number)
 
 <a id="nestedobjatt--clusters--autoscale--non_gpu_workers--spot_config"></a>
-### Nested Schema for `clusters.autoscale.non_gpu_workers.standby_workers`
+### Nested Schema for `clusters.autoscale.non_gpu_workers.spot_config`
 
 Read-Only:
 
@@ -138,7 +138,7 @@ Read-Only:
 - `name` (String)
 
 <a id="nestedobjatt--clusters--aws_attributes--bucket--acl"></a>
-### Nested Schema for `clusters.aws_attributes.bucket.name`
+### Nested Schema for `clusters.aws_attributes.bucket.acl`
 
 Read-Only:
 
@@ -146,7 +146,7 @@ Read-Only:
 
 
 <a id="nestedobjatt--clusters--aws_attributes--bucket--encryption"></a>
-### Nested Schema for `clusters.aws_attributes.bucket.name`
+### Nested Schema for `clusters.aws_attributes.bucket.encryption`
 
 Read-Only:
 
@@ -199,7 +199,7 @@ Read-Only:
 - `storage_account` (String)
 
 <a id="nestedobjatt--clusters--azure_attributes--container--encryption"></a>
-### Nested Schema for `clusters.azure_attributes.container.storage_account`
+### Nested Schema for `clusters.azure_attributes.container.encryption`
 
 Read-Only:
 
@@ -315,7 +315,7 @@ Read-Only:
 - `ndbd_default` (List of Object) (see [below for nested schema](#nestedobjatt--clusters--rondb--configuration--ndbd_default))
 
 <a id="nestedobjatt--clusters--rondb--configuration--general"></a>
-### Nested Schema for `clusters.rondb.configuration.ndbd_default`
+### Nested Schema for `clusters.rondb.configuration.general`
 
 Read-Only:
 
