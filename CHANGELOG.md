@@ -1,15 +1,7 @@
-## 1.12.0 (Unreleased)
-
-NOTES:
-
-BREAKING CHANGES:
+## 1.12.0 (September 30, 2024)
 
 ENHANCEMENTS:
 * resource/hopsworksai_cluster: Set Default `version` to 3.8.0
-
-FEATURES:
-
-BUG FIXES:
 
 ## 1.11.2 (April 09, 2024)
 
