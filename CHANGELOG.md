@@ -5,6 +5,7 @@ NOTES:
 BREAKING CHANGES:
 
 ENHANCEMENTS:
+* resource/hopsworksai_cluster: Set Default `version` to 3.8.0
 
 FEATURES:
 
